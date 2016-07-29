@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View" alias="view"/>
+        <variable
+            name="loginViewModel"
+            type="com.kilogramm.mattermost.viewmodel.authorization.LoginViewModel"/>
+    </data>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/toolbar_layout"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context = ".view.authorization.LoginActivity">
+
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/TitleBlackTextStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{loginViewModel.siteName}"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_marginTop="30dp"
+                    android:orientation="vertical"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearLayout">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="@dimen/standart_margin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:hintTextAppearance="@style/HintTextStyle"
+                        app:hintEnabled="true"
+                        app:hintAnimationEnabled="true">
+
+                        <EditText
+                            android:hint="@string/login_hint_email"
+                            android:id="@+id/editEmail"
+                            style="@style/DiscriptionBlackTextStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:addTextChangedListener = "@{loginViewModel.emailTextWatcher}"
+                            android:inputType="textEmailAddress" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="@dimen/standart_margin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:hintTextAppearance="@style/HintTextStyle"
+                        app:hintEnabled="true"
+                        app:hintAnimationEnabled="true">
+
+                        <EditText
+                            android:hint="@string/login_hint_password"
+                            android:id="@+id/editPassword"
+                            style="@style/DiscriptionBlackTextStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:addTextChangedListener = "@{loginViewModel.passwordTextWatcher}"
+                            android:inputType="textPassword" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <Button
+                        android:layout_gravity="center_horizontal"
+                        android:stateListAnimator="@null"
+                        android:background="@drawable/touch_selector"
+                        android:textColor="@color/colorAccent"
+                        android:text="@string/login_forgot_password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="@{loginViewModel.onForgotButtonClick}"/>
+
+                </LinearLayout>
+
+                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                    android:visibility="@{loginViewModel.isVisibleProgress}"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:mpb_progressStyle="circular" />
+
+                <Button
+                    android:layout_weight="1"
+                    android:id="@+id/buttonNext"
+                    android:stateListAnimator="@null"
+                    android:background="@drawable/touch_selector"
+                    android:textColor="@color/colorPrimary"
+                    android:text="@string/login_sign_in"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:enabled="@{loginViewModel.isEnabledSignInButton}"
+                    android:onClick="@{loginViewModel::onClickSignIn}"/>
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>

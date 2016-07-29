@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Mattermost</string>
+    <string name="main_discription">All your team communication in one place, searchable and accessable anywhere.</string>
+
+    <string name="main_title_url">Your team URL</string>
+    <string name="main_example_url">e.g. https://mattermost.example.com</string>
+    <string name="main_next_button">Next step</string>
+
+    <string name="login_hint_email">Email</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_forgot_password">Forgot password</string>
+    <string name="login_sign_in">Sign in</string>
+
+    <string name="forgot_password_hint_email">Email</string>
+    <string name="forgot_password_recovery_button">Recovery</string>
+    <string name="forgot_password_description">Enter the email address associated with your team.</string>
+
+</resources>
