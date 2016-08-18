@@ -26,7 +26,7 @@ public class InitObject extends RealmObject {
         @SerializedName("direct_profiles")
         @Expose
         @Ignore
-        private Map<String, User> mapDerectProfile;
+        private Map<String, Channel> mapDerectProfile;
         @SerializedName("preferences")
         @Expose
         @Ignore
@@ -44,11 +44,11 @@ public class InitObject extends RealmObject {
         private RealmList<User> directProfiles;
 
 
-        public Map<String, User> getMapDerectProfile() {
+        public Map<String, Channel> getMapDerectProfile() {
                 return mapDerectProfile;
         }
 
-        public void setMapDerectProfile(Map<String, User> mapDerectProfile) {
+        public void setMapDerectProfile(Map<String, Channel> mapDerectProfile) {
                 this.mapDerectProfile = mapDerectProfile;
         }
 

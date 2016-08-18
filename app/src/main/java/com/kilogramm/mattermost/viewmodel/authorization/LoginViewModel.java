@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostApplication;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Team;
@@ -24,6 +25,7 @@ import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.view.MenuActivity;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 import com.kilogramm.mattermost.view.authorization.LoginActivity;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
@@ -227,7 +229,8 @@ public class LoginViewModel implements ViewModel {
                         Log.d(TAG, "Complete");
                         isVisibleProgress.set(View.GONE);
                         if(isOpenChatScreen){
-                            //TODO start chat activity
+                            //TODO start chat    activity
+                            MenuActivity.start(context);
                         } else{
                             //TODO start team chose activity
                         }
@@ -247,13 +250,13 @@ public class LoginViewModel implements ViewModel {
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         mRealm.beginTransaction();
-        RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
-        results.deleteAllFromRealm();
-        mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
-        RealmList<User> users = new RealmList<>();
-        users.addAll(initObject.getMapDerectProfile().values());
-        initObject.setDirectProfiles(users);
-        List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
+            RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
+            results.deleteAllFromRealm();
+            mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
+            RealmList<Channel> directionProfiles = new RealmList<>();
+            directionProfiles.addAll(initObject.getMapDerectProfile().values());
+            mRealm.copyToRealmOrUpdate(directionProfiles);
+            List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
         mRealm.commitTransaction();
         return teams;
     }

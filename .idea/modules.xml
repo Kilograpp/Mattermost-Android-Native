@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Mattermost.iml" filepath="$PROJECT_DIR$/Mattermost.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Mattermost-Android-Native.iml" filepath="$PROJECT_DIR$/Mattermost-Android-Native.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

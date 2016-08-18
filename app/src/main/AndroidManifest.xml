@@ -27,6 +27,8 @@
         <activity android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible"
             android:screenOrientation="portrait"/>
+        <activity android:name=".view.MenuActivity"
+            android:screenOrientation="portrait"/>
 
 
     </application>

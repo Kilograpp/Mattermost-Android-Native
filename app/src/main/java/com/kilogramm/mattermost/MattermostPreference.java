@@ -26,6 +26,7 @@ public class MattermostPreference {
     private static final String BASE_URL = "base_url";
     private static final String MY_USER_ID = "my_user_id";
     private static final String COOKIES = "cookies";
+    private static final String AUTH_TOKEN = "auth_token";
 
     public MattermostPreference(Context context){
         sharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
@@ -45,6 +46,13 @@ public class MattermostPreference {
         sharedPreferences.edit().putString(BASE_URL, baseUrl).apply();
     }
 
+    public String getAuthToken(){
+        return sharedPreferences.getString(AUTH_TOKEN,null);
+    }
+    public void setAuthToken(String authToken){
+        sharedPreferences.edit().putString(AUTH_TOKEN, authToken).apply();
+    }
+
     public String getMyUserId() { return sharedPreferences.getString(MY_USER_ID, null);}
     public void setMyUserId(String id){
         sharedPreferences.edit().putString(MY_USER_ID, id).apply();
@@ -52,10 +60,10 @@ public class MattermostPreference {
 
     public void saveCookies(List<Cookie> cookies) {
         String json = (new Gson()).toJson(cookies);
+        setAuthToken(cookies.get(0).value());
         sharedPreferences.edit().putString(COOKIES, json).apply();
         Log.d(TAG, json);
     }
-
     public List<Cookie> getCookies(){
         String json = sharedPreferences.getString(COOKIES, null);
         Type type = new TypeToken<List<Cookie>>(){}.getType();
