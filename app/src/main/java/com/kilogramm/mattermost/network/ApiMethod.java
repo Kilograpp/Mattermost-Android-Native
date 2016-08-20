@@ -15,6 +15,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+
 import rx.Observable;
 
 /**
@@ -69,6 +70,5 @@ public interface ApiMethod {
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
                                      @Path("lastMessageId") String lastMessageId);
-
 
 }

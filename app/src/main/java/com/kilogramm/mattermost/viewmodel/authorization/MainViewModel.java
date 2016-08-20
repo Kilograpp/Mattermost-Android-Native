@@ -24,6 +24,8 @@ import com.kilogramm.mattermost.view.authorization.MainActivity;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +66,11 @@ public class MainViewModel implements ViewModel {
 
     private void checkTeamAndNext(String editTextUrl){
 
+        try {
+            URL url = new URL(editTextUrl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         MattermostPreference.getInstance().setBaseUrl(editTextUrl);
         MattermostApplication.get(context).refreshMattermostRetrofitService();
 

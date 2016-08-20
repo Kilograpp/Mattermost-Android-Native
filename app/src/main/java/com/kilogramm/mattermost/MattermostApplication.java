@@ -80,4 +80,49 @@ public class MattermostApplication extends Application{
                                 .build())
                         .build());
     }
+
+    /*private void connectWebSocket() {
+        URI uri;
+        Map<String, String> headers = new HashMap<>();
+        List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
+        headers.put("Cookie", cookies.get(0).name() + "=" + cookies.get(0).value());
+        try {
+            uri = new URI("wss://mattermost.kilograpp.com/api/v3/users/websocket");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getDefault();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        mWebSocketClient = new WebSocketClient(uri, new Draft_10(),headers, 0) {
+            @Override
+            public void onOpen(ServerHandshake serverHandshake) {
+                Log.i("Websocket", "Opened");
+            }
+
+            @Override
+            public void onMessage(String s) {
+                Log.i("Websocket", "onMessage " + s);
+            }
+
+            @Override
+            public void onClose(int i, String s, boolean b) {
+                Log.i("Websocket", "Closed " + s);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.i("Websocket", "Error " + e.getMessage());
+            }
+        };
+        mWebSocketClient.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sslContext));
+        mWebSocketClient.connect();
+        WebSocket.READYSTATE state = mWebSocketClient.getReadyState();
+        Log.d("Websocket", "Readi state = " + state.toString());
+    }*/
 }
