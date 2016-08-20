@@ -1,24 +1,20 @@
 package com.kilogramm.mattermost.network;
 
-import android.databinding.ObservableInt;
-
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
+import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.fromnet.Channels;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
-import com.kilogramm.mattermost.model.fromnet.UserStatusList;
 
 import java.util.List;
 import java.util.Map;
 
 import retrofit2.http.Body;
-import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -57,6 +53,22 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/users/status")
     Observable<Map<String,String>> getStatus(@Body List<String> userIds);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/page/0/60")
+    Observable<Posts> getPosts(@Path("teamId") String teamId, @Path("channelId") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/page/0/60")
+    Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
+                                     @Path("channelId") String channelId,
+                                     @Path("lastMessageId") String lastMessageId);
 
 
 }

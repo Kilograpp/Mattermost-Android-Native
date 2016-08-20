@@ -6,4 +6,5 @@
     <dimen name="title_text_size">35sp</dimen>
     <dimen name="discription_text_size">15sp</dimen>
     <dimen name="standart_margin">10dp</dimen>
+    <dimen name="left_padding">15dp</dimen>
 </resources>

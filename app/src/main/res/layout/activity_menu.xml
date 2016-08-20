@@ -3,22 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.MenuViewModel"/>
+            type="com.kilogramm.mattermost.viewmodel.menu.MenuViewModel"/>
     </data>
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <!-- The main content view -->
 
-        <FrameLayout
-            android:id="@+id/content_frame"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <include layout="@layout/toolbar_channel_layout"/>
+
+            <FrameLayout
+                android:id="@+id/content_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout="@layout/fragment_chat"/>
+
+        </LinearLayout>
 
         <!-- The navigation drawer -->
         <ScrollView
@@ -40,8 +50,16 @@
                     android:indeterminate="true"
                     app:mpb_progressStyle="circular" />
 
+                <TextView
+                    android:padding="@dimen/left_padding"
+                    android:clickable="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:text="@string/channels"/>
 
                 <com.kilogramm.mattermost.ui.WrapContentListView
+                    android:paddingStart="@dimen/left_padding"
                     android:backgroundTint="@color/colorPrimaryDark"
                     android:id="@+id/recycleView"
                     android:layout_width="240dp"
@@ -53,14 +71,16 @@
                     android:background="@color/colorPrimaryDark"/>
 
                 <TextView
+                    android:padding="@dimen/left_padding"
                     android:onClick="@{viewModel::onClickRefresh}"
                     android:clickable="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/grey"
-                    android:text="DIRECTION_PROFILE"/>
+                    android:textColor="@color/white"
+                    android:text="@string/direct_message"/>
 
                 <com.kilogramm.mattermost.ui.WrapContentListView
+                    android:paddingStart="@dimen/left_padding"
                     android:backgroundTint="@color/colorPrimaryDark"
                     android:id="@+id/recycleViewDirect"
                     android:layout_width="240dp"

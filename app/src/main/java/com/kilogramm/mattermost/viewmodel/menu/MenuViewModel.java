@@ -1,40 +1,27 @@
-package com.kilogramm.mattermost.viewmodel;
+package com.kilogramm.mattermost.viewmodel.menu;
 
 import android.content.Context;
-import android.content.Intent;
-import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApplication;
-import com.kilogramm.mattermost.MenuChannelsAdapter;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.fromnet.Channels;
-import com.kilogramm.mattermost.model.fromnet.UserStatusList;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.network.MattermostRetrofitService;
+import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmList;
-import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -148,6 +135,7 @@ public class MenuViewModel implements ViewModel {
     public void onClickRefresh(View v){
         refreshStatus();
     }
+
     @Override
     public void destroy() {
 

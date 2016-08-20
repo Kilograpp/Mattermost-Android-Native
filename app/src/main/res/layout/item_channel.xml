@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.ItemChannelViewModel"/>
+            type="com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel"/>
     </data>
     <LinearLayout
         android:padding="@dimen/activity_horizontal_margin"

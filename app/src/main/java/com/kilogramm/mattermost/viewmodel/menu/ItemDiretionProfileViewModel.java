@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.viewmodel;
+package com.kilogramm.mattermost.viewmodel.menu;
 
 import android.content.Context;
 import android.databinding.BaseObservable;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 /**
  * Created by Evgeny on 03.08.2016.

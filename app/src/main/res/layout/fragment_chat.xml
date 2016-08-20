@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel"/>
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/chat_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:items="@{viewModel.channelId}"
+            android:context = "@{viewModel.context}"
+            tools:listitem="@layout/chat_list_item" />
+    
+    </LinearLayout>
+</layout>

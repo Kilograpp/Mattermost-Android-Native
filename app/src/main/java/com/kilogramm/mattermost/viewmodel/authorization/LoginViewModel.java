@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.viewmodel.authorization;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
@@ -86,8 +87,6 @@ public class LoginViewModel implements ViewModel {
     private void startForgotActivity() {
         ForgotPasswordActivity.start(context);
     }
-
-
 
     private void handleErrorLogin(Throwable e) {
         if(e instanceof HttpException){
@@ -180,10 +179,6 @@ public class LoginViewModel implements ViewModel {
         Observable<User> observable = service.login(new LoginData(email, password, "")).cache()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread());
-//        TestApiGuthubMethod service = application.getGithubService();
-//        observable = service.getListUser()
-//                .subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread());
         subscription = observable.subscribe(new Subscriber<User>() {
             @Override
             public void onCompleted() {
@@ -230,7 +225,9 @@ public class LoginViewModel implements ViewModel {
                         isVisibleProgress.set(View.GONE);
                         if(isOpenChatScreen){
                             //TODO start chat    activity
-                            MenuActivity.start(context);
+                            MenuActivity.start(context,
+                                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         } else{
                             //TODO start team chose activity
                         }

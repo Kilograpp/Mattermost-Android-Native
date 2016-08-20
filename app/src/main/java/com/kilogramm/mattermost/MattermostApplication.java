@@ -10,6 +10,8 @@ import com.kilogramm.mattermost.network.TestApiGuthubMethod;
 import com.kilogramm.mattermost.network.TestGithubRetrofitService;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import org.java_websocket.client.WebSocketClient;
+
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
@@ -24,6 +26,7 @@ public class MattermostApplication extends Application{
     private ApiMethod mattermostRetrofitService;
     private TestApiGuthubMethod testApiGuthubMethod;
     private Scheduler defaultSubscribeSchedulder;
+    private WebSocketClient mWebSocketClient;
 
     public static  MattermostApplication get(Context context){
         return (MattermostApplication) context.getApplicationContext();
@@ -76,6 +79,5 @@ public class MattermostApplication extends Application{
                                 .databaseNamePattern(Pattern.compile(".+\\.realm"))
                                 .build())
                         .build());
-
     }
 }

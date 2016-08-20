@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:id="@+id/toolbar"
+        android:background="@color/colorPrimary">
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/channel_title"
+            android:stateListAnimator="@null"
+            android:background="@drawable/touch_selector"
+            android:textColor="@color/white"
+            tools:text="evgeny"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"/>
+        <ImageView
+            android:layout_margin="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_search_white_24dp"/>
+    </android.support.v7.widget.Toolbar>
+</layout>

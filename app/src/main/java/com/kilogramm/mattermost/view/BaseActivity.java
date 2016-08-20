@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 
 import com.kilogramm.mattermost.R;
 
@@ -23,6 +25,7 @@ public class BaseActivity extends AppCompatActivity {
         this.toolbar = toolbar;
     }
 
+    //====================== standart toolbar =======================================
     public void setTitleActivity(String title) {
         try {
             getSupportActionBar().setTitle(title);
@@ -57,5 +60,19 @@ public class BaseActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
         }
         setTitleActivity(title);
+    }
+
+    //====================== channel toolbar ========================================
+
+    public void setupChannelToolbar(String acrivityTitle, String channelName, View.OnClickListener listener) {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Button channel_name = (Button) toolbar.findViewById(R.id.channel_title);
+        channel_name.setText(channelName);
+        channel_name.setOnClickListener(listener);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_dehaze_white_24dp);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitleActivity(acrivityTitle);
     }
 }

@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost;
+package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
@@ -8,9 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
-import com.kilogramm.mattermost.viewmodel.ItemDiretionProfileViewModel;
+import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmBaseAdapter;
