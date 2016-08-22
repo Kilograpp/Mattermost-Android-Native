@@ -7,8 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.kilogramm.mattermost.adapters.ChatListAdapter;
 import com.kilogramm.mattermost.MattermostApplication;
+import com.kilogramm.mattermost.adapters.ChatListAdapter;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Team;
@@ -41,7 +41,7 @@ public class ChatFragmentViewModel implements ViewModel {
         this.channelId = channelId;
         this.realm = Realm.getDefaultInstance();
         loadChannels(realm.where(Team.class).findFirst().getId(),
-                channelId);
+               channelId);
     }
 
     private void loadChannels(String teamId, String channelId){
@@ -66,11 +66,19 @@ public class ChatFragmentViewModel implements ViewModel {
 
                     @Override
                     public void onNext(Posts posts) {
-                        realm.executeTransaction(realm1 -> {
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                            RealmList<Post> list = new RealmList<Post>();
+                            list.addAll(posts.getPosts().values());
+                            realm.insertOrUpdate(list);
+                        realm.commitTransaction();
+                        realm.close();
+                        /*realm.executeTransaction(realm1 -> {
                             RealmList<Post> list = new RealmList<Post>();
                             list.addAll(posts.getPosts().values());
                             realm1.copyToRealmOrUpdate(list);
                         });
+                        realm.close();*/
                         Log.d(TAG, "save in data base");
                     }
 
@@ -88,12 +96,18 @@ public class ChatFragmentViewModel implements ViewModel {
         manager.setStackFromEnd(true);
         listView.setLayoutManager(manager);
         listView.setAdapter(new ChatListAdapter(listView.getContext(),results, listView));
+        realm.close();
 
     }
 
     @Override
     public void destroy() {
-
+        Log.d(TAG, "OnDestroy()");
+        if (subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        subscription = null;
+        context = null;
+        realm.close();
     }
 
     @Override

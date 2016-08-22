@@ -60,6 +60,7 @@ public class MattermostApplication extends Application{
         defaultSubscribeSchedulder = scheduler;
     }
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -67,6 +68,7 @@ public class MattermostApplication extends Application{
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .build();
+        Realm.compactRealm(configuration);
         Realm.removeDefaultConfiguration();
         Realm.setDefaultConfiguration(configuration);
 
@@ -79,6 +81,13 @@ public class MattermostApplication extends Application{
                                 .databaseNamePattern(Pattern.compile(".+\\.realm"))
                                 .build())
                         .build());
+    }
+
+    public void compact() {
+        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+                .name("mattermostDb.realm")
+                .build();
+        Realm.compactRealm(configuration);
     }
 
     /*private void connectWebSocket() {

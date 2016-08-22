@@ -48,6 +48,7 @@ public class MenuActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         realm = Realm.getDefaultInstance();
+        realm.setAutoRefresh(true);
         menuViewModel = new MenuViewModel(this);
         binding.setViewModel(menuViewModel);
         myId = realm.where(User.class).findFirst().getId();
@@ -61,15 +62,17 @@ public class MenuActivity extends BaseActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
+                Realm realm = Realm.getDefaultInstance();
                 MattermostApplication application = MattermostApplication.get(getApplicationContext());
                 ApiMethod service = application.getMattermostRetrofitService();
                 List<String> list = new ArrayList<>();
-                RealmResults<Channel> channels = Realm.getDefaultInstance().where(Channel.class)
+                RealmResults<Channel> channels = realm.where(Channel.class)
                         .isNull("type")
                         .findAll();
                 for (Channel channel : channels) {
                     list.add(channel.getId());
                 }
+                realm.close();
                 service.getStatus(list)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(Schedulers.io())

@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.view.fragments;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class ChatFragment extends BaseFragment {
     private FragmentChatBinding binding;
     private String channelId;
     private String channelName;
+    private ChatFragmentViewModel viewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +44,8 @@ public class ChatFragment extends BaseFragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_chat,
                 container, false);
         View view = binding.getRoot();
-        binding.setViewModel(new ChatFragmentViewModel(getContext(),channelId));
-       // setupListChat();
+        viewModel = new ChatFragmentViewModel(getContext(),channelId);
+        binding.setViewModel(viewModel);
         return view;
     }
 
@@ -57,5 +59,11 @@ public class ChatFragment extends BaseFragment {
         return chatFragment;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+        viewModel.destroy();
 
+    }
 }
