@@ -37,59 +37,24 @@
             android:layout_height="match_parent">
             <LinearLayout
                 android:orientation="vertical"
-                android:background="@color/colorPrimaryDark"
+                android:background="@color/colorPrimary"
                 android:layout_width="240dp"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
-                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                    android:visibility="@{viewModel.progressVisibility}"
-                    android:layout_margin="5dp"
-                    android:layout_gravity="center_horizontal"
+                <FrameLayout
+                    android:id="@+id/fragmentChannelList"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    app:mpb_progressStyle="circular" />
+                    tools:layout="@layout/fragment_menu_channel_list">
+                </FrameLayout>
 
-                <TextView
-                    android:padding="@dimen/left_padding"
-                    android:clickable="true"
+                <FrameLayout
+                    android:id="@+id/fragmentDirectList"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="@string/channels"/>
+                    tools:layout="@layout/fragment_menu_direct_list">
+                </FrameLayout>
 
-                <com.kilogramm.mattermost.ui.WrapContentListView
-                    android:paddingStart="@dimen/left_padding"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:id="@+id/recycleView"
-                    android:layout_width="240dp"
-                    android:layout_height="wrap_content"
-                    android:choiceMode="singleChoice"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="0dp"
-                    android:visibility="@{viewModel.listChannelsVisibility}"
-                    android:background="@color/colorPrimaryDark"/>
-
-                <TextView
-                    android:padding="@dimen/left_padding"
-                    android:onClick="@{viewModel::onClickRefresh}"
-                    android:clickable="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="@string/direct_message"/>
-
-                <com.kilogramm.mattermost.ui.WrapContentListView
-                    android:paddingStart="@dimen/left_padding"
-                    android:backgroundTint="@color/colorPrimaryDark"
-                    android:id="@+id/recycleViewDirect"
-                    android:layout_width="240dp"
-                    android:layout_height="wrap_content"
-                    android:choiceMode="singleChoice"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="0dp"
-                    android:visibility="@{viewModel.listChannelsVisibility}"
-                    android:background="@color/colorPrimaryDark" />
             </LinearLayout>
         </ScrollView>
     </android.support.v4.widget.DrawerLayout>

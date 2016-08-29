@@ -1,8 +1,9 @@
-package com.kilogramm.mattermost.view.fragments;
+package com.kilogramm.mattermost.view.chat;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,13 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentChatBinding;
+import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Evgeny on 18.08.2016.
@@ -26,12 +33,14 @@ public class ChatFragment extends BaseFragment {
     private String channelId;
     private String channelName;
     private ChatFragmentViewModel viewModel;
+    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
+        this.realm = Realm.getDefaultInstance();
         setupToolbar("",channelName,v -> {
             Toast.makeText(getContext(), "In development", Toast.LENGTH_SHORT).show();
         });
@@ -46,6 +55,7 @@ public class ChatFragment extends BaseFragment {
         View view = binding.getRoot();
         viewModel = new ChatFragmentViewModel(getContext(),channelId);
         binding.setViewModel(viewModel);
+        setupListChat(channelId);
         return view;
     }
 
@@ -59,9 +69,21 @@ public class ChatFragment extends BaseFragment {
         return chatFragment;
     }
 
+    private void setupListChat(String channelId) {
+        RealmResults<Post> results = realm.where(Post.class)
+                .equalTo("channelId", channelId)
+                .findAllSorted("createAt", Sort.ASCENDING);
+        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+        manager.setStackFromEnd(true);
+        binding.chatListView.setLayoutManager(manager);
+        binding.chatListView
+                .setAdapter(new ChatListAdapter(getContext(),results, binding.chatListView));
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        this.realm.close();
         Log.d(TAG, "onDestroy()");
         viewModel.destroy();
 

@@ -4,7 +4,8 @@ import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.model.fromnet.Channels;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 
 import java.util.List;
@@ -15,7 +16,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-
 import rx.Observable;
 
 /**
@@ -38,7 +38,7 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
-    Observable<Channels> getChannelsTeam(@Path("teamId") String teamId);
+    Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
 
 
     @Headers({
@@ -70,5 +70,13 @@ public interface ApiMethod {
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
                                      @Path("lastMessageId") String lastMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
+    Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
+                                              @Path("channelId") String channelId);
 
 }

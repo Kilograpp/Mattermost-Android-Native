@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:kilograpp="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="theme"
+            type="com.kilogramm.mattermost.model.entity.ThemeProps"/>
+        <variable
+            name="viewModel"
+            type="com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel"/>
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:padding="@dimen/left_padding"
+        android:layout_width="240dp"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:textColor="@color/white"
+            android:text="@string/channels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.kilogramm.mattermost.ui.WrapContentListView
+            android:paddingTop="@dimen/left_padding"
+            android:paddingBottom="@dimen/left_padding"
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_channel"/>
+
+        <TextView
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{viewModel.onMoreClick}"
+            android:text="@string/more"/>
+
+    </LinearLayout>
+</layout>

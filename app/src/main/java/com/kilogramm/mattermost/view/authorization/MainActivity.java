@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMainBinding;
-import com.kilogramm.mattermost.view.MenuActivity;
+import com.kilogramm.mattermost.view.menu.MenuActivity;
 import com.kilogramm.mattermost.viewmodel.authorization.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {

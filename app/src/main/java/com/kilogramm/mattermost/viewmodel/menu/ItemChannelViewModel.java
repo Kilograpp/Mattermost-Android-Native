@@ -25,7 +25,14 @@ public class ItemChannelViewModel extends BaseObservable implements ViewModel {
         return channel.getDisplayName();
     }
 
-
+    public String getUnreadedMessage(){
+        Integer unreadedMessage = channel.getUnreadedMessage();
+        if(unreadedMessage != 0) {
+            return channel.getUnreadedMessage() + "";
+        } else {
+            return  "";
+        }
+    }
 
     @Override
     public void destroy() {

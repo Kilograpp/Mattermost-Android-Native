@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
+        android:hardwareAccelerated="true"
         android:name=".MattermostApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -27,7 +28,7 @@
         <activity android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible"
             android:screenOrientation="portrait"/>
-        <activity android:name=".view.MenuActivity"
+        <activity android:name=".view.menu.MenuActivity"
             android:screenOrientation="portrait"/>
 
 

@@ -1,9 +1,12 @@
 package com.kilogramm.mattermost.network;
 
-import com.facebook.stetho.okhttp3.StethoInterceptor;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import android.content.Context;
+import android.util.Log;
+
 import com.kilogramm.mattermost.MattermostPreference;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,25 +17,18 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 
 /**
- * Created by Evgeny on 21.07.2016.
+ * Created by Evgeny on 23.08.2016.
  */
-public class MattermostRetrofitService {
+public class PicassoService {
 
-
-
-    public static ApiMethod create() throws IllegalArgumentException {
+    public static void create(Context context) throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
         headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token;
@@ -45,7 +41,6 @@ public class MattermostRetrofitService {
                         return chain.proceed(original);
                     }
                 })
-                .addNetworkInterceptor(new StethoInterceptor())
                 .cookieJar(new CookieJar() {
                     @Override
                     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
@@ -59,25 +54,15 @@ public class MattermostRetrofitService {
                 })
                 .build();
 
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
+        Picasso.setSingletonInstance(new Picasso.Builder(context)
+                .listener((picasso, uri, exception) -> {
+                    exception.printStackTrace();
+                    Log.d("PICASSO", exception.getMessage());
+                })
+                .downloader(new OkHttp3Downloader(client))
+                .memoryCache(new LruCache(context))
+                .build());
 
-        try {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://"+MattermostPreference.getInstance().getBaseUrl() + "/")
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                    .build();
-            return retrofit.create(ApiMethod.class);
-        } catch (IllegalArgumentException e){
-            throw e;
-        }
-    }
-
-    public static ApiMethod refreshRetrofitService(){
-        return create();
     }
 
 }

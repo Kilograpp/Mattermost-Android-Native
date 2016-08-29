@@ -1,27 +1,24 @@
 package com.kilogramm.mattermost.viewmodel.chat;
 
 import android.content.Context;
-import android.databinding.BindingAdapter;
+import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.kilogramm.mattermost.MattermostApplication;
-import com.kilogramm.mattermost.adapters.ChatListAdapter;
 import com.kilogramm.mattermost.model.entity.Post;
-import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
-import io.realm.Sort;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -35,26 +32,71 @@ public class ChatFragmentViewModel implements ViewModel {
     private Context context;
     private String channelId;
     private Subscription subscription;
+    private ObservableInt listVisibility;
+    private ObservableInt isVisibleProgress;
+    private ObservableInt newMessageVis;
 
     public ChatFragmentViewModel(Context context, String channelId) {
         this.context = context;
         this.channelId = channelId;
         this.realm = Realm.getDefaultInstance();
-        loadChannels(realm.where(Team.class).findFirst().getId(),
-               channelId);
+        this.listVisibility = new ObservableInt(View.GONE);
+        this.isVisibleProgress = new ObservableInt(View.VISIBLE);
+        this.newMessageVis = new ObservableInt(View.GONE);
+        Team teamId = realm.where(Team.class).findFirst();
+        getExtraInfo(teamId.getId(),
+                channelId);
     }
 
-    private void loadChannels(String teamId, String channelId){
+    private void getExtraInfo(String teamId, String channelId){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApplication application = MattermostApplication.get(context);
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.getExtraInfoChannel(teamId,channelId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<ExtraInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete load extra_info");
+                        loadPosts(teamId, channelId);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error extra_info");
+                    }
+
+                    @Override
+                    public void onNext(ExtraInfo extraInfo) {
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                            RealmList<User> list = new RealmList<User>();
+                            list.addAll(extraInfo.getMembers());
+                            realm.insertOrUpdate(list);
+                        realm.commitTransaction();
+                        realm.close();
+                    }
+                });
+    }
+
+    private void loadPosts(String teamId, String channelId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApplication application = MattermostApplication.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getPosts(teamId,channelId)
                 .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Posts>() {
+                .observeOn(Schedulers.io())
+                .flatMap(posts -> Observable.from(posts.getPosts().values()))
+                .subscribe(new Subscriber<Post>() {
                     @Override
                     public void onCompleted() {
+                        isVisibleProgress.set(View.GONE);
+                        listVisibility.set(View.VISIBLE);
+                        newMessageVis.set(View.VISIBLE);
                         Log.d(TAG, "Complete load post");
                     }
 
@@ -65,39 +107,17 @@ public class ChatFragmentViewModel implements ViewModel {
                     }
 
                     @Override
-                    public void onNext(Posts posts) {
+                    public void onNext(Post post) {
                         Realm realm = Realm.getDefaultInstance();
                         realm.beginTransaction();
-                            RealmList<Post> list = new RealmList<Post>();
-                            list.addAll(posts.getPosts().values());
-                            realm.insertOrUpdate(list);
+                            post.setUser(realm.where(User.class)
+                                    .equalTo("id", post.getUserId())
+                                    .findFirst());
+                            realm.copyToRealmOrUpdate(post);
                         realm.commitTransaction();
                         realm.close();
-                        /*realm.executeTransaction(realm1 -> {
-                            RealmList<Post> list = new RealmList<Post>();
-                            list.addAll(posts.getPosts().values());
-                            realm1.copyToRealmOrUpdate(list);
-                        });
-                        realm.close();*/
-                        Log.d(TAG, "save in data base");
                     }
-
                 });
-
-    }
-
-    @BindingAdapter({"android:items", "android:context"})
-    public static void setupListChat(RecyclerView listView, String channelId, Context context) {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> results = realm.where(Post.class)
-                .equalTo("channelId", channelId)
-                .findAllSorted("createAt", Sort.ASCENDING);
-        LinearLayoutManager manager = new LinearLayoutManager(context);
-        manager.setStackFromEnd(true);
-        listView.setLayoutManager(manager);
-        listView.setAdapter(new ChatListAdapter(listView.getContext(),results, listView));
-        realm.close();
-
     }
 
     @Override
@@ -109,6 +129,9 @@ public class ChatFragmentViewModel implements ViewModel {
         context = null;
         realm.close();
     }
+
+
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -127,5 +150,30 @@ public class ChatFragmentViewModel implements ViewModel {
 
     public Context getContext() {
         return context;
+    }
+
+
+    public ObservableInt getListVisibility() {
+        return listVisibility;
+    }
+
+    public void setListVisibility(Integer listVisibility) {
+        this.listVisibility.set(listVisibility);
+    }
+
+    public ObservableInt getIsVisibleProgress() {
+        return isVisibleProgress;
+    }
+
+    public void setIsVisibleProgress(Integer isVisibleProgress) {
+        this.isVisibleProgress.set(isVisibleProgress);
+    }
+
+    public ObservableInt getNewMessageVis() {
+        return newMessageVis;
+    }
+
+    public void setNewMessageVis(int newMessageVis) {
+        this.newMessageVis.set(newMessageVis);
     }
 }

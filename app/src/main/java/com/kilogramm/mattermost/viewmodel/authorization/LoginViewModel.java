@@ -26,7 +26,7 @@ import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.view.MenuActivity;
+import com.kilogramm.mattermost.view.menu.MenuActivity;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 import com.kilogramm.mattermost.view.authorization.LoginActivity;
 import com.kilogramm.mattermost.viewmodel.ViewModel;

@@ -17,13 +17,6 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
     private Channel channel;
     private Context context;
 
-    /**
-     *  1 - online
-     *  2 - offline
-     *  3 - missing
-     *  4 - refresh
-     */
-
     public ItemDiretionProfileViewModel(Context context, Channel channel){
         this.context = context;
         this.channel = channel;
@@ -47,6 +40,16 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
         }
     }
 
+    public String getUnreadedMessage(){
+        Integer unreadedMessage = channel.getUnreadedMessage();
+        if(unreadedMessage != 0) {
+            return channel.getUnreadedMessage() + "";
+        } else {
+            return  "";
+        }
+    }
+
+
     @Override
     public void destroy() {
         context = null;
@@ -66,5 +69,4 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
         this.channel = channel;
         notifyChange();
     }
-
 }

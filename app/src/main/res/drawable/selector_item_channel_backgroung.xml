@@ -1,0 +1,8 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <!-- Even though these two point to the same resource, have two states so the drawable will invalidate itself when coming out of pressed state. -->
+    <item android:state_checked="false" android:drawable="@color/transparent" />
+    <item android:drawable="@drawable/cheked_background_menu_white"/>
+
+</selector>

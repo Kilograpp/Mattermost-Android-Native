@@ -1,22 +1,24 @@
-package com.kilogramm.mattermost.view;
+package com.kilogramm.mattermost.view.menu;
 
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.MenuItem;
 
 import com.kilogramm.mattermost.MattermostApplication;
-import com.kilogramm.mattermost.adapters.MenuChannelsAdapter;
-import com.kilogramm.mattermost.adapters.MenuDirectionProfileAdapter;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.view.fragments.ChatFragment;
+import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.chat.ChatFragment;
+import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.viewmodel.menu.MenuViewModel;
 
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -43,6 +44,8 @@ public class MenuActivity extends BaseActivity {
     private MenuViewModel menuViewModel;
     private String myId;
 
+    private String currentChannel = "";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,9 +55,42 @@ public class MenuActivity extends BaseActivity {
         menuViewModel = new MenuViewModel(this);
         binding.setViewModel(menuViewModel);
         myId = realm.where(User.class).findFirst().getId();
-        setupRecyclerView();
-        setupRecyclerViewDirection();
+        setupMenu();
         runBackgroundRefreshStatus();
+    }
+
+    private void setupMenu() {
+
+        //initDirectList
+        MenuDirectListFragment fragment = new MenuDirectListFragment();
+        fragment.setDirectItemClickListener((itemId, name) -> replaceFragment(realm.where(Channel.class)
+                .equalTo("name", myId + "__" + itemId)
+                .or()
+                .equalTo("name", itemId + "__" + myId)
+                .findFirst()
+                .getId(), name));
+        fragment.setSelectedItemChangeListener(() -> Log.d(TAG, "setSelectedItemChangeListener direct"));
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(binding.fragmentDirectList.getId(), fragment);
+        fragmentTransaction.commit();
+
+        //initChannelList
+        MenuChannelListFragment channelListFragment = new MenuChannelListFragment();
+        channelListFragment.setListener((itemId, name) -> replaceFragment(itemId, name));
+
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(binding.fragmentChannelList.getId(), channelListFragment);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            binding.drawerLayout.openDrawer(GravityCompat.START);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void runBackgroundRefreshStatus() {
@@ -75,7 +111,7 @@ public class MenuActivity extends BaseActivity {
                 realm.close();
                 service.getStatus(list)
                         .subscribeOn(Schedulers.newThread())
-                        .observeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
                         .subscribe(new Subscriber<Map<String,String>>() {
                             @Override
                             public void onCompleted() {
@@ -102,54 +138,20 @@ public class MenuActivity extends BaseActivity {
                             }
                         });
             }
-        }, 0L, 60L*100);
+        }, 0L, 10L*1000);
     }
 
-    private void setupRecyclerView() {
-        RealmResults<Channel> results = realm.where(Channel.class)
-                .equalTo("type", "O")
-                .findAll();
-        results.addChangeListener(element1 ->  menuViewModel.showListAndHideProgress());
-        MenuChannelsAdapter adapter = new MenuChannelsAdapter(results, this);
-        binding.recycleView.setAdapter(adapter);
-        binding.recycleView.setOnItemClickListener((parent, view, position, id) -> {
-            Toast.makeText(this, "ClickItem", Toast.LENGTH_SHORT).show();
-            Channel item = adapter.getItem(position);
-            ChatFragment fragment = ChatFragment.createFragment(item.getId(),item.getDisplayName());
+
+
+    private void replaceFragment(String channelId, String channelName){
+        if(!channelId.equals(currentChannel)){
+            ChatFragment fragment = ChatFragment.createFragment(channelId,channelName);
+            currentChannel = channelId;
             getSupportFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), fragment)
                     .commit();
-
-        });
+        }
     }
-
-    private void setupRecyclerViewDirection() {
-        RealmResults<Channel> results = realm.where(Channel.class)
-                .isNull("type")
-                .findAllSorted("username", Sort.ASCENDING);
-        MenuDirectionProfileAdapter adapter = new MenuDirectionProfileAdapter(results, this);
-        binding.recycleViewDirect.setAdapter(adapter);
-        binding.recycleViewDirect.setOnItemClickListener((parent, view, position, id) -> {
-            Toast.makeText(this, "ClickItem", Toast.LENGTH_SHORT).show();
-            try {
-                Channel item = adapter.getItem(position);
-                ChatFragment fragment = ChatFragment.createFragment(
-                        realm.where(Channel.class)
-                                .equalTo("name", myId + "__" + item.getId())
-                                .or()
-                                .equalTo("name", item.getId() + "__" + myId)
-                                .findFirst()
-                                .getId(), item.getUsername());
-                getSupportFragmentManager().beginTransaction()
-                        .replace(binding.contentFrame.getId(), fragment)
-                        .commit();
-            } catch (NullPointerException e){
-                e.printStackTrace();
-            }
-
-        });
-    }
-
 
      public static void start(Context context, Integer flags ) {
          Intent starter = new Intent(context, MenuActivity.class);

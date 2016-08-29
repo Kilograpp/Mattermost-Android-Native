@@ -17,5 +17,6 @@
     <string name="more">More...</string>
     <string name="direct_message">DIRECT_MESSAGE</string>
     <string name="channels">CHANNELS</string>
+    <string name="type_something">Type something...</string>
 
 </resources>

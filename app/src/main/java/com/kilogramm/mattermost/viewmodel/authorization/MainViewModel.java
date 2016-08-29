@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApplication;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
@@ -24,8 +25,7 @@ import com.kilogramm.mattermost.view.authorization.MainActivity;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,12 +66,12 @@ public class MainViewModel implements ViewModel {
 
     private void checkTeamAndNext(String editTextUrl){
 
-        try {
-            URL url = new URL(editTextUrl);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        URI url = URI.create(editTextUrl);
+        String s = url.getAuthority();
+        if(s==null){
+            s = url.toString();
         }
-        MattermostPreference.getInstance().setBaseUrl(editTextUrl);
+        MattermostPreference.getInstance().setBaseUrl(s);
         MattermostApplication.get(context).refreshMattermostRetrofitService();
 
         if(subscription!=null && !subscription.isUnsubscribed()){
@@ -79,7 +79,15 @@ public class MainViewModel implements ViewModel {
         }
 
         MattermostApplication application = MattermostApplication.get(context);
-        ApiMethod service = application.getMattermostRetrofitService();
+        ApiMethod service = null;
+        try{
+            service = application.getMattermostRetrofitService();
+        } catch (IllegalArgumentException e){
+            e.printStackTrace();
+            Toast.makeText(context, "Url is not valid https://"
+                    + MattermostPreference.getInstance().getBaseUrl(), Toast.LENGTH_SHORT).show();
+            return;
+        }
         hideKeyboard(((MainActivity) context));
         isVisibleProgress.set(View.VISIBLE);
         subscription = service.initLoad()
@@ -157,6 +165,9 @@ public class MainViewModel implements ViewModel {
                 Log.d(TAG, "Message not has body.");
                 e1.printStackTrace();
             }
+        } else if(e instanceof JsonSyntaxException) {
+            Toast.makeText(context, "invalid response from the server", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         } else {
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             Log.d(TAG, "SystemException, stackTrace: \n");

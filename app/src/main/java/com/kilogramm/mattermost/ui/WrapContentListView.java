@@ -30,4 +30,6 @@ public class WrapContentListView extends ListView {
                 MeasureSpec.AT_MOST);
         super.onMeasure(widthMeasureSpec, expandSpec);
     }
+
+
 }

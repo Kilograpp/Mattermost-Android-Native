@@ -1,8 +1,5 @@
 package com.kilogramm.mattermost.model.entity;
 
-import android.databinding.BaseObservable;
-import android.databinding.Observable;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -69,9 +66,16 @@ public class Channel extends RealmObject {
     private String username;
 
     private String status = "offline";
+    private Integer unreadedMessage = 0;
 
 
+    public Integer getUnreadedMessage() {
+        return unreadedMessage;
+    }
 
+    public void setUnreadedMessage(Integer unreadedMessage) {
+        this.unreadedMessage = unreadedMessage;
+    }
 
     public String getStatus() {
         return status;
