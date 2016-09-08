@@ -18,5 +18,9 @@
     <string name="direct_message">DIRECT_MESSAGE</string>
     <string name="channels">CHANNELS</string>
     <string name="type_something">Type something...</string>
+    <string name="you_have_no_messages">You have no messages</string>
+    <string name="retry">Retry</string>
+
+    <string name="transitions_image">image</string>
 
 </resources>

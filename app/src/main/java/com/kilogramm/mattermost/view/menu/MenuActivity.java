@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.WebSocketService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -57,6 +58,7 @@ public class MenuActivity extends BaseActivity {
         myId = realm.where(User.class).findFirst().getId();
         setupMenu();
         runBackgroundRefreshStatus();
+        WebSocketService.create(getApplicationContext());
     }
 
     private void setupMenu() {

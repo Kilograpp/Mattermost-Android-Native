@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
+import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -66,7 +67,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/page/0/60")
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/before/0/60")
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
                                      @Path("lastMessageId") String lastMessageId);
@@ -78,5 +79,14 @@ public interface ApiMethod {
     @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/create")
+    Observable<Post> sendPost(@Path("teamId") String teamId,
+                              @Path("channelId") String channelId,
+                              @Body Post post);
 
 }

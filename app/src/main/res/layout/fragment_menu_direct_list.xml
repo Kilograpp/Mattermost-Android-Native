@@ -26,7 +26,8 @@
             android:paddingTop="@dimen/left_padding"
             android:paddingBottom="@dimen/left_padding"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_direction_profile_channel"/>
 
         <TextView
             android:textColor="@color/white"

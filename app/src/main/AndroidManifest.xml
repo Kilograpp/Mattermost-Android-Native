@@ -30,7 +30,12 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".view.menu.MenuActivity"
             android:screenOrientation="portrait"/>
-
+        <activity android:name=".view.ImageViewerActivity"
+            android:theme="@style/Transparent"
+            android:screenOrientation="portrait"/>
+        <meta-data
+            android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"
+            android:value="GlideModule" />
 
     </application>
 

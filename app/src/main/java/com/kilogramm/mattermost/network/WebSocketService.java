@@ -1,8 +1,12 @@
 package com.kilogramm.mattermost.network;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.tools.ObjectUtil;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,10 +30,10 @@ import okio.Buffer;
  */
 public class WebSocketService {
 
-    private static WebSocketService instance;
+    private static final String TAG = "Websocket";
     private static WebSocketCall mWebSocketCall;
 
-    public static void create() {
+    public static void create(Context context) {
         OkHttpClient clientWebS = new OkHttpClient.Builder()
                 .readTimeout(60L*1000, TimeUnit.MILLISECONDS)
                 .connectTimeout(60L*1000, TimeUnit.MILLISECONDS)
@@ -53,7 +57,7 @@ public class WebSocketService {
                     @Override
                     public List<Cookie> loadForRequest(HttpUrl url) {
                         List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
+                        return cookies != null ? cookies : new ArrayList<>();
                     }
                 })
                 .build();
@@ -68,28 +72,35 @@ public class WebSocketService {
         mWebSocketCall.enqueue(new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
-                Log.d("Websocket", "Opened");
+                Log.d(TAG, "Opened");
             }
 
             @Override
             public void onFailure(IOException e, Response response) {
-                Log.d("Websocket", "onFailure" +e.toString());
+                Log.d(TAG, "onFailure" +e.toString());
             }
 
             @Override
             public void onMessage(ResponseBody message) throws IOException {
-                Log.d("Websocket", "onMessage " + message.string());
+                String webMessage = new String(message.string());
+                message.close();
+                Log.d(TAG, "onMessage " + webMessage);
+                try {
+                    ObjectUtil.parseWebSocketObject(webMessage, context);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
             }
 
             @Override
             public void onPong(Buffer payload) {
-                Log.d("Websocket", "onPong");
+                Log.d(TAG, "onPong");
             }
 
             @Override
             public void onClose(int code, String reason) {
-                Log.d("Websocket", "onClose");
+                Log.d(TAG, "onClose");
             }
         });
     }

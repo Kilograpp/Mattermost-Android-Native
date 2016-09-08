@@ -3,6 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
+
         <item name="android:textColorHint">@color/grey</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="android:windowBackground">@color/white</item>
@@ -26,6 +27,12 @@
     <style name="HintTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/grey</item>
         <item name="android:textSize">@dimen/discription_text_size</item>
+    </style>
+
+    <style name="Transparent" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
 </resources>

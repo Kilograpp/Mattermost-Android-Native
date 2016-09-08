@@ -3,6 +3,11 @@ package com.kilogramm.mattermost.model.entity;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -48,9 +53,9 @@ public class Post extends RealmObject{
     @SerializedName("hashtags")
     @Expose
     private String hashtags;
-    /*@SerializedName("filenames")
+    @SerializedName("filenames")
     @Expose
-    private List<Object> filenames = new ArrayList<Object>();*/
+    private RealmList<RealmString>  filenames = new RealmList<>();
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
@@ -247,5 +252,18 @@ public class Post extends RealmObject{
      */
     public void setPendingPostId(String pendingPostId) {
         this.pendingPostId = pendingPostId;
+    }
+
+    public List<String> getFilenames() {
+        List<String> list = new ArrayList<>();
+        for (RealmString filename : this.filenames) {
+            list.add(filename.getString());
+        }
+        return list;
+    }
+
+    public void setFilenames(List<String> filenames) {
+        this.filenames = new RealmList<>();
+        filenames.forEach(s -> this.filenames.add(new RealmString(s)));
     }
 }

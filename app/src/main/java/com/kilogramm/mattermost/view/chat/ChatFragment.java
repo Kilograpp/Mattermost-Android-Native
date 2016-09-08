@@ -1,12 +1,13 @@
 package com.kilogramm.mattermost.view.chat;
 
-import android.databinding.DataBindingUtil;
+        import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
+        import android.support.v7.widget.RecyclerView;
+        import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
+        import android.view.MotionEvent;
+        import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -23,7 +24,7 @@ import io.realm.Sort;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class ChatFragment extends BaseFragment {
+public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.OnItemAddedListener {
 
     private static final String TAG = "ChatFragment";
     private static final String CHANNEL_ID = "channel_id";
@@ -34,6 +35,7 @@ public class ChatFragment extends BaseFragment {
     private String channelName;
     private ChatFragmentViewModel viewModel;
     private Realm realm;
+    private NewChatListAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +55,12 @@ public class ChatFragment extends BaseFragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_chat,
                 container, false);
         View view = binding.getRoot();
-        viewModel = new ChatFragmentViewModel(getContext(),channelId);
+        viewModel = new ChatFragmentViewModel(getContext(),
+                channelId,
+                binding.swipeRefreshLayout,
+                binding.writingMessage,
+                this,
+                binding.rev);
         binding.setViewModel(viewModel);
         setupListChat(channelId);
         return view;
@@ -73,11 +80,31 @@ public class ChatFragment extends BaseFragment {
         RealmResults<Post> results = realm.where(Post.class)
                 .equalTo("channelId", channelId)
                 .findAllSorted("createAt", Sort.ASCENDING);
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        manager.setStackFromEnd(true);
-        binding.chatListView.setLayoutManager(manager);
-        binding.chatListView
-                .setAdapter(new ChatListAdapter(getContext(),results, binding.chatListView));
+        results.addChangeListener(element -> {
+            if(adapter!=null){
+                if(results.size()-2 == binding.rev.findLastCompletelyVisibleItemPosition()){
+                    onItemAdded();
+                }
+            }
+        });
+        adapter = new NewChatListAdapter(getContext(), results, true,binding.rev);
+        binding.rev.setAdapter(adapter);
+        binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
     }
 
     @Override
@@ -87,5 +114,11 @@ public class ChatFragment extends BaseFragment {
         Log.d(TAG, "onDestroy()");
         viewModel.destroy();
 
+    }
+
+
+    @Override
+    public void onItemAdded() {
+        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
     }
 }

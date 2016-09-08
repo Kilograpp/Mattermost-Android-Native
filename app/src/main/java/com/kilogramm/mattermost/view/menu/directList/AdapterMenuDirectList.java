@@ -31,7 +31,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
     private Context context;
     private RecyclerView mRecyclerView;
     private MenuDirectListFragment.OnDirectItemClickListener directItemClickListener;
-    private  MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
+    private MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
 
     public AdapterMenuDirectList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,

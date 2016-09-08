@@ -12,7 +12,9 @@ import android.widget.ImageView;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.ui.FilesView;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -80,6 +82,14 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         }
     }
 
+    @BindingAdapter("bind:items")
+    public static void setItems(FilesView v, Post post){
+        for (String s : post.getFilenames()) {
+            Log.d(TAG, "post "+ post.getMessage() +"\n"+ post.getFilenames());
+        }
+        v.setItems(post.getFilenames());
+    }
+
 
     @Override
     public void destroy() {
@@ -98,13 +108,15 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     public void setPost(Post post) {
         this.post = post;
-
         notifyChange();
+    }
+
+    public Post getPost() {
+        return post;
     }
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        Log.d(TAG, "loadImage View" + view.getId());
         if(imageUrl!=null && imageUrl!="") {
             Picasso.with(view.getContext())
                     .load(imageUrl)
@@ -119,17 +131,6 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         }
     }
 
-    private String getImageUrl(Post post){
-        if(post.getUser()!=null){
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/users/"
-                    + post.getUser().getId()
-                    + "/image";
-        } else {
-            return "";
-        }
-    }
 
     public ObservableInt getTitleVis() {
         return titleVisibility;
