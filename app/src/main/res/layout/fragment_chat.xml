@@ -29,6 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <LinearLayout
+                    tools:visibility = "gone"
                     android:gravity="center"
                     android:visibility="@{viewModel.emptyListVis}"
                     android:layout_width="match_parent"
@@ -57,7 +58,8 @@
                     android:id="@+id/swipeRefreshLayout"
                     app:srl_direction="bottom"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    tools:visibility = "visible">
 
                     <com.kilogramm.mattermost.ui.MRealmRecyclerView
                         android:id="@+id/rev"
@@ -67,15 +69,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="400dp">
                     </com.kilogramm.mattermost.ui.MRealmRecyclerView>
+
                 </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
             </LinearLayout>
+
             <LinearLayout
                 android:orientation="vertical"
                 android:visibility="@{viewModel.newMessageVis}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
+                <TextView
+                    android:padding="10dp"
+                    android:visibility="@{viewModel.typingVisibility}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/very_light_grey"
+                    android:text="@string/typing"
+                    tools:text = "typing..."/>
                 <View
                     android:layout_marginTop="2dp"
                     android:layout_marginStart="10dp"

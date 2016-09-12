@@ -31,9 +31,9 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
     private static final String CHANNEL_NAME = "channel_name";
 
     private FragmentChatBinding binding;
-    private String channelId;
+    private static String channelId;
     private String channelName;
-    private ChatFragmentViewModel viewModel;
+    private static ChatFragmentViewModel viewModel;
     private Realm realm;
     private NewChatListAdapter adapter;
 
@@ -113,6 +113,7 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
         this.realm.close();
         Log.d(TAG, "onDestroy()");
         viewModel.destroy();
+        channelId = null;
 
     }
 
@@ -120,5 +121,13 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
+    }
+
+    public static void showTyping(){
+        viewModel.showTyping();
+    }
+
+    public static String getChannelId() {
+        return channelId;
     }
 }

@@ -22,5 +22,6 @@
     <string name="retry">Retry</string>
 
     <string name="transitions_image">image</string>
+    <string name="typing">typing...</string>
 
 </resources>

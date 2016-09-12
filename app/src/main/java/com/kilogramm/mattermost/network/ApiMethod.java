@@ -89,4 +89,12 @@ public interface ApiMethod {
                               @Path("channelId") String channelId,
                               @Body Post post);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/update_last_viewed_at")
+    Observable<Post> updatelastViewedAt(@Path("teamId") String teamId,
+                                      @Path("channelId") String channelId);
+
 }

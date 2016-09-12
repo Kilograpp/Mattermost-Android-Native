@@ -25,6 +25,8 @@ import com.kilogramm.mattermost.viewmodel.ViewModel;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -41,6 +43,8 @@ public class ChatFragmentViewModel implements ViewModel {
 
     private static final String TAG = "ChatFragmentViewModel";
 
+    private static final Integer TYPING_DURATION = 5000;
+
     private Realm realm;
     private Context context;
     private String channelId;
@@ -54,6 +58,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private ObservableInt isVisibleProgress;
     private ObservableInt newMessageVis;
     private ObservableInt emptyListVis;
+    private ObservableInt typingVisibility;
     private SwipyRefreshLayout swipeRefreshLayout;
     private EditText writingMessage;
     private MRealmRecyclerView recyclerView;
@@ -74,6 +79,7 @@ public class ChatFragmentViewModel implements ViewModel {
         this.isVisibleProgress = new ObservableInt(View.VISIBLE);
         this.emptyListVis = new ObservableInt(View.GONE);
         this.newMessageVis = new ObservableInt(View.GONE);
+        this.typingVisibility = new ObservableInt(View.GONE);
         this.swipeRefreshLayout = swipyRefreshLayout;
         this.writingMessage = writingMessage;
         this.onItemAddedListener = listener;
@@ -154,6 +160,7 @@ public class ChatFragmentViewModel implements ViewModel {
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
+                        updateLastViewedAt(teamId, channelId);
                         swipeRefreshLayout.setRefreshing(false);
                         if(!isEmpty){
                             isVisibleProgress.set(View.GONE);
@@ -188,6 +195,7 @@ public class ChatFragmentViewModel implements ViewModel {
                             post.setUser(realm.where(User.class)
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
+                            post.setViewed(true);
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -317,6 +325,7 @@ public class ChatFragmentViewModel implements ViewModel {
                 .subscribe(new Subscriber<Post>() {
                     @Override
                     public void onCompleted() {
+                        updateLastViewedAt(teamId.getId(), channelId);
                         if(onItemAddedListener != null){
                             onItemAddedListener.onItemAdded();
                         }
@@ -346,6 +355,43 @@ public class ChatFragmentViewModel implements ViewModel {
     public void onClickRetry(View v){
         isLoadNext = new Boolean(true);
         loadPosts(teamId.getId(), channelId);
+    }
+
+    private void updateLastViewedAt(String teamId, String channelId){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApplication application = MattermostApplication.get(context);
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.updatelastViewedAt(teamId,channelId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<Post>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete update last viewed at");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error");
+                    }
+
+                    @Override
+                    public void onNext(Post post) {
+                    }
+                });
+    }
+
+    public void showTyping(){
+        typingVisibility.set(View.VISIBLE);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                typingVisibility.set(View.GONE);
+            }
+        },TYPING_DURATION);
     }
 
     //===============================LifeCycle=====================================================
@@ -419,6 +465,14 @@ public class ChatFragmentViewModel implements ViewModel {
 
     public void setMessageWatcher(TextWatcher messageWatcher) {
         this.messageWatcher = messageWatcher;
+    }
+
+    public ObservableInt getTypingVisibility() {
+        return typingVisibility;
+    }
+
+    public void setTypingVisibility(Integer typingVisibility) {
+        this.typingVisibility.set(typingVisibility);
     }
 
     //==============================Interface======================================================

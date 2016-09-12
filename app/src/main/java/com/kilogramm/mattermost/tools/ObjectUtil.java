@@ -10,8 +10,10 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.websocket.WebScoketTyping;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.model.websocket.WebSocketPosted;
+import com.kilogramm.mattermost.view.chat.ChatFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,13 +53,19 @@ public class ObjectUtil {
                 user.setUsername(posted.getSenderName());
                 posted.setPost(gson.fromJson(props.getString(WebSocketPosted.CHANNEL_POST), Post.class));
                 posted.getPost().setUser(user);
+                savePost(posted.getPost());
                 if(!posted.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    savePost(posted.getPost());
                     createNotification(posted.getPost(), context);
                 }
                 Log.d(TAG, posted.getPost().getMessage());
                 break;
             case WebSocketObj.ACTION_TYPING:
+                String channelId = "";
+                if((channelId = ChatFragment.getChannelId())!=null){
+                    if(channelId.equals(webSocketObj.getChannelId())){
+                        ChatFragment.showTyping();
+                    }
+                }
                 break;
         }
     }

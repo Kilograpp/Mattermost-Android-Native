@@ -1,8 +1,12 @@
 package com.kilogramm.mattermost.view.menu;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -16,11 +20,13 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.network.WebSocketService;
+import com.kilogramm.mattermost.network.websocket.NetworkStateReceiver;
+import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.viewmodel.menu.MenuViewModel;
+import com.neovisionaries.ws.client.WebSocketException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +64,9 @@ public class MenuActivity extends BaseActivity {
         myId = realm.where(User.class).findFirst().getId();
         setupMenu();
         runBackgroundRefreshStatus();
-        WebSocketService.create(getApplicationContext());
+        WebSocketService.with(getApplicationContext()).run();
+
+
     }
 
     private void setupMenu() {
@@ -144,6 +152,15 @@ public class MenuActivity extends BaseActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            WebSocketService.with(getApplicationContext()).reconnect();
+        } catch (WebSocketException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void replaceFragment(String channelId, String channelName){
         if(!channelId.equals(currentChannel)){
@@ -162,4 +179,9 @@ public class MenuActivity extends BaseActivity {
          }
          context.startActivity(starter);
      }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

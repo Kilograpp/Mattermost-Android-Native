@@ -98,14 +98,11 @@ public class ImageViewerActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        runExitAnimation(() -> {
-            finish();
-        });
+        runExitAnimation(() -> finish());
     }
     @Override
     public void finish() {
         super.finish();
-
         // override transitions to skip the standard window animations
         overridePendingTransition(0, 0);
     }
@@ -134,6 +131,7 @@ public class ImageViewerActivity extends BaseActivity {
                 putExtra(PACKAGE + ".top", screenLocation[1]).
                 putExtra(PACKAGE + ".width", view.getWidth()).
                 putExtra(PACKAGE + ".height", view.getHeight()).
+                putExtra(TITLE, title).
                 putExtra(IMAGE_URL, imageUrl);
         context.startActivity(subActivity);
 

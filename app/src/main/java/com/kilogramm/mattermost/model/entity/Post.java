@@ -62,6 +62,16 @@ public class Post extends RealmObject{
 
     private User user;
 
+    private Boolean viewed = false;
+
+    public Boolean getViewed() {
+        return viewed;
+    }
+
+    public void setViewed(Boolean viewed) {
+        this.viewed = viewed;
+    }
+
     public User getUser() {
         return user;
     }

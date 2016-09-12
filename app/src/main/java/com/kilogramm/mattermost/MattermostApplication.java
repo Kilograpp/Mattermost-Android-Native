@@ -9,6 +9,7 @@ import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
 import com.kilogramm.mattermost.network.TestApiGuthubMethod;
 import com.kilogramm.mattermost.network.TestGithubRetrofitService;
+import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import org.java_websocket.client.WebSocketClient;
@@ -94,5 +95,7 @@ public class MattermostApplication extends Application{
                 .build();
         Realm.compactRealm(configuration);
     }
+
+
 
 }
