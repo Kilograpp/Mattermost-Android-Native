@@ -1,12 +1,8 @@
 package com.kilogramm.mattermost.view.menu;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -20,10 +16,10 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.network.websocket.NetworkStateReceiver;
 import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragment;
+import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.viewmodel.menu.MenuViewModel;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -70,24 +66,26 @@ public class MenuActivity extends BaseActivity {
     }
 
     private void setupMenu() {
+        MenuChannelListFragment channelListFragment = new MenuChannelListFragment();
+        MenuDirectListFragment directListFragment = new MenuDirectListFragment();
 
         //initDirectList
-        MenuDirectListFragment fragment = new MenuDirectListFragment();
-        fragment.setDirectItemClickListener((itemId, name) -> replaceFragment(realm.where(Channel.class)
+        directListFragment.setDirectItemClickListener((itemId, name) -> replaceFragment(realm.where(Channel.class)
                 .equalTo("name", myId + "__" + itemId)
                 .or()
                 .equalTo("name", itemId + "__" + myId)
                 .findFirst()
                 .getId(), name));
-        fragment.setSelectedItemChangeListener(() -> Log.d(TAG, "setSelectedItemChangeListener direct"));
+        directListFragment.setSelectedItemChangeListener(position -> {if(position != -1) channelListFragment.resetSelectItem();});
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(binding.fragmentDirectList.getId(), fragment);
+        fragmentTransaction.replace(binding.fragmentDirectList.getId(), directListFragment);
         fragmentTransaction.commit();
 
         //initChannelList
-        MenuChannelListFragment channelListFragment = new MenuChannelListFragment();
         channelListFragment.setListener((itemId, name) -> replaceFragment(itemId, name));
+
+        channelListFragment.setSelectedItemChangeListener(position -> {if(position != -1) directListFragment.resetSelectItem();});
 
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(binding.fragmentChannelList.getId(), channelListFragment);

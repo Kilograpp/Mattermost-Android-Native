@@ -6,8 +6,9 @@
             name="viewModel"
             type="com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel"/>
     </data>
-    <LinearLayout
-        android:padding="@dimen/activity_horizontal_margin"
+    <com.kilogramm.mattermost.ui.CheckableLinearLayout
+        android:background="@drawable/selector_item_channel_backgroung"
+        android:padding="10dp"
         android:id="@+id/linearLayout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -22,6 +23,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/unreadedMessage"
             android:padding="2dp"
             android:text="@{viewModel.unreadedMessage}"
             android:textColor="@color/white"
@@ -29,5 +31,5 @@
             android:layout_height="wrap_content"
             tools:text = "1"/>
 
-    </LinearLayout>
+    </com.kilogramm.mattermost.ui.CheckableLinearLayout>
 </layout>

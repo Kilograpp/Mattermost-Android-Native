@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.view.menu.directList;
+package com.kilogramm.mattermost.view.menu.channelList;
 
 import android.content.Context;
 import android.databinding.OnRebindCallback;
@@ -11,10 +11,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
+import com.kilogramm.mattermost.databinding.ItemChannelBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
-import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
+import com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel;
 
 import java.util.List;
 
@@ -24,18 +24,18 @@ import io.realm.RealmRecyclerViewAdapter;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, AdapterMenuDirectList.MyViewHolder> {
+public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, AdapterMenuChannelList.MyViewHolder> {
 
     private static final String TAG = "AdapterMenuDirectList";
 
     private Context context;
     private RecyclerView mRecyclerView;
-    private MenuDirectListFragment.OnDirectItemClickListener directItemClickListener;
-    private MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
+    private MenuChannelListFragment.OnChannelItemClickListener directItemClickListener;
+    private MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
 
-    public AdapterMenuDirectList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
-                                 RecyclerView mRecyclerView, MenuDirectListFragment.OnDirectItemClickListener listener) {
+    public AdapterMenuChannelList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
+                                  RecyclerView mRecyclerView, MenuChannelListFragment.OnChannelItemClickListener listener) {
         super(context, data, true);
         this.context = context;
         this.mRecyclerView = mRecyclerView;
@@ -83,7 +83,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(), channel.getUsername());
+                        directItemClickListener.onChannelClick(channel.getId(), channel.getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
@@ -123,28 +123,28 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
         }
     }
 
-    public void setSelectedItemChangeListener(MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
+    public void setSelectedItemChangeListener(MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
         this.selectedItemChangeListener = selectedItemChangeListener;
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private ItemDirectionProfileChannelBinding mBinding;
+        private ItemChannelBinding mBinding;
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            ItemDirectionProfileChannelBinding binding = ItemDirectionProfileChannelBinding
+            ItemChannelBinding binding = ItemChannelBinding
                     .inflate(inflater, parent, false);
             return new MyViewHolder(binding);
         }
 
-        private MyViewHolder(ItemDirectionProfileChannelBinding binding) {
+        private MyViewHolder(ItemChannelBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }
 
         public void bindTo(Channel channel, Context context) {
             if(mBinding.getViewModel() == null){
-                mBinding.setViewModel(new ItemDiretionProfileViewModel(context, channel));
+                mBinding.setViewModel(new ItemChannelViewModel(context, channel));
             } else {
                 mBinding.getViewModel().setChannel(channel);
             }
@@ -158,7 +158,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             mBinding.executePendingBindings();
         }
 
-        public ItemDirectionProfileChannelBinding getmBinding() {
+        public ItemChannelBinding getmBinding() {
             return mBinding;
         }
     }

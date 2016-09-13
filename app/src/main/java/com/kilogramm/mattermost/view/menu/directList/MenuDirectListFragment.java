@@ -82,13 +82,15 @@ public class MenuDirectListFragment extends Fragment {
     }
 
 
-
-
     public interface OnDirectItemClickListener{
         void onDirectClick(String itemId, String name);
     }
 
     public interface OnSelectedItemChangeListener{
-        void onChangeSelected();
+        void onChangeSelected(int position);
+    }
+
+    public void resetSelectItem(){
+        adapter.setSelecteditem(-1);
     }
 }
