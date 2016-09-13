@@ -20,7 +20,6 @@
         </receiver>
         <activity
             android:windowSoftInputMode="adjustResize|stateHidden"
-            android:screenOrientation="portrait"
             android:name=".view.authorization.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

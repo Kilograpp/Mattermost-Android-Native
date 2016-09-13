@@ -53,6 +53,7 @@
 
                     <EditText
                         android:id="@+id/urlEditText"
+                        android:singleLine="true"
                         style="@style/DiscriptionBlackTextStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />

@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.view.authorization;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.menu.MenuActivity;
 
 import nucleus.factory.RequiresPresenter;
-import nucleus.view.NucleusAppCompatActivity;
 
 @RequiresPresenter(MainPresenter.class)
 public class MainActivity extends BaseActivity<MainPresenter> {
