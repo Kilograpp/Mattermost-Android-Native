@@ -19,6 +19,7 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragment;
+import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.viewmodel.menu.MenuViewModel;
@@ -162,11 +163,16 @@ public class MenuActivity extends BaseActivity {
 
     private void replaceFragment(String channelId, String channelName){
         if(!channelId.equals(currentChannel)){
-            ChatFragment fragment = ChatFragment.createFragment(channelId,channelName);
+            ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
+            currentChannel = channelId;
+            getFragmentManager().beginTransaction()
+                    .replace(binding.contentFrame.getId(), fragmentMVP)
+                    .commit();
+            /*ChatFragment fragment = ChatFragment.createFragment(channelId,channelName);
             currentChannel = channelId;
             getSupportFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), fragment)
-                    .commit();
+                    .commit();*/
         }
     }
 

@@ -75,4 +75,7 @@ dependencies {
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
 
+    //Markdown
+    compile 'com.yydcdut:rxmarkdown:0.0.5'
+
 }

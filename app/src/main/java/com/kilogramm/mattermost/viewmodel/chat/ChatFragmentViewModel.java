@@ -140,9 +140,9 @@ public class ChatFragmentViewModel implements ViewModel {
                     public void onNext(ExtraInfo extraInfo) {
                         Realm realm = Realm.getDefaultInstance();
                         realm.beginTransaction();
-                            RealmList<User> list = new RealmList<User>();
-                            list.addAll(extraInfo.getMembers());
-                            realm.insertOrUpdate(list);
+                        RealmList<User> list = new RealmList<User>();
+                        list.addAll(extraInfo.getMembers());
+                        realm.insertOrUpdate(list);
                         realm.commitTransaction();
                         realm.close();
                     }
@@ -271,7 +271,7 @@ public class ChatFragmentViewModel implements ViewModel {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             mMessage = s.toString();
-                //isEnabledSignInButton.set(canClickSignIn());
+            //isEnabledSignInButton.set(canClickSignIn());
         }
 
         @Override
@@ -309,6 +309,7 @@ public class ChatFragmentViewModel implements ViewModel {
         writingMessage.setText("");
         if(post.getMessage().length() != 0){
             sendToServer(post);
+            //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
             Toast.makeText(context, "Message is empty", Toast.LENGTH_SHORT).show();
         }

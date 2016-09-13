@@ -3,7 +3,9 @@ package com.kilogramm.mattermost.network.websocket;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.tools.ObjectUtil;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import io.realm.Realm;
 import okhttp3.Cookie;
 
 /**
@@ -148,6 +151,8 @@ public class WebSocketService {
 
                 @Override
                 public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
+                    cause.getMessage();
+                    cause.printStackTrace();
                     Log.d(TAG, "onError");
                 }
 
@@ -234,6 +239,18 @@ public class WebSocketService {
         if(!hasWebsocket() && !webSocket.isOpen()){
             Log.d(TAG, "reconnect");
             run();
+        }
+    }
+
+    public void sendTyping(String channelId, String teamId){
+        if(webSocket.getState()!= WebSocketState.CLOSED){
+            Realm realm = Realm.getDefaultInstance();
+            User user = realm.where(User.class).findFirst();
+            String message = ObjectUtil.createTypingObj(channelId, teamId, user.getId());
+            webSocket.sendText(message);
+            webSocket.flush();
+            //webSocket.sendBinary(message);
+            realm.close();
         }
     }
 }

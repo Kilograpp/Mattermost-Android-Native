@@ -1,13 +1,13 @@
 package com.kilogramm.mattermost.view.chat;
 
-        import android.databinding.DataBindingUtil;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-        import android.support.v7.widget.RecyclerView;
-        import android.util.Log;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-        import android.view.MotionEvent;
-        import android.view.View;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -31,7 +31,7 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
     private static final String CHANNEL_NAME = "channel_name";
 
     private FragmentChatBinding binding;
-    private static String channelId;
+    private String channelId;
     private String channelName;
     private static ChatFragmentViewModel viewModel;
     private Realm realm;
@@ -114,7 +114,6 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
         Log.d(TAG, "onDestroy()");
         viewModel.destroy();
         channelId = null;
-
     }
 
 
@@ -127,7 +126,7 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
         viewModel.showTyping();
     }
 
-    public static String getChannelId() {
-        return channelId;
+    public static String getChannelId(){
+        return viewModel.getChannelId();
     }
 }
