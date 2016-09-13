@@ -22,10 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <com.kilogramm.mattermost.ui.WrapContentListView
+        <android.support.v7.widget.RecyclerView
             android:paddingTop="@dimen/left_padding"
             android:paddingBottom="@dimen/left_padding"
-            android:id="@+id/listView"
+            android:nestedScrollingEnabled="false"
+            android:id="@+id/recView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:listitem="@layout/item_channel"/>

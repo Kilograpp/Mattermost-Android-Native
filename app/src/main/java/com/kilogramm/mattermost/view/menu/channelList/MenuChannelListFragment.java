@@ -1,15 +1,15 @@
-package com.kilogramm.mattermost.view.menu;
+package com.kilogramm.mattermost.view.menu.channelList;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.adapters.MenuChannelsAdapter;
 import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
@@ -25,7 +25,9 @@ public class MenuChannelListFragment extends Fragment {
 
     private FragmentMenuChannelListBinding binding;
     private FrMenuChannelViewModel viewModel;
-    private OnChannelItemClickListener listener;
+    private OnChannelItemClickListener channelItemClickListener;
+    private OnSelectedItemChangeListener selectedItemChangeListener;
+    private AdapterMenuChannelList adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,26 +52,37 @@ public class MenuChannelListFragment extends Fragment {
         RealmResults<Channel> results = realm.where(Channel.class)
                 .equalTo("type", "O")
                 .findAll();
-        MenuChannelsAdapter adapter = new MenuChannelsAdapter(results, getContext());
-        binding.listView.setAdapter(adapter);
-        binding.listView.setOnItemClickListener((parent, view, position, id) -> {
-            Channel item = adapter.getItem(position);
-            if(listener!=null){
-                listener.onChannelClick(item.getId(), item.getDisplayName());
-            }
-        });
+        binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
+                (itemId, name) -> channelItemClickListener.onChannelClick(itemId, name));
+        if(selectedItemChangeListener!=null){
+            adapter.setSelectedItemChangeListener(selectedItemChangeListener);
+        }
+        binding.recView.setAdapter(adapter);
     }
 
     public OnChannelItemClickListener getListener() {
-        return listener;
+        return channelItemClickListener;
     }
 
     public void setListener(OnChannelItemClickListener listener) {
-        this.listener = listener;
+        this.channelItemClickListener = listener;
+    }
+
+    public void setSelectedItemChangeListener(OnSelectedItemChangeListener selectedItemChangeListener) {
+        this.selectedItemChangeListener = selectedItemChangeListener;
     }
 
     public interface OnChannelItemClickListener{
         void onChannelClick(String itemId, String name);
     }
+    public interface OnSelectedItemChangeListener{
+        void onChangeSelected(int position);
+    }
+
+    public void resetSelectItem(){
+        adapter.setSelecteditem(-1);
+    }
+
 }
 
