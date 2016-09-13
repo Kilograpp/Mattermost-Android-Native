@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Patterns;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -14,9 +12,9 @@ import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
 import com.kilogramm.mattermost.view.authorization.MainActivity;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,8 +22,6 @@ import java.util.regex.Pattern;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
-import retrofit2.adapter.rxjava.HttpException;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -99,23 +95,22 @@ public class MainPresenter extends Presenter<MainActivity> {
         mSubscription = service.initLoad()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<InitObject>() {
+                .subscribe(new MattermostHttpSubscriber<InitObject>() {
+                    @Override
+                    public void onErrorMattermost(HttpError httpError, Throwable e) {
+                        getView().setShowProgress(false);
+                        getView().showErrorText(httpError.getMessage());
+                    }
+
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "Complete");
                         getView().setShowProgress(false);
                         getView().showLoginActivity();
                     }
-                    @Override
-                    public void onError(Throwable e) {
-                        getView().setShowProgress(false);
-                        //TODO make error handling logic
-                        handleErrorLogin(e);
-                    }
+
                     @Override
                     public void onNext(InitObject initObject) {
-                        getView().showErrorText("Url is not valid https://");
-
                         //TODO FIX logic save state config
                         mRealm.executeTransaction(realm -> {
                             RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
@@ -138,31 +133,6 @@ public class MainPresenter extends Presenter<MainActivity> {
     private boolean isValidUrl(String url) {
         Matcher m = mPatternUrl.matcher(url);
         return m.matches();
-    }
-
-   private void handleErrorLogin(Throwable e) {
-        if(e instanceof HttpException){
-            HttpError error;
-            try {
-                error = new Gson()
-                        .fromJson((((HttpException) e)
-                                .response()
-                                .errorBody()
-                                .string()), HttpError.class);
-                Log.d(TAG, error.getMessage());
-                getView().showErrorText(error.getMessage());
-            } catch (IOException e1) {
-                Log.d(TAG, "Message not has body.");
-                e1.printStackTrace();
-            }
-        } else if(e instanceof JsonSyntaxException) {
-            getView().showErrorText("invalid response from the server");
-            e.printStackTrace();
-        } else {
-            getView().showErrorText( e.getMessage());
-            Log.d(TAG, "SystemException, stackTrace: \n");
-            e.printStackTrace();
-        }
     }
 
 }

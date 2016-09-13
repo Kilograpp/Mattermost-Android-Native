@@ -7,6 +7,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
+import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 
 import java.util.List;
@@ -33,6 +34,9 @@ public interface ApiMethod {
 
     @POST("api/v3/users/login")
     Observable<User> login(@Body LoginData loginData);
+
+    @POST("api/v3/users/send_password_reset")
+    Observable<ForgotData> forgotPassword(@Body ForgotData forgotData);
 
     @Headers({
             "Accept: application/json",
