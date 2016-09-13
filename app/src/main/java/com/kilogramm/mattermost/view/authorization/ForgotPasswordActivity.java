@@ -72,4 +72,7 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
         Intent starter = new Intent(context, ForgotPasswordActivity.class);
         context.startActivity(starter);
     }
+    public void hideKeyboard(){
+        hideKeyboard(this);
+    }
 }

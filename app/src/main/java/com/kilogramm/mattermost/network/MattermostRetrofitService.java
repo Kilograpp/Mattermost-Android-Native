@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.model.entity.RealmString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.RealmList;
 import okhttp3.Cookie;
@@ -32,6 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MattermostRetrofitService {
 
 
+    public static final int TIMEOUT = 15;
 
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -52,6 +54,9 @@ public class MattermostRetrofitService {
                         return chain.proceed(original);
                     }
                 })
+
+                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(TIMEOUT,TimeUnit.SECONDS)
                 .addNetworkInterceptor(new StethoInterceptor())
                 .cookieJar(new CookieJar() {
                     @Override

@@ -61,12 +61,13 @@ public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
         getView().showProgress(true);
 
         mSubscription = service.forgotPassword(new ForgotData(userEmail))
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MattermostHttpSubscriber<ForgotData>() {
                     @Override
                     public void onCompleted() {
                         getView().showProgress(false);
+                        getView().hideKeyboard();
                         getView().finishActivity();
                     }
 
@@ -83,5 +84,6 @@ public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
                 });
 
     }
+
 
 }
