@@ -9,7 +9,6 @@ import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
 import com.kilogramm.mattermost.network.TestApiGuthubMethod;
 import com.kilogramm.mattermost.network.TestGithubRetrofitService;
-import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import org.java_websocket.client.WebSocketClient;
@@ -23,17 +22,22 @@ import rx.Scheduler;
 /**
  * Created by Evgeny on 25.07.2016.
  */
-public class MattermostApplication extends Application{
+public class MattermostApp extends Application{
+
+    private static MattermostApp singleton = null;
 
     private ApiMethod mattermostRetrofitService;
     private TestApiGuthubMethod testApiGuthubMethod;
     private Scheduler defaultSubscribeSchedulder;
     private WebSocketClient mWebSocketClient;
 
-    public static  MattermostApplication get(Context context){
-        return (MattermostApplication) context.getApplicationContext();
+    public static MattermostApp get(Context context){
+        return (MattermostApp) context.getApplicationContext();
     }
 
+    public static MattermostApp getSingleton(){
+        return singleton;
+    }
     public void refreshMattermostRetrofitService(){
         mattermostRetrofitService = MattermostRetrofitService.refreshRetrofitService();
     }
@@ -67,9 +71,11 @@ public class MattermostApplication extends Application{
     }
 
 
+
     @Override
     public void onCreate() {
         super.onCreate();
+        singleton = this;
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .build();

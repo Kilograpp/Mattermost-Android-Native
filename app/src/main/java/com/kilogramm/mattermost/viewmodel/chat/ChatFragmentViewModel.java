@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostApplication;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -118,7 +118,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private void getExtraInfo(String teamId, String channelId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getExtraInfoChannel(teamId,channelId)
                 .subscribeOn(Schedulers.newThread())
@@ -152,7 +152,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private void loadPosts(String teamId, String channelId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getPosts(teamId,channelId)
                 .subscribeOn(Schedulers.newThread())
@@ -213,7 +213,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private void loadNextPost(String teamId, String channelId, String lastMessageId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getPostsBefore(teamId,channelId, lastMessageId)
                 .subscribeOn(Schedulers.newThread())
@@ -317,7 +317,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private void sendToServer(Post post) {
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.sendPost(teamId.getId(),channelId, post)
                 .subscribeOn(Schedulers.newThread())
@@ -360,7 +360,7 @@ public class ChatFragmentViewModel implements ViewModel {
     private void updateLastViewedAt(String teamId, String channelId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.updatelastViewedAt(teamId,channelId)
                 .subscribeOn(Schedulers.newThread())

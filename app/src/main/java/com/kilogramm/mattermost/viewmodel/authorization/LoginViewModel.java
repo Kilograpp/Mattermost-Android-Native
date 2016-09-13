@@ -16,7 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.kilogramm.mattermost.MattermostApplication;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
@@ -172,7 +172,7 @@ public class LoginViewModel implements ViewModel {
             subscription.unsubscribe();
         }
 
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         hideKeyboard(((LoginActivity) context));
         isVisibleProgress.set(View.VISIBLE);
@@ -209,7 +209,7 @@ public class LoginViewModel implements ViewModel {
             subscription.unsubscribe();
         }
 
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         isVisibleProgress.set(View.VISIBLE);
         subscription = service.initLoad()

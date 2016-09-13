@@ -1,12 +1,8 @@
 package com.kilogramm.mattermost.view.menu;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
@@ -14,13 +10,12 @@ import android.support.v4.view.GravityCompat;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.kilogramm.mattermost.MattermostApplication;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.network.websocket.NetworkStateReceiver;
 import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragment;
@@ -109,7 +104,7 @@ public class MenuActivity extends BaseActivity {
             @Override
             public void run() {
                 Realm realm = Realm.getDefaultInstance();
-                MattermostApplication application = MattermostApplication.get(getApplicationContext());
+                MattermostApp application = MattermostApp.get(getApplicationContext());
                 ApiMethod service = application.getMattermostRetrofitService();
                 List<String> list = new ArrayList<>();
                 RealmResults<Channel> channels = realm.where(Channel.class)

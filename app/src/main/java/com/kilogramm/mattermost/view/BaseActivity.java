@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -8,14 +9,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import com.kilogramm.mattermost.R;
 
+import nucleus.presenter.Presenter;
+import nucleus.view.NucleusAppCompatActivity;
+
 /**
  * Created by Evgeny on 26.07.2016.
  */
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompatActivity<P> {
 
     private Toolbar toolbar;
 
@@ -74,5 +79,15 @@ public class BaseActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_dehaze_white_24dp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitleActivity(acrivityTitle);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        if(activity == null) return;
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

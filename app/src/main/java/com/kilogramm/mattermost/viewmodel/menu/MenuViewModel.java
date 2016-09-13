@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.kilogramm.mattermost.MattermostApplication;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -38,7 +38,7 @@ public class MenuViewModel implements ViewModel {
     private void loadChannels(String teamId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApplication application = MattermostApplication.get(context);
+        MattermostApp application = MattermostApp.get(context);
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getChannelsTeam(teamId)
                 .subscribeOn(Schedulers.newThread())
