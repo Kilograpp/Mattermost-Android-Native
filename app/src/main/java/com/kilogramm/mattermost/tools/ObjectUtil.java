@@ -88,6 +88,4 @@ public class ObjectUtil {
         realm.commitTransaction();
         realm.close();
     }
-
-
 }

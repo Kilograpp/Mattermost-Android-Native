@@ -9,9 +9,10 @@ import android.view.View;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.model.entity.UsersForDM;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
+
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -36,7 +37,6 @@ public class FrMenuDirectViewModel implements ViewModel {
     }
 
     public void onMoreClick(View v) {
-//        Toast.makeText(context, "click more", Toast.LENGTH_SHORT).show();
         Team teamId = realm.where(Team.class).findFirst();
         getProfilesForDirectMessage(teamId.getId());
     }
@@ -53,7 +53,7 @@ public class FrMenuDirectViewModel implements ViewModel {
         subscription = service.getProfilesForDMList(teamId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<UsersForDM>() {
+                .subscribe(new Subscriber<Map<String, User>>() {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "Complete load profiles for direct messages list");
@@ -66,16 +66,15 @@ public class FrMenuDirectViewModel implements ViewModel {
                     }
 
                     @Override
-                    public void onNext(UsersForDM usersForDM) {
-                        Log.d(TAG, "USERS_FOR_DM " + usersForDM);
+                    public void onNext(Map<String, User> stringUserMap) {
+                        Log.d(TAG, "USERS_FOR_DM " + stringUserMap);
                         realm.executeTransaction(realm1 -> {
                             RealmList<User> users = new RealmList<>();
-                            for (User user : usersForDM.getDmList().values()) {
-                                if (user.getUsername() != null && !user.getId().equals(teamId))
-                                    users.add(user);
+                            for (User user : stringUserMap.values()) {
+                                users.add(user);
                             }
                             realm1.insertOrUpdate(users);
-//
+
                             showDMDialog(users);
                             realm.close();
                         });
@@ -86,20 +85,10 @@ public class FrMenuDirectViewModel implements ViewModel {
     private void showDMDialog(RealmList<User> users) {
         AlertDialog.Builder directMessagesDialog = new AlertDialog.Builder(context);
         StringBuilder stringBuilder = new StringBuilder();
-
-//        Realm realm = Realm.getDefaultInstance();
-//        RealmResults<UsersForDM> all = realm.where(UsersForDM.class).findAll();
-//        for (int i = 0; i < users.size(); i++) {
-//            stringBuilder.append(i + "). " + users.get(i).getDmList().get(i) + "\n");
-//        }
-
         for (User user : users) {
             stringBuilder.append(user.getUsername() + "\n");
         }
-
         directMessagesDialog.setMessage(stringBuilder.toString()).show();
-
-//        realm.close();
     }
 
     @Override

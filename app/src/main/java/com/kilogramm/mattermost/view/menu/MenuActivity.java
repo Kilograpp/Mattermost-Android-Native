@@ -61,8 +61,6 @@ public class MenuActivity extends BaseActivity {
         setupMenu();
         runBackgroundRefreshStatus();
         WebSocketService.with(getApplicationContext()).run();
-
-
     }
 
     private void setupMenu() {

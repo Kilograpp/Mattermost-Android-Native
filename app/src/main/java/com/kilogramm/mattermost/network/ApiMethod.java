@@ -5,7 +5,6 @@ import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.model.entity.UsersForDM;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
@@ -103,6 +102,6 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET ("api/v3/users/profiles_for_dm_list/{teamId}")
-    Observable<UsersForDM> getProfilesForDMList(@Path("teamId") String teamId);
+    Observable<Map<String, User>> getProfilesForDMList(@Path("teamId") String teamId);
 
 }
