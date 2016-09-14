@@ -41,7 +41,7 @@ platform :android do
     versionName = ENV['VERSION_NAME']
     slack(
       channel: "mattermost-common",
-      message: "Failed to distribute **#{versionName} #{number_of_commits}** :exclamation:",
+      message: "**Android #{versionName}** - failed to distribute version **#{number_of_commits}**:exclamation:",
       default_payloads: [],
       success: false
     )
