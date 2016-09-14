@@ -10,6 +10,10 @@
 *.apk
 *.ap_
 
+# Crashlytics
+app/crashlytics.properties
+crashlytics.properties
+
 # Fastlane
 fastlane/report.xml
 fastlane/README.md
