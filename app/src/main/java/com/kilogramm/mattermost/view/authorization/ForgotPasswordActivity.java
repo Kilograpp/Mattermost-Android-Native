@@ -13,7 +13,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityForgotPasswordBinding;
 import com.kilogramm.mattermost.presenter.ForgotPasswordPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.viewmodel.authorization.ForgotPasswordViewModel;
 
 import nucleus.factory.RequiresPresenter;
 

@@ -1,12 +1,5 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <data>
-        <variable
-            name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.menu.MenuViewModel"/>
-    </data>
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -40,7 +33,6 @@
                 android:background="@color/colorPrimary"
                 android:layout_width="240dp"
                 android:layout_height="match_parent">
-
                 <FrameLayout
                     android:id="@+id/fragmentChannelList"
                     android:layout_width="wrap_content"
@@ -54,7 +46,6 @@
                     android:layout_height="wrap_content"
                     tools:layout="@layout/fragment_menu_direct_list">
                 </FrameLayout>
-
             </LinearLayout>
         </ScrollView>
     </android.support.v4.widget.DrawerLayout>

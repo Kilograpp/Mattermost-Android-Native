@@ -101,4 +101,11 @@ public interface ApiMethod {
     Observable<Post> updatelastViewedAt(@Path("teamId") String teamId,
                                       @Path("channelId") String channelId);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/users/profiles_for_dm_list/{teamId}")
+    Observable<Map<String, User>> getProfilesForDMList(@Path("teamId") String teamId);
+
 }
