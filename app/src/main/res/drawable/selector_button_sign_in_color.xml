@@ -1,0 +1,8 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <!-- Even though these two point to the same resource, have two states so the drawable will invalidate itself when coming out of pressed state. -->
+    <item android:color="@color/colorPrimary" android:state_enabled="true" />
+    <item android:color="@color/light_grey" android:state_enabled="false" />
+
+</selector>
