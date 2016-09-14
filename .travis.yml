@@ -6,4 +6,4 @@ android:
     - build-tools-23.0.2
     - extra-android-support
 script:
-  - ./gradlew assemble
+  - gradle assemble
