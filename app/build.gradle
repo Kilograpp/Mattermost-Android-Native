@@ -1,7 +1,36 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+
+def getMyVersionCode = { ->
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    println "VersionCode is set to $code"
+    return code
+}
+
+def getMyVersionName = { ->
+    def name = project.hasProperty('versionName') ? versionName : "Default";
+    println "VersionName is set to $name"
+    return name
+}
+
 
 android {
     compileSdkVersion 24
@@ -78,19 +107,10 @@ dependencies {
     //Markdown
     compile group: 'com.github.rjeschke', name: 'txtmark', version: '0.13'
 
+    // Crashlytics
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+        transitive = true;
+    }
+
 
 }
-
-
-def getMyVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
-    println "VersionCode is set to $code"
-    return code
-}
-
-def getMyVersionName = { ->
-    def name = project.hasProperty('versionName') ? versionName : "2.6 beta ";
-    println "VersionName is set to $name"
-    return name
-}
-
