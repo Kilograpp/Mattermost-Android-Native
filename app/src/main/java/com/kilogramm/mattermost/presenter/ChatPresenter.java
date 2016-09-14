@@ -42,7 +42,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         mMattermostApp = MattermostApp.getSingleton();
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+    }
     //===============================Methods======================================================
 
     public void getExtraInfo(String teamId, String channelId){
