@@ -3,20 +3,32 @@ package com.kilogramm.mattermost.presenter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.error.HttpError;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
+import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
 import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.menu.GeneralActivity;
 import com.neovisionaries.ws.client.WebSocketException;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import nucleus.presenter.Presenter;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by kraftu on 14.09.16.
  */
 public class GeneralPresenter extends Presenter<GeneralActivity> {
 
     Realm realm;
+    Subscription subscription;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -32,10 +44,12 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     @Override
     protected void onTakeView(GeneralActivity generalActivity) {
         super.onTakeView(generalActivity);
-
+        String teamId = realm.where(Team.class).findFirst().getId();
+        loadChannels(teamId);
         Channel channel = realm.where(Channel.class).equalTo("type", "O").findFirst();
-
-        if(channel!=null)setSelectedChannel(channel.getId(),channel.getName());
+        if(channel!=null){
+            setSelectedChannel(channel.getId(),channel.getName());
+        }
 
         // WebSocketService.with(getApplicationContext()).run();
 
@@ -44,23 +58,22 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     }
 
     private void loadChannels(String teamId){
-        /*if(subscription != null && !subscription.isUnsubscribed())
+        if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
-        MattermostApp application = MattermostApp.get(context);
+        MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
         subscription = service.getChannelsTeam(teamId)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<ChannelsWithMembers>() {
+                .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
                     @Override
                     public void onCompleted() {
-                        Log.d(TAG, "Complete load channel");
+
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "Error");
+                    public void onErrorMattermost(HttpError httpError, Throwable e) {
+                        getView().showErrorText(httpError.toString());
                     }
 
                     @Override
@@ -71,10 +84,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                             users.addAll(channelsWithMembers.getMembers().values());
                             realm1.insertOrUpdate(users);
                         });
-                        Log.d(TAG, "save in data base");
                     }
                 });
-                */
 
     }
 

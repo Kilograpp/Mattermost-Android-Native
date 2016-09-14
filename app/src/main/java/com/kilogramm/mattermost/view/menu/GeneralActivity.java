@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.presenter.GeneralPresenter;
@@ -88,5 +90,8 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
              starter.setFlags(flags);
          }
          context.startActivity(starter);
+    }
+    public void showErrorText(String text){
+        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
     }
 }
