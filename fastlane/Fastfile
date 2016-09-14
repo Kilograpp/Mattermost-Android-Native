@@ -7,7 +7,7 @@ platform :android do
     ENV['VERSION_NAME'] = lane_context[SharedValues::LANE_NAME].split.last.capitalize
     gradle(
       task: "assemble",
-      build_type: "Debug",
+      build_type: "Release",
       properties: {
 	       "versionCode" => number_of_commits,
 	       "versionName" => ENV['VERSION_NAME']
