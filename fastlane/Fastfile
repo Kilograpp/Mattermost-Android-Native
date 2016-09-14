@@ -31,8 +31,8 @@ platform :android do
   after_all do |lane|
     versionName = ENV['VERSION_NAME']
     slack(
-      channel: "mattermost-common",
-      message: "Successfully distributed **#{versionName} #{number_of_commits}** :rocket:",
+      channel: "mattermost-android",
+      message: "**#{versionName}** - successfully distributed version **#{number_of_commits}**:rocket:",
       default_payloads: []
     )
   end
@@ -40,8 +40,8 @@ platform :android do
   error do |lane, exception|
     versionName = ENV['VERSION_NAME']
     slack(
-      channel: "mattermost-common",
-      message: "**Android #{versionName}** - failed to distribute version **#{number_of_commits}**:exclamation:",
+      channel: "mattermost-android",
+      message: "**#{versionName}** - failed to distribute version **#{number_of_commits}**:exclamation:",
       default_payloads: [],
       success: false
     )
