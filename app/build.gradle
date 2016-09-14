@@ -33,6 +33,16 @@ def getMyVersionName = { ->
 
 
 android {
+
+    signingConfigs {
+        config {
+            storeFile file('../mattermost.keystore')
+            keyAlias System.getenv("GRADLE_KEY_ALIAS")
+            keyPassword System.getenv("GRADLE_KEY_PASSWORD")
+            storePassword System.getenv("GRADLE_STORE_PASSWORD")
+        }
+    }
+
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
 
