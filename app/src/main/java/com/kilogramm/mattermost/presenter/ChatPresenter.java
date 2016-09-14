@@ -144,7 +144,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         ApiMethod service = null;
         service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getPostsBefore(teamId,channelId, lastMessageId)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<Posts>() {
                     @Override

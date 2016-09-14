@@ -26,7 +26,7 @@ import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.view.menu.MenuActivity;
+import com.kilogramm.mattermost.view.menu.GeneralActivity;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 import com.kilogramm.mattermost.view.authorization.LoginActivity;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
@@ -225,7 +225,7 @@ public class LoginViewModel implements ViewModel {
                         isVisibleProgress.set(View.GONE);
                         if(isOpenChatScreen){
                             //TODO start chat    activity
-                            MenuActivity.start(context,
+                            GeneralActivity.start(context,
                                     Intent.FLAG_ACTIVITY_NEW_TASK |
                                             Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         } else{
