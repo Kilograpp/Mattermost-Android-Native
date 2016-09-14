@@ -8,11 +8,11 @@ android {
     buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "com.kilogramm.mattermost"
+        applicationId "com.kilograpp.mattermost"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode getMyVersionCode()
+        versionName getMyVersionName()
         dataBinding{
             enabled = true
         }
@@ -80,3 +80,17 @@ dependencies {
 
 
 }
+
+
+def getMyVersionCode = { ->
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    println "VersionCode is set to $code"
+    return code
+}
+
+def getMyVersionName = { ->
+    def name = project.hasProperty('versionName') ? versionName : "2.6 beta ";
+    println "VersionName is set to $name"
+    return name
+}
+
