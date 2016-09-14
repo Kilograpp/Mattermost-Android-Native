@@ -18,8 +18,9 @@ before_install:
 install:
 - bundle install --deployment
 script:
--  echo "apiSecret=$CRASHLYTICS_BUILD_SECRET" > "app/crashlytics.properties"
-- "./scripts/run-fastlane.sh"
+  - echo "apiSecret=$CRASHLYTICS_BUILD_SECRET" > "app/crashlytics.properties"
+  - echo "apiKey=$CRASHLYTICS_API_TOKEN" >> "app/crashlytics.properties"
+  - "./scripts/run-fastlane.sh"
 branches:
   only:
   - master
