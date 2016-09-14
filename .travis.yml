@@ -1,7 +1,5 @@
 language: android
 jdk: oraclejdk8
-rvm: 
-  - 2.2.5
 cache:
   - bundler
 android:
@@ -15,6 +13,7 @@ android:
   licenses:
     - android-sdk-license-.+
 before_install:
+  - rvm install 2.2.5
   - gem update bundler --no-document
 install:
   - bundle install --deployment
