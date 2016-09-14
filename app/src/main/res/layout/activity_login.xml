@@ -5,8 +5,8 @@
     <data>
         <import type="android.view.View" alias="view"/>
         <variable
-            name="loginViewModel"
-            type="com.kilogramm.mattermost.viewmodel.authorization.LoginViewModel"/>
+            name="loginPresenter"
+            type="com.kilogramm.mattermost.presenter.LoginPresenter"/>
     </data>
     <LinearLayout
         android:orientation="vertical"
@@ -38,7 +38,7 @@
                         style="@style/TitleBlackTextStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{loginViewModel.siteName}"/>
+                        android:text="@{loginPresenter.siteName}"/>
 
                 </LinearLayout>
 
@@ -64,7 +64,7 @@
                             style="@style/DiscriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:addTextChangedListener = "@{loginViewModel.emailTextWatcher}"
+                            app:addTextChangedListener = "@{loginPresenter.emailTextWatcher}"
                             android:inputType="textEmailAddress" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -83,12 +83,13 @@
                             style="@style/DiscriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:addTextChangedListener = "@{loginViewModel.passwordTextWatcher}"
+                            app:addTextChangedListener = "@{loginPresenter.passwordTextWatcher}"
                             android:inputType="textPassword" />
 
                     </android.support.design.widget.TextInputLayout>
 
                     <Button
+                        android:id="@+id/buttonForgot"
                         android:layout_gravity="center_horizontal"
                         android:stateListAnimator="@null"
                         android:background="@drawable/touch_selector"
@@ -96,12 +97,12 @@
                         android:text="@string/login_forgot_password"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="@{loginViewModel.onForgotButtonClick}"/>
+                        android:onClick="@{loginPresenter.onForgotButtonClick}"/>
 
                 </LinearLayout>
 
                 <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                    android:visibility="@{loginViewModel.isVisibleProgress}"
+                    android:visibility="@{loginPresenter.isVisibleProgress}"
                     android:layout_margin="5dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_width="wrap_content"
@@ -114,13 +115,13 @@
                     android:id="@+id/buttonNext"
                     android:stateListAnimator="@null"
                     android:background="@drawable/touch_selector"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@drawable/selector_button_sign_in_color"
                     android:text="@string/login_sign_in"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:enabled="@{loginViewModel.isEnabledSignInButton}"
-                    android:onClick="@{loginViewModel::onClickSignIn}"/>
+                    android:enabled="@{loginPresenter.isEnabledSignInButton}"
+                    android:onClick="@{loginPresenter.onClickSignIn}"/>
 
             </LinearLayout>
         </ScrollView>
