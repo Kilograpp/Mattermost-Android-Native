@@ -24,4 +24,7 @@
     <string name="transitions_image">image</string>
     <string name="typing">typing...</string>
 
+    <string name="title_forgot_password">Password recovery</string>
+    <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
+
 </resources>

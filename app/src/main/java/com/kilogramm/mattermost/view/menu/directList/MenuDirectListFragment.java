@@ -28,6 +28,7 @@ public class MenuDirectListFragment extends Fragment {
     private OnDirectItemClickListener directItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
     AdapterMenuDirectList adapter;
+    private int mSelectedItem;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +54,10 @@ public class MenuDirectListFragment extends Fragment {
                 .findAllSorted("username", Sort.ASCENDING);
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuDirectList(getContext(), results, binding.recView,
-                (itemId, name) -> directItemClickListener.onDirectClick(itemId, name));
+                (itemId, name) -> {
+                    directItemClickListener.onDirectClick(itemId, name);
+                });
+
         if(selectedItemChangeListener!=null){
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }

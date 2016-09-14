@@ -30,7 +30,7 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
 
     private Context context;
     private RecyclerView mRecyclerView;
-    private MenuChannelListFragment.OnChannelItemClickListener directItemClickListener;
+    private MenuChannelListFragment.OnChannelItemClickListener channelItemClickListener;
     private MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
 
@@ -39,7 +39,7 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
         super(context, data, true);
         this.context = context;
         this.mRecyclerView = mRecyclerView;
-        this.directItemClickListener = listener;
+        this.channelItemClickListener = listener;
     }
 
     static Object DATA_INVALIDATION = new Object();
@@ -82,8 +82,8 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
-                    if(directItemClickListener!=null){
-                        directItemClickListener.onChannelClick(channel.getId(), channel.getUsername());
+                    if(channelItemClickListener!=null){
+                        channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();

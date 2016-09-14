@@ -8,13 +8,17 @@ import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.tools.MarkDownConfig;
 import com.kilogramm.mattermost.ui.MRealmRecyclerView;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
+import com.yydcdut.rxmarkdown.RxMarkdown;
+import com.yydcdut.rxmarkdown.factory.TextFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -23,6 +27,8 @@ import java.util.regex.Pattern;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -120,6 +126,13 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             Linkify.addLinks(spannable,Linkify.EMAIL_ADDRESSES);
             Linkify.addLinks(spannable,Linkify.WEB_URLS);
             mBinding.message.setText(spannable);
+            RxMarkdown.with(post.getMessage(), context)
+                    .config(MarkDownConfig.getRxMDConfiguration(context))
+                    .factory(TextFactory.create())
+                    .intoObservable()
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(charSequence -> mBinding.message.setText(charSequence, TextView.BufferType.SPANNABLE));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
             if(mBinding.getViewModel() == null){
                 mBinding.setViewModel(new ItemChatViewModel(context, post));

@@ -11,7 +11,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMainBinding;
 import com.kilogramm.mattermost.presenter.MainPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.menu.MenuActivity;
+import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
 import nucleus.factory.RequiresPresenter;
 
@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity<MainPresenter> {
     }
 
     public void showChatActivity(){
-        MenuActivity.start(this,
+        GeneralActivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }

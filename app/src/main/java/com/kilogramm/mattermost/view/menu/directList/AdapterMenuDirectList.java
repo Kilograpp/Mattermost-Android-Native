@@ -162,4 +162,5 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             return mBinding;
         }
     }
+
 }

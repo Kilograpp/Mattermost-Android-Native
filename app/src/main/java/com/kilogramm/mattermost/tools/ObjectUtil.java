@@ -88,4 +88,19 @@ public class ObjectUtil {
         realm.commitTransaction();
         realm.close();
     }
+
+
+    public static String createTypingObj(String channelId, String teamId, String userId) {
+        Gson gson = new Gson();
+        WebSocketObj obj = new WebSocketObj();
+        obj.setChannelId(channelId);
+        obj.setTeamId(teamId);
+        obj.setUserId(userId);
+        obj.setAction(WebSocketObj.ACTION_TYPING);
+        WebScoketTyping typing = new WebScoketTyping();
+        obj.setProps(gson.toJson(typing));
+
+        String message = gson.toJson(obj);
+        return message;
+    }
 }

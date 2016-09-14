@@ -8,7 +8,6 @@
     <application
         android:hardwareAccelerated="true"
         android:name=".MattermostApp"
-        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -31,9 +30,8 @@
             android:windowSoftInputMode="adjustResize|stateVisible"
             android:screenOrientation="portrait"/>
         <activity android:name=".view.authorization.ForgotPasswordActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".view.menu.MenuActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity android:name=".view.menu.GeneralActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".view.ImageViewerActivity"
             android:theme="@style/Transparent"
