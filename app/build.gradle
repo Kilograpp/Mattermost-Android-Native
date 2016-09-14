@@ -76,6 +76,7 @@ dependencies {
     provided 'javax.annotation:jsr250-api:1.0'
 
     //Markdown
-    compile 'com.yydcdut:rxmarkdown:0.0.5'
+    compile group: 'com.github.rjeschke', name: 'txtmark', version: '0.13'
+
 
 }

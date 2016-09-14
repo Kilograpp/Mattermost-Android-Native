@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -124,6 +125,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
                             post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage()));
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -174,6 +176,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             post.setUser(realm.where(User.class)
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
+                            post.setMessage(Processor.process(post.getMessage()));
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -228,6 +231,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         post.setUser(realm.where(User.class)
                                 .equalTo("id", post.getUserId())
                                 .findFirst());
+                        post.setMessage(Processor.process(post.getMessage()));
                         realm.insertOrUpdate(post);
                         realm.commitTransaction();
                         realm.close();
