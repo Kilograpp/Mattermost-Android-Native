@@ -32,8 +32,10 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     @Override
     protected void onTakeView(GeneralActivity generalActivity) {
         super.onTakeView(generalActivity);
+
         Channel channel = realm.where(Channel.class).equalTo("type", "O").findFirst();
-        setSelectedChannel(channel.getId(),channel.getName());
+
+        if(channel!=null)setSelectedChannel(channel.getId(),channel.getName());
 
         // WebSocketService.with(getApplicationContext()).run();
 
