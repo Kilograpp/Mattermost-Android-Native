@@ -10,6 +10,10 @@
 *.apk
 *.ap_
 
+# Fastlane
+fastlane/report.xml
+fastlane/README.md
+
 # Files for the Dalvik VM
 *.dex
 
