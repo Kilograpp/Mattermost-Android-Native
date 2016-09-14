@@ -1,5 +1,6 @@
 language: android
 jdk: oraclejdk8
+rvm: 2.2.5
 android:
   components:
     - tools
@@ -10,5 +11,16 @@ android:
     - extra-android-m2repository
   licenses:
     - android-sdk-license-.+
+install:
+  - bundle install --deployment
 script:
-  - ./gradlew assemble
+  - "./scripts/run-fastlane.sh"
+branches:
+  only:
+    - master
+    - development
+env:
+  global:
+    - secure: xCvQw/QrdOdjtHkxk0BXvWBvXPDlfg+EXpemar9ceSAb6uuy/xMh9LvvOqg5IbnqgPPlrL0ISZwjBES1rPouzUP4W/gmYHSVmqDSHA4d/a55DIEjxQiJl9wnpKrVSc8fLrUz1qBCxuhZXExDxHdYedGIFzFHWA2N9HLoa1cBblUTHQAMeYnT5Qi19RUkfLp8jO9OOBBoDlSukZf0eYIyeAhhO4nzg7ObsAFLFBhmXd9Ciy7wZcERr5hwexVfUaXqtAsDPdUVNDqLry3UDnAshnLqgb3wlK2ATRQ/rl4FZ/KcZRv2OOmfONQmx1szkQczoRsttZZek+rCujZd/ROrj2QqrHjE0p4ikVfDjWyEZfTIdSR82haEyl9uqnPr3f3DUaB+AOKbRjKVsukXGv57sBayi4Mn2TlJp2J4XKPrTlbvYx7lCyZB0OopFshghU9iHfnP/BfI3b+dAqV2U/oJ6F0t3RIM862udv8F9amUdrx+a0Y3otmVT2Svf2D5XLeSGnAilGLC7aQ7T+2ML/ic/zXHcIkZoCtfiNmD5pi0jivDIGlakXHhYUBlucJWBKVwxmONWQNllEPNhqwiIz0LmQH64KrZ7/r3bPnnK5a1Pqs3RPUcEIzl7HN1mjt0vonmJRAHbGoHtWNduYSQm+4Zx3Vuo4GRQNoVMSUuqxx7Ynw=
+    - secure: bIETWOxEJ++svJ1QUXzYzifF6fClrRPQKrk3B0CSAs268tvks7yCP3PHsxAIdkQxRQCafsUMXUbhGn10Ak80rBmMtoco0OeAFjFn4c1Mwn5IPLiBs9v3z0jgQpwbB3mu182WG7bjfG7/Qf+WQWau1h81bjxqubiLSa6fyHM2m3G4TWMuUmDv4z4BO2csvQWKxwMAG5JICSP66jHbRS5Z8Qp9TLL12VeSVOklEVi4BNar8rcEmCQ9Ot4sXHNXKIdHXAYBm9qJQLKlLJdEuLlc+bybg0QTAQhWn1qbNs7tAsaiyrvu60kfE/tWFGDZS/TC+SJ+TIGS3yUe8qLt9f1RtqLI11+Q+pG4+wbSQO/BZcqhqstaBrOlZSyOu8v/3qTKHXf9+Wwc6pYihuO62+V2o9SGO8QwM+fIfD4W4E3vTN+pJvDy3ebmsIAZ2q7sZ7E3PWf37bbmD/Ov9nTHQ59KRPulC//SmJE/Tr9s6NKBfKdgeCMSaFLtmHjaetBJ/uw07gTNAbpymDkPxcCMwimARldl+MB5DmroNo1MpvXdeIbujyGN7FHapG/jc47+9eDTya9RR+spg0oL2IyRNr/cmI6KAITiUqJbjwiH2OTK765HBEYjl3QjPOYVazll6LzwvnnZldENdU3u2KmQU1ZuSsqRZ9f8eb1u55tKT3yJWzM=
+    - secure: WsaNKsO7BKLlEYvAW0Wu5kdpmZX3ICLWqWqTuxrKpvMxKFA9gnC4sUoFZHGS55fhBUIDZJrM15T6IBEyijHI+fXznlJBI02tKCRKgRWDcr1/C51y2jkU0hgxFsCXCzBpmJG1oaKaEg/cQ9JG9t1a3PkfuGN/zWtC1yVfkRjzRHLixpEA6ijhj7DA8IyztTTXVjb8sXocBWVlOPVgXCeZjbxVirrJYwjoVaDu/QZa1a6C1A3GkCp6OIIFa1fiZvxTRZl+4orn12JaxnYaf/t8ZUWq+o9ZRWXcUtqRb2bwWyu5DM05dV4S49o6ISS2C0381jt01ZNtzkGX+F8lpFVowe/mtOhtW5bwzw9nyP0vlXUpbz8iZzn/DePqj9jsMCu4WRCVvaa+kFTKSBEb1I6e1gIw8EDDnfkuZClX0lvdFELrqceXTIeGfNmCuQlCKSqSPykjkJ7twI8HrWq3CrLuCB+/NzzV29oYCkCxQs4PIahS4LhgGVhKh0nW10oFbR29YWswrOwOZx5dmdQ60Liyu20UmLPJ24Iqn4OhGKmYh+iRD5kSuGdQo8sKu6Vd88wM4lGvFTmXKL0YhUNU4/yAt5kYfjhtEbxsQuQXZgiCmd4lUtoCoDU7ah43WH/QFjc6GO4VhyDEcV8fa0u1qgWn/HmbmqLu5VD9/jU6FA2h40Y=
