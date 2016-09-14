@@ -1,6 +1,9 @@
 language: android
 jdk: oraclejdk8
-rvm: 2.2.5
+rvm: 
+  - 2.2.5
+cache:
+  - bundler
 android:
   components:
     - tools
@@ -11,6 +14,8 @@ android:
     - extra-android-m2repository
   licenses:
     - android-sdk-license-.+
+before_install:
+  - gem update bundler --no-document
 install:
   - bundle install --deployment
 script:
