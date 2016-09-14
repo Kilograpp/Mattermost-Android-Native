@@ -3,7 +3,6 @@ jdk: oraclejdk7
 android:
   components:
     - android-24
-    - android-19
     - build-tools-23.0.2
     - extra-android-support
 
