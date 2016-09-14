@@ -5,5 +5,8 @@ android:
     - android-19
     - build-tools-23.0.2
     - extra-android-support
+before_script:
+  - chmod +x gradlew
+
 script:
-  - gradle assemble
+  - ./gradlew assemble
