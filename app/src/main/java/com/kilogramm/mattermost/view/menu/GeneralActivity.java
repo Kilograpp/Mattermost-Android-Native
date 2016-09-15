@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.view.MenuItem;
@@ -43,16 +44,16 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
 
         directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId,name));
 
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(binding.fragmentDirectList.getId(), directListFragment);
-        fragmentTransaction.commit();
+        getFragmentManager().beginTransaction()
+                .replace(binding.fragmentDirectList.getId(), directListFragment)
+                .commit();
 
         //initChannelList
         channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId,name));
 
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(binding.fragmentChannelList.getId(), channelListFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(binding.fragmentChannelList.getId(), channelListFragment)
+                .commit();
     }
 
     @Override

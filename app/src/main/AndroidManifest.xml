@@ -36,6 +36,8 @@
         <activity android:name=".view.ImageViewerActivity"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait"/>
+        <activity android:name=".view.direct.WholeDirectListActivity"
+            android:screenOrientation="portrait"/>
         <meta-data
             android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"
             android:value="GlideModule" />

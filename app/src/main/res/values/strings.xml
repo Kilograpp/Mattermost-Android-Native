@@ -27,4 +27,6 @@
     <string name="title_forgot_password">Password recovery</string>
     <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
 
+    <string name="title_direct_list">Direct list</string>
+
 </resources>
