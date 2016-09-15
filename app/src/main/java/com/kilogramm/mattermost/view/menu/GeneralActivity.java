@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
+import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.presenter.GeneralPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
@@ -35,6 +36,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
+        WebSocketService.with(getApplicationContext()).run();
     }
 
     private void setupMenu() {
