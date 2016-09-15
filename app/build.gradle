@@ -118,7 +118,7 @@ dependencies {
     compile group: 'com.github.rjeschke', name: 'txtmark', version: '0.13'
 
     // Crashlytics
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
         transitive = true;
     }
 
