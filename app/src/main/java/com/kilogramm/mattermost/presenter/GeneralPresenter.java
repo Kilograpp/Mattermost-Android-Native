@@ -51,7 +51,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
             setSelectedChannel(channel.getId(),channel.getName());
         }
 
-        // WebSocketService.with(getApplicationContext()).run();
+
 
 
         //loadChannels(realm.where(Team.class).findFirst().getId());

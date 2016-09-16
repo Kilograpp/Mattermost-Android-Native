@@ -1,0 +1,49 @@
+fastlane_version "1.102.0"
+
+default_platform :android
+
+platform :android do
+  before_all do
+    ENV['VERSION_NAME'] = lane_context[SharedValues::LANE_NAME].split.last.capitalize
+    gradle(
+      task: "assemble",
+      build_type: "Release",
+      properties: {
+	       "versionCode" => number_of_commits,
+	       "versionName" => ENV['VERSION_NAME']
+      }
+     )
+  end
+
+  desc "Submit a new Beta Build to Crashlytics Beta"
+  lane :beta do
+    crashlytics(
+      groups: "Testers"
+    )
+  end
+  
+  lane :release do
+    crashlytics(
+      groups: "Mattermost"
+    )
+  end
+
+  after_all do |lane|
+    versionName = ENV['VERSION_NAME']
+    slack(
+      channel: "mattermost-android",
+      message: "**#{versionName}** - successfully distributed version **#{number_of_commits}**:rocket:",
+      default_payloads: []
+    )
+  end
+
+  error do |lane, exception|
+    versionName = ENV['VERSION_NAME']
+    slack(
+      channel: "mattermost-android",
+      message: "**#{versionName}** - failed to distribute version **#{number_of_commits}**:exclamation:",
+      default_payloads: [],
+      success: false
+    )
+  end
+end

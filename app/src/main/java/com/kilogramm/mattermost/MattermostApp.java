@@ -3,6 +3,7 @@ package com.kilogramm.mattermost;
 import android.app.Application;
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostRetrofitService;
@@ -11,6 +12,7 @@ import com.kilogramm.mattermost.network.TestApiGuthubMethod;
 import com.kilogramm.mattermost.network.TestGithubRetrofitService;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import io.fabric.sdk.android.Fabric;
 import org.java_websocket.client.WebSocketClient;
 
 import java.util.regex.Pattern;
@@ -75,6 +77,7 @@ public class MattermostApp extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         singleton = this;
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
