@@ -1,12 +1,15 @@
 package com.kilogramm.mattermost.model.websocket;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Evgeny on 31.08.2016.
  */
-public class WebSocketObj {
+public class WebSocketObj implements Parcelable {
 
     public static final String TEAM_ID = "team_id";
     public static final String CHANNEL_ID = "channel_id";
@@ -73,4 +76,41 @@ public class WebSocketObj {
     public void setProps(String props) {
         this.props = props;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.teamId);
+        dest.writeString(this.channelId);
+        dest.writeString(this.userId);
+        dest.writeString(this.action);
+        dest.writeString(this.props);
+    }
+
+    public WebSocketObj() {
+    }
+
+    protected WebSocketObj(Parcel in) {
+        this.teamId = in.readString();
+        this.channelId = in.readString();
+        this.userId = in.readString();
+        this.action = in.readString();
+        this.props = in.readString();
+    }
+
+    public static final Parcelable.Creator<WebSocketObj> CREATOR = new Parcelable.Creator<WebSocketObj>() {
+        @Override
+        public WebSocketObj createFromParcel(Parcel source) {
+            return new WebSocketObj(source);
+        }
+
+        @Override
+        public WebSocketObj[] newArray(int size) {
+            return new WebSocketObj[size];
+        }
+    };
 }

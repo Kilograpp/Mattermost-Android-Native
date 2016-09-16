@@ -7,6 +7,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
+
+import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMainBinding;
 import com.kilogramm.mattermost.presenter.MainPresenter;
@@ -26,6 +28,9 @@ public class MainActivity extends BaseActivity<MainPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main);
         initView();
+
+        MattermostService.Helper.create(this).startService();
+
     }
 
     private void initView(){

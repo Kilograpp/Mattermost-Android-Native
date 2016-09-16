@@ -26,6 +26,8 @@ import rx.Scheduler;
  */
 public class MattermostApp extends Application{
 
+    public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
+
     private static MattermostApp singleton = null;
 
     private ApiMethod mattermostRetrofitService;

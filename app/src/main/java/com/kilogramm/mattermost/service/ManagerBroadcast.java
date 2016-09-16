@@ -1,7 +1,8 @@
-package com.kilogramm.mattermost.tools;
+package com.kilogramm.mattermost.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.util.Log;
 
@@ -23,11 +24,25 @@ import io.realm.Realm;
 /**
  * Created by Evgeny on 31.08.2016.
  */
-public class ObjectUtil {
+public class ManagerBroadcast {
 
     public static final String TAG = "ObjectUtil";
 
-    public static void parseWebSocketObject(String json, Context context) throws JSONException {
+    public Context mContext;
+
+    public ManagerBroadcast(Context mContext) {
+        this.mContext = mContext;
+    }
+
+    public void praseMessage(String message){
+        try {
+            parseWebSocketObject(message, mContext);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void parseWebSocketObject(String json, Context context) throws JSONException {
         Gson gson = new Gson();
         JSONObject jsonObject = new JSONObject(json);
         JSONObject props = jsonObject.getJSONObject(WebSocketObj.PROPS);
@@ -70,6 +85,7 @@ public class ObjectUtil {
         }
     }
 
+
     private static void createNotification(Post post, Context context) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
@@ -78,8 +94,9 @@ public class ObjectUtil {
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(post.getId().hashCode(), notification);
+        manager.notify(1, notification);
     }
+
 
     public static void savePost(Post post){
         Realm realm = Realm.getDefaultInstance();
@@ -89,18 +106,4 @@ public class ObjectUtil {
         realm.close();
     }
 
-
-    public static String createTypingObj(String channelId, String teamId, String userId) {
-        Gson gson = new Gson();
-        WebSocketObj obj = new WebSocketObj();
-        obj.setChannelId(channelId);
-        obj.setTeamId(teamId);
-        obj.setUserId(userId);
-        obj.setAction(WebSocketObj.ACTION_TYPING);
-        WebScoketTyping typing = new WebScoketTyping();
-        obj.setProps(gson.toJson(typing));
-
-        String message = gson.toJson(obj);
-        return message;
-    }
 }
