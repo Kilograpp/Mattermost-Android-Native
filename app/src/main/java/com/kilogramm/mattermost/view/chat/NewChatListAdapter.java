@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.view.chat;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.tools.HrSpannable;
+import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.ui.MRealmRecyclerView;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 
@@ -113,33 +116,37 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 return true;
             });
             mBinding.avatar.setTag(post);
-            /*Spannable spannable = new Spannable.Factory().newSpannable(post.getMessage());
-            Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-                spannable.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
+
+            Spanned spanned;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                spanned = Html.fromHtml(post.getMessage(),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+            } else {
+                spanned = Html.fromHtml(post.getMessage(), null,new MattermostTagHandler());
+            }
+            SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
+            Linkify.addLinks(ssb, Linkify.WEB_URLS);
+
+            Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+                ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
                         start,end,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 return false;
             }, null);
-            Linkify.addLinks(spannable,Linkify.EMAIL_ADDRESSES);
-            Linkify.addLinks(spannable,Linkify.WEB_URLS);
-            mBinding.message.setText(spannable);*/
-            Spanned spanned;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                spanned = Html.fromHtml(post.getMessage(),Html.FROM_HTML_MODE_COMPACT);
-            } else {
-                spanned = Html.fromHtml(post.getMessage());
-            }
-            mBinding.message.setText(revertSpanned(spanned));
-            /*RxMarkdown.with(post.getMessage(), context)
-                    .config(MarkDownConfig.getRxMDConfiguration(context))
-                    .factory(TextFactory.create())
-                    .intoObservable()
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(charSequence -> {
-                        String s = Html.toHtml((SpannableStringBuilder) charSequence);
-                        s.toString();
-                        mBinding.message.setText(charSequence, TextView.BufferType.SPANNABLE);
-                    });*/
+
+            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, new Linkify.MatchFilter() {
+                @Override
+                public boolean acceptMatch(CharSequence charSequence, int i, int i1) {
+                    String s = charSequence.toString();
+                    StringBuilder builder = new StringBuilder();
+                    for (int k = i; k < i1; k++){
+                        builder.append(' ');
+                    }
+                    ssb.replace(i,i1,builder.toString());
+                    ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    return true;
+                }
+            },null);
+
+            mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
             if(mBinding.getViewModel() == null){
                 mBinding.setViewModel(new ItemChatViewModel(context, post));

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Post;
@@ -130,7 +131,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
                             post.setViewed(true);
-                            post.setMessage(Processor.process(post.getMessage()));
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -151,8 +152,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         ApiMethod service = null;
         service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getPostsBefore(teamId,channelId, lastMessageId)
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
@@ -194,7 +195,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                     }
                 });
-    } // +
+    }
 
     private String getLastMessageId(){
         String id;
@@ -203,9 +204,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .equalTo("channelId", getView().getChId())
                 .findAllSorted("createAt");
         id = realmList.get(0).getId();
+        Log.d(TAG, "lastmessage " + realmList.get(0).getMessage());
         realm.close();
         return id;
-    } // +
+    }
 
     public void sendToServer(Post post, String teamId, String channelId) {
         if(mSubscription != null && !mSubscription.isUnsubscribed())
