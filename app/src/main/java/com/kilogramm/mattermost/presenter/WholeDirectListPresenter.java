@@ -1,10 +1,13 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -14,7 +17,6 @@ import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
@@ -44,7 +46,6 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         super.onTakeView(wholeDirectListActivity);
     }
 
-//    public RealmList<User> getProfilesForDirectMessage() {
     public void getProfilesForDirectMessage() {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
@@ -61,7 +62,6 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "Complete load profiles for direct messages list");
-//                        getView().finishActivity();
                     }
 
                     @Override
@@ -81,11 +81,20 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                         });
                     }
                 });
-
-//        return users;
     }
 
-    public RealmResults<User> getPeopleForDM(){
-        return realm.where(User.class).findAll();
-    }
+//    public Drawable getStatusIconDrawable() {
+//        switch (channel.getStatus()){
+//            case Channel.ONLINE:
+//                return context.getResources().getDrawable(R.drawable.status_online_drawable);
+//            case Channel.OFFLINE:
+//                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
+//            case Channel.AWAY:
+//                return context.getResources().getDrawable(R.drawable.status_away_drawable);
+//            case Channel.REFRESH:
+//                return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
+//            default:
+//                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
+//        }
+//    }
 }

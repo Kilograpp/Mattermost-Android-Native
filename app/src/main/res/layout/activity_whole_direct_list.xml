@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,15 +11,12 @@
 
         <include layout="@layout/toolbar_layout" />
 
-        <com.kilogramm.mattermost.ui.MRealmRecyclerView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/recViewDirect"
+            style="@style/scrollbar_shape_style"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:rrvLayoutType="LinearLayout"
-            android:nestedScrollingEnabled="false"
-            android:paddingTop="@dimen/left_padding"
-            android:paddingBottom="@dimen/left_padding" />
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
 
     </LinearLayout>
 </layout>

@@ -35,4 +35,14 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+
+    <style name="scrollbar_shape_style">
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">false</item>
+        <item name="android:scrollbarStyle">insideInset</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadeScrollbars">false</item>
+        <item name="android:scrollbarThumbVertical">@drawable/scroll_bar_vertical_thumb</item>
+        <item name="android:scrollbarSize">5dp</item>
+    </style>
+
 </resources>

@@ -2,6 +2,8 @@ package com.kilogramm.mattermost.view.direct;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -12,7 +14,6 @@ import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -24,6 +25,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
+    private OnDirectItemClickListener directItemClickListener;
     private Realm realm;
 
     @Override
@@ -33,30 +35,29 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         View view = binding.getRoot();
-
         init();
         setRecycleView();
     }
 
-    private void init(){
+    private void init() {
         setupToolbar(getString(R.string.title_direct_list), true);
-        setColorScheme(R.color.colorPrimary,R.color.colorPrimaryDark);
-
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
         getPresenter().getProfilesForDirectMessage();
     }
 
-    private void  setRecycleView(){
-//        RealmList<User> users = getPresenter().getProfilesForDirectMessage();
+    private void setRecycleView() {
         RealmResults<User> users = realm.where(User.class).isNotNull("id").findAllSorted("username");
-        adapter = new WholeDirectListAdapter(this, users, true, binding.recViewDirect);
+
+        // TODO правильно провести логику нажатий и раскомментировать + конструктор в адаптере
+        adapter = new WholeDirectListAdapter(this, users, true);
+//                (itemId, name) -> {
+//                    directItemClickListener.onDirectClick(itemId, name);
+//                });
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
+        binding.recViewDirect.setLayoutManager(manager);
         binding.recViewDirect.setAdapter(adapter);
-
-//        binding.recViewDirect.item
     }
-
-//    private void setupRecyclerViewDirection() {
-//
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -66,11 +67,18 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     //==========================MVP methods==================================================
 
-    public void finishActivity(){
+    public void finishActivity() {
         finish();
     }
 
     //по нажатию на любого пользователя - открыть с ним диалог
 
+    public void setDirectItemClickListener(OnDirectItemClickListener listener) {
+        this.directItemClickListener = listener;
+    }
+
+    public interface OnDirectItemClickListener {
+        void onDirectClick(String itemId, String name);
+    }
 
 }
