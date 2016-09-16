@@ -8,9 +8,12 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
@@ -18,7 +21,6 @@ import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
-import com.kilogramm.mattermost.ui.MRealmRecyclerView;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 
 import java.util.Calendar;
@@ -37,38 +39,31 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
     private static final String TAG = "NewChatListAdapter";
 
     private Context context;
-    private MRealmRecyclerView mRecyclerView;
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
-                              boolean animateResults, String animateExtraColumnName,
-                              MRealmRecyclerView mRecyclerView) {
+                              boolean animateResults, String animateExtraColumnName) {
         super(context, realmResults, true, animateResults, animateExtraColumnName);
         this.context = context;
-        this.mRecyclerView = mRecyclerView;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
-                              boolean animateResults,MRealmRecyclerView mRecyclerView) {
+                              boolean animateResults) {
         super(context, realmResults, true, animateResults);
         this.context = context;
-        this.mRecyclerView = mRecyclerView;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
                               boolean animateResults, boolean addSectionHeaders,
-                              String headerColumnName,MRealmRecyclerView mRecyclerView) {
+                              String headerColumnName) {
         super(context, realmResults, true, animateResults, addSectionHeaders, headerColumnName);
         this.context = context;
-        this.mRecyclerView = mRecyclerView;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
                               boolean animateResults, boolean addSectionHeaders,
-                              String headerColumnName, String animateExtraColumnName,
-                              MRealmRecyclerView mRecyclerView) {
+                              String headerColumnName, String animateExtraColumnName) {
         super(context, realmResults, true, animateResults, addSectionHeaders, headerColumnName, animateExtraColumnName);
         this.context = context;
-        this.mRecyclerView = mRecyclerView;
     }
 
     @Override
@@ -115,8 +110,16 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
                 return true;
             });
+            mBinding.controlMenu.setOnClickListener(view -> {
+                PopupMenu popupMenu = new PopupMenu(context, view, Gravity.BOTTOM);
+                popupMenu.inflate(R.menu.chat_item_popupmenu);
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    Toast.makeText(context, "In development.",Toast.LENGTH_SHORT).show();
+                    return true;
+                });
+                popupMenu.show();
+            });
             mBinding.avatar.setTag(post);
-
             Spanned spanned;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 spanned = Html.fromHtml(post.getMessage(),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
@@ -129,21 +132,18 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
                 ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
                         start,end,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return false;
+                return true;
             }, null);
 
-            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, new Linkify.MatchFilter() {
-                @Override
-                public boolean acceptMatch(CharSequence charSequence, int i, int i1) {
-                    String s = charSequence.toString();
-                    StringBuilder builder = new StringBuilder();
-                    for (int k = i; k < i1; k++){
-                        builder.append(' ');
-                    }
-                    ssb.replace(i,i1,builder.toString());
-                    ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    return true;
+            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
+                String s = charSequence.toString();
+                StringBuilder builder = new StringBuilder();
+                for (int k = i; k < i1; k++){
+                    builder.append(' ');
                 }
+                ssb.replace(i,i1,builder.toString());
+                ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return true;
             },null);
 
             mBinding.message.setText(revertSpanned(ssb));
@@ -162,13 +162,9 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
             mBinding.executePendingBindings();
         }
-
-        public ChatListItemBinding getmBinding() {
-            return mBinding;
-        }
     }
 
-    static final Spannable revertSpanned(Spanned stext) {
+    static Spannable revertSpanned(Spanned stext) {
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
         if (spans != null && spans.length > 0) {

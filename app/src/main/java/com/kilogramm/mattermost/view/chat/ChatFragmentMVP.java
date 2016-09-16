@@ -61,9 +61,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
-        setupToolbar("",channelName,v -> {
-            Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show();
-        });
+        setupToolbar("",channelName,v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
     }
 
     @Nullable
@@ -106,7 +104,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity(), results, true,binding.rev);
+        adapter = new NewChatListAdapter(getActivity(), results, true);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
@@ -146,12 +144,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     }
 
     public void setBtnSendOnClickListener(){
-        binding.btnSend.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                sendMessage();
-            }
-        });
+        binding.btnSend.setOnClickListener(view -> sendMessage());
     }
 
     //==========================MVP methods==================================================
@@ -170,7 +163,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
             getPresenter().sendToServer(post, teamId,channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
-            //Toast.makeText(context, "Message is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getView().getContext(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
     } // +
 
