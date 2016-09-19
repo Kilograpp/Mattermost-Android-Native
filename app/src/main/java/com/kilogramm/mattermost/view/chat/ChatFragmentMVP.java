@@ -14,9 +14,11 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
@@ -53,6 +55,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     private Realm realm;
 
     private NewChatListAdapter adapter;
+    private UsersDropDownListAdapter dropDownListAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,10 +82,21 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
+        setDropDownUserList();
         getPresenter().getExtraInfo(teamId,
                 channelId);
     }
 
+    private void setDropDownUserList() {
+        dropDownListAdapter = new UsersDropDownListAdapter(name -> addUserLinkMessage(name));
+        binding.idRecUser.setAdapter(dropDownListAdapter);
+        binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
+    }
+
+    public void setDropDown(RealmResults<User> realmResult){
+        dropDownListAdapter.setUsers(realmResult);
+    }
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName){
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -226,5 +240,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     public void setMessage(String s){
         binding.writingMessage.setText(s);
+    }
+
+    public void addUserLinkMessage(String s){
+        binding.writingMessage.append(s + " ");
     }
 }

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Post;
@@ -193,6 +192,46 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                     }
                 });
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().contains("@"))
+                    if (charSequence.charAt((count > 1? count : start) - before) == '@')
+                        onMoreClick(null);
+                    else
+                        onMoreClick(charSequence.toString());
+                else
+                    getView().setDropDown(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+
+    public void onMoreClick(String search) {
+        RealmResults<User> users;
+        String currentUser = MattermostPreference.getInstance().getMyUserId();
+        Realm realm = Realm.getDefaultInstance();
+        if (search == null)
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).findAllSorted("username", Sort.ASCENDING);
+        else {
+            String[] username = search.split("@");
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
+        }
+        getView().setDropDown(users);
+        realm.close();
     }
 
     private String getLastMessageId(){
