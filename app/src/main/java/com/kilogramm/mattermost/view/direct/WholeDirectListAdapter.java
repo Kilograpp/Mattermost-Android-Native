@@ -6,14 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectListBinding;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.ui.CheckableLinearLayout;
-import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
+import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -25,18 +25,17 @@ import io.realm.RealmViewHolder;
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
     private static final String TAG = "WholeDirectListAdapter";
 
-    private Context context;
-    private WholeDirectListActivity.OnDirectItemClickListener directItemClickListener;
+    static WholeDirectListPresenter mWholeDirectListPresenter;
 
-//    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, boolean animateResults,
-//                                  WholeDirectListActivity.OnDirectItemClickListener listener) {
-//        super(context, realmResults, true);
-//        this.context = context;
-//        this.directItemClickListener = listener;
-//    }
-    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, boolean animateResults) {
+    private WholeDirectListActivity.OnDirectItemClickListener directItemClickListener;
+    private ArrayList<String> mUsersIds = new ArrayList<>();
+    private ArrayList<String> usersStatuses = new ArrayList<>();
+
+    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, boolean animateResults, ArrayList<String> usersIds,
+                                  WholeDirectListPresenter wholeDirectListPresenter) {
         super(context, realmResults, true);
-        this.context = context;
+        this.mUsersIds = usersIds;
+        mWholeDirectListPresenter = wholeDirectListPresenter;
     }
 
     @Override
@@ -47,16 +46,19 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getItem(position);
-        holder.bindTo(user);
+
+        usersStatuses = mWholeDirectListPresenter.getUsersStatuses(mUsersIds);
+        Log.d(TAG, "onBindViewHolder ->" + usersStatuses.toString());
+
+        // TODO проверка приавильности перенесения методов в Presenter
+//            holder.bindTo(user, usersStatuses.get(position));
+        holder.bindTo(user, Channel.AWAY);
 
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if (directItemClickListener != null) {
                         directItemClickListener.onDirectClick(user.getId(), user.getUsername());
-//                        ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
-//                        setSelecteditem(holder.getAdapterPosition());
-//                        onChangeSelected();
                     }
                 });
     }
@@ -75,17 +77,22 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             return new MyViewHolder(binding);
         }
 
-        public void bindTo(User user) {
+        public void bindTo(User user, String status) {
             directBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
                 }
             });
+
             directBinding.directProfileName.setText(user.getUsername());
 
+            if(status != null){
+                directBinding.status.setImageDrawable(mWholeDirectListPresenter.drawStatusIcon(status));
+            }
+
             Picasso.with(directBinding.avatarDirect.getContext())
-                    .load(getImageUrl(user.getId()))
+                    .load(mWholeDirectListPresenter.imageUrl(user.getId()))
                     .resize(60, 60)
                     .error(directBinding.avatarDirect.getContext()
                             .getResources()
@@ -98,18 +105,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
 
         public ItemDirectListBinding getmBinding() {
             return directBinding;
-        }
-    }
-
-    public static String getImageUrl(String userId) {
-        if (userId != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/users/"
-                    + userId
-                    + "/image";
-        } else {
-            return "";
         }
     }
 }

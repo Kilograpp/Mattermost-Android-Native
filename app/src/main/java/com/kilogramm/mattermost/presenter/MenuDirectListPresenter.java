@@ -45,13 +45,4 @@ public class MenuDirectListPresenter extends Presenter<MenuDirectListFragment> {
     public void onMoreClick() {
         getView().goToDirectListActivity();
     }
-
-    /*private void showDMDialog(RealmList<User> users) {
-        AlertDialog.Builder directMessagesDialog = new AlertDialog.Builder(context);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (User user : users) {
-            stringBuilder.append(user.getUsername() + "\n");
-        }
-        directMessagesDialog.setMessage(stringBuilder.toString()).show();
-    }*/
 }

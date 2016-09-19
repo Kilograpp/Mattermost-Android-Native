@@ -6,13 +6,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import io.realm.Realm;
@@ -62,6 +61,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "Complete load profiles for direct messages list");
+                        getView().setRecycleView();
                     }
 
                     @Override
@@ -83,18 +83,41 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                 });
     }
 
-//    public Drawable getStatusIconDrawable() {
-//        switch (channel.getStatus()){
-//            case Channel.ONLINE:
-//                return context.getResources().getDrawable(R.drawable.status_online_drawable);
-//            case Channel.OFFLINE:
-//                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-//            case Channel.AWAY:
-//                return context.getResources().getDrawable(R.drawable.status_away_drawable);
-//            case Channel.REFRESH:
-//                return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
-//            default:
-//                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-//        }
-//    }
+    public ArrayList<String> getUsersStatuses(ArrayList<String> usersIds) {
+        ArrayList<String> userStatus = new ArrayList<>();
+
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.getStatus(usersIds)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Map<String, String>>() {
+                    @Override
+                    public void onCompleted() {
+//                        notify();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Map<String, String> stringStringMap) {
+                        userStatus.addAll(stringStringMap.values());
+                    }
+                });
+
+        return userStatus;
+    }
+
+    public Drawable drawStatusIcon(String status) {
+        return getView().getStatusDrawable(status);
+    }
+
+    public String imageUrl(String userId){
+        return getView().getImageUrl(userId);
+    }
 }
