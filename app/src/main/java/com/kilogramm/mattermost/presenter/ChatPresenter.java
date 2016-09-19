@@ -2,10 +2,14 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 
+import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
@@ -16,6 +20,7 @@ import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
@@ -205,9 +210,9 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.toString().contains("@"))
                     if (charSequence.charAt((count > 1? count : start) - before) == '@')
-                        onMoreClick(null);
+                        getUsers(null);
                     else
-                        onMoreClick(charSequence.toString());
+                        getUsers(charSequence.toString());
                 else
                     getView().setDropDown(null);
             }
@@ -220,7 +225,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
 
-    public void onMoreClick(String search) {
+    public void getUsers(String search) {
         RealmResults<User> users;
         String currentUser = MattermostPreference.getInstance().getMyUserId();
         Realm realm = Realm.getDefaultInstance();
