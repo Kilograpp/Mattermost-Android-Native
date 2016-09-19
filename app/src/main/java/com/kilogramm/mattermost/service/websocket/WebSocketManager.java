@@ -55,14 +55,18 @@ public class WebSocketManager {
 
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;
+
         handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        handler = new Handler(looper);
+
         mCheckStatusSocket = new CheckStatusSocket();
+
         mUpdateStatusUser = new UpdateStatusUser();
+
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+
         handler.postDelayed(mCheckStatusSocket,TIME_REPEAT_RECONNECT);
-        create();
+
     }
 
     public void setHeader(WebSocket webSocket){
@@ -158,13 +162,20 @@ public class WebSocketManager {
 
     private void connect() throws Exception {
         Log.d(TAG, "try connect");
+
+
         if(webSocket != null && webSocket.getState() != WebSocketState.CREATED){
             webSocket.disconnect();
             webSocket = webSocket.recreate();
             setHeader(webSocket);
         }
-        updateUserStatusNow();
+
+        if(webSocket == null){
+            create();
+        }
         webSocket.connect();
+
+        updateUserStatusNow();
     }
 
     private boolean hasWebsocket(){
@@ -180,18 +191,14 @@ public class WebSocketManager {
     public void onDestroy(){
 
         handler.removeCallbacks(mCheckStatusSocket);
+
         handler.removeCallbacks(mUpdateStatusUser);
 
         if(webSocket!=null){
             webSocket.disconnect();
         }
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                handlerThread.quit();
-            }
-        });
+        handler.post(() -> handlerThread.quit());
 
     }
 
@@ -206,12 +213,12 @@ public class WebSocketManager {
             handler.postDelayed(this,TIME_REPEAT_RECONNECT);
             Log.d(TAG, "check state");
             if(webSocket!=null) {
-                Log.d(TAG, "State:"+webSocket.getState().toString());
+                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
                 if(webSocket.getState() == WebSocketState.CLOSED){
                     start();
                 }
             }
-            else  Log.d(TAG, "not create");
+            else  Log.d(TAG, "web socket not created");
         }
     }
     //TODO Review code
