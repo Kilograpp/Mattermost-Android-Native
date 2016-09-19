@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.github.rjeschke.txtmark.Configuration;
+import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -41,7 +43,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         mMattermostApp = MattermostApp.getSingleton();
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+    }
     //===============================Methods======================================================
 
     public void getExtraInfo(String teamId, String channelId){
@@ -124,6 +131,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
                             post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -144,8 +152,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         ApiMethod service = null;
         service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getPostsBefore(teamId,channelId, lastMessageId)
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
@@ -174,6 +182,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             post.setUser(realm.where(User.class)
                                     .equalTo("id", post.getUserId())
                                     .findFirst());
+                            post.setMessage(Processor.process(post.getMessage()));
                         }
                         RealmList<Post> realmList = new RealmList<Post>();
                         realmList.addAll(posts.getPosts().values());
@@ -186,7 +195,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                     }
                 });
-    } // +
+    }
 
     private String getLastMessageId(){
         String id;
@@ -195,9 +204,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .equalTo("channelId", getView().getChId())
                 .findAllSorted("createAt");
         id = realmList.get(0).getId();
+        Log.d(TAG, "lastmessage " + realmList.get(0).getMessage());
         realm.close();
         return id;
-    } // +
+    }
 
     public void sendToServer(Post post, String teamId, String channelId) {
         if(mSubscription != null && !mSubscription.isUnsubscribed())
@@ -228,6 +238,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         post.setUser(realm.where(User.class)
                                 .equalTo("id", post.getUserId())
                                 .findFirst());
+                        post.setMessage(Processor.process(post.getMessage()));
                         realm.insertOrUpdate(post);
                         realm.commitTransaction();
                         realm.close();

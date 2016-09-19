@@ -1,24 +1,25 @@
 package com.kilogramm.mattermost.view.chat;
 
 import android.content.Context;
+import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.Post;
-import com.kilogramm.mattermost.tools.MarkDownConfig;
+import com.kilogramm.mattermost.tools.HrSpannable;
+import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.ui.MRealmRecyclerView;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
-import com.yydcdut.rxmarkdown.RxMarkdown;
-import com.yydcdut.rxmarkdown.factory.TextFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -27,8 +28,6 @@ import java.util.regex.Pattern;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -117,22 +116,37 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 return true;
             });
             mBinding.avatar.setTag(post);
-            Spannable spannable = new Spannable.Factory().newSpannable(post.getMessage());
-            Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-                spannable.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
+
+            Spanned spanned;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                spanned = Html.fromHtml(post.getMessage(),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+            } else {
+                spanned = Html.fromHtml(post.getMessage(), null,new MattermostTagHandler());
+            }
+            SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
+            Linkify.addLinks(ssb, Linkify.WEB_URLS);
+
+            Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+                ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
                         start,end,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 return false;
             }, null);
-            Linkify.addLinks(spannable,Linkify.EMAIL_ADDRESSES);
-            Linkify.addLinks(spannable,Linkify.WEB_URLS);
-            mBinding.message.setText(spannable);
-            RxMarkdown.with(post.getMessage(), context)
-                    .config(MarkDownConfig.getRxMDConfiguration(context))
-                    .factory(TextFactory.create())
-                    .intoObservable()
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(charSequence -> mBinding.message.setText(charSequence, TextView.BufferType.SPANNABLE));
+
+            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, new Linkify.MatchFilter() {
+                @Override
+                public boolean acceptMatch(CharSequence charSequence, int i, int i1) {
+                    String s = charSequence.toString();
+                    StringBuilder builder = new StringBuilder();
+                    for (int k = i; k < i1; k++){
+                        builder.append(' ');
+                    }
+                    ssb.replace(i,i1,builder.toString());
+                    ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    return true;
+                }
+            },null);
+
+            mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
             if(mBinding.getViewModel() == null){
                 mBinding.setViewModel(new ItemChatViewModel(context, post));
@@ -152,5 +166,17 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         public ChatListItemBinding getmBinding() {
             return mBinding;
         }
+    }
+
+    static final Spannable revertSpanned(Spanned stext) {
+        Object[] spans = stext.getSpans(0, stext.length(), Object.class);
+        Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
+        if (spans != null && spans.length > 0) {
+            for(int i = spans.length - 1; i >= 0; --i) {
+                ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
+            }
+        }
+
+        return ret;
     }
 }

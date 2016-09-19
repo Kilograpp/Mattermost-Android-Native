@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.network.websocket;
+package com.kilogramm.mattermost.service.websocket;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,11 +25,11 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
 
             if (ni != null && ni.isConnectedOrConnecting()) {
-                try {
-                    WebSocketService.with(context).reconnect();
+                /*try {
+                   // WebSocketService.with(context).reconnect();
                 } catch (WebSocketException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Log.i(TAG, "Network " + ni.getTypeName() + " connected");
             } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
                 Log.d(TAG, "There's no network connectivity");
