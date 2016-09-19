@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
@@ -211,7 +212,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt(start - before) == '@')
+                    if (charSequence.charAt((count > 1? count : start) - before) == '@')
                         onMoreClick(null);
                     else
                         onMoreClick(charSequence.toString());
@@ -229,12 +230,13 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
     public void onMoreClick(String search) {
         RealmResults<User> users;
+        String currentUser = MattermostPreference.getInstance().getMyUserId();
         Realm realm = Realm.getDefaultInstance();
         if (search == null)
-            users = realm.where(User.class).isNotNull("id").findAllSorted("username", Sort.ASCENDING);
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).findAllSorted("username", Sort.ASCENDING);
         else {
             String[] username = search.split("@");
-            users = realm.where(User.class).isNotNull("id").contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
         }
         getView().setDropDown(users);
         realm.close();

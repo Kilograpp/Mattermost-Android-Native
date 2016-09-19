@@ -18,18 +18,18 @@ import io.realm.RealmResults;
  */
 public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDownListAdapter.ViewHolder> {
     private RealmResults<User> users;
+    private OnItemClickListener onItemClickListener;
 
-    public UsersDropDownListAdapter(RealmResults<User> users) {
-        this.users = users;
+    public UsersDropDownListAdapter(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
+
 
     public void setUsers(RealmResults<User> users) {
         this.users = users;
         notifyDataSetChanged();
     }
 
-    public UsersDropDownListAdapter() {
-    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -46,12 +46,11 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
         User user = users.get(position);
         if (user.getId() != null) {
             holder.binding.avatar.setTag(user);
-            holder.binding.userNikname.setText(user.getUsername());
-            if (user.getFirstName() != null || user.getLastName() != null)
-                holder.binding.userName.setText(String.format(" - %s%s",
-                        user.getFirstName() != null ? user.getFirstName() : "",
-                        user.getLastName() != null ? user.getLastName() : ""
-                ));
+            holder.binding.userNikname.setText("@" + user.getUsername());
+            holder.binding.userName.setText(String.format(" %s %s",
+                    user.getFirstName() != null ? user.getFirstName() : "",
+                    user.getLastName() != null ? user.getLastName() : ""));
+
             Picasso.with(holder.binding.getRoot().getContext())
                     .load(getImageUrl(user))
                     .resize(60, 60)
@@ -62,6 +61,9 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(holder.binding.avatar);
+
+            holder.binding.getRoot().setOnClickListener(view ->
+                    onItemClickListener.onItemClick(user.getUsername()));
         }
     }
 
@@ -76,7 +78,7 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
 
     @Override
     public int getItemCount() {
-        return users!=null? users.size() : 0;
+        return users != null ? users.size() : 0;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -87,5 +89,9 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
             this.binding = binding;
         }
 
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(String name);
     }
 }

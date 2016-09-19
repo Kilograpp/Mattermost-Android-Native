@@ -11,9 +11,7 @@ import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
-import com.kilogramm.mattermost.network.websocket.WebSocketService;
 import com.kilogramm.mattermost.view.menu.GeneralActivity;
-import com.neovisionaries.ws.client.WebSocketException;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -82,6 +80,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                             realm1.insertOrUpdate(channelsWithMembers.getChannels());
                             RealmList<User> users = new RealmList<User>();
                             users.addAll(channelsWithMembers.getMembers().values());
+                            users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                            users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
                             realm1.insertOrUpdate(users);
                         });
                     }

@@ -90,7 +90,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     }
 
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter();
+        dropDownListAdapter = new UsersDropDownListAdapter(name -> addUserLinkMessage(name));
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
@@ -247,5 +247,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     public void setMessage(String s){
         binding.writingMessage.setText(s);
+    }
+
+    public void addUserLinkMessage(String s){
+        binding.writingMessage.append(s + " ");
     }
 }

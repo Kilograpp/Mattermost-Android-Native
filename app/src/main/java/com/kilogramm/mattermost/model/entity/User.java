@@ -80,6 +80,12 @@ public class User extends RealmObject implements Parcelable {
     @Expose
     private String locale;
 
+    public User(String id, String username, String firstName) {
+        this.id = id;
+        this.username = username;
+        this.firstName = firstName;
+    }
+
     /**
      *
      * @return
