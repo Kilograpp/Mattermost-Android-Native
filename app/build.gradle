@@ -1,18 +1,56 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+
+def getMyVersionCode = { ->
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    println "VersionCode is set to $code"
+    return code
+}
+
+def getMyVersionName = { ->
+    def name = project.hasProperty('versionName') ? versionName : "Default";
+    println "VersionName is set to $name"
+    return name
+}
+
 
 android {
+    signingConfigs {
+        config {
+            storeFile file('../mattermost.keystore')
+            keyAlias System.getenv("GRADLE_KEY_ALIAS")
+            keyPassword System.getenv("GRADLE_KEY_PASSWORD")
+            storePassword System.getenv("GRADLE_STORE_PASSWORD")
+        }
+    }
+
     compileSdkVersion 24
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "com.kilogramm.mattermost"
+        applicationId "com.kilograpp.mattermost"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode getMyVersionCode()
+        versionName getMyVersionName()
         dataBinding{
             enabled = true
         }
@@ -23,8 +61,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
         debug {
             minifyEnabled false
@@ -63,7 +102,7 @@ dependencies {
     compile 'com.neovisionaries:nv-websocket-client:1.30'
     compile group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.3.0'
 
-    //SwipyRefreshLayout
+    // SwipyRefreshLayout
     compile 'com.github.orangegangsters:swipy:1.2.3@aar'
     compile 'com.github.bumptech.glide:glide:3.7.0'
 
@@ -75,8 +114,13 @@ dependencies {
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
 
-    //Markdown
+    // Markdown
     compile group: 'com.github.rjeschke', name: 'txtmark', version: '0.13'
+
+    // Crashlytics
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
+        transitive = true;
+    }
 
 
 }

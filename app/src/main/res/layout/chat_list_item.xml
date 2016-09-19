@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/tools">
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
     <data
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -43,6 +42,7 @@
                 bind:imageUrl="@{viewModel.imageUrl}"/>
 
             <LinearLayout
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -61,6 +61,7 @@
                         android:layout_height="wrap_content" />
 
                     <TextView
+                        android:id="@+id/time"
                         android:paddingStart="@dimen/left_padding"
                         android:textColor="@color/grey"
                         android:text="@{viewModel.time}"
@@ -83,6 +84,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
+
+            <ImageView
+                android:id="@+id/controlMenu"
+                android:src="@drawable/ic_more_horiz_grey_24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
     </LinearLayout>
 </layout>
