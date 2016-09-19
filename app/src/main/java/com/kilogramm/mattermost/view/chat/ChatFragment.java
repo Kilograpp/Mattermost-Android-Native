@@ -87,7 +87,7 @@ public class ChatFragment extends BaseFragment implements ChatFragmentViewModel.
                 }
             }
         });
-        adapter = new NewChatListAdapter(getContext(), results, true,binding.rev);
+        adapter = new NewChatListAdapter(getContext(), results, true);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
