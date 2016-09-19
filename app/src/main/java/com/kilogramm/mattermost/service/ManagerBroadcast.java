@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.util.Log;
 
@@ -10,11 +9,8 @@ import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Post;
-import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.model.websocket.WebScoketTyping;
+import com.kilogramm.mattermost.model.entity.Props;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
-import com.kilogramm.mattermost.model.websocket.WebSocketPosted;
-import com.kilogramm.mattermost.view.chat.ChatFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,42 +41,57 @@ public class ManagerBroadcast {
     private void parseWebSocketObject(String json, Context context) throws JSONException {
         Gson gson = new Gson();
         JSONObject jsonObject = new JSONObject(json);
-        JSONObject props = jsonObject.getJSONObject(WebSocketObj.PROPS);
+        JSONObject propsJSON = jsonObject.getJSONObject(WebSocketObj.PROPS);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setTeamId(jsonObject.getString(WebSocketObj.TEAM_ID));
         webSocketObj.setUserId(jsonObject.getString(WebSocketObj.USER_ID));
         webSocketObj.setChannelId(jsonObject.getString(WebSocketObj.CHANNEL_ID));
-        webSocketObj.setProps(jsonObject.getString(WebSocketObj.PROPS));
+        webSocketObj.setPropsJSON(jsonObject.getString(WebSocketObj.PROPS));
         webSocketObj.setAction(jsonObject.getString(WebSocketObj.ACTION));
         String action = webSocketObj.getAction();
         switch (action){
             case WebSocketObj.ACTION_CHANNEL_VIEWED:
                 break;
             case WebSocketObj.ACTION_POSTED:
-                WebSocketPosted posted = new WebSocketPosted();
-                posted.setChannelDisplayName(props.getString(WebSocketPosted.CHANNEL_DISPLAY_NAME));
-                posted.setChannelType(props.getString(WebSocketPosted.CHANNEL_TYPE));
-                posted.setMentions(props.getString(WebSocketPosted.MENTIONS));
-                posted.setSenderName(props.getString(WebSocketPosted.SENDER_NAME));
-                posted.setTeamId(props.getString(WebSocketPosted.TEAM_ID));
-                User user = new User();
-                user.setId(webSocketObj.getUserId());
-                user.setUsername(posted.getSenderName());
-                posted.setPost(gson.fromJson(props.getString(WebSocketPosted.CHANNEL_POST), Post.class));
-                posted.getPost().setUser(user);
-                savePost(posted.getPost());
-                if(!posted.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    createNotification(posted.getPost(), context);
+                Props propsPosted = new WebSocketObj.BuilderProps()
+                        .setChannelDisplayName(propsJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
+                        .setChannelType(propsJSON.getString(WebSocketObj.CHANNEL_TYPE))
+                        .setMentions(propsJSON.getString(WebSocketObj.MENTIONS))
+                        .setSenderName(propsJSON.getString(WebSocketObj.SENDER_NAME))
+                        .setTeamId(propsJSON.getString(WebSocketObj.TEAM_ID))
+                        .setPost(gson.fromJson(propsJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
+
+                savePost(propsPosted.getPost());
+                if(!propsPosted.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+                    createNotification(propsPosted.getPost(), context);
                 }
-                Log.d(TAG, posted.getPost().getMessage());
+                Log.d(TAG, propsPosted.getPost().getMessage());
                 break;
             case WebSocketObj.ACTION_TYPING:
-                String channelId = "";
+                Props propsTyping = new WebSocketObj.BuilderProps()
+                        .setParentId(propsJSON.getString(WebSocketObj.PARENT_ID))
+                        .setTeamId(webSocketObj.getTeamId())
+                        .build();
+                /*String channelId = "";
                 if((channelId = ChatFragment.getChannelId())!=null){
                     if(channelId.equals(webSocketObj.getChannelId())){
                         ChatFragment.showTyping();
                     }
-                }
+                }*/
+                break;
+            case WebSocketObj.ACTION_POST_EDITED:
+                Props propsPostEdited = new WebSocketObj.BuilderProps()
+                        .setPost(gson.fromJson(propsJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
+                break;
+            case WebSocketObj.ACTION_POST_DELETED:
+                Props propsDeleted = new WebSocketObj.BuilderProps()
+                        .setPost(gson.fromJson(propsJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
                 break;
         }
     }
