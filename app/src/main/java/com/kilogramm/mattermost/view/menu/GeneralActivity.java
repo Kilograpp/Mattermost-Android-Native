@@ -97,5 +97,12 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
     }
     public void showErrorText(String text){
         Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MattermostService.Helper.create(this).updateUserStatusNow();
     }
 }

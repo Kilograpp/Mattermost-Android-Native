@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.network.ApiMethod;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -15,8 +17,16 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 import okhttp3.Cookie;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 20.08.2016.
@@ -25,9 +35,10 @@ public class WebSocketManager {
 
     private static final String TAG = "Websocket";
 
+    private static final String HEADER_WEB_SOCKET = "Cookie";
     public static final int TIME_REPEAT_CONNET = 10*1000;
     public static final int TIME_REPEAT_RECONNECT = 30*1000;
-
+    public static final int TIME_REPEAT_UPDATEUSER = 30*1000;
 
     private static WebSocket webSocket = null;
 
@@ -37,37 +48,41 @@ public class WebSocketManager {
 
     private Handler handler;
 
+    private CheckStatusSocket mCheckStatusSocket;
+
+    private UpdateStatusUser mUpdateStatusUser;
+
+
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;
-        handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        handler = new Handler(looper);
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(this,TIME_REPEAT_RECONNECT);
-                Log.d(TAG, "check state");
-                if(webSocket!=null) {
-                    Log.d(TAG, "State:"+webSocket.getState().toString());
-                    if(webSocket.getState() == WebSocketState.CLOSED){
-                        start();
-                    }
-                }
-                else  Log.d(TAG, "not create");
-            }
-        },TIME_REPEAT_RECONNECT);
-        create();
+        handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
+
+        mCheckStatusSocket = new CheckStatusSocket();
+
+        mUpdateStatusUser = new UpdateStatusUser();
+
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+
+        handler.postDelayed(mCheckStatusSocket,TIME_REPEAT_RECONNECT);
+
     }
 
     public void setHeader(WebSocket webSocket){
+        if(webSocket == null) return;
         List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
+        webSocket.removeHeaders(HEADER_WEB_SOCKET);
         if(cookies!=null && cookies.size()!=0) {
             Cookie cookie = cookies.get(0);
-            webSocket.addHeader("Cookie", cookie.name() + "=" + cookie.value());
+            webSocket.addHeader(HEADER_WEB_SOCKET, cookie.name() + "=" + cookie.value());
         }
     }
+    public void updateUserStatusNow(){
+        handler.removeCallbacks(mUpdateStatusUser);
+        handler.post(mUpdateStatusUser);
+    }
+
     public void create() {
         Log.d(TAG, "create");
         try {
@@ -147,11 +162,20 @@ public class WebSocketManager {
 
     private void connect() throws Exception {
         Log.d(TAG, "try connect");
+
+
         if(webSocket != null && webSocket.getState() != WebSocketState.CREATED){
             webSocket.disconnect();
             webSocket = webSocket.recreate();
+            setHeader(webSocket);
+        }
+
+        if(webSocket == null){
+            create();
         }
         webSocket.connect();
+
+        updateUserStatusNow();
     }
 
     private boolean hasWebsocket(){
@@ -165,14 +189,88 @@ public class WebSocketManager {
     }
 
     public void onDestroy(){
+
+        handler.removeCallbacks(mCheckStatusSocket);
+
+        handler.removeCallbacks(mUpdateStatusUser);
+
         if(webSocket!=null){
             webSocket.disconnect();
         }
-        handlerThread.quit();
+
+        handler.post(() -> handlerThread.quit());
+
     }
 
     public interface WebSocketMessage{
         void receiveMessage(String message);
+    }
+
+    public class CheckStatusSocket implements Runnable{
+
+        @Override
+        public void run() {
+            handler.postDelayed(this,TIME_REPEAT_RECONNECT);
+            Log.d(TAG, "check state");
+            if(webSocket!=null) {
+                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
+                if(webSocket.getState() == WebSocketState.CLOSED){
+                    start();
+                }
+            }
+            else  Log.d(TAG, "web socket not created");
+        }
+    }
+    //TODO Review code
+    public class UpdateStatusUser implements Runnable{
+
+        @Override
+        public void run() {
+            handler.postDelayed(mUpdateStatusUser,TIME_REPEAT_UPDATEUSER);
+            Log.d(TAG, "UpdateStatusUser start");
+            Realm realm = Realm.getDefaultInstance();
+            MattermostApp application = MattermostApp.getSingleton();
+            ApiMethod service = application.getMattermostRetrofitService();
+            List<String> list = new ArrayList<>();
+            RealmResults<Channel> channels = realm.where(Channel.class)
+                    .isNull("type")
+                    .findAll();
+            for (Channel channel : channels) {
+                list.add(channel.getId());
+            }
+            realm.close();
+            Subscription subscribe = service.getStatus(list)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(Schedulers.newThread())
+                    .repeat(3)
+                    .subscribe(new Subscriber<Map<String, String>>() {
+                        @Override
+                        public void onCompleted() {
+                            Log.d(TAG, "Complete load status");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            Log.d(TAG, "Error");
+                        }
+
+                        @Override
+                        public void onNext(Map<String, String> stringStringMap) {
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.beginTransaction();
+                            RealmResults<Channel> channels = realm.getDefaultInstance()
+                                    .where(Channel.class)
+                                    .isNull("type")
+                                    .findAll();
+                            for (Channel channel : channels) {
+                                channel.setStatus(stringStringMap.get(channel.getId()));
+                            }
+                            realm.commitTransaction();
+                            realm.close();
+                        }
+                    });
+        }
     }
 
 }

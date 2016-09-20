@@ -18,6 +18,7 @@ import org.json.JSONException;
 public class MattermostService extends Service implements WebSocketManager.WebSocketMessage {
 
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
+    public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
 
     private static String TAG = "MattermostService";
 
@@ -42,9 +43,14 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(intent==null) return Service.START_STICKY;
         Log.d(TAG,"onStartCommand action:"+intent.getAction());
         if(SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())){
             mWebSocketManager.start();
+        }
+
+        if(UPDATE_USER_STATUS.equals(intent.getAction())){
+            mWebSocketManager.updateUserStatusNow();
         }
         return Service.START_STICKY;
     }
@@ -88,6 +94,13 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         public Helper startWebSocket(){
             Intent intent = new Intent(mContext,MattermostService.class);
             intent.setAction(SERVICE_ACTION_START_WEB_SOCKET);
+            mContext.startService(intent);
+            return this;
+        }
+
+        public Helper updateUserStatusNow(){
+            Intent intent = new Intent(mContext,MattermostService.class);
+            intent.setAction(UPDATE_USER_STATUS);
             mContext.startService(intent);
             return this;
         }
