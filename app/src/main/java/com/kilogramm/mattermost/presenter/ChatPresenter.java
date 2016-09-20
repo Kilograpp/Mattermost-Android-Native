@@ -2,12 +2,15 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -21,6 +24,7 @@ import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
@@ -184,6 +188,46 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                     }
                 });
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().contains("@"))
+                    if (charSequence.charAt((count > 1? count : start) - before) == '@')
+                        getUsers(null);
+                    else
+                        getUsers(charSequence.toString());
+                else
+                    getView().setDropDown(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+
+    public void getUsers(String search) {
+        RealmResults<User> users;
+        String currentUser = MattermostPreference.getInstance().getMyUserId();
+        Realm realm = Realm.getDefaultInstance();
+        if (search == null)
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).findAllSorted("username", Sort.ASCENDING);
+        else {
+            String[] username = search.split("@");
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
+        }
+        getView().setDropDown(users);
+        realm.close();
     }
 
     private String getLastMessageId(){

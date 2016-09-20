@@ -80,6 +80,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                             realm1.insertOrUpdate(channelsWithMembers.getChannels());
                             RealmList<User> users = new RealmList<User>();
                             users.addAll(channelsWithMembers.getMembers().values());
+                            users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                            users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
                             realm1.insertOrUpdate(users);
                         });
                     }

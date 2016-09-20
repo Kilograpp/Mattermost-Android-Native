@@ -21,6 +21,7 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
+import com.vdurmont.emoji.EmojiParser;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -121,12 +122,12 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             mBinding.avatar.setTag(post);
             Spanned spanned;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                spanned = Html.fromHtml(post.getMessage(),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
             } else {
-                spanned = Html.fromHtml(post.getMessage(), null,new MattermostTagHandler());
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
             }
             SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
-            Linkify.addLinks(ssb, Linkify.WEB_URLS);
+            Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
             Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
                 ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),

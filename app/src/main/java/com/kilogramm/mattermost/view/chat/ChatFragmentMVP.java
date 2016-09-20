@@ -14,11 +14,13 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
@@ -53,6 +55,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private Realm realm;
 
     private NewChatListAdapter adapter;
+    private UsersDropDownListAdapter dropDownListAdapter;
 
     private PostRepository  postRepository;
 
@@ -82,10 +85,21 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
+        setDropDownUserList();
         getPresenter().getExtraInfo(teamId,
                 channelId);
     }
 
+    private void setDropDownUserList() {
+        dropDownListAdapter = new UsersDropDownListAdapter(name -> addUserLinkMessage(name));
+        binding.idRecUser.setAdapter(dropDownListAdapter);
+        binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
+    }
+
+    public void setDropDown(RealmResults<User> realmResult){
+        dropDownListAdapter.setUsers(realmResult);
+    }
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName){
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -228,5 +242,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
+    }
+
+    public void addUserLinkMessage(String s){
+        binding.writingMessage.append(s + " ");
     }
 }
