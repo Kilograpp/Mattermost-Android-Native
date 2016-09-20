@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemUserDropDownListBinding;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
 import io.realm.RealmResults;
@@ -16,6 +16,7 @@ import io.realm.RealmResults;
 /**
  * Created by ngers on 16.09.16.
  */
+//TODO fix logic
 public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDownListAdapter.ViewHolder> {
     private RealmResults<User> users;
     private OnItemClickListener onItemClickListener;

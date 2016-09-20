@@ -16,11 +16,11 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
