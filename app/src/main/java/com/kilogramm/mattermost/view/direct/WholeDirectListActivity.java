@@ -5,8 +5,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -27,6 +29,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(WholeDirectListPresenter.class)
 public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> {
+    private static final String TAG = "WholeDirectListActivity";
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
@@ -41,7 +44,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         View view = binding.getRoot();
         init();
-        //setRecycleView();
     }
 
     private void init() {
@@ -54,15 +56,18 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         RealmResults<User> users = realm.where(User.class).isNotNull("id").findAllSorted("username");
 
         ArrayList<String> usersIds = new ArrayList<>();
-        for (User user : users){
+        for (User user : users) {
             usersIds.add(user.getId());
         }
 
-        // TODO правильно провести логику нажатий и раскомментировать + конструктор в адаптере
-        adapter = new WholeDirectListAdapter(this, users, true, usersIds, getPresenter());
-//                (itemId, name) -> {
-//                    directItemClickListener.onDirectClick(itemId, name);
-//                });
+        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), new OnDirectItemClickListener() {
+            @Override
+            public void onDirectClick(int position, String name) {
+                if (name.equals("")) name = "null";
+                Log.d(TAG, name);
+                Toast.makeText(getApplication(), position + " -> " + " " + name, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
@@ -81,16 +86,8 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         finish();
     }
 
-    public void setDirectItemClickListener(OnDirectItemClickListener listener) {
-        this.directItemClickListener = listener;
-    }
-
-    public interface OnDirectItemClickListener {
-        void onDirectClick(String itemId, String name);
-    }
-
     public Drawable getStatusDrawable(String status) {
-        if(status == null) {
+        if (status == null) {
             return getResources().getDrawable(R.drawable.status_offline_drawable);
         }
 
@@ -120,4 +117,15 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
     }
 
+    public OnDirectItemClickListener getDirectItemClickListener() {
+        return directItemClickListener;
+    }
+
+    public void setDirectItemClickListener(OnDirectItemClickListener listener) {
+        this.directItemClickListener = listener;
+    }
+
+    public interface OnDirectItemClickListener {
+        void onDirectClick(int position, String name);
+    }
 }

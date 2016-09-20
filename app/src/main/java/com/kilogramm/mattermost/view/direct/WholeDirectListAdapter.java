@@ -31,11 +31,13 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     private ArrayList<String> mUsersIds = new ArrayList<>();
     private ArrayList<String> usersStatuses = new ArrayList<>();
 
-    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, boolean animateResults, ArrayList<String> usersIds,
-                                  WholeDirectListPresenter wholeDirectListPresenter) {
+    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
+                                  WholeDirectListPresenter wholeDirectListPresenter,
+                                  WholeDirectListActivity.OnDirectItemClickListener listener) {
         super(context, realmResults, true);
         this.mUsersIds = usersIds;
         mWholeDirectListPresenter = wholeDirectListPresenter;
+        this.directItemClickListener = listener;
     }
 
     @Override
@@ -56,9 +58,10 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
 
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
-                    Log.d(TAG, "onClickItem() holder");
+                    Log.d(TAG, "onClickItem() onBindViewHolder");
+//                    Log.d(TAG, user.getNickname());
                     if (directItemClickListener != null) {
-                        directItemClickListener.onDirectClick(user.getId(), user.getUsername());
+                        directItemClickListener.onDirectClick(position, user.getNickname());
                     }
                 });
     }
@@ -86,6 +89,9 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             });
 
             directBinding.directProfileName.setText(user.getUsername());
+
+            StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
+            directBinding.emailProfile.setText(stringBuilder);
 
             if(status != null){
                 directBinding.status.setImageDrawable(mWholeDirectListPresenter.drawStatusIcon(status));

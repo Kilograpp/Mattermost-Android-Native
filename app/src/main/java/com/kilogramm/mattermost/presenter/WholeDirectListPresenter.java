@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -30,14 +31,15 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
 
     private MattermostApp mMattermostApp;
     private Subscription mSubscription;
-    private Realm realm;
+    private ApiMethod service;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
 
         mMattermostApp = MattermostApp.getSingleton();
-        realm = Realm.getDefaultInstance();
+        service = mMattermostApp.getMattermostRetrofitService();
+
     }
 
     @Override
@@ -53,7 +55,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         Team team = realm.where(Team.class).findFirst();
         RealmList<User> users = new RealmList<>();
 
-        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+//        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getProfilesForDMList(team.getId())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -78,6 +80,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                                 users.add(user);
                             }
                             realm1.insertOrUpdate(users);
+                            realm1.close();
                         });
                     }
                 });
@@ -89,7 +92,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
-        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+//        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getStatus(usersIds)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -120,4 +123,34 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
     public String imageUrl(String userId){
         return getView().getImageUrl(userId);
     }
+
+    //========================queries for Direct Message==================================
+//    public String postUpdatelastViewdAt(){
+//        String channelId;
+//
+//        if (mSubscription != null && !mSubscription.isUnsubscribed())
+//            mSubscription.unsubscribe();
+//
+//        service.updatelastViewedAt(String yourId, String channelId)
+//                .subscribeOn(Schedulers.newThread())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<Post>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(Post post) {
+//
+//                    }
+//                });
+//
+//        return
+//    }
 }
