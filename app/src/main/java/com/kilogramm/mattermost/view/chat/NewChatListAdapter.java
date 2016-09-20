@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
@@ -127,8 +128,8 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
             }
             SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
+            Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
-            Linkify.addLinks(ssb, Linkify.WEB_URLS);
             Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
                 ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
                         start,end,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
