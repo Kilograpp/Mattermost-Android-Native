@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Map;
 

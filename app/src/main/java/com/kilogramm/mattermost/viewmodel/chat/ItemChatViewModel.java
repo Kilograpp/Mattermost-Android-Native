@@ -11,10 +11,9 @@ import android.widget.ImageView;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.ui.FilesView;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;

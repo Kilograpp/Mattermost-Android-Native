@@ -1,6 +1,6 @@
 package com.kilogramm.mattermost.network;
 
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 
 import retrofit2.http.GET;
 import rx.Observable;

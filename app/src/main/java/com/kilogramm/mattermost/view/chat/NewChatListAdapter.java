@@ -10,7 +10,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
@@ -145,7 +144,6 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 return true;
             },null);
-
             mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
             if(mBinding.getViewModel() == null){

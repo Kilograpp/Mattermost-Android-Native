@@ -3,7 +3,7 @@ package com.kilogramm.mattermost.model.fromnet;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 
 import io.realm.RealmList;
 

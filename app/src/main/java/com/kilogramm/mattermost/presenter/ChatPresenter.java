@@ -7,9 +7,13 @@ import android.util.Log;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
@@ -35,11 +39,15 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
     private Boolean isEmpty = false;
     private Boolean isLoadNext = true;
+    private PostRepository postRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
+        postRepository = new PostRepository();
+        userRepository = new UserRepository();
     }
 
     @Override
@@ -76,13 +84,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(ExtraInfo extraInfo) {
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        RealmList<User> list = new RealmList<>();
-                        list.addAll(extraInfo.getMembers());
-                        realm.insertOrUpdate(list);
-                        realm.commitTransaction();
-                        realm.close();
+                        userRepository.add(extraInfo.getMembers());
                     }
                 });
     } //  +
@@ -124,20 +126,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             isLoadNext = false;
                             getView().showEmptyList();
                         }
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
+                        RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(realm.where(User.class)
-                                    .equalTo("id", post.getUserId())
-                                    .findFirst());
+                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
-                        RealmList<Post> realmList = new RealmList<>();
                         realmList.addAll(posts.getPosts().values());
-                        realm.insertOrUpdate(realmList);
-                        realm.commitTransaction();
-                        realm.close();
+                        postRepository.add(realmList);
                         if(realmList.size() < 60){
                             isLoadNext = false;
                         }
@@ -175,19 +171,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             isLoadNext = false;
                             return;
                         }
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
+                        RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(realm.where(User.class)
-                                    .equalTo("id", post.getUserId())
-                                    .findFirst());
+                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
-                        RealmList<Post> realmList = new RealmList<>();
                         realmList.addAll(posts.getPosts().values());
-                        realm.insertOrUpdate(realmList);
-                        realm.commitTransaction();
-                        realm.close();
+                        postRepository.add(realmList);
                         if(realmList.size() < 60){
                             isLoadNext = false;
                         }
@@ -197,13 +188,9 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
     private String getLastMessageId(){
         String id;
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> realmList = realm.where(Post.class)
-                .equalTo("channelId", getView().getChId())
-                .findAllSorted("createAt");
+        RealmResults<Post> realmList = postRepository.query(new PostByChannelId(getView().getChId()));
         id = realmList.get(0).getId();
         Log.d(TAG, "lastmessage " + realmList.get(0).getMessage());
-        realm.close();
         return id;
     }
 
@@ -231,15 +218,9 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Post post) {
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        post.setUser(realm.where(User.class)
-                                .equalTo("id", post.getUserId())
-                                .findFirst());
+                        post.setUser(userRepository.query(new UserByIdSpecification(post.getId())).first());
                         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-                        realm.insertOrUpdate(post);
-                        realm.commitTransaction();
-                        realm.close();
+                        postRepository.add(post);
                     }
                 });
     }

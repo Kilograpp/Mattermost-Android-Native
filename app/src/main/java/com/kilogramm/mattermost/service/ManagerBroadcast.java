@@ -8,7 +8,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Props;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 
@@ -74,12 +74,6 @@ public class ManagerBroadcast {
                         .setParentId(propsJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
                         .build();
-                /*String channelId = "";
-                if((channelId = ChatFragment.getChannelId())!=null){
-                    if(channelId.equals(webSocketObj.getChannelId())){
-                        ChatFragment.showTyping();
-                    }
-                }*/
                 break;
             case WebSocketObj.ACTION_POST_EDITED:
                 Props propsPostEdited = new WebSocketObj.BuilderProps()

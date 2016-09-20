@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Map;
 

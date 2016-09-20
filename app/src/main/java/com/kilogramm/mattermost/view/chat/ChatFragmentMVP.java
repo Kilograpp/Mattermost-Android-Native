@@ -15,11 +15,12 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
-import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
 
 import java.util.Calendar;
 import java.util.Timer;
@@ -27,16 +28,15 @@ import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 /**
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener {
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener {
 
-    private static final String TAG = "ChatFragment";
+    private static final String TAG = "ChatFragmentMVP";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
 
@@ -54,6 +54,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     private NewChatListAdapter adapter;
 
+    private PostRepository  postRepository;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +63,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
+        this.postRepository = new PostRepository();
         setupToolbar("",channelName,v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
     }
 
@@ -94,9 +97,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     }
 
     private void setupListChat(String channelId) {
-        RealmResults<Post> results = realm.where(Post.class)
-                .equalTo("channelId", channelId)
-                .findAllSorted("createAt", Sort.ASCENDING);
+        RealmResults<Post> results = postRepository.query(new PostByChannelId(channelId));
         results.addChangeListener(element -> {
             if(adapter!=null){
                 if(results.size()-2 == binding.rev.findLastCompletelyVisibleItemPosition()){
@@ -132,11 +133,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         channelId = null;
     }
 
-
-    @Override
-    public void onItemAdded() {
-        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
-    }
 
 
     public String getChId(){
@@ -226,5 +222,11 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     public void setMessage(String s){
         binding.writingMessage.setText(s);
+    }
+
+
+    @Override
+    public void onItemAdded() {
+        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
     }
 }

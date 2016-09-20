@@ -1,6 +1,6 @@
 package com.kilogramm.mattermost.model.fromnet;
 
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.List;
 

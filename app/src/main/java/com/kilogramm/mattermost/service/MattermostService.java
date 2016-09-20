@@ -57,6 +57,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public void receiveMessage(String message) {
+        Log.d(TAG, message);
         managerBroadcast.praseMessage(message);
     }
 
