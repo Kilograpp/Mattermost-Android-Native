@@ -30,15 +30,16 @@ public class ManagerBroadcast {
         this.mContext = mContext;
     }
 
-    public void praseMessage(String message){
+    public WebSocketObj praseMessage(String message){
         try {
-            parseWebSocketObject(message, mContext);
+            return parseWebSocketObject(message, mContext);
         }catch (Exception e){
             e.printStackTrace();
+            return null;
         }
     }
 
-    private void parseWebSocketObject(String json, Context context) throws JSONException {
+    private WebSocketObj parseWebSocketObject(String json, Context context) throws JSONException {
         Gson gson = new Gson();
         JSONObject jsonObject = new JSONObject(json);
         JSONObject propsJSON = jsonObject.getJSONObject(WebSocketObj.PROPS);
@@ -49,11 +50,12 @@ public class ManagerBroadcast {
         webSocketObj.setPropsJSON(jsonObject.getString(WebSocketObj.PROPS));
         webSocketObj.setAction(jsonObject.getString(WebSocketObj.ACTION));
         String action = webSocketObj.getAction();
+        Props props = null;
         switch (action){
             case WebSocketObj.ACTION_CHANNEL_VIEWED:
                 break;
             case WebSocketObj.ACTION_POSTED:
-                Props propsPosted = new WebSocketObj.BuilderProps()
+                props = new WebSocketObj.BuilderProps()
                         .setChannelDisplayName(propsJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(propsJSON.getString(WebSocketObj.CHANNEL_TYPE))
                         .setMentions(propsJSON.getString(WebSocketObj.MENTIONS))
@@ -63,31 +65,33 @@ public class ManagerBroadcast {
                                 webSocketObj.getUserId())
                         .build();
 
-                savePost(propsPosted.getPost());
-                if(!propsPosted.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    createNotification(propsPosted.getPost(), context);
+                savePost(props.getPost());
+                if(!props.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+                    createNotification(props.getPost(), context);
                 }
-                Log.d(TAG, propsPosted.getPost().getMessage());
+                Log.d(TAG, props.getPost().getMessage());
                 break;
             case WebSocketObj.ACTION_TYPING:
-                Props propsTyping = new WebSocketObj.BuilderProps()
+                props = new WebSocketObj.BuilderProps()
                         .setParentId(propsJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
                         .build();
                 break;
             case WebSocketObj.ACTION_POST_EDITED:
-                Props propsPostEdited = new WebSocketObj.BuilderProps()
+                props = new WebSocketObj.BuilderProps()
                         .setPost(gson.fromJson(propsJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
                 break;
             case WebSocketObj.ACTION_POST_DELETED:
-                Props propsDeleted = new WebSocketObj.BuilderProps()
+                props = new WebSocketObj.BuilderProps()
                         .setPost(gson.fromJson(propsJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
                 break;
         }
+        webSocketObj.setProps(props);
+        return webSocketObj;
     }
 
 

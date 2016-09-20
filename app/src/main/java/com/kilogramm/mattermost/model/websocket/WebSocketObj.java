@@ -155,42 +155,16 @@ public class WebSocketObj implements Parcelable {
         this.senderName = senderName;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public Props getProps() {
+        return props;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.teamId);
-        dest.writeString(this.channelId);
-        dest.writeString(this.userId);
-        dest.writeString(this.action);
-        dest.writeString(this.propsJSON);
+    public void setProps(Props props) {
+        this.props = props;
     }
 
     public WebSocketObj() {
     }
-
-    protected WebSocketObj(Parcel in) {
-        this.teamId = in.readString();
-        this.channelId = in.readString();
-        this.userId = in.readString();
-        this.action = in.readString();
-        this.propsJSON = in.readString();
-    }
-
-    public static final Parcelable.Creator<WebSocketObj> CREATOR = new Parcelable.Creator<WebSocketObj>() {
-        @Override
-        public WebSocketObj createFromParcel(Parcel source) {
-            return new WebSocketObj(source);
-        }
-
-        @Override
-        public WebSocketObj[] newArray(int size) {
-            return new WebSocketObj[size];
-        }
-    };
 
     public static class BuilderProps {
         private String channelDisplayName;
@@ -244,4 +218,50 @@ public class WebSocketObj implements Parcelable {
             return new Props(channelDisplayName, channelType, mentions, post, senderName, teamId);
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.teamId);
+        dest.writeString(this.channelId);
+        dest.writeString(this.userId);
+        dest.writeString(this.action);
+        dest.writeString(this.propsJSON);
+        dest.writeParcelable(this.props, flags);
+        dest.writeString(this.channelDisplayName);
+        dest.writeString(this.channelType);
+        dest.writeString(this.mentions);
+        dest.writeParcelable(this.post, flags);
+        dest.writeString(this.senderName);
+    }
+
+    protected WebSocketObj(Parcel in) {
+        this.teamId = in.readString();
+        this.channelId = in.readString();
+        this.userId = in.readString();
+        this.action = in.readString();
+        this.propsJSON = in.readString();
+        this.props = in.readParcelable(Props.class.getClassLoader());
+        this.channelDisplayName = in.readString();
+        this.channelType = in.readString();
+        this.mentions = in.readString();
+        this.post = in.readParcelable(Post.class.getClassLoader());
+        this.senderName = in.readString();
+    }
+
+    public static final Creator<WebSocketObj> CREATOR = new Creator<WebSocketObj>() {
+        @Override
+        public WebSocketObj createFromParcel(Parcel source) {
+            return new WebSocketObj(source);
+        }
+
+        @Override
+        public WebSocketObj[] newArray(int size) {
+            return new WebSocketObj[size];
+        }
+    };
 }

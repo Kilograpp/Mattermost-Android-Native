@@ -8,9 +8,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.websocket.WebSocketManager;
 
-import org.json.JSONException;
 
 /**
  * Created by kraftu on 16.09.16.
@@ -19,6 +19,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
     public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
+    public static final String BROADCAST_MESSAGE = "broadcast_message";
 
     private static String TAG = "MattermostService";
 
@@ -64,7 +65,12 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void receiveMessage(String message) {
         Log.d(TAG, message);
-        managerBroadcast.praseMessage(message);
+        WebSocketObj sendedMessage = managerBroadcast.praseMessage(message);
+        if (sendedMessage!=null){
+            Intent intent = new Intent(sendedMessage.getAction());
+            intent.putExtra(BROADCAST_MESSAGE, sendedMessage);
+            sendBroadcast(intent);
+        }
     }
 
     public static class Helper{

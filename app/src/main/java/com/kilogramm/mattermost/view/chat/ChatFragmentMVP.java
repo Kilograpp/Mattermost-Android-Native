@@ -1,5 +1,9 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,7 +25,9 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
+import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
 import java.util.Calendar;
@@ -59,6 +65,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     private PostRepository  postRepository;
 
+    private BroadcastReceiver brReceiverTyping;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,12 +94,24 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         setupRefreshListener();
         setBtnSendOnClickListener();
         setDropDownUserList();
+        brReceiverTyping = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
+                Log.d(TAG,obj.getAction());
+                if(obj.getChannelId().equals(channelId)){
+                    getActivity().runOnUiThread(() -> showTyping());
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(WebSocketObj.ACTION_TYPING);
+        getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);
     }
 
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(name -> addUserLinkMessage(name));
+        dropDownListAdapter = new UsersDropDownListAdapter(this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
@@ -145,6 +165,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         this.realm.close();
         Log.d(TAG, "onDestroy()");
         channelId = null;
+        getActivity().unregisterReceiver(brReceiverTyping);
     }
 
 
@@ -225,7 +246,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                binding.typing.setVisibility(View.GONE);
+                if(getActivity()!=null)
+                    getActivity().runOnUiThread(() -> binding.typing.setVisibility(View.GONE));
             }
         },TYPING_DURATION);
     }
