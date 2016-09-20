@@ -9,6 +9,7 @@ import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 
 import java.util.List;
 import java.util.Map;
@@ -107,5 +108,12 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET ("api/v3/users/profiles_for_dm_list/{teamId}")
     Observable<Map<String, User>> getProfilesForDMList(@Path("teamId") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/logout")
+    Observable<LogoutData> logout(@Body Object object);
 
 }

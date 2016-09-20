@@ -37,8 +37,13 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
+        setupRightMenu();
 
         MattermostService.Helper.create(this).startWebSocket();
+    }
+
+    private void setupRightMenu() {
+        binding.logout.setOnClickListener(view -> getPresenter().logout());
     }
 
     private void setupMenu() {

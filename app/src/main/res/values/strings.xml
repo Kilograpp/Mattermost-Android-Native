@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Mattermost</string>
-    <string name="main_discription">All your team communication in one place, searchable and accessable anywhere.</string>
+    <string name="main_discription">All your team communication in one place, searchable and accessible anywhere.</string>
 
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
@@ -14,19 +14,20 @@
     <string name="forgot_password_hint_email">Email</string>
     <string name="forgot_password_recovery_button">Recovery</string>
     <string name="forgot_password_description">Enter the email address associated with your team.</string>
-    <string name="more">More...</string>
+    <string name="more">More…</string>
     <string name="direct_message">DIRECT_MESSAGE</string>
     <string name="channels">CHANNELS</string>
-    <string name="type_something">Type something...</string>
+    <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
 
     <string name="transitions_image">image</string>
-    <string name="typing">typing...</string>
+    <string name="typing">typing…</string>
 
     <string name="title_forgot_password">Password recovery</string>
     <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="logout">logout</string>
 
 </resources>

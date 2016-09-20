@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.authorization;
 
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -66,7 +67,7 @@ public class MainActivity extends BaseActivity<MainPresenter> {
     }
 
     public void showLoginActivity(){
-        LoginActivity.startActivity(this);
+        LoginActivity.startActivity(this, null);
     }
 
     public void showChatActivity(){
@@ -93,5 +94,13 @@ public class MainActivity extends BaseActivity<MainPresenter> {
 
     public void hideKeyboard(){
         hideKeyboard(this);
+    }
+
+    public static void start(Context context, Integer flags) {
+        Intent starter = new Intent(context, MainActivity.class);
+        if(flags != null){
+            starter.setFlags(flags);
+        }
+        context.startActivity(starter);
     }
 }

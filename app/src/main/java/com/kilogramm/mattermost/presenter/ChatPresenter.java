@@ -262,7 +262,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Post post) {
-                        post.setUser(userRepository.query(new UserByIdSpecification(post.getId())).first());
+                        post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
                         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         postRepository.add(post);
                     }
@@ -296,6 +296,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void initLoadNext(){
-        isLoadNext = new Boolean(true);
+        isLoadNext = true;
     }
 }
