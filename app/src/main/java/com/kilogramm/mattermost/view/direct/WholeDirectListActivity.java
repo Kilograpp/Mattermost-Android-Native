@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -92,13 +91,13 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
 
         switch (status) {
-            case Channel.ONLINE:
+            case User.ONLINE:
                 return getResources().getDrawable(R.drawable.status_online_drawable);
-            case Channel.OFFLINE:
+            case User.OFFLINE:
                 return getResources().getDrawable(R.drawable.status_offline_drawable);
-            case Channel.AWAY:
+            case User.AWAY:
                 return getResources().getDrawable(R.drawable.status_away_drawable);
-            case Channel.REFRESH:
+            case User.REFRESH:
                 return getResources().getDrawable(R.drawable.status_refresh_drawable);
             default:
                 return getResources().getDrawable(R.drawable.status_offline_drawable);
@@ -115,14 +114,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         } else {
             return "";
         }
-    }
-
-    public OnDirectItemClickListener getDirectItemClickListener() {
-        return directItemClickListener;
-    }
-
-    public void setDirectItemClickListener(OnDirectItemClickListener listener) {
-        this.directItemClickListener = listener;
     }
 
     public interface OnDirectItemClickListener {

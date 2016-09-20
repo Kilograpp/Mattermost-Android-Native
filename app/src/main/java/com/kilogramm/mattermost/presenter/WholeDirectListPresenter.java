@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -17,6 +16,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
@@ -55,7 +55,6 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         Team team = realm.where(Team.class).findFirst();
         RealmList<User> users = new RealmList<>();
 
-//        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getProfilesForDMList(team.getId())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -86,20 +85,16 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                 });
     }
 
-    public ArrayList<String> getUsersStatuses(ArrayList<String> usersIds) {
-        ArrayList<String> userStatus = new ArrayList<>();
-
+    public void getUsersStatuses(ArrayList<String> usersIds) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
-//        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.getStatus(usersIds)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Map<String, String>>() {
                     @Override
                     public void onCompleted() {
-//                        notify();
                     }
 
                     @Override
@@ -109,48 +104,34 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
 
                     @Override
                     public void onNext(Map<String, String> stringStringMap) {
-                        userStatus.addAll(stringStringMap.values());
-                    }
-                });
+                        Log.d(TAG, "onNext added users statuses");
 
-        return userStatus;
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        RealmResults<User> users = realm.getDefaultInstance()
+                                .where(User.class)
+                                .isNotNull("id")
+                                .findAll();
+
+                        for (User user : users) {
+                            user.setStatus(stringStringMap.get(user.getId()));
+                        }
+
+                        realm.commitTransaction();
+                        realm.close();
+                    }
+
+                });
     }
 
     public Drawable drawStatusIcon(String status) {
         return getView().getStatusDrawable(status);
     }
 
-    public String imageUrl(String userId){
+    public String imageUrl(String userId) {
         return getView().getImageUrl(userId);
     }
 
     //========================queries for Direct Message==================================
-//    public String postUpdatelastViewdAt(){
-//        String channelId;
-//
-//        if (mSubscription != null && !mSubscription.isUnsubscribed())
-//            mSubscription.unsubscribe();
-//
-//        service.updatelastViewedAt(String yourId, String channelId)
-//                .subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<Post>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(Post post) {
-//
-//                    }
-//                });
-//
-//        return
-//    }
+
 }

@@ -29,7 +29,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
 
     private WholeDirectListActivity.OnDirectItemClickListener directItemClickListener;
     private ArrayList<String> mUsersIds = new ArrayList<>();
-    private ArrayList<String> usersStatuses = new ArrayList<>();
+//    private ArrayList<String> usersStatuses = new ArrayList<>();
 
     public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
                                   WholeDirectListPresenter wholeDirectListPresenter,
@@ -38,6 +38,8 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         this.mUsersIds = usersIds;
         mWholeDirectListPresenter = wholeDirectListPresenter;
         this.directItemClickListener = listener;
+
+        mWholeDirectListPresenter.getUsersStatuses(mUsersIds);
     }
 
     @Override
@@ -49,17 +51,12 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getItem(position);
 
-        usersStatuses = mWholeDirectListPresenter.getUsersStatuses(mUsersIds);
-        Log.d(TAG, "onBindViewHolder ->" + usersStatuses.toString());
+//        mWholeDirectListPresenter.getUsersStatuses(mUsersIds);
 
-        // TODO проверка приавильности перенесения методов в Presenter
-//            holder.bindTo(user, usersStatuses.get(position));
-        holder.bindTo(user, Channel.AWAY);
-
+        holder.bindTo(user);
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() onBindViewHolder");
-//                    Log.d(TAG, user.getNickname());
                     if (directItemClickListener != null) {
                         directItemClickListener.onDirectClick(position, user.getNickname());
                     }
@@ -80,21 +77,16 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             return new MyViewHolder(binding);
         }
 
-        public void bindTo(User user, String status) {
-            directBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                }
-            });
-
+        public void bindTo(User user) {
             directBinding.directProfileName.setText(user.getUsername());
 
             StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
             directBinding.emailProfile.setText(stringBuilder);
 
-            if(status != null){
-                directBinding.status.setImageDrawable(mWholeDirectListPresenter.drawStatusIcon(status));
+            if(user.getStatus() != null){
+                directBinding.status.setImageDrawable(mWholeDirectListPresenter.drawStatusIcon(user.getStatus()));
+            } else {
+                directBinding.status.setImageDrawable(mWholeDirectListPresenter.drawStatusIcon(User.OFFLINE));
             }
 
             Picasso.with(directBinding.avatarDirect.getContext())

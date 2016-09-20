@@ -13,7 +13,10 @@ import io.realm.annotations.PrimaryKey;
  * Created by Evgeny on 25.07.2016.
  */
 public class User extends RealmObject implements Parcelable {
-
+    public static final String ONLINE = "online";
+    public static final String OFFLINE = "offline";
+    public static final String REFRESH = "refresh";
+    public static final String AWAY = "away";
 
     @PrimaryKey
     @SerializedName("id")
@@ -79,6 +82,9 @@ public class User extends RealmObject implements Parcelable {
     @SerializedName("locale")
     @Expose
     private String locale;
+    @SerializedName("status")
+    @Expose
+    private String status;
 
     /**
      *
@@ -458,6 +464,28 @@ public class User extends RealmObject implements Parcelable {
         this.locale = locale;
     }
 
+    /**
+     *
+     * @return status
+     * Returns user`s status
+     */
+
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     *
+     * @param status
+     * Set user`s status
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public User() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -486,9 +514,7 @@ public class User extends RealmObject implements Parcelable {
         dest.writeValue(this.lastPasswordUpdate);
         dest.writeValue(this.lastPictureUpdate);
         dest.writeString(this.locale);
-    }
-
-    public User() {
+        dest.writeString(this.status);
     }
 
     protected User(Parcel in) {
@@ -513,9 +539,10 @@ public class User extends RealmObject implements Parcelable {
         this.lastPasswordUpdate = (Long) in.readValue(Long.class.getClassLoader());
         this.lastPictureUpdate = (Long) in.readValue(Long.class.getClassLoader());
         this.locale = in.readString();
+        this.status = in.readString();
     }
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel source) {
             return new User(source);
