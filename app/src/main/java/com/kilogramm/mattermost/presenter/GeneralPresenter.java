@@ -25,6 +25,8 @@ import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
 import com.kilogramm.mattermost.view.authorization.MainActivity;
 import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
+import java.util.Map;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import nucleus.presenter.Presenter;
@@ -79,7 +81,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
                     @Override
                     public void onCompleted() {
-
+                        Log.d(TAG, "complete load channels");
+                        loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -89,9 +92,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
                     @Override
                     public void onNext(ChannelsWithMembers channelsWithMembers) {
-                        realm.executeTransaction(realm1 -> {
-                            realm1.insertOrUpdate(channelsWithMembers.getChannels());
-                        });
+                        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(channelsWithMembers.getChannels()));
 
                         RealmList<User> users = new RealmList<>();
                         users.addAll(channelsWithMembers.getMembers().values());
@@ -101,6 +102,32 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     }
                 });
 
+    }
+
+    private void loadUsersTeam(String teamId){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.getTeamUsers(teamId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Map<String, User>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "complete load users");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Map<String, User> stringUserMap) {
+                        userRepository.add(stringUserMap.values());
+                    }
+                });
     }
 
     public void setSelectedDirect(String itemId,String name){

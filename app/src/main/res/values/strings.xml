@@ -29,5 +29,9 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="logout">logout</string>
+    <string name="confirm_post_delete">Confirm Post Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="reply">Replay</string>
+    <string name="permalink">Permalink</string>
 
 </resources>

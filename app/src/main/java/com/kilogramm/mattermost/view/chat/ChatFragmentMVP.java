@@ -7,13 +7,17 @@ import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -31,8 +35,6 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
 import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -42,7 +44,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener {
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post> {
 
     private static final String TAG = "ChatFragmentMVP";
     private static final String CHANNEL_ID = "channel_id";
@@ -139,7 +141,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity(), results, true);
+        adapter = new NewChatListAdapter(getActivity().getApplicationContext(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
@@ -194,7 +196,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             getPresenter().sendToServer(post, teamId,channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
-            Toast.makeText(getView().getContext(), "Message is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
     } // +
 
@@ -242,14 +244,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     public void showTyping(){
         binding.typing.setVisibility(View.VISIBLE);
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if(getActivity()!=null)
-                    getActivity().runOnUiThread(() -> binding.typing.setVisibility(View.GONE));
-            }
-        },TYPING_DURATION);
+        binding.typing.postDelayed(() -> binding.typing.setVisibility(View.GONE), TYPING_DURATION);
     }
 
     public String getMessage() {
@@ -268,5 +263,39 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     public void addUserLinkMessage(String s){
         binding.writingMessage.append(s + " ");
+    }
+
+    @Override
+    public void OnItemClick(View view, Post item) {
+        switch (view.getId()){
+            case R.id.controlMenu:
+                PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+                if(item.getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+                    popupMenu.inflate(R.menu.my_chat_item_popupmenu);
+                } else {
+                    popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
+                }
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    switch (menuItem.getItemId()){
+                        case R.id.edit:
+
+                            break;
+                        case R.id.delete:
+                            new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                                    .setTitle(getString(R.string.confirm_post_delete))
+                                    .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                                        dialogInterface.dismiss();
+                                    })
+                                    .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
+                                        getPresenter().deletePost(item,teamId,channelId);
+                                    })
+                                    .show();
+                            break;
+                    }
+                    return true;
+                });
+                popupMenu.show();
+                break;
+        }
     }
 }

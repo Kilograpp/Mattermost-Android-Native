@@ -177,7 +177,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            Log.d(TAG,"userid = " + post.getUserId() + " message = " + post.getMessage());
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            Log.d(TAG, user.getUsername());
+                            post.setUser(user);
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
@@ -297,5 +300,32 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
     public void initLoadNext(){
         isLoadNext = true;
+    }
+
+    public void deletePost(Post post,String teamId, String channelId) {
+        if(mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.deletePost(teamId,channelId, post.getId(), new Object())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Post>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete delete post");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error delete post " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Post post) {
+                        postRepository.remove(post);
+                    }
+                });
     }
 }
