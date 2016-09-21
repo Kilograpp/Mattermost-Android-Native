@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
+import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -269,33 +271,57 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     public void OnItemClick(View view, Post item) {
         switch (view.getId()){
             case R.id.controlMenu:
-                PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
-                if(item.getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    popupMenu.inflate(R.menu.my_chat_item_popupmenu);
-                } else {
-                    popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
-                }
-                popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    switch (menuItem.getItemId()){
-                        case R.id.edit:
-
-                            break;
-                        case R.id.delete:
-                            new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
-                                    .setTitle(getString(R.string.confirm_post_delete))
-                                    .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                        dialogInterface.dismiss();
-                                    })
-                                    .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                        getPresenter().deletePost(item,teamId,channelId);
-                                    })
-                                    .show();
-                            break;
-                    }
-                    return true;
-                });
-                popupMenu.show();
+                showPopupMenu(view, item);
                 break;
         }
+    }
+
+    private void showPopupMenu(View view, Post post) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+        if(post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+            popupMenu.inflate(R.menu.my_chat_item_popupmenu);
+        } else {
+            popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
+        }
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()){
+                case R.id.edit:
+                    EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
+                            R.layout.edit_dialog_layout,null,false);
+                    binding.edit.setText(Html.fromHtml(post.getMessage().toString()));
+                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.edit_post))
+                            .setView(binding.getRoot())
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                                dialogInterface.dismiss();
+                            })
+                            .setPositiveButton(R.string.save, (dialogInterface, i) -> {
+                                Post newPost = new Post();
+                                newPost.setId(post.getId());
+                                newPost.setChannelId(post.getChannelId());
+                                newPost.setMessage(binding.edit.getText().toString());
+                                getPresenter().editPost(newPost,teamId,channelId);
+                            })
+                            .show();
+                    break;
+                case R.id.delete:
+                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.confirm_post_delete))
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                                dialogInterface.dismiss();
+                            })
+                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
+                                getPresenter().deletePost(post,teamId,channelId);
+                            })
+                            .show();
+                    break;
+            }
+            return true;
+        });
+        popupMenu.show();
+    }
+
+    public void invalidateAdapter() {
+        adapter.notifyDataSetChanged();
     }
 }

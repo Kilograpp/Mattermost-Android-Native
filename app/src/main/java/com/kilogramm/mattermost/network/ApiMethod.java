@@ -124,4 +124,13 @@ public interface ApiMethod {
                             @Path("channelId") String channelId,
                             @Path("postId") String psotId,
                             @Body Object object);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
+    Observable<Post> editPost(@Path("teamId") String teamId,
+                                @Path("channelId") String channelId,
+                                @Body Post post);
 }
