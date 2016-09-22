@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.chat;
 
 import android.content.BroadcastReceiver;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,7 +13,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -211,7 +211,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount()-1;
                 binding.swipeRefreshLayout
-                        .setEnabled(bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition());
+                        .setEnabled(bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
+                                .findLastCompletelyVisibleItemPosition());
 
             }
 
@@ -284,11 +285,11 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
         popupMenu.setOnMenuItemClickListener(menuItem -> {
+            EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
+                    R.layout.edit_dialog_layout,null,false);
             switch (menuItem.getItemId()){
                 case R.id.edit:
-                    EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
-                            R.layout.edit_dialog_layout,null,false);
-                    binding.edit.setText(Html.fromHtml(post.getMessage().toString()));
+                    binding.edit.setText(Html.fromHtml(post.getMessage()));
                     new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.edit_post))
                             .setView(binding.getRoot())
@@ -315,13 +316,43 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                             })
                             .show();
                     break;
+                case R.id.permalink:
+                    binding.edit.setText(getMessageLink(post.getId()));
+                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.copy_permalink))
+                            .setView(binding.getRoot())
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                                dialogInterface.dismiss();
+                            })
+                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> {
+                                copyLink(binding.edit.getText().toString());
+                            })
+                            .show();
+                    break;
+                case R.id.reply:
+                    break;
             }
             return true;
         });
         popupMenu.show();
     }
 
+    private String getMessageLink(String postId) {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/"
+                + realm.where(Team.class).findFirst().getName()
+                + "/pl/"
+                + postId;
+    }
+
     public void invalidateAdapter() {
         adapter.notifyDataSetChanged();
+    }
+
+    public void copyLink(String link){
+        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setText(link);
+        Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
     }
 }

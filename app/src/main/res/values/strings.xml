@@ -37,5 +37,7 @@
     <string name="save">Save</string>
     <string name="message">Message</string>
     <string name="edit_the_post">Edit the post…</string>
+    <string name="copy_permalink">Copy Permalink</string>
+    <string name="copy_link">Copy Link</string>
 
 </resources>
