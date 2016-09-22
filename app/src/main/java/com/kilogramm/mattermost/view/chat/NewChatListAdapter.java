@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
-import retrofit2.http.POST;
 
 /**
  * Created by Evgeny on 31.08.2016.

@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 /**

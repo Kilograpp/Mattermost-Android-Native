@@ -2,13 +2,14 @@ package com.kilogramm.mattermost.service.websocket;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.channel.ChannelTypeIsNullSpecification;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -52,9 +53,13 @@ public class WebSocketManager {
 
     private UpdateStatusUser mUpdateStatusUser;
 
+    private ChannelRepository channelRepository;
+
 
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;
+
+        channelRepository = new ChannelRepository();
 
         handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
 
@@ -232,9 +237,7 @@ public class WebSocketManager {
             MattermostApp application = MattermostApp.getSingleton();
             ApiMethod service = application.getMattermostRetrofitService();
             List<String> list = new ArrayList<>();
-            RealmResults<Channel> channels = realm.where(Channel.class)
-                    .isNull("type")
-                    .findAll();
+            RealmResults<Channel> channels = channelRepository.query(new ChannelTypeIsNullSpecification());
             for (Channel channel : channels) {
                 list.add(channel.getId());
             }
@@ -259,10 +262,7 @@ public class WebSocketManager {
                         public void onNext(Map<String, String> stringStringMap) {
                             Realm realm = Realm.getDefaultInstance();
                             realm.beginTransaction();
-                            RealmResults<Channel> channels = realm.getDefaultInstance()
-                                    .where(Channel.class)
-                                    .isNull("type")
-                                    .findAll();
+                            RealmResults<Channel> channels = channelRepository.query(new ChannelTypeIsNullSpecification());
                             for (Channel channel : channels) {
                                 channel.setStatus(stringStringMap.get(channel.getId()));
                             }

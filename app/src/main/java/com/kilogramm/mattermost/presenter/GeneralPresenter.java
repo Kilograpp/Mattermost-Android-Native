@@ -7,13 +7,15 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -45,12 +47,14 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     Realm realm;
     Subscription subscription;
     private UserRepository userRepository;
+    private ChannelRepository channelRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
         userRepository = new UserRepository();
+        channelRepository = new ChannelRepository();
     }
 
     @Override
@@ -63,10 +67,6 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
         super.onTakeView(generalActivity);
         String teamId = realm.where(Team.class).findFirst().getId();
         loadChannels(teamId);
-        Channel channel = realm.where(Channel.class).equalTo("type", "O").findFirst();
-        if(channel!=null){
-            setSelectedChannel(channel.getId(),channel.getName());
-        }
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
@@ -116,6 +116,10 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "complete load users");
+                        Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                        if(channel!=null){
+                            setSelectedChannel(channel.getId(),channel.getName());
+                        }
                     }
 
                     @Override
@@ -139,11 +143,15 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .equalTo("name", itemId + "__" + myId)
                 .findFirst()
                 .getId();
-        getView().setFragmentChat(channelId,name,false);
+        if(getView()!=null){
+            getView().setFragmentChat(channelId,name,false);
+        }
     }
 
     public void setSelectedChannel(String channelId,String name){
-        getView().setFragmentChat(channelId,name,true);
+        if(getView()!=null){
+            getView().setFragmentChat(channelId,name,true);
+        }
     }
 
     public void logout() {

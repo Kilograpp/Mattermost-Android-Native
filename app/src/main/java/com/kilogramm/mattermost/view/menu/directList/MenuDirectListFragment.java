@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuDirectListBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuDirectViewModel;
 
 import io.realm.Realm;

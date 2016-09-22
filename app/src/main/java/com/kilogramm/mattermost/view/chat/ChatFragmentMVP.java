@@ -143,7 +143,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity().getApplicationContext(), results, true, this);
+        adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override

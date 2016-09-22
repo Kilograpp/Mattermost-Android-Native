@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 
