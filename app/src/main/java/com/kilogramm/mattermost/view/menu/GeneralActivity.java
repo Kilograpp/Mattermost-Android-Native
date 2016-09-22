@@ -1,25 +1,27 @@
 package com.kilogramm.mattermost.view.menu;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
-import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.service.websocket.WebSocketManager;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.presenter.GeneralPresenter;
+import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
+import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
+
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -27,8 +29,9 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralPresenter.class)
 public class GeneralActivity extends BaseActivity<GeneralPresenter> {
-
+    private static final String TAG = "GeneralActivity";
     private ActivityMenuBinding binding;
+
     MenuChannelListFragment channelListFragment;
     MenuDirectListFragment directListFragment;
     private String currentChannel = "";
@@ -46,14 +49,14 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         channelListFragment = new MenuChannelListFragment();
         directListFragment = new MenuDirectListFragment();
 
-        directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId,name));
+        directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId, name));
 
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
 
         //initChannelList
-        channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId,name));
+        channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId, name));
 
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentChannelList.getId(), channelListFragment)
@@ -69,17 +72,17 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setFragmentChat(String channelId, String channelName,boolean isChannel){
-        replaceFragment(channelId,channelName);
-        if(isChannel){
+    public void setFragmentChat(String channelId, String channelName, boolean isChannel) {
+        replaceFragment(channelId, channelName);
+        if (isChannel) {
             directListFragment.resetSelectItem();
-        }else{
+        } else {
             channelListFragment.resetSelectItem();
         }
     }
 
-    private void replaceFragment(String channelId, String channelName){
-        if(!channelId.equals(currentChannel)){
+    private void replaceFragment(String channelId, String channelName) {
+        if (!channelId.equals(currentChannel)) {
             ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
@@ -89,14 +92,33 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         }
     }
 
-    public static void start(Context context, Integer flags ) {
-         Intent starter = new Intent(context, GeneralActivity.class);
-         if (flags != null) {
-             starter.setFlags(flags);
-         }
-         context.startActivity(starter);
+    public static void start(Context context, Integer flags) {
+        Intent starter = new Intent(context, GeneralActivity.class);
+        if (flags != null) {
+            starter.setFlags(flags);
+        }
+        context.startActivity(starter);
     }
-    public void showErrorText(String text){
-        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
+
+    public void showErrorText(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_CANCELED) {
+            if (requestCode == MenuDirectListFragment.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+                if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
+                    String itemId = data.getStringExtra(WholeDirectListActivity.USER_ID);
+                    String name = data.getStringExtra(WholeDirectListActivity.NAME);
+//                    getPresenter().setSelectedDirect(itemId, name);
+                    SaveData saveData = new SaveData(name, itemId, true);
+                    Log.d(TAG, "saveData constructor");
+                    getPresenter().takeView(this);
+                    getPresenter().save(saveData);
+                }
+            }
+        }
     }
 }

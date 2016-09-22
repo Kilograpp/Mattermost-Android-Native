@@ -27,8 +27,7 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(MenuDirectListPresenter.class)
 public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter> {
-
-    private static final String TAG = "MenuDirectListFragment";
+    public static final int REQUEST_CODE = 100;
 
     private FragmentMenuDirectListBinding binding;
     private OnDirectItemClickListener directItemClickListener;
@@ -60,7 +59,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     }
 
     public void goToDirectListActivity() {
-        startActivity(new Intent(getActivity(), WholeDirectListActivity.class));
+        getActivity().startActivityForResult(new Intent(getActivity().getApplicationContext(), WholeDirectListActivity.class), REQUEST_CODE);
     }
 
     private void setupRecyclerViewDirection() {

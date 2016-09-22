@@ -1,11 +1,11 @@
 package com.kilogramm.mattermost.presenter;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -36,10 +36,8 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-
     }
 
     @Override
@@ -56,7 +54,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         RealmList<User> users = new RealmList<>();
 
         mSubscription = service.getProfilesForDMList(team.getId())
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Map<String, User>>() {
                     @Override
@@ -124,14 +122,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                 });
     }
 
-    public Drawable drawStatusIcon(String status) {
-        return getView().getStatusDrawable(status);
+    public void finishActivity() {
+        getView().finishActivity();
     }
-
-    public String imageUrl(String userId) {
-        return getView().getImageUrl(userId);
-    }
-
-    //========================queries for Direct Message==================================
-
 }

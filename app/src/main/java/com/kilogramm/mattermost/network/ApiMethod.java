@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.network;
 import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -108,4 +109,10 @@ public interface ApiMethod {
     @GET ("api/v3/users/profiles_for_dm_list/{teamId}")
     Observable<Map<String, User>> getProfilesForDMList(@Path("teamId") String teamId);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/preferences/save")
+    Observable<Boolean> save(@Body List<SaveData> saveData);
 }
