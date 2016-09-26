@@ -62,10 +62,14 @@ public class MainPresenter extends Presenter<MainActivity> {
         }
         getView().setShowProgress(false);
 
-        if(BuildConfig.DEBUG) getView().setTextUrl("https://mattermost.kilograpp.com");
+        if(BuildConfig.DEBUG && getView().getStringUrl().length() == 0) getView().setTextUrl("https://mattermost.kilograpp.com");
     }
 
     public void checkConnetHost(String editTextUrl){
+        if(!isValidUrl(editTextUrl)){
+            getView().showEditTextErrorMessage();
+            return;
+        }
         URI url = URI.create(editTextUrl);
         String s = url.getAuthority();
         if(s == null){

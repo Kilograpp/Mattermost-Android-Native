@@ -10,8 +10,6 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.service.websocket.WebSocketManager;
 
-import org.json.JSONException;
-
 /**
  * Created by kraftu on 16.09.16.
  */
@@ -64,7 +62,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void receiveMessage(String message) {
         Log.d(TAG, message);
-        managerBroadcast.praseMessage(message);
+        managerBroadcast.parseMessage(message);
     }
 
     public static class Helper{

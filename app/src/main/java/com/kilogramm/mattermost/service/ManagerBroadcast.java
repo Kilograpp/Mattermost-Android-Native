@@ -30,7 +30,7 @@ public class ManagerBroadcast {
         this.mContext = mContext;
     }
 
-    public void praseMessage(String message){
+    public void parseMessage(String message){
         try {
             parseWebSocketObject(message, mContext);
         }catch (Exception e){
