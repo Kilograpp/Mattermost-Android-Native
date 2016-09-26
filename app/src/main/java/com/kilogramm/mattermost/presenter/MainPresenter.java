@@ -8,6 +8,7 @@ import android.util.Patterns;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.error.HttpError;
@@ -90,7 +91,7 @@ public class MainPresenter extends Presenter<MainActivity> {
             service = mMattermostApp.getMattermostRetrofitService();
         } catch (IllegalArgumentException e){
             e.printStackTrace();
-            getView().showErrorText("Url is not valid https://");
+            getView().showErrorText(getView().getString(R.string.main_url_error));
             return;
         }
 
