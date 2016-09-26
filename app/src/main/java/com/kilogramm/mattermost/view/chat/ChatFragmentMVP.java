@@ -10,14 +10,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.databinding.ActivityLoginBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
+import com.kilogramm.mattermost.tools.BottomToolbar;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
 
@@ -34,8 +37,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener {
-
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener, BottomToolbar.BottomtoolbarChatListener {
     private static final String TAG = "ChatFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
@@ -43,15 +45,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     private static final Integer TYPING_DURATION = 5000;
 
     private FragmentChatMvpBinding binding;
-
     private String channelId;
-
     private String teamId;
-
     private String channelName;
-
     private Realm realm;
-
     private NewChatListAdapter adapter;
 
     @Override
@@ -68,10 +65,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_chat_mvp,
-                container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_chat_mvp, container, false);
         View view = binding.getRoot();
         initView();
         return view;
@@ -81,10 +76,17 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-        getPresenter().getExtraInfo(teamId,
-                channelId);
-    }
+        getPresenter().getExtraInfo(teamId, channelId);
 
+        // TODO узнатчь как правильно ловит клики
+//        ((BottomToolbar) binding.bottomToolbar).setBottomToolbarListener(this);
+//        binding.bottomToolbar.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                Toast.makeText(getActivity(), "onClickWriteText", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName){
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -100,7 +102,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
                 .equalTo("channelId", channelId)
                 .findAllSorted("createAt", Sort.ASCENDING);
         results.addChangeListener(element -> {
-            if(adapter!=null){
+            if(adapter != null){
                 if(results.size()-2 == binding.rev.findLastCompletelyVisibleItemPosition()){
                     onItemAdded();
                 }
@@ -155,7 +157,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     }
 
     //==========================MVP methods==================================================
-
 
     private void sendMessage() {
         Post post = new Post();
@@ -233,5 +234,25 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     public void setMessage(String s){
         binding.writingMessage.setText(s);
+    }
+
+    @Override
+    public void onClickWriteText() {
+        Toast.makeText(getActivity(), "onClickWriteText", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickMakePhoto() {
+        Toast.makeText(getActivity(), "onClickMakePhoto", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickGallery() {
+        Toast.makeText(getActivity(), "onClickGallery", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickToolbarMore() {
+        Toast.makeText(getActivity(), "onClickToolbarMore", Toast.LENGTH_SHORT).show();
     }
 }

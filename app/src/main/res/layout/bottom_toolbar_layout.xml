@@ -1,26 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<com.kilogramm.mattermost.tools.BottomToolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomToolbarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="bottom|end"
+    android:orientation="horizontal">
+
+    <!--<data>-->
+        <!--<variable-->
+            <!--android:name="bottomToolbar"-->
+            <!--android:type="com.kilogramm.mattermost.view.chat.ChatFragmentMVP" />-->
+    <!--</data>-->
+
+    <!--android:onClick="@{bottomToolbar.onClickWriteText}"-->
+    <!--android:onClick="@{bottomToolbar.onClickMakePhoto}"-->
+    <!--android:onClick="@{bottomToolbar.onClickGallery}"-->
+    <!--android:onClick="@{bottomToolbar.onClickToolbarMore}"-->
 
     <ImageView
         android:id="@+id/writeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:src="@drawable/temporary_aa" />
 
     <ImageView
         android:id="@+id/makePhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:src="@drawable/temporary_photo_1" />
 
     <ImageView
         android:id="@+id/addExistedPhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:src="@drawable/temporary_photo_2" />
 
     <ImageView
-        android:id="@+id/addAudio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:id="@+id/toolbarMore"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:src="@drawable/temporary_more" />
 
-</LinearLayout>
+</com.kilogramm.mattermost.tools.BottomToolbar>

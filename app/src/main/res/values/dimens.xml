@@ -14,4 +14,6 @@
     <dimen name="status_image_size">15dp</dimen>
     <dimen name="status_margin_bottom">3dp</dimen>
     <dimen name="status_margin_end">8dp</dimen>
+
+
 </resources>
