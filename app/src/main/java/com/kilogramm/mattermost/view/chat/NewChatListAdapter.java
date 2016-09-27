@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import io.realm.Realm;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -79,13 +80,20 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         Calendar preDate = Calendar.getInstance();
         Post prePost = null;
         Boolean isTitle = false;
-        if(i-1 >= 0){
-            prePost = realmResults.get(i-1);
+        if (i - 1 >= 0) {
+            prePost = realmResults.get(i - 1);
             curDate.setTime(new Date(post.getCreateAt()));
             preDate.setTime(new Date(prePost.getCreateAt()));
-            if(curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)){
+            if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
                 isTitle = true;
             }
+
+            if (post.getRootId() != null && post.getRootId().length() > 0 &&
+                    !prePost.getId().equals(post.getRootId()) &&
+                    !prePost.getUserId().equals(post.getUserId())) {
+                myViewHolder.setRootMassage(post.getRootId());
+            }
+
         }
         myViewHolder.bindTo(post, context, isTitle);
     }
@@ -105,6 +113,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             super(binding.getRoot());
             mBinding = binding;
         }
+
         public void bindTo(Post post, Context context, Boolean isTitle) {
             mBinding.getRoot().setOnLongClickListener(view -> {
                 Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
@@ -114,46 +123,23 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 PopupMenu popupMenu = new PopupMenu(context, view, Gravity.BOTTOM);
                 popupMenu.inflate(R.menu.chat_item_popupmenu);
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    Toast.makeText(context, "In development.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "In development.", Toast.LENGTH_SHORT).show();
                     return true;
                 });
                 popupMenu.show();
             });
+
             mBinding.avatar.setTag(post);
-            Spanned spanned;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
-            } else {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
-            }
-            SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
-            Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
-            Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-                ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
-                        start,end,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return true;
-            }, null);
-
-            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
-                String s = charSequence.toString();
-                StringBuilder builder = new StringBuilder();
-                for (int k = i; k < i1; k++){
-                    builder.append(' ');
-                }
-                ssb.replace(i,i1,builder.toString());
-                ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return true;
-            },null);
-            mBinding.message.setText(revertSpanned(ssb));
+            mBinding.message.setText(revertSpanned(getPostLinkifyMessage(post)));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
-            if(mBinding.getViewModel() == null){
+            if (mBinding.getViewModel() == null) {
                 mBinding.setViewModel(new ItemChatViewModel(context, post));
             } else {
                 mBinding.getViewModel().setPost(post);
 
             }
-            if(isTitle){
+            if (isTitle) {
                 mBinding.getViewModel().setTitleVisibility(View.VISIBLE);
             } else {
                 mBinding.getViewModel().setTitleVisibility(View.GONE);
@@ -161,13 +147,61 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
             mBinding.executePendingBindings();
         }
+
+        private SpannableStringBuilder getPostLinkifyMessage(Post post) {
+            Spanned spanned;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
+            } else {
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null, new MattermostTagHandler());
+            }
+            SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
+            Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+
+            Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+                ssb.setSpan(new ForegroundColorSpan(mBinding.getRoot().getResources().getColor(R.color.colorPrimary)),
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return true;
+            }, null);
+
+            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
+                String s = charSequence.toString();
+                StringBuilder builder = new StringBuilder();
+                for (int k = i; k < i1; k++) {
+                    builder.append(' ');
+                }
+                ssb.replace(i, i1, builder.toString());
+                ssb.setSpan(new HrSpannable(mBinding.getRoot().getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return true;
+            }, null);
+
+            return ssb;
+        }
+
+        private void setRootMassage(String rootId) {
+            Realm realm = Realm.getDefaultInstance();
+            Post rootPost = realm.where(Post.class)
+                    .equalTo("id", rootId).findFirst();
+            mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
+            mBinding.nickRootPost.setText(rootPost.getUser().getUsername());
+            mBinding.avatarRootPost.setTag(rootPost);
+            mBinding.messageRootPost.setText(revertSpanned(getPostLinkifyMessage(rootPost)).toString().trim());
+        }
+
+
     }
+
+//    static SpannableStringBuilder setComment(Post post) {
+//
+//        return ssb;
+//    }
+
 
     static Spannable revertSpanned(Spanned stext) {
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
         if (spans != null && spans.length > 0) {
-            for(int i = spans.length - 1; i >= 0; --i) {
+            for (int i = spans.length - 1; i >= 0; --i) {
                 ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
             }
         }

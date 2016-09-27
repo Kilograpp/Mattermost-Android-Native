@@ -30,4 +30,7 @@
     <string name="edit">Edit</string>
     <string name="logout">logout</string>
 
+    <string name="commented_on">Commented on</string>
+    <string name="is_message">s message:</string>
+
 </resources>
