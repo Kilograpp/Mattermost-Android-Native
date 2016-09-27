@@ -75,6 +75,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:visibility="gone"
                 android:id="@+id/typing"
@@ -93,15 +94,20 @@
                 android:background="@color/very_light_grey"/>
 
             <LinearLayout
+                android:id="@+id/sendingMessageContainer"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:animateLayoutChanges="true">
+
                 <ImageView
                     android:padding="10dp"
                     android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_attachment_grey_24dp"/>
+
                 <EditText
                     android:id="@+id/writingMessage"
                     android:layout_weight="1"
@@ -112,6 +118,7 @@
                     android:textColorHint="@color/very_light_grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
                 <ImageView
                     android:id="@+id/btnSend"
                     android:padding="10dp"
@@ -124,9 +131,56 @@
 
         </LinearLayout>
 
-       <include
-           android:id="@+id/bottomToolbar"
-           layout="@layout/bottom_toolbar_layout" />
+        <!--вернуть, если решится проблема кастомизации-->
+       <!--<include-->
+           <!--android:id="@+id/bottomToolbar"-->
+           <!--layout="@layout/bottom_toolbar_layout" />-->
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/bottomToolbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|end"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/writeText"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:src="@drawable/temporary_aa" />
+
+            <ImageView
+                android:id="@+id/makePhoto"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:src="@drawable/temporary_photo_1" />
+
+            <ImageView
+                android:id="@+id/addExistedPhoto"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:src="@drawable/temporary_photo_2" />
+
+            <ImageView
+                android:id="@+id/addDocs"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:src="@drawable/temporary_more" />
+
+        </LinearLayout>
 
 </LinearLayout>
 </layout>

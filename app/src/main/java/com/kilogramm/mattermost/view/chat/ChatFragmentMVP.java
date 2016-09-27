@@ -1,7 +1,15 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,15 +23,16 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ActivityLoginBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Post;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
-import com.kilogramm.mattermost.tools.BottomToolbar;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
+import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,19 +46,27 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener, BottomToolbar.BottomtoolbarChatListener {
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener {
     private static final String TAG = "ChatFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
 
     private static final Integer TYPING_DURATION = 5000;
 
+    private static final int PICK_IMAGE = 1;
+    private static final int CAMERA_PIC_REQUEST = 2;
+    private static final int FILE_CODE = 3;
+
     private FragmentChatMvpBinding binding;
+    private NewChatListAdapter adapter;
+    private Realm realm;
     private String channelId;
     private String teamId;
     private String channelName;
-    private Realm realm;
-    private NewChatListAdapter adapter;
+
+    private boolean isMessageTextOpen = false;
+
+//    private BottomToolbar bottomToolbar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,7 +75,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
-        setupToolbar("",channelName,v -> {
+        setupToolbar("", channelName, v -> {
             Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show();
         });
     }
@@ -69,6 +86,14 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_chat_mvp, container, false);
         View view = binding.getRoot();
         initView();
+
+        // TODO не получается проинициализировать тулбар, чтобы отрабатывались клики
+//        bottomToolbar = (BottomToolbar) getActivity().getLayoutInflater().inflate(R.layout.bottom_toolbar_layout, null);
+//        BottomToolbar bottomToolbar = (BottomToolbar) inflater.inflate(R.layout.bottom_toolbar_layout, null);
+//        bottomToolbar.setBottomToolbarListener(this);
+//        or
+//        ((BottomToolbar) binding.bottomToolbar).setBottomToolbarListener(this);
+
         return view;
     }
 
@@ -76,19 +101,11 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
+        setBottomToolbarOnClickListeners();
         getPresenter().getExtraInfo(teamId, channelId);
-
-        // TODO узнатчь как правильно ловит клики
-//        ((BottomToolbar) binding.bottomToolbar).setBottomToolbarListener(this);
-//        binding.bottomToolbar.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-////                Toast.makeText(getActivity(), "onClickWriteText", Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
-    public static ChatFragmentMVP createFragment(String channelId, String channelName){
+    public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
@@ -102,13 +119,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
                 .equalTo("channelId", channelId)
                 .findAllSorted("createAt", Sort.ASCENDING);
         results.addChangeListener(element -> {
-            if(adapter != null){
-                if(results.size()-2 == binding.rev.findLastCompletelyVisibleItemPosition()){
+            if (adapter != null) {
+                if (results.size() - 2 == binding.rev.findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity(), results, true,binding.rev);
+        adapter = new NewChatListAdapter(getActivity(), results, true, binding.rev);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
@@ -136,24 +153,73 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         channelId = null;
     }
 
-
     @Override
     public void onItemAdded() {
-        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
+        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount() - 1);
     }
 
-
-    public String getChId(){
+    public String getChId() {
         return this.channelId;
     }
 
-    public void setBtnSendOnClickListener(){
-        binding.btnSend.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                sendMessage();
-            }
+    public void setBtnSendOnClickListener() {
+        binding.btnSend.setOnClickListener(view -> {
+            sendMessage();
         });
+    }
+
+    private void setBottomToolbarOnClickListeners() {
+        binding.writeText.setOnClickListener(view -> {
+            OnClickAddText();
+        });
+
+        binding.makePhoto.setOnClickListener(view -> {
+            OnClickMakePhoto();
+        });
+
+        binding.addExistedPhoto.setOnClickListener(view -> {
+            OnClickOpenGallery();
+        });
+
+        binding.addDocs.setOnClickListener(view -> {
+            OnClickChooseDoc();
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_CANCELED) {
+            if (requestCode == PICK_IMAGE) {
+                Uri selectedImageUri = data.getData();
+            }
+            if (requestCode == CAMERA_PIC_REQUEST) {
+                Bitmap image = (Bitmap) data.getExtras().get("data");
+            }
+            if (requestCode == FILE_CODE) {
+                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        ClipData clip = data.getClipData();
+
+                        if (clip != null) {
+                            for (int i = 0; i < clip.getItemCount(); i++) {
+                                Uri uri = clip.getItemAt(i).getUri();
+                            }
+                        }
+                    } else {
+                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
+
+                        if (paths != null) {
+                            for (String path : paths) {
+                                Uri uri = Uri.parse(path);
+                            }
+                        }
+                    }
+                } else {
+                    Uri uri = data.getData();
+                }
+            }
+        }
     }
 
     //==========================MVP methods==================================================
@@ -167,8 +233,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
 
         setMessage("");
-        if(post.getMessage().length() != 0){
-            getPresenter().sendToServer(post, teamId,channelId);
+        if (post.getMessage().length() != 0) {
+            getPresenter().sendToServer(post, teamId, channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
             //Toast.makeText(context, "Message is empty", Toast.LENGTH_SHORT).show();
@@ -176,13 +242,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     } // +
 
     private void setupRefreshListener() {
-        binding.rev.getRecycleView().addOnScrollListener(new RecyclerView.OnScrollListener(){
+        binding.rev.getRecycleView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int bottomRow =
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
-                                : recyclerView.getAdapter().getItemCount()-1;
+                                : recyclerView.getAdapter().getItemCount() - 1;
                 binding.swipeRefreshLayout
                         .setEnabled(bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition());
 
@@ -217,7 +283,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         binding.swipeRefreshLayout.setRefreshing(false);
     }
 
-    public void showTyping(){
+    public void showTyping() {
         binding.typing.setVisibility(View.VISIBLE);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -225,34 +291,47 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
             public void run() {
                 binding.typing.setVisibility(View.GONE);
             }
-        },TYPING_DURATION);
+        }, TYPING_DURATION);
     }
 
     public String getMessage() {
         return binding.writingMessage.getText().toString();
     }
 
-    public void setMessage(String s){
+    public void setMessage(String s) {
         binding.writingMessage.setText(s);
     }
 
-    @Override
-    public void onClickWriteText() {
-        Toast.makeText(getActivity(), "onClickWriteText", Toast.LENGTH_SHORT).show();
+    public void OnClickAddText() {
+        if (!isMessageTextOpen) {
+            binding.sendingMessageContainer.setVisibility(View.VISIBLE);
+            isMessageTextOpen = true;
+        } else {
+            binding.sendingMessageContainer.setVisibility(View.GONE);
+            isMessageTextOpen = false;
+        }
+        // + add more smooth setting visibility
     }
 
-    @Override
-    public void onClickMakePhoto() {
-        Toast.makeText(getActivity(), "onClickMakePhoto", Toast.LENGTH_SHORT).show();
+    public void OnClickMakePhoto() {
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
     }
 
-    @Override
-    public void onClickGallery() {
-        Toast.makeText(getActivity(), "onClickGallery", Toast.LENGTH_SHORT).show();
+    public void OnClickOpenGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, ""), PICK_IMAGE);
     }
 
-    @Override
-    public void onClickToolbarMore() {
-        Toast.makeText(getActivity(), "onClickToolbarMore", Toast.LENGTH_SHORT).show();
+    public void OnClickChooseDoc() {
+        Intent i = new Intent(getActivity(), FilePickerActivity.class)
+                .putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                .putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
+                .putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE)
+                .putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        startActivityForResult(i, FILE_CODE);
     }
 }

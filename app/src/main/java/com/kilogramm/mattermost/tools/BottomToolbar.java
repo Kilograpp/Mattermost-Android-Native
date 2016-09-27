@@ -2,13 +2,12 @@ package com.kilogramm.mattermost.tools;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.kilogramm.mattermost.R;
 
-import java.util.zip.Inflater;
+import java.util.ArrayList;
 
 /**
  * Created by melkshake on 26.09.16.
@@ -21,6 +20,8 @@ public class BottomToolbar extends LinearLayout {
     private ImageView btnToolbarMore;
 
     private BottomtoolbarChatListener bottomToolbarListener;
+
+    private final ArrayList<BottomtoolbarChatListener> mOnItemTouchListeners = new ArrayList<>();
 
     public BottomToolbar(Context context) {
         super(context);
@@ -41,7 +42,7 @@ public class BottomToolbar extends LinearLayout {
         btnWriteText = (ImageView) findViewById(R.id.writeText);
         btnMakePhoto = (ImageView) findViewById(R.id.makePhoto);
         btnGallery = (ImageView) findViewById(R.id.addExistedPhoto);
-        btnToolbarMore = (ImageView) findViewById(R.id.toolbarMore);
+        btnToolbarMore = (ImageView) findViewById(R.id.addDocs);
 
         btnWriteText.setOnClickListener(view -> {
                 if (bottomToolbarListener != null) bottomToolbarListener.onClickWriteText();

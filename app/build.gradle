@@ -122,5 +122,7 @@ dependencies {
         transitive = true;
     }
 
+    // File-picker
+    compile 'com.nononsenseapps:filepicker:3.0.0'
 
 }
