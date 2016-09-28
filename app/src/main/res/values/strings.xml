@@ -5,6 +5,7 @@
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
+    <string name="main_url_error">Url is not valid https://</string>
 
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>

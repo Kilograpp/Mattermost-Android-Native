@@ -10,7 +10,7 @@
     <EditText
         android:hint="@string/edit_the_post"
         android:id="@+id/edit"
-        style="@style/DiscriptionBlackTextStyle"
+        style="@style/DescriptionBlackTextStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textCapSentences" />

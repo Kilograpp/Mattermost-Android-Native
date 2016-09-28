@@ -36,12 +36,7 @@ public class MainActivity extends BaseActivity<MainPresenter> {
 
     private void initView(){
 
-        binding.buttonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPresenter().checkConnetHost(getStringUrl());
-            }
-        });
+        binding.buttonNext.setOnClickListener(view -> getPresenter().checkConnetHost(getStringUrl()));
 
         binding.urlEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -62,7 +57,7 @@ public class MainActivity extends BaseActivity<MainPresenter> {
         });
     }
 
-    private String getStringUrl(){
+    public String getStringUrl(){
         return binding.urlEditText.getText().toString();
     }
 
@@ -90,6 +85,10 @@ public class MainActivity extends BaseActivity<MainPresenter> {
     public void setTextUrl(String url){
         binding.urlEditText.setText(url);
         binding.urlEditText.setSelection(binding.urlEditText.length());
+    }
+
+    public void showEditTextErrorMessage(){
+        binding.editTextInputLayout.setError(getString(R.string.main_url_error));
     }
 
     public void hideKeyboard(){

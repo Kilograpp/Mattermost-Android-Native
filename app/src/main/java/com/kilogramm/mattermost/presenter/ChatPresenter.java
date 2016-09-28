@@ -57,20 +57,19 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
     }
     //===============================Methods======================================================
 
-    public void getExtraInfo(String teamId, String channelId){
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    public void getExtraInfo(String teamId, String channelId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
 
         //TODO FIX logic
-        ApiMethod service;
-        service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.getExtraInfoChannel(teamId,channelId)
+        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.getExtraInfoChannel(teamId, channelId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ExtraInfo>() {
@@ -93,12 +92,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     } //  +
 
-    public void loadPosts(String teamId, String channelId){
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    public void loadPosts(String teamId, String channelId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.getPosts(teamId,channelId)
+        mSubscription = service.getPosts(teamId, channelId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Posts>() {
@@ -107,10 +106,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         updateLastViewedAt(teamId, channelId);
 
                         getView().setRefreshing(false);
-                        if(!isEmpty){
+                        if (!isEmpty) {
                             getView().showList();
                         }
-                        if(isLoadNext) {
+                        if (isLoadNext) {
                             loadNextPost(teamId, channelId, getLastMessageId());
                         }
                         Log.d(TAG, "Complete load post");
@@ -125,7 +124,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Posts posts) {
-                        if(posts.getPosts()==null || posts.getPosts().size() == 0){
+                        if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                             isEmpty = true;
                             isLoadNext = false;
                             getView().showEmptyList();
@@ -138,26 +137,26 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         realmList.addAll(posts.getPosts().values());
                         postRepository.add(realmList);
-                        if(realmList.size() < 60){
+                        if (realmList.size() < 60) {
                             isLoadNext = false;
                         }
                     }
                 });
     } // +
 
-    public void loadNextPost(String teamId, String channelId, String lastMessageId){
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    public void loadNextPost(String teamId, String channelId, String lastMessageId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.getPostsBefore(teamId,channelId, lastMessageId)
+        mSubscription = service.getPostsBefore(teamId, channelId, lastMessageId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
                         getView().showList();
-                        if(isLoadNext) {
+                        if (isLoadNext) {
                             loadNextPost(teamId, channelId, getLastMessageId());
                         }
                         Log.d(TAG, "Complete load next post");
@@ -171,7 +170,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Posts posts) {
-                        if(posts.getPosts() == null){
+                        if (posts.getPosts() == null) {
                             isLoadNext = false;
                             return;
                         }
@@ -184,7 +183,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         realmList.addAll(posts.getPosts().values());
                         postRepository.add(realmList);
-                        if(realmList.size() < 60){
+                        if (realmList.size() < 60) {
                             isLoadNext = false;
                         }
                     }
@@ -201,7 +200,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1? count : start) - before) == '@')
+                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
                         getUsers(null);
                     else
                         getUsers(charSequence.toString());
@@ -222,16 +221,16 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         String currentUser = MattermostPreference.getInstance().getMyUserId();
         Realm realm = Realm.getDefaultInstance();
         if (search == null)
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).findAllSorted("username", Sort.ASCENDING);
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).findAllSorted("username", Sort.ASCENDING);
         else {
             String[] username = search.split("@");
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id",currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
+            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
         }
         getView().setDropDown(users);
         realm.close();
     }
 
-    private String getLastMessageId(){
+    private String getLastMessageId() {
         String id;
         RealmResults<Post> realmList = postRepository.query(new PostByChannelId(getView().getChId()));
         id = realmList.get(0).getId();
@@ -240,11 +239,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void sendToServer(Post post, String teamId, String channelId) {
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.sendPost(teamId,channelId, post)
+        mSubscription = service.sendPost(teamId, channelId, post)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -270,12 +269,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    private void updateLastViewedAt(String teamId, String channelId){
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    private void updateLastViewedAt(String teamId, String channelId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.updatelastViewedAt(teamId,channelId)
+        mSubscription = service.updatelastViewedAt(teamId, channelId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<Post>() {
@@ -296,7 +295,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    public void initLoadNext(){
+    public void initLoadNext() {
         isLoadNext = true;
     }
 
