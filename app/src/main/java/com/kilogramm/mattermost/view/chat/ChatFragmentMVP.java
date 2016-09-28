@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +45,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final String CHANNEL_NAME = "channel_name";
 
     private static final Integer TYPING_DURATION = 5000;
+    private static final int PICKFILE_REQUEST_CODE = 5;
 
     private FragmentChatMvpBinding binding;
 
@@ -85,6 +88,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
+        setButtonAddFileOnClickListener();
         setDropDownUserList();
         getPresenter().getExtraInfo(teamId,
                 channelId);
@@ -157,6 +161,19 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         binding.btnSend.setOnClickListener(view -> sendMessage());
     }
 
+    public void setButtonAddFileOnClickListener(){
+        binding.buttonAttachFile.setOnClickListener(view -> attachFile());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data != null && data.getData() != null){
+            Uri uri = data.getData();
+            getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+        }
+    }
+
     //==========================MVP methods==================================================
 
 
@@ -176,6 +193,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             Toast.makeText(getView().getContext(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
     } // +
+
+    private void attachFile(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+        startActivityForResult(intent, PICKFILE_REQUEST_CODE);
+    }
 
     private void setupRefreshListener() {
         binding.rev.getRecycleView().addOnScrollListener(new RecyclerView.OnScrollListener(){

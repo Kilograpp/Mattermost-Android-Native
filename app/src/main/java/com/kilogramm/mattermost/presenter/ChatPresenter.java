@@ -1,6 +1,15 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +18,7 @@ import android.util.Log;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -18,14 +28,22 @@ import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
+import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
+
+import java.io.File;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import nucleus.presenter.Presenter;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -271,8 +289,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     private void updateLastViewedAt(String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
-        ApiMethod service;
-        service = mMattermostApp.getMattermostRetrofitService();
+        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.updatelastViewedAt(teamId, channelId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(Schedulers.io())
@@ -297,4 +314,60 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     public void initLoadNext() {
         isLoadNext = true;
     }
+
+    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri){
+        File file = new File(FileUtils.getPath(context, uri));
+        if(file.exists()) {
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, null, new ProgressRequestBody.UploadCallbacks() {
+                @Override
+                public void onProgressUpdate(int percentage) {
+                    Log.d(TAG, String.format("Progress: %d", percentage));
+                }
+
+                @Override
+                public void onError() {
+
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            });
+            MultipartBody.Part filePart = MultipartBody.Part.createFormData("image", file.getName(), fileBody);
+
+            if (mSubscription != null && !mSubscription.isUnsubscribed())
+                mSubscription.unsubscribe();
+            ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+
+            RequestBody channelId =
+                    RequestBody.create(
+                            MediaType.parse("multipart/form-data"), channel_id);
+
+
+            mSubscription = service.uploadFile(teamId, filePart, channelId)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(Schedulers.io())
+                    .subscribe(new Subscriber<FileUploadResponse>() {
+                        @Override
+                        public void onCompleted() {
+                            Log.d(TAG, "Complete update last viewed at");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            Log.d(TAG, "Error");
+                        }
+
+                        @Override
+                        public void onNext(FileUploadResponse post) {
+                        }
+                    });
+        } else {
+            Log.e(TAG, "file not found");
+        }
+    }
+
+
 }

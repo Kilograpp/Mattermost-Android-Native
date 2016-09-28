@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -125,5 +127,5 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest"})
     @Multipart
     @POST("api/v3/teams/{team_id}/files/upload")
-    Observable<Response> uploadFile(@Path("team_id") int team_id, @Part MultipartBody.Part file);
+    Observable<FileUploadResponse> uploadFile(@Path("team_id") String team_id, @Part MultipartBody.Part file, @Part("channel_id") RequestBody channel_id);
 }
