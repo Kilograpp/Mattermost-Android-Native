@@ -14,10 +14,14 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import rx.Observable;
 
@@ -116,4 +120,10 @@ public interface ApiMethod {
     @POST("api/v3/users/logout")
     Observable<LogoutData> logout(@Body Object object);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest"})
+    @Multipart
+    @POST("api/v3/teams/{team_id}/files/upload")
+    Observable<Response> uploadFile(@Path("team_id") int team_id, @Part MultipartBody.Part file);
 }
