@@ -89,9 +89,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
                     @Override
                     public void onNext(ChannelsWithMembers channelsWithMembers) {
-                        realm.executeTransaction(realm1 -> {
-                            realm1.insertOrUpdate(channelsWithMembers.getChannels());
-                        });
+                        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(channelsWithMembers.getChannels()));
 
                         RealmList<User> users = new RealmList<>();
                         users.addAll(channelsWithMembers.getMembers().values());

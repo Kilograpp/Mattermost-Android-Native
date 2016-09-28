@@ -127,5 +127,8 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest"})
     @Multipart
     @POST("api/v3/teams/{team_id}/files/upload")
-    Observable<FileUploadResponse> uploadFile(@Path("team_id") String team_id, @Part MultipartBody.Part file, @Part("channel_id") RequestBody channel_id);
+    Observable<FileUploadResponse> uploadFile(@Path("team_id") String team_id,
+                                              @Part MultipartBody.Part file,
+                                              @Part("channel_id") RequestBody channel_id,
+                                              @Part("client_ids") RequestBody client_ids);
 }

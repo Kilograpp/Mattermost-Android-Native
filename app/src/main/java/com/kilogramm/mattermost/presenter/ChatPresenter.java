@@ -1,10 +1,12 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.net.sip.SipAudioCall;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
@@ -34,6 +37,8 @@ import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -63,6 +68,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     private Boolean isLoadNext = true;
     private PostRepository postRepository;
     private UserRepository userRepository;
+
+    private List<String> fileNames;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -258,8 +265,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     public void sendToServer(Post post, String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
-        ApiMethod service;
-        service = mMattermostApp.getMattermostRetrofitService();
+        post.setFilenames(fileNames);
+        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.sendPost(teamId, channelId, post)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -316,9 +323,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri){
-        File file = new File(FileUtils.getPath(context, uri));
+        String filePath = FileUtils.getPath(context, uri);
+        String mimeType = FileUtils.getMimeType(filePath);
+        File file = new File(filePath);
         if(file.exists()) {
-            ProgressRequestBody fileBody = new ProgressRequestBody(file, null, new ProgressRequestBody.UploadCallbacks() {
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, new ProgressRequestBody.UploadCallbacks() {
                 @Override
                 public void onProgressUpdate(int percentage) {
                     Log.d(TAG, String.format("Progress: %d", percentage));
@@ -334,18 +343,15 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                 }
             });
-            MultipartBody.Part filePart = MultipartBody.Part.createFormData("image", file.getName(), fileBody);
+            MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+            RequestBody channelId = RequestBody.create(MediaType.parse("multipart/form-data"), channel_id);
+            RequestBody clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
             if (mSubscription != null && !mSubscription.isUnsubscribed())
                 mSubscription.unsubscribe();
             ApiMethod service = mMattermostApp.getMattermostRetrofitService();
 
-            RequestBody channelId =
-                    RequestBody.create(
-                            MediaType.parse("multipart/form-data"), channel_id);
-
-
-            mSubscription = service.uploadFile(teamId, filePart, channelId)
+            mSubscription = service.uploadFile(teamId, filePart, channelId, clientId)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(Schedulers.io())
                     .subscribe(new Subscriber<FileUploadResponse>() {
@@ -361,13 +367,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
 
                         @Override
-                        public void onNext(FileUploadResponse post) {
+                        public void onNext(FileUploadResponse fileUploadResponse) {
+                            Log.d(TAG, fileUploadResponse.toString());
+                            if(fileNames == null) fileNames = new ArrayList<>();
+                            fileNames.addAll(fileUploadResponse.getFilenames());
                         }
                     });
         } else {
             Log.e(TAG, "file not found");
         }
     }
-
-
 }

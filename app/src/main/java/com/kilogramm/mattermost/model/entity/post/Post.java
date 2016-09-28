@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.model.entity.post;
 
+import android.os.Build;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.RealmString;
@@ -275,6 +277,12 @@ public class Post extends RealmObject{
 
     public void setFilenames(List<String> filenames) {
         this.filenames = new RealmList<>();
-        filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        if(Build.VERSION.SDK_INT == 24) {
+            filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        } else {
+            for (String filename : filenames) {
+                this.filenames.add(new RealmString(filename));
+            }
+        }
     }
 }

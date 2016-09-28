@@ -17,8 +17,7 @@ import okio.BufferedSink;
 
 public class ProgressRequestBody extends RequestBody {
     private File mFile;
-    private String mPath;
-    private String mMediaType = "image/*";
+    private String mMediaType = "*"; // also can use: "application/octet-stream"
     private UploadCallbacks mListener;
 
     private static final int DEFAULT_BUFFER_SIZE = 2048;
@@ -33,7 +32,6 @@ public class ProgressRequestBody extends RequestBody {
 
     @Override
     public MediaType contentType() {
-        // i want to upload only images
         return MediaType.parse(mMediaType);
     }
 
