@@ -12,11 +12,12 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuDirectListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuDirectViewModel;
 
-import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * Created by Evgeny on 23.08.2016.
@@ -30,9 +31,14 @@ public class MenuDirectListFragment extends Fragment {
     AdapterMenuDirectList adapter;
     private int mSelectedItem;
 
+    private UserRepository userRepository;
+    private ChannelRepository channelRepository;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userRepository = new UserRepository();
+        channelRepository = new ChannelRepository();
     }
 
     @Nullable
@@ -48,10 +54,7 @@ public class MenuDirectListFragment extends Fragment {
     }
 
     private void setupRecyclerViewDirection() {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Channel> results = realm.where(Channel.class)
-                .isNull("type")
-                .findAllSorted("username", Sort.ASCENDING);
+        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification(Channel.DIRECT));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuDirectList(getContext(), results, binding.recView,
                 (itemId, name) -> {

@@ -9,6 +9,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -18,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -47,6 +50,10 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatPresenter.class)
 public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post> {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     private static final String TAG = "ChatFragmentMVP";
     private static final String CHANNEL_ID = "channel_id";
@@ -102,13 +109,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
-                Log.d(TAG,obj.getAction());
+                Log.d(TAG,obj.getEvent());
                 if(obj.getChannelId().equals(channelId)){
                     getActivity().runOnUiThread(() -> showTyping());
                 }
             }
         };
-        IntentFilter intentFilter = new IntentFilter(WebSocketObj.ACTION_TYPING);
+        IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);
@@ -289,21 +296,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     R.layout.edit_dialog_layout,null,false);
             switch (menuItem.getItemId()){
                 case R.id.edit:
-                    binding.edit.setText(Html.fromHtml(post.getMessage()));
-                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
-                            .setTitle(getString(R.string.edit_post))
-                            .setView(binding.getRoot())
-                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                            })
-                            .setPositiveButton(R.string.save, (dialogInterface, i) -> {
-                                Post newPost = new Post();
-                                newPost.setId(post.getId());
-                                newPost.setChannelId(post.getChannelId());
-                                newPost.setMessage(binding.edit.getText().toString());
-                                getPresenter().editPost(newPost,teamId,channelId);
-                            })
-                            .show();
+                    showEditView(Html.fromHtml(post.getMessage()).toString());
                     break;
                 case R.id.delete:
                     new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
@@ -335,6 +328,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             return true;
         });
         popupMenu.show();
+    }
+
+    private void showEditView(String message) {
+        Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.edit_card_anim);
+        Animation upAnim = AnimationUtils.loadAnimation(getActivity(),R.anim.edit_card_up);
+        binding.editMessageLayout.editableText.setText(message);
+        binding.editMessageLayout.root.startAnimation(upAnim);
+        //binding.editMessageLayout.card.startAnimation(fallingAnimation);
+        binding.editMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
 
     private String getMessageLink(String postId) {

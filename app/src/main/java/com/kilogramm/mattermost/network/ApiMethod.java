@@ -133,4 +133,13 @@ public interface ApiMethod {
     Observable<Post> editPost(@Path("teamId") String teamId,
                                 @Path("channelId") String channelId,
                                 @Body Post post);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/users/direct_profiles")
+    Observable<Map<String, User>> getDirectProfile();
+
+
 }

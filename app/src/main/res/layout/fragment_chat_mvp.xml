@@ -52,35 +52,35 @@
                     android:textColor="@color/colorPrimary" />
             </LinearLayout>
 
-<FrameLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-            <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-                android:id="@+id/swipeRefreshLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:srl_direction="bottom"
-                tools:visibility="visible">
-
-                <com.kilogramm.mattermost.ui.MRealmRecyclerView
-                    android:id="@+id/rev"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+                    android:id="@+id/swipeRefreshLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="400dp"
-                    android:visibility="gone"
-                    app:rrvLayoutType="LinearLayout"
-                    app:rrvSwipeToDelete="true"></com.kilogramm.mattermost.ui.MRealmRecyclerView>
+                    android:layout_height="match_parent"
+                    app:srl_direction="bottom"
+                    tools:visibility="visible">
 
-            </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+                    <com.kilogramm.mattermost.ui.MRealmRecyclerView
+                        android:id="@+id/rev"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:visibility="gone"
+                        app:rrvLayoutType="LinearLayout"
+                        app:rrvSwipeToDelete="true">
+                    </com.kilogramm.mattermost.ui.MRealmRecyclerView>
+                </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/idRecUser"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/white"/>
-</FrameLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/idRecUser"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:background="@color/white"/>
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -101,6 +101,10 @@
                 android:textColor="@color/very_light_grey"
                 android:visibility="gone"
                 tools:text="typing..." />
+
+            <include
+                android:id="@+id/edit_message_layout"
+                layout="@layout/edit_message_layout"/>
 
             <View
                 android:layout_width="match_parent"
@@ -133,13 +137,21 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/very_light_grey" />
 
-                <ImageView
+                <TextView
+                    android:id="@+id/btnSend"
+                    android:text="Send"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:padding="10dp"/>
+                <!--<ImageView
                     android:id="@+id/btnSend"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    android:src="@drawable/ic_send_white_24dp" />
+                    android:src="@drawable/ic_send_white_24dp" />-->
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

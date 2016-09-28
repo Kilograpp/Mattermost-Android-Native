@@ -39,5 +39,6 @@
     <string name="edit_the_post">Edit the post…</string>
     <string name="copy_permalink">Copy Permalink</string>
     <string name="copy_link">Copy Link</string>
+    <string name="edit_message">Edit message</string>
 
 </resources>

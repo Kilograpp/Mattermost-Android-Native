@@ -48,6 +48,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     Subscription subscription;
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
+    private String teamId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -65,9 +66,42 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     @Override
     protected void onTakeView(GeneralActivity generalActivity) {
         super.onTakeView(generalActivity);
-        String teamId = realm.where(Team.class).findFirst().getId();
-        loadChannels(teamId);
+        teamId = realm.where(Team.class).findFirst().getId();
+        loadDirectProfiles();
         //loadChannels(realm.where(Team.class).findFirst().getId());
+    }
+
+    private void loadDirectProfiles(){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.getDirectProfile()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MattermostHttpSubscriber<Map<String, User>>() {
+                    @Override
+                    public void onErrorMattermost(HttpError httpError, Throwable e) {
+                        getView().showErrorText(httpError.toString());
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "complete load channels");
+                        loadChannels(teamId);
+                    }
+
+                    @Override
+                    public void onNext(Map<String, User> stringUserMap) {
+                       // channelRepository.add(channelsWithMembers.getChannels());
+                        RealmList<User> users = new RealmList<>();
+                        users.addAll(stringUserMap.values());
+                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
+                        userRepository.add(users);
+                    }
+                });
+
     }
 
     private void loadChannels(String teamId){
@@ -82,7 +116,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "complete load channels");
-                        loadUsersTeam(teamId);
+                       // loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -92,19 +126,14 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
                     @Override
                     public void onNext(ChannelsWithMembers channelsWithMembers) {
-                        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(channelsWithMembers.getChannels()));
-
-                        RealmList<User> users = new RealmList<>();
-                        users.addAll(channelsWithMembers.getMembers().values());
-                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
-                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
-                        userRepository.add(users);
+                        channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                                MattermostPreference.getInstance().getMyUserId(),userRepository);
                     }
                 });
 
     }
 
-    private void loadUsersTeam(String teamId){
+   /* private void loadUsersTeam(String teamId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
@@ -132,19 +161,19 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                         userRepository.add(stringUserMap.values());
                     }
                 });
-    }
+    }*/
 
     public void setSelectedDirect(String itemId,String name){
-        String myId = realm.where(User.class).findFirst().getId();
+        /*String myId = realm.where(User.class).findFirst().getId();
 
         String channelId = realm.where(Channel.class)
                 .equalTo("name", myId + "__" + itemId)
                 .or()
                 .equalTo("name", itemId + "__" + myId)
                 .findFirst()
-                .getId();
+                .getId();*/
         if(getView()!=null){
-            getView().setFragmentChat(channelId,name,false);
+            getView().setFragmentChat(itemId,name,false);
         }
     }
 

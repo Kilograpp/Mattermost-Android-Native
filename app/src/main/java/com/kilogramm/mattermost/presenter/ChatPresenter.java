@@ -177,9 +177,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            Log.d(TAG,"userid = " + post.getUserId() + " message = " + post.getMessage());
                             User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
-                            Log.d(TAG, user.getUsername());
                             post.setUser(user);
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));

@@ -235,7 +235,7 @@ public class LoginPresenter extends Presenter<LoginActivity> {
         RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
         results.deleteAllFromRealm();
         mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
-        RealmList<Channel> directionProfiles = new RealmList<>();
+        RealmList<User> directionProfiles = new RealmList<>();
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());

@@ -1,7 +1,9 @@
 package com.kilogramm.mattermost.view.chat;
 
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -9,12 +11,10 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
@@ -134,6 +134,20 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 mBinding.getViewModel().setTitleVisibility(View.GONE);
             }
 
+            if(AppCompatDelegate.isCompatVectorFromResourcesEnabled()){
+                Log.d(TAG,"isCompatVectorFromResourcesEnabled");
+                /*AnimatedVectorDrawableCompat animatedVectorDrawableCompat
+                        = AnimatedVectorDrawableCompat.create(context, R.drawable.vector_test_anim);
+                mBinding.sendStatus.setImageDrawable(animatedVectorDrawableCompat);*/
+               // mBinding.sendStatus.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.vector_test_anim));
+              //  mBinding.sendStatus.setImageResource(R.drawable.vector_test_anim);
+            } else {
+                Log.d(TAG,"NOT isCompatVectorFromResourcesEnabled");
+            }
+
+            if(mBinding.sendStatus.getDrawable() instanceof Animatable){
+                ((Animatable) mBinding.sendStatus.getDrawable()).start();
+            }
             mBinding.executePendingBindings();
         }
     }

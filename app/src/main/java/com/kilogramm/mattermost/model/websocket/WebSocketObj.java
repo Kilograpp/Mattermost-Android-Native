@@ -5,9 +5,11 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.Props;
 import com.kilogramm.mattermost.model.entity.user.User;
+
+import java.util.Map;
 
 import io.realm.annotations.Ignore;
 
@@ -19,14 +21,15 @@ public class WebSocketObj implements Parcelable {
     public static final String TEAM_ID = "team_id";
     public static final String CHANNEL_ID = "channel_id";
     public static final String USER_ID = "user_id";
-    public static final String ACTION = "action";
-    public static final String PROPS = "props";
+    public static final String EVENT = "event";
+    public static final String DATA = "data";
 
-    public static final String ACTION_POSTED = "posted";
-    public static final String ACTION_CHANNEL_VIEWED = "channel_viewed";
-    public static final String ACTION_TYPING = "typing";
-    public static final String ACTION_POST_EDITED = "post_edited";
-    public static final String ACTION_POST_DELETED = "post_deleted";
+    public static final String EVENT_POSTED = "posted";
+    public static final String EVENT_CHANNEL_VIEWED = "channel_viewed";
+    public static final String EVENT_TYPING = "typing";
+    public static final String EVENT_POST_EDITED = "post_edited";
+    public static final String EVENT_POST_DELETED = "post_deleted";
+    public static final String EVENT_STATUS_CHANGE = "status_change";
 
 
     //Posted
@@ -40,6 +43,10 @@ public class WebSocketObj implements Parcelable {
     public static final String PARENT_ID = "parent_id";
     public static final String STATE = "state";
 
+    //Status
+    public static final String STATUS = "status";
+    public static final String SEQ_REPLAY = "seq_replay";
+    public static final String ALL_USER_STATUS = "all_user_status";
     @SerializedName("team_id")
     @Expose
     private String teamId;
@@ -49,14 +56,18 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("user_id")
     @Expose
     private String userId;
-    @SerializedName("action")
+    @SerializedName("event")
     @Expose
-    private String action;
-    @SerializedName("props")
+    private String event;
+    @SerializedName("data")
     @Expose
-    private String propsJSON;
+    private String dataJSON;
     @Ignore
-    private Props props;
+    private Data data;
+
+    @SerializedName("seq_replay")
+    private Integer seqReplay;
+
 
     //Posted
     @SerializedName("channel_display_name")
@@ -74,6 +85,15 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("sender_name")
     @Expose
     private String senderName;
+
+
+    public Integer getSeqReplay() {
+        return seqReplay;
+    }
+
+    public void setSeqReplay(Integer seqReplay) {
+        this.seqReplay = seqReplay;
+    }
 
     public String getTeamId() {
         return teamId;
@@ -99,20 +119,20 @@ public class WebSocketObj implements Parcelable {
         this.userId = userId;
     }
 
-    public String getAction() {
-        return action;
+    public String getEvent() {
+        return event;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setEvent(String event) {
+        this.event = event;
     }
 
-    public String getPropsJSON() {
-        return propsJSON;
+    public String getDataJSON() {
+        return dataJSON;
     }
 
-    public void setPropsJSON(String propsJSON) {
-        this.propsJSON = propsJSON;
+    public void setDataJSON(String dataJSON) {
+        this.dataJSON = dataJSON;
     }
 
     public String getChannelDisplayName() {
@@ -155,42 +175,44 @@ public class WebSocketObj implements Parcelable {
         this.senderName = senderName;
     }
 
-    public Props getProps() {
-        return props;
+    public Data getData() {
+        return data;
     }
 
-    public void setProps(Props props) {
-        this.props = props;
+    public void setData(Data data) {
+        this.data = data;
     }
 
     public WebSocketObj() {
     }
 
-    public static class BuilderProps {
+    public static class BuilderData {
         private String channelDisplayName;
         private String channelType;
         private String mentions;
         private Post post;
         private String senderName;
         private String teamId;
+        private String status;
         private String parentId;
+        private Map<String, String> mapUserStatus;
 
-        public BuilderProps setChannelDisplayName(String channelDisplayName) {
+        public BuilderData setChannelDisplayName(String channelDisplayName) {
             this.channelDisplayName = channelDisplayName;
             return this;
         }
 
-        public BuilderProps setChannelType(String channelType) {
+        public BuilderData setChannelType(String channelType) {
             this.channelType = channelType;
             return this;
         }
 
-        public BuilderProps setMentions(String mentions) {
+        public BuilderData setMentions(String mentions) {
             this.mentions = mentions;
             return this;
         }
 
-        public BuilderProps setPost(Post post, String userId) {
+        public BuilderData setPost(Post post, String userId) {
             User user = new User();
             user.setId(userId);
             user.setUsername(senderName);
@@ -199,23 +221,40 @@ public class WebSocketObj implements Parcelable {
             return this;
         }
 
-        public BuilderProps setSenderName(String senderName) {
+        public BuilderData setSenderName(String senderName) {
             this.senderName = senderName;
             return this;
         }
 
-        public BuilderProps setTeamId(String teamId){
+        public BuilderData setTeamId(String teamId){
             this.teamId = teamId;
             return this;
         }
 
-        public BuilderProps setParentId(String parentId){
+        public BuilderData setParentId(String parentId){
             this.parentId = parentId;
             return this;
         }
 
-        public Props build(){
-            return new Props(channelDisplayName, channelType, mentions, post, senderName, teamId);
+        public BuilderData setMapUserStatus(Map<String, String> mapUserStatus) {
+            this.mapUserStatus = mapUserStatus;
+            return this;
+        }
+
+        public Data build(){
+            return new Data(channelDisplayName,
+                    channelType,
+                    mentions,
+                    post,
+                    senderName,
+                    teamId,
+                    status,
+                    mapUserStatus);
+        }
+
+        public BuilderData setStatus(String status) {
+            this.status = status;
+            return this;
         }
     }
 
@@ -229,9 +268,9 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.teamId);
         dest.writeString(this.channelId);
         dest.writeString(this.userId);
-        dest.writeString(this.action);
-        dest.writeString(this.propsJSON);
-        dest.writeParcelable(this.props, flags);
+        dest.writeString(this.event);
+        dest.writeString(this.dataJSON);
+        dest.writeParcelable(this.data, flags);
         dest.writeString(this.channelDisplayName);
         dest.writeString(this.channelType);
         dest.writeString(this.mentions);
@@ -243,9 +282,9 @@ public class WebSocketObj implements Parcelable {
         this.teamId = in.readString();
         this.channelId = in.readString();
         this.userId = in.readString();
-        this.action = in.readString();
-        this.propsJSON = in.readString();
-        this.props = in.readParcelable(Props.class.getClassLoader());
+        this.event = in.readString();
+        this.dataJSON = in.readString();
+        this.data = in.readParcelable(Data.class.getClassLoader());
         this.channelDisplayName = in.readString();
         this.channelType = in.readString();
         this.mentions = in.readString();

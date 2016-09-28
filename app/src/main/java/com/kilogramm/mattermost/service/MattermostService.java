@@ -27,12 +27,15 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     private ManagerBroadcast managerBroadcast;
 
+    private MattermostNotificationManager mattermostNotificationManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG,"onCreate");
         mWebSocketManager = new WebSocketManager(this);
         managerBroadcast = new ManagerBroadcast(this);
+        mattermostNotificationManager = new MattermostNotificationManager(this);
     }
 
     @Override
@@ -51,7 +54,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         }
 
         if(UPDATE_USER_STATUS.equals(intent.getAction())){
-            mWebSocketManager.updateUserStatusNow();
+
         }
         return Service.START_STICKY;
     }
@@ -66,8 +69,9 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     public void receiveMessage(String message) {
         Log.d(TAG, message);
         WebSocketObj sendedMessage = managerBroadcast.praseMessage(message);
+        mattermostNotificationManager.handleSocket(sendedMessage);
         if (sendedMessage!=null){
-            Intent intent = new Intent(sendedMessage.getAction());
+            Intent intent = new Intent(sendedMessage.getEvent());
             intent.putExtra(BROADCAST_MESSAGE, sendedMessage);
             sendBroadcast(intent);
         }

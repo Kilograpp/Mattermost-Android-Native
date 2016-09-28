@@ -7,10 +7,7 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.model.entity.channel.ChannelTypeIsNullSpecification;
-import com.kilogramm.mattermost.network.ApiMethod;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -18,16 +15,9 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
 import okhttp3.Cookie;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 20.08.2016.
@@ -51,7 +41,6 @@ public class WebSocketManager {
 
     private CheckStatusSocket mCheckStatusSocket;
 
-    private UpdateStatusUser mUpdateStatusUser;
 
     private ChannelRepository channelRepository;
 
@@ -64,8 +53,6 @@ public class WebSocketManager {
         handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
 
         mCheckStatusSocket = new CheckStatusSocket();
-
-        mUpdateStatusUser = new UpdateStatusUser();
 
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -82,10 +69,6 @@ public class WebSocketManager {
             Cookie cookie = cookies.get(0);
             webSocket.addHeader(HEADER_WEB_SOCKET, cookie.name() + "=" + cookie.value());
         }
-    }
-    public void updateUserStatusNow(){
-        handler.removeCallbacks(mUpdateStatusUser);
-        handler.post(mUpdateStatusUser);
     }
 
     public void create() {
@@ -180,7 +163,6 @@ public class WebSocketManager {
         }
         webSocket.connect();
 
-        updateUserStatusNow();
     }
 
     private boolean hasWebsocket(){
@@ -196,8 +178,6 @@ public class WebSocketManager {
     public void onDestroy(){
 
         handler.removeCallbacks(mCheckStatusSocket);
-
-        handler.removeCallbacks(mUpdateStatusUser);
 
         if(webSocket!=null){
             webSocket.disconnect();
@@ -227,50 +207,6 @@ public class WebSocketManager {
         }
     }
     //TODO Review code
-    public class UpdateStatusUser implements Runnable{
 
-        @Override
-        public void run() {
-            handler.postDelayed(mUpdateStatusUser,TIME_REPEAT_UPDATEUSER);
-            Log.d(TAG, "UpdateStatusUser start");
-            Realm realm = Realm.getDefaultInstance();
-            MattermostApp application = MattermostApp.getSingleton();
-            ApiMethod service = application.getMattermostRetrofitService();
-            List<String> list = new ArrayList<>();
-            RealmResults<Channel> channels = channelRepository.query(new ChannelTypeIsNullSpecification());
-            for (Channel channel : channels) {
-                list.add(channel.getId());
-            }
-            realm.close();
-            Subscription subscribe = service.getStatus(list)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(Schedulers.newThread())
-                    .repeat(3)
-                    .subscribe(new Subscriber<Map<String, String>>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.d(TAG, "Complete load status");
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            Log.d(TAG, "Error");
-                        }
-
-                        @Override
-                        public void onNext(Map<String, String> stringStringMap) {
-                            Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
-                            RealmResults<Channel> channels = channelRepository.query(new ChannelTypeIsNullSpecification());
-                            for (Channel channel : channels) {
-                                channel.setStatus(stringStringMap.get(channel.getId()));
-                            }
-                            realm.commitTransaction();
-                            realm.close();
-                        }
-                    });
-        }
-    }
 
 }
