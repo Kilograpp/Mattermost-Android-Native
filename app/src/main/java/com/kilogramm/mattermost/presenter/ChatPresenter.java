@@ -169,11 +169,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
-                        getView().showList();
-                        if (isLoadNext) {
-                            loadNextPost(teamId, channelId, getLastMessageId());
+                        if(getView()!=null)
+                            getView().showList();
+                        else {
+                            if (isLoadNext) {
+                                loadNextPost(teamId, channelId, getLastMessageId());
+                            }
+                            Log.d(TAG, "Complete load next post");
                         }
-                        Log.d(TAG, "Complete load next post");
                     }
 
                     @Override
