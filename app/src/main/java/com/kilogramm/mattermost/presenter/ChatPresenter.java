@@ -217,7 +217,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
+                    if (charSequence.charAt(charSequence.length() - 1) == '@')
                         getUsers(null);
                     else
                         getUsers(charSequence.toString());

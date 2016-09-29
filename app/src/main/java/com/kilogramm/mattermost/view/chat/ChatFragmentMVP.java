@@ -1,15 +1,15 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.app.Activity;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,10 +43,8 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.nononsenseapps.filepicker.FilePickerActivity;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -155,15 +153,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         });
     }
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.setUsers(realmResult);
+        dropDownListAdapter.updateData(realmResult);
     }
+
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
