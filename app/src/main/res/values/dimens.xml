@@ -8,4 +8,9 @@
     <dimen name="discription_text_size">15sp</dimen>
     <dimen name="standart_margin">10dp</dimen>
     <dimen name="left_padding">15dp</dimen>
+
+    <dimen name="comment_margin_element">10dp</dimen>
+    <dimen name="comment_margin_text">20dp</dimen>
+    <dimen name="image_comment_size">20dp</dimen>
+
 </resources>

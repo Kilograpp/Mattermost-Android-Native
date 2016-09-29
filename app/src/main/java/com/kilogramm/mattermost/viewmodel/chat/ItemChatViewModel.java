@@ -50,6 +50,11 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getImageUrl(){
+       return getUrl(post);
+
+    }
+
+    public String getUrl(Post post) {
         if(post.getUser()!=null){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
