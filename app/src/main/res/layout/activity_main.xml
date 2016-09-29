@@ -29,7 +29,7 @@
 
                 <TextView
                     android:layout_marginTop="@dimen/standart_margin"
-                    style="@style/DiscriptionBlackTextStyle"
+                    style="@style/DescriptionBlackTextStyle"
                     android:text="@string/main_discription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -44,17 +44,19 @@
                 android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputLayout
+                    android:id="@+id/editTextInputLayout"
                     android:hint="@string/main_title_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:hintTextAppearance="@style/HintTextStyle"
                     app:hintEnabled="true"
-                    app:hintAnimationEnabled="true">
+                    app:hintAnimationEnabled="true"
+                    app:errorEnabled="true">
 
                     <EditText
                         android:id="@+id/urlEditText"
-                        android:singleLine="true"
-                        style="@style/DiscriptionBlackTextStyle"
+                        android:maxLines="1"
+                        style="@style/DescriptionBlackTextStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

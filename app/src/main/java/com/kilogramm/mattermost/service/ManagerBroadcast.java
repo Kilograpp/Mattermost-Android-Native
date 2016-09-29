@@ -2,22 +2,26 @@ package com.kilogramm.mattermost.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Post;
-import com.kilogramm.mattermost.model.entity.User;
-import com.kilogramm.mattermost.model.websocket.WebScoketTyping;
+import com.kilogramm.mattermost.model.entity.Data;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
-import com.kilogramm.mattermost.model.websocket.WebSocketPosted;
-import com.kilogramm.mattermost.view.chat.ChatFragment;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import io.realm.Realm;
 
@@ -34,55 +38,87 @@ public class ManagerBroadcast {
         this.mContext = mContext;
     }
 
-    public void praseMessage(String message){
+    public WebSocketObj praseMessage(String message){
         try {
-            parseWebSocketObject(message, mContext);
+            return parseWebSocketObject(message, mContext);
         }catch (Exception e){
             e.printStackTrace();
+            return null;
         }
     }
 
-    private void parseWebSocketObject(String json, Context context) throws JSONException {
+    private WebSocketObj parseWebSocketObject(String json, Context context) throws JSONException {
         Gson gson = new Gson();
         JSONObject jsonObject = new JSONObject(json);
-        JSONObject props = jsonObject.getJSONObject(WebSocketObj.PROPS);
+        JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setTeamId(jsonObject.getString(WebSocketObj.TEAM_ID));
         webSocketObj.setUserId(jsonObject.getString(WebSocketObj.USER_ID));
         webSocketObj.setChannelId(jsonObject.getString(WebSocketObj.CHANNEL_ID));
-        webSocketObj.setProps(jsonObject.getString(WebSocketObj.PROPS));
-        webSocketObj.setAction(jsonObject.getString(WebSocketObj.ACTION));
-        String action = webSocketObj.getAction();
-        switch (action){
-            case WebSocketObj.ACTION_CHANNEL_VIEWED:
+        webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
+        webSocketObj.setEvent(jsonObject.getString(WebSocketObj.EVENT));
+        if(jsonObject.has(WebSocketObj.SEQ_REPLAY)){
+            webSocketObj.setSeqReplay(jsonObject.getInt(WebSocketObj.SEQ_REPLAY));
+        }
+        String event = webSocketObj.getEvent();
+        Data data = null;
+        if(webSocketObj.getSeqReplay()!=null){
+            webSocketObj.setEvent(WebSocketObj.ALL_USER_STATUS);
+        }
+        switch (event){
+            case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
-            case WebSocketObj.ACTION_POSTED:
-                WebSocketPosted posted = new WebSocketPosted();
-                posted.setChannelDisplayName(props.getString(WebSocketPosted.CHANNEL_DISPLAY_NAME));
-                posted.setChannelType(props.getString(WebSocketPosted.CHANNEL_TYPE));
-                posted.setMentions(props.getString(WebSocketPosted.MENTIONS));
-                posted.setSenderName(props.getString(WebSocketPosted.SENDER_NAME));
-                posted.setTeamId(props.getString(WebSocketPosted.TEAM_ID));
-                User user = new User();
-                user.setId(webSocketObj.getUserId());
-                user.setUsername(posted.getSenderName());
-                posted.setPost(gson.fromJson(props.getString(WebSocketPosted.CHANNEL_POST), Post.class));
-                posted.getPost().setUser(user);
-                savePost(posted.getPost());
-                if(!posted.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    createNotification(posted.getPost(), context);
+            case WebSocketObj.EVENT_POSTED:
+                String mentions = dataJSON.getString(WebSocketObj.MENTIONS);
+                data = new WebSocketObj.BuilderData()
+                        .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
+                        .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
+                        .setMentions((mentions!=null)
+                                        ?mentions
+                                        :"")
+                        .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
+                        .setTeamId(dataJSON.getString(WebSocketObj.TEAM_ID))
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
+
+                savePost(data.getPost());
+                if(!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+                    createNotification(data.getPost(), context);
                 }
-                Log.d(TAG, posted.getPost().getMessage());
+                Log.d(TAG, data.getPost().getMessage());
                 break;
-            case WebSocketObj.ACTION_TYPING:
-                String channelId = "";
-                if((channelId = ChatFragment.getChannelId())!=null){
-                    if(channelId.equals(webSocketObj.getChannelId())){
-                        ChatFragment.showTyping();
-                    }
-                }
+            case WebSocketObj.EVENT_TYPING:
+                data = new WebSocketObj.BuilderData()
+                        .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
+                        .setTeamId(webSocketObj.getTeamId())
+                        .build();
+                break;
+            case WebSocketObj.EVENT_POST_EDITED:
+                data = new WebSocketObj.BuilderData()
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
+                break;
+            case WebSocketObj.EVENT_POST_DELETED:
+                data = new WebSocketObj.BuilderData()
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
+                                webSocketObj.getUserId())
+                        .build();
+                break;
+            case WebSocketObj.EVENT_STATUS_CHANGE:
+                data = new WebSocketObj.BuilderData()
+                        .setStatus(dataJSON.getString(WebSocketObj.STATUS))
+                        .build();
+                break;
+            case WebSocketObj.ALL_USER_STATUS:
+                data = new WebSocketObj.BuilderData()
+                        .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(),  new TypeToken<HashMap<String, Object>>() {}.getType()))
+                        .build();
                 break;
         }
+        webSocketObj.setData(data);
+        return webSocketObj;
     }
 
 
@@ -106,4 +142,48 @@ public class ManagerBroadcast {
         realm.close();
     }
 
+    public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
+        Map<String, Object> retMap = new HashMap<String, Object>();
+
+        if(json != JSONObject.NULL) {
+            retMap = toMap(json);
+        }
+        return retMap;
+    }
+
+    public static Map<String, Object> toMap(JSONObject object) throws JSONException {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        Iterator<String> keysItr = object.keys();
+        while(keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
+
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            map.put(key, value);
+        }
+        return map;
+    }
+
+    public static List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            list.add(value);
+        }
+        return list;
+    }
 }

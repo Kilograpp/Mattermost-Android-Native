@@ -8,9 +8,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.websocket.WebSocketManager;
 
-import org.json.JSONException;
 
 /**
  * Created by kraftu on 16.09.16.
@@ -18,6 +18,8 @@ import org.json.JSONException;
 public class MattermostService extends Service implements WebSocketManager.WebSocketMessage {
 
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
+    public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
+    public static final String BROADCAST_MESSAGE = "broadcast_message";
 
     private static String TAG = "MattermostService";
 
@@ -25,12 +27,15 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     private ManagerBroadcast managerBroadcast;
 
+    private MattermostNotificationManager mattermostNotificationManager;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG,"onCreate");
         mWebSocketManager = new WebSocketManager(this);
         managerBroadcast = new ManagerBroadcast(this);
+        mattermostNotificationManager = new MattermostNotificationManager(this);
     }
 
     @Override
@@ -42,9 +47,14 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(intent==null) return Service.START_STICKY;
         Log.d(TAG,"onStartCommand action:"+intent.getAction());
         if(SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())){
             mWebSocketManager.start();
+        }
+
+        if(UPDATE_USER_STATUS.equals(intent.getAction())){
+
         }
         return Service.START_STICKY;
     }
@@ -57,7 +67,14 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public void receiveMessage(String message) {
-        managerBroadcast.praseMessage(message);
+        Log.d(TAG, message);
+        WebSocketObj sendedMessage = managerBroadcast.praseMessage(message);
+        mattermostNotificationManager.handleSocket(sendedMessage);
+        if (sendedMessage!=null){
+            Intent intent = new Intent(sendedMessage.getEvent());
+            intent.putExtra(BROADCAST_MESSAGE, sendedMessage);
+            sendBroadcast(intent);
+        }
     }
 
     public static class Helper{
@@ -87,6 +104,13 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         public Helper startWebSocket(){
             Intent intent = new Intent(mContext,MattermostService.class);
             intent.setAction(SERVICE_ACTION_START_WEB_SOCKET);
+            mContext.startService(intent);
+            return this;
+        }
+
+        public Helper updateUserStatusNow(){
+            Intent intent = new Intent(mContext,MattermostService.class);
+            intent.setAction(UPDATE_USER_STATUS);
             mContext.startService(intent);
             return this;
         }

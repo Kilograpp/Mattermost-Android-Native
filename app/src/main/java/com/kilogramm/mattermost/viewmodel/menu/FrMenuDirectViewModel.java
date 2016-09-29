@@ -8,7 +8,7 @@ import android.view.View;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 

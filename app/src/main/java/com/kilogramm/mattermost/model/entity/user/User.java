@@ -1,10 +1,13 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.user;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.NotifyProps;
+import com.kilogramm.mattermost.model.entity.ThemeProps;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -13,6 +16,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by Evgeny on 25.07.2016.
  */
 public class User extends RealmObject implements Parcelable {
+
     public static final String ONLINE = "online";
     public static final String OFFLINE = "offline";
     public static final String REFRESH = "refresh";
@@ -82,9 +86,22 @@ public class User extends RealmObject implements Parcelable {
     @SerializedName("locale")
     @Expose
     private String locale;
-    @SerializedName("status")
-    @Expose
-    private String status;
+
+    private String status = "offline";
+
+    public User(String id, String username, String firstName) {
+        this.id = id;
+        this.username = username;
+        this.firstName = firstName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     /**
      *
@@ -462,28 +479,6 @@ public class User extends RealmObject implements Parcelable {
      */
     public void setLocale(String locale) {
         this.locale = locale;
-    }
-
-    /**
-     *
-     * @return status
-     * Returns user`s status
-     */
-
-    public String getStatus() {
-        return status;
-    }
-
-    /**
-     *
-     * @param status
-     * Set user`s status
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public User() {
     }
 
     @Override

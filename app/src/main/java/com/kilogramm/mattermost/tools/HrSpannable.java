@@ -46,7 +46,6 @@ public class HrSpannable extends QuoteSpan {
     public void drawLeadingMargin(Canvas c, Paint p, int x, int dir,
                                   int top, int baseline, int bottom,
                                   CharSequence text, int start, int end, boolean first, Layout layout) {
-        Log.e("MY_SPANNABLE","DRAW LINE");
         Paint.Style style = p.getStyle();
         int color = p.getColor();
 

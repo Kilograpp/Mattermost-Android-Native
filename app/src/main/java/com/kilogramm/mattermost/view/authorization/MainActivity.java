@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.authorization;
 
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -35,12 +36,7 @@ public class MainActivity extends BaseActivity<MainPresenter> {
 
     private void initView(){
 
-        binding.buttonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPresenter().checkConnetHost(getStringUrl());
-            }
-        });
+        binding.buttonNext.setOnClickListener(view -> getPresenter().checkConnetHost(getStringUrl()));
 
         binding.urlEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -61,12 +57,12 @@ public class MainActivity extends BaseActivity<MainPresenter> {
         });
     }
 
-    private String getStringUrl(){
+    public String getStringUrl(){
         return binding.urlEditText.getText().toString();
     }
 
     public void showLoginActivity(){
-        LoginActivity.startActivity(this);
+        LoginActivity.startActivity(this, null);
     }
 
     public void showChatActivity(){
@@ -91,7 +87,19 @@ public class MainActivity extends BaseActivity<MainPresenter> {
         binding.urlEditText.setSelection(binding.urlEditText.length());
     }
 
+    public void showEditTextErrorMessage(){
+        binding.editTextInputLayout.setError(getString(R.string.main_url_error));
+    }
+
     public void hideKeyboard(){
         hideKeyboard(this);
+    }
+
+    public static void start(Context context, Integer flags) {
+        Intent starter = new Intent(context, MainActivity.class);
+        if(flags != null){
+            starter.setFlags(flags);
+        }
+        context.startActivity(starter);
     }
 }

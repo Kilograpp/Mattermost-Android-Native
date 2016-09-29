@@ -11,10 +11,9 @@ import android.widget.ImageView;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.ui.FilesView;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +50,11 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getImageUrl(){
+       return getUrl(post);
+
+    }
+
+    public String getUrl(Post post) {
         if(post.getUser()!=null){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()

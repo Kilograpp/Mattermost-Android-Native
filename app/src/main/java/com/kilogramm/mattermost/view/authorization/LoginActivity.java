@@ -36,8 +36,11 @@ public class LoginActivity extends BaseActivity<LoginPresenter> {
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
-    public static void startActivity(Context context) {
+    public static void startActivity(Context context, Integer flags) {
         Intent intent = new Intent(context, LoginActivity.class);
+        if (flags != null) {
+            intent.setFlags(flags);
+        }
         context.startActivity(intent);
     }
 

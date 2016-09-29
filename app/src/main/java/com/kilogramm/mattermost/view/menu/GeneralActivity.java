@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -29,6 +30,11 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralPresenter.class)
 public class GeneralActivity extends BaseActivity<GeneralPresenter> {
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
+
     private static final String TAG = "GeneralActivity";
     private ActivityMenuBinding binding;
 
@@ -41,8 +47,13 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
+        setupRightMenu();
 
         MattermostService.Helper.create(this).startWebSocket();
+    }
+
+    private void setupRightMenu() {
+        binding.logout.setOnClickListener(view -> getPresenter().logout());
     }
 
     private void setupMenu() {
@@ -99,9 +110,15 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         }
         context.startActivity(starter);
     }
+    public void showErrorText(String text){
+        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
 
-    public void showErrorText(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MattermostService.Helper.create(this).updateUserStatusNow();
     }
 
     @Override
