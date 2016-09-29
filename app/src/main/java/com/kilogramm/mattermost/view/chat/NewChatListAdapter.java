@@ -89,8 +89,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             }
 
             if (post.getRootId() != null && post.getRootId().length() > 0 &&
-                    !prePost.getId().equals(post.getRootId()) &&
-                    !prePost.getUserId().equals(post.getUserId())) {
+                    !prePost.getId().equals(post.getRootId())) {
                 myViewHolder.setRootMassage(post.getRootId());
             }
 
