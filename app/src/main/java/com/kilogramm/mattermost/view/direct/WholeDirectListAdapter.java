@@ -9,8 +9,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectListBinding;
-import com.kilogramm.mattermost.model.entity.SaveData;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.squareup.picasso.Picasso;
 

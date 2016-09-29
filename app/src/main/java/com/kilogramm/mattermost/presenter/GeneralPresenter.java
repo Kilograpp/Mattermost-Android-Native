@@ -215,8 +215,6 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
         }
     }
 
-    public void setSelectedDirect(String itemId, String name) {
-        String myId = realm.where(User.class).findFirst().getId();
     public void setSelectedDirect(String itemId,String name){
         /*String myId = realm.where(User.class).findFirst().getId();
 

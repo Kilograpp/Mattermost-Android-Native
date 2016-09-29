@@ -11,7 +11,7 @@ import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 

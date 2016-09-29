@@ -5,9 +5,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.model.entity.User;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 

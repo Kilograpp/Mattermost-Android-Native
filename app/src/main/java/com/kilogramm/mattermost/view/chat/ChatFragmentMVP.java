@@ -59,8 +59,6 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements ChatFragmentViewModel.OnItemAddedListener {
-    private static final String TAG = "ChatFragment";
 public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post> {
 
     static {
@@ -227,15 +225,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         binding.buttonAttachFile.setOnClickListener(view -> attachFile());
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == getActivity().RESULT_OK && requestCode == PICKFILE_REQUEST_CODE)
-            if (data != null && data.getData() != null) {
-                Uri uri = data.getData();
-                getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
-            }
-    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -274,6 +264,11 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     pickedImage = data.getData();
                 }
             }
+            if (resultCode == getActivity().RESULT_OK && requestCode == PICKFILE_REQUEST_CODE)
+                if (data != null && data.getData() != null) {
+                    Uri uri = data.getData();
+                    getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+                }
         }
     }
 
@@ -423,7 +418,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
         startActivityForResult(i, FILE_CODE);
     }
-}
+
 
 
     @Override
