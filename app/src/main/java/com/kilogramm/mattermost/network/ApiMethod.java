@@ -1,10 +1,9 @@
 package com.kilogramm.mattermost.network;
 
-import com.kilogramm.mattermost.model.entity.Channel;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
-import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
@@ -57,8 +56,8 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/users/profiles/{userId}")
-    Observable<Channel> getDirectChannels(@Path("userId") String userId);
+    @GET("api/v3/users/profiles/{teamId}")
+    Observable<Map<String, User>> getTeamUsers(@Path("teamId") String teamId);
 
     @Headers({
             "Accept: application/json",
@@ -121,6 +120,33 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/users/logout")
     Observable<LogoutData> logout(@Body Object object);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/{postId}/delete")
+    Observable<Post> deletePost(@Path("teamId") String teamId,
+                            @Path("channelId") String channelId,
+                            @Path("postId") String psotId,
+                            @Body Object object);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
+    Observable<Post> editPost(@Path("teamId") String teamId,
+                                @Path("channelId") String channelId,
+                                @Body Post post);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/users/direct_profiles")
+    Observable<Map<String, User>> getDirectProfile();
+
 
     @Headers({
             "Accept: application/json",

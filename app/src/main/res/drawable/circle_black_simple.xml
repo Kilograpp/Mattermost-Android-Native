@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="500.0"
+    android:viewportWidth="500.0"
+    android:width="24dp">
+
+    <group
+        android:name="blinkGroup">
+        <path
+            android:name="bl"
+            android:fillColor="#696969"
+            android:pathData="M250,250m-210,0a210,210 0,1 1,420 0a210,210 0,1 1,-420 0" />
+    </group>
+</vector>

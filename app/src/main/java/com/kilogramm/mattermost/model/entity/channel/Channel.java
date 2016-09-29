@@ -1,7 +1,8 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.channel;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.user.User;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -12,11 +13,9 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Channel extends RealmObject {
 
-    public static final String ONLINE = "online";
-    public static final String OFFLINE = "offline";
-    public static final String REFRESH = "refresh";
-    public static final String AWAY = "away";
 
+    public static final String DIRECT = "D";
+    public static final String OPEN = "O";
 
     @PrimaryKey
     @SerializedName("id")
@@ -65,7 +64,8 @@ public class Channel extends RealmObject {
     @Expose
     private String username;
 
-    private String status = "offline";
+    private User user;
+
     private Integer unreadedMessage = 0;
 
 
@@ -77,20 +77,20 @@ public class Channel extends RealmObject {
         this.unreadedMessage = unreadedMessage;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     /**

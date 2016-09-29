@@ -201,7 +201,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
@@ -376,5 +377,62 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         } else {
             Log.e(TAG, "file not found");
         }
+    }
+
+    public void deletePost(Post post,String teamId, String channelId) {
+        if(mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.deletePost(teamId,channelId, post.getId(), new Object())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Post>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete delete post");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error delete post " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Post post) {
+                        postRepository.remove(post);
+                    }
+                });
+    }
+
+    public void editPost(Post post, String teamId, String channelId) {
+        if(mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.editPost(teamId,channelId, post)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Post>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete edit post");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error edit post " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Post post) {
+                        post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        postRepository.update(post);
+                        getView().invalidateAdapter();
+                    }
+                });
     }
 }

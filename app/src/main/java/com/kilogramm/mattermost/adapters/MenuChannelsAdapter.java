@@ -11,7 +11,7 @@ import android.widget.ListAdapter;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemChannelBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel;
 
 

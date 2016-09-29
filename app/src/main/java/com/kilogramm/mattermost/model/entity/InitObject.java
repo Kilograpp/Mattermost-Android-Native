@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Map;
@@ -27,7 +28,7 @@ public class InitObject extends RealmObject {
         @SerializedName("direct_profiles")
         @Expose
         @Ignore
-        private Map<String, Channel> mapDerectProfile;
+        private Map<String, User> mapDerectProfile;
         @SerializedName("preferences")
         @Expose
         @Ignore
@@ -45,11 +46,11 @@ public class InitObject extends RealmObject {
         private RealmList<User> directProfiles;
 
 
-        public Map<String, Channel> getMapDerectProfile() {
+        public Map<String, User> getMapDerectProfile() {
                 return mapDerectProfile;
         }
 
-        public void setMapDerectProfile(Map<String, Channel> mapDerectProfile) {
+        public void setMapDerectProfile(Map<String, User> mapDerectProfile) {
                 this.mapDerectProfile = mapDerectProfile;
         }
 

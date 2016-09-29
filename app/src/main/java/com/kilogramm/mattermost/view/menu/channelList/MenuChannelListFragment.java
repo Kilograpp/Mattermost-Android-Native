@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
 import io.realm.Realm;
@@ -29,6 +31,8 @@ public class MenuChannelListFragment extends Fragment {
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuChannelList adapter;
 
+    private ChannelRepository channelRepository;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +46,7 @@ public class MenuChannelListFragment extends Fragment {
         View view = binding.getRoot();
         viewModel = new FrMenuChannelViewModel(getContext());
         binding.setViewModel(viewModel);
+        channelRepository = new ChannelRepository();
         setupListView();
         return view;
     }
@@ -49,9 +54,7 @@ public class MenuChannelListFragment extends Fragment {
 
     private void setupListView() {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Channel> results = realm.where(Channel.class)
-                .equalTo("type", "O")
-                .findAll();
+        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
                 (itemId, name) -> channelItemClickListener.onChannelClick(itemId, name));
