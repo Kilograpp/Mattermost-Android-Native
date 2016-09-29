@@ -1,46 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.kilogramm.mattermost.tools.BottomToolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/bottomToolbarLayout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="bottom|end"
-    android:orientation="horizontal">
-
-    <ImageView
-        android:id="@+id/writeText"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:src="@drawable/temporary_aa" />
-
-    <ImageView
-        android:id="@+id/makePhoto"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:src="@drawable/temporary_photo_1" />
-
-    <ImageView
-        android:id="@+id/addExistedPhoto"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:src="@drawable/temporary_photo_2" />
-
-    <ImageView
-        android:id="@+id/addDocs"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:src="@drawable/temporary_more" />
-
-</com.kilogramm.mattermost.tools.BottomToolbar>
+<layout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/bottomToolbarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom|end"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/writeText"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:src="@drawable/temporary_aa" />
+        <ImageView
+            android:id="@+id/makePhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:src="@drawable/temporary_photo_1" />
+        <ImageView
+            android:id="@+id/addExistedPhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:src="@drawable/temporary_photo_2" />
+        <ImageView
+            android:id="@+id/addDocs"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:src="@drawable/temporary_more" />
+    </LinearLayout>
+</layout>

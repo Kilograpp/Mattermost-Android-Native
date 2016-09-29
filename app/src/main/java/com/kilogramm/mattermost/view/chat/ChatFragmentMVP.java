@@ -63,8 +63,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
 
     private boolean isMessageTextOpen = false;
 
-//    private BottomToolbar bottomToolbar;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,13 +82,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         View view = binding.getRoot();
         initView();
 
-        // TODO не получается проинициализировать тулбар, чтобы отрабатывались клики
-//        bottomToolbar = (BottomToolbar) getActivity().getLayoutInflater().inflate(R.layout.bottom_toolbar_layout, null);
-//        BottomToolbar bottomToolbar = (BottomToolbar) inflater.inflate(R.layout.bottom_toolbar_layout, null);
-//        bottomToolbar.setBottomToolbarListener(this);
-//        or
-//        ((BottomToolbar) binding.bottomToolbar).setBottomToolbarListener(this);
-
         return view;
     }
 
@@ -100,6 +91,24 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
         setBtnSendOnClickListener();
         setBottomToolbarOnClickListeners();
         getPresenter().getExtraInfo(teamId, channelId);
+    }
+
+    private void setBottomToolbarOnClickListeners() {
+        binding.bottomToolbar.writeText.setOnClickListener(view -> {
+            OnClickAddText();
+        });
+
+        binding.bottomToolbar.makePhoto.setOnClickListener(view -> {
+            OnClickMakePhoto();
+        });
+
+        binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> {
+            OnClickOpenGallery();
+        });
+
+        binding.bottomToolbar.addDocs.setOnClickListener(view -> {
+            OnClickChooseDoc();
+        });
     }
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
@@ -162,24 +171,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     public void setBtnSendOnClickListener() {
         binding.btnSend.setOnClickListener(view -> {
             sendMessage();
-        });
-    }
-
-    private void setBottomToolbarOnClickListeners() {
-        binding.writeText.setOnClickListener(view -> {
-            OnClickAddText();
-        });
-
-        binding.makePhoto.setOnClickListener(view -> {
-            OnClickMakePhoto();
-        });
-
-        binding.addExistedPhoto.setOnClickListener(view -> {
-            OnClickOpenGallery();
-        });
-
-        binding.addDocs.setOnClickListener(view -> {
-            OnClickChooseDoc();
         });
     }
 
@@ -307,7 +298,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
             binding.sendingMessageContainer.setVisibility(View.GONE);
             isMessageTextOpen = false;
         }
-        // + add more smooth setting visibility
     }
 
     public void OnClickMakePhoto() {
