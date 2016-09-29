@@ -43,7 +43,7 @@ android {
     }
 
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.kilograpp.mattermost"
@@ -51,6 +51,7 @@ android {
         targetSdkVersion 24
         versionCode getMyVersionCode()
         versionName getMyVersionName()
+        vectorDrawables.useSupportLibrary = true
         dataBinding{
             enabled = true
         }

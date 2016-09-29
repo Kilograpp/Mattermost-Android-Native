@@ -92,12 +92,12 @@
                 android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/controlMenu"
-                android:src="@drawable/ic_more_horiz_grey_24dp"
+                app:srcCompat="@drawable/ic_more_horiz_grey_24dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <ImageView
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/sendStatus"
                 android:layout_width="24dp"
                 android:layout_height="24dp" />

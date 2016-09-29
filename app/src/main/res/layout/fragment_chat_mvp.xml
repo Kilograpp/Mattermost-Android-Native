@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    android:src="@drawable/ic_attachment_grey_24dp" />
+                    app:srcCompat="@drawable/ic_attachment_grey_24dp" />
 
                 <EditText
                     android:id="@+id/writingMessage"

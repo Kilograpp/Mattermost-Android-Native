@@ -5,7 +5,9 @@
     android:width="24dp">
 
     <group
-        android:name="blinkGroup">
+        android:scaleX="1"
+        android:scaleY="1"
+        android:name="gr">
         <path
             android:name="bl"
             android:fillColor="#696969"

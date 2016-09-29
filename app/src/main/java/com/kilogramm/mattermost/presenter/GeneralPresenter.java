@@ -116,7 +116,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "complete load channels");
-                       // loadUsersTeam(teamId);
+                        loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -133,7 +133,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
     }
 
-   /* private void loadUsersTeam(String teamId){
+    private void loadUsersTeam(String teamId){
         if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
@@ -161,7 +161,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                         userRepository.add(stringUserMap.values());
                     }
                 });
-    }*/
+    }
 
     public void setSelectedDirect(String itemId,String name){
         /*String myId = realm.where(User.class).findFirst().getId();

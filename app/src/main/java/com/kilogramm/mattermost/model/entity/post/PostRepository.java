@@ -68,4 +68,13 @@ public class PostRepository implements Repository<Post> {
 
         return realmResults;
     }
+
+    public void removeTempPost(String sendedPostId){
+        final Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            final Post post = realm.where(Post.class).equalTo("pendingPostId",sendedPostId).findFirst();
+            post.deleteFromRealm();
+        });
+        realm.close();
+    }
 }

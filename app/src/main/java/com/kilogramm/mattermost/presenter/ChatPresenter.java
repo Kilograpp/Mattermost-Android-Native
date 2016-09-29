@@ -104,8 +104,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     @Override
                     public void onCompleted() {
                         updateLastViewedAt(teamId, channelId);
-
-                        getView().setRefreshing(false);
+                        if(getView()!=null)
+                            getView().setRefreshing(false);
                         if (!isEmpty) {
                             getView().showList();
                         }
@@ -238,12 +238,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         return id;
     }
 
-    public void sendToServer(Post post, String teamId, String channelId) {
+    public void sendToServer(Post sendedPost, String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
+        String sendedPostId = sendedPost.getId();
         ApiMethod service;
+        sendedPost.setId(null);
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.sendPost(teamId, channelId, post)
+        mSubscription = service.sendPost(teamId, channelId, sendedPost)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -263,10 +265,18 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     @Override
                     public void onNext(Post post) {
                         post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-                        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
+                                .forceExtentedProfile()
+                                .build()));
+                        postRepository.removeTempPost(sendedPostId);
                         postRepository.add(post);
                     }
                 });
+        Post forSavePost = new Post(sendedPost);
+        forSavePost.setId(sendedPostId);
+        forSavePost.setUser(userRepository.query(new UserByIdSpecification(forSavePost.getUserId()))
+                .first());
+        postRepository.add(forSavePost);
     }
 
     private void updateLastViewedAt(String teamId, String channelId) {

@@ -28,9 +28,6 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(GeneralPresenter.class)
 public class GeneralActivity extends BaseActivity<GeneralPresenter> {
 
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;

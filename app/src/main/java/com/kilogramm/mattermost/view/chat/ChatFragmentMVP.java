@@ -34,6 +34,8 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
@@ -75,6 +77,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private PostRepository  postRepository;
+    private UserRepository userRepository;
 
     private BroadcastReceiver brReceiverTyping;
 
@@ -86,6 +89,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
         this.postRepository = new PostRepository();
+        this.userRepository = new UserRepository();
         setupToolbar("",channelName,v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
     }
 
@@ -198,8 +202,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setCreateAt(Calendar.getInstance().getTimeInMillis());
         post.setMessage(getMessage());
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
+        //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+        post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-
         setMessage("");
         if(post.getMessage().length() != 0){
             getPresenter().sendToServer(post, teamId,channelId);

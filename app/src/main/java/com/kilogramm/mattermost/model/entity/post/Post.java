@@ -63,10 +63,34 @@ public class Post extends RealmObject implements Parcelable {
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
-
     private User user;
 
     private Boolean viewed = false;
+
+
+    public Post(Post post){
+        this.id=post.getId();
+        this.createAt=post.getCreateAt();
+        this.updateAt=post.getUpdateAt();
+        this.deleteAt=post.getDeleteAt();
+        this.userId=post.getUserId();
+        this.channelId=post.getChannelId();
+        this.rootId=post.getRootId();
+        this.parentId=post.getParentId();
+        this.originalId=post.getOriginalId();
+        this.message=post.getMessage();
+        this.type=post.getType();
+        this.hashtags=post.getHashtags();
+        this.filenames = new RealmList<>();
+        for (String s : post.getFilenames()) {
+            this.filenames.add(new RealmString(s));
+        }
+        this.pendingPostId=post.getPendingPostId();
+        this.user=post.getUser();
+        this.viewed=post.getViewed();
+    }
+
+
 
     public Boolean getViewed() {
         return viewed;
@@ -308,6 +332,8 @@ public class Post extends RealmObject implements Parcelable {
 
     public Post() {
     }
+
+
 
     protected Post(Parcel in) {
         this.id = in.readString();

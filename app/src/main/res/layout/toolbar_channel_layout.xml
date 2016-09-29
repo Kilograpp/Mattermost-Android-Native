@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
@@ -20,6 +21,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:src="@drawable/ic_search_white_24dp"/>
+            app:srcCompat="@drawable/ic_search_white_24dp"/>
     </android.support.v7.widget.Toolbar>
 </layout>
