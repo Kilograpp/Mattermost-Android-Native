@@ -44,17 +44,17 @@
     </style>
 
     <!-- For dialog picker-->
-    <style name="FilePickerTheme" parent="NNF_BaseTheme">
+    <style name="FilePickerTheme" parent="NNF_BaseTheme.Light">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="alertDialogTheme">@style/FilePickerAlertDialogTheme</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
+        <item name="alertDialogTheme">@style/FilePickerDialogTheme</item>
     </style>
 
-    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+    <style name="FilePickerDialogTheme" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
     </style>
 
 </resources>

@@ -28,6 +28,7 @@ import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.viewmodel.chat.ChatFragmentViewModel;
 import com.nononsenseapps.filepicker.FilePickerActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -177,9 +178,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Uri imageFromGallery;
+        ArrayList<Uri> pickedFiles = new ArrayList<>();
+        Uri pickedImage;
+
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == PICK_IMAGE) {
-                Uri selectedImageUri = data.getData();
+                imageFromGallery = data.getData();
             }
             if (requestCode == CAMERA_PIC_REQUEST) {
                 Bitmap image = (Bitmap) data.getExtras().get("data");
@@ -188,23 +193,23 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements Chat
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         ClipData clip = data.getClipData();
-
                         if (clip != null) {
                             for (int i = 0; i < clip.getItemCount(); i++) {
-                                Uri uri = clip.getItemAt(i).getUri();
+//                                Uri uri = clip.getItemAt(i).getUri();
+                                pickedFiles.add(clip.getItemAt(i).getUri());
                             }
                         }
                     } else {
                         ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
-
                         if (paths != null) {
                             for (String path : paths) {
-                                Uri uri = Uri.parse(path);
+//                                Uri uri = Uri.parse(path);
+                                pickedFiles.add(Uri.parse(path));
                             }
                         }
                     }
                 } else {
-                    Uri uri = data.getData();
+                    pickedImage = data.getData();
                 }
             }
         }
