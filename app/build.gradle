@@ -42,13 +42,13 @@ android {
         }
     }
 
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
         applicationId "com.kilograpp.mattermost"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode getMyVersionCode()
         versionName getMyVersionName()
         dataBinding{
