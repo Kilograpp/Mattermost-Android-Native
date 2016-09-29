@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 
@@ -78,12 +78,12 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Channel channel = getData().get(position);
+        Channel channel= getData().get(position);
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(), channel.getUsername());
+                        directItemClickListener.onDirectClick(channel.getId(), channel.getUser().getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();

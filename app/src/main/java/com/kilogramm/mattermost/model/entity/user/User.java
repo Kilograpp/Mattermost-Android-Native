@@ -7,6 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -16,6 +17,10 @@ import io.realm.annotations.PrimaryKey;
  */
 public class User extends RealmObject implements Parcelable {
 
+    public static final String ONLINE = "online";
+    public static final String OFFLINE = "offline";
+    public static final String REFRESH = "refresh";
+    public static final String AWAY = "away";
 
     @PrimaryKey
     @SerializedName("id")
@@ -82,10 +87,20 @@ public class User extends RealmObject implements Parcelable {
     @Expose
     private String locale;
 
+    private String status = "offline";
+
     public User(String id, String username, String firstName) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     /**

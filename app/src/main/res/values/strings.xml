@@ -5,6 +5,7 @@
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
+    <string name="main_url_error">Url is not valid https://</string>
 
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
@@ -29,6 +30,17 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="logout">logout</string>
+    <string name="confirm_post_delete">Confirm Post Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="reply">Replay</string>
+    <string name="permalink">Permalink</string>
+    <string name="edit_post">Edit Post</string>
+    <string name="save">Save</string>
+    <string name="message">Message</string>
+    <string name="edit_the_post">Edit the post…</string>
+    <string name="copy_permalink">Copy Permalink</string>
+    <string name="copy_link">Copy Link</string>
+    <string name="edit_message">Edit message</string>
 
     <string name="commented_on">Commented on</string>
     <string name="is_message">s message:</string>

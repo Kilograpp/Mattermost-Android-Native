@@ -1,6 +1,9 @@
 package com.kilogramm.mattermost.view.chat;
 
 import android.content.Context;
+import android.graphics.drawable.Animatable;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -8,12 +11,10 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
@@ -41,36 +42,43 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
     private Context context;
 
+    private OnItemClickListener<Post> listener;
+
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
-                              boolean animateResults, String animateExtraColumnName) {
+                              boolean animateResults, String animateExtraColumnName,
+                              OnItemClickListener<Post> listener) {
         super(context, realmResults, true, animateResults, animateExtraColumnName);
         this.context = context;
+        this.listener = listener;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
-                              boolean animateResults) {
+                              boolean animateResults, OnItemClickListener<Post> listener) {
         super(context, realmResults, true, animateResults);
         this.context = context;
+        this.listener = listener;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
                               boolean animateResults, boolean addSectionHeaders,
-                              String headerColumnName) {
+                              String headerColumnName, OnItemClickListener<Post> listener) {
         super(context, realmResults, true, animateResults, addSectionHeaders, headerColumnName);
         this.context = context;
+        this.listener = listener;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
                               boolean animateResults, boolean addSectionHeaders,
-                              String headerColumnName, String animateExtraColumnName) {
+                              String headerColumnName, String animateExtraColumnName,
+                              OnItemClickListener<Post> listener) {
         super(context, realmResults, true, animateResults, addSectionHeaders, headerColumnName, animateExtraColumnName);
         this.context = context;
+        this.listener = listener;
     }
 
     @Override
     public MyViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int i) {
-        MyViewHolder holder = MyViewHolder.create(inflater, viewGroup);
-        return holder;
+        return MyViewHolder.create(inflater, viewGroup);
     }
 
     @Override
@@ -78,13 +86,13 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         Post post = realmResults.get(i);
         Calendar curDate = Calendar.getInstance();
         Calendar preDate = Calendar.getInstance();
-        Post prePost = null;
+        Post prePost;
         Boolean isTitle = false;
-        if (i - 1 >= 0) {
-            prePost = realmResults.get(i - 1);
+        if(i-1 >= 0){
+            prePost = realmResults.get(i-1);
             curDate.setTime(new Date(post.getCreateAt()));
             preDate.setTime(new Date(prePost.getCreateAt()));
-            if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
+            if(curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)){
                 isTitle = true;
             }
 
@@ -94,7 +102,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             }
 
         }
-        myViewHolder.bindTo(post, context, isTitle);
+        myViewHolder.bindTo(post, context, isTitle, listener);
     }
 
 
@@ -112,69 +120,42 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             super(binding.getRoot());
             mBinding = binding;
         }
-
-        public void bindTo(Post post, Context context, Boolean isTitle) {
-            mBinding.getRoot().setOnLongClickListener(view -> {
-                Toast.makeText(context, "long click", Toast.LENGTH_SHORT).show();
-                return true;
-            });
+        public void bindTo(Post post, Context context, Boolean isTitle, OnItemClickListener listener) {
             mBinding.controlMenu.setOnClickListener(view -> {
-                PopupMenu popupMenu = new PopupMenu(context, view, Gravity.BOTTOM);
-                popupMenu.inflate(R.menu.chat_item_popupmenu);
-                popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    Toast.makeText(context, "In development.", Toast.LENGTH_SHORT).show();
-                    return true;
-                });
-                popupMenu.show();
+                if (listener != null)
+                    listener.OnItemClick(mBinding.controlMenu, post);
             });
-
             mBinding.avatar.setTag(post);
-
-            mBinding.message.setText(revertSpanned(getPostLinkifyMessage(post)));
+            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
+            mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
-            if (mBinding.getViewModel() == null) {
+            if(mBinding.getViewModel() == null){
                 mBinding.setViewModel(new ItemChatViewModel(context, post));
             } else {
                 mBinding.getViewModel().setPost(post);
 
             }
-            if (isTitle) {
+            if(isTitle){
                 mBinding.getViewModel().setTitleVisibility(View.VISIBLE);
             } else {
                 mBinding.getViewModel().setTitleVisibility(View.GONE);
             }
 
-            mBinding.executePendingBindings();
-        }
-
-        private SpannableStringBuilder getPostLinkifyMessage(Post post) {
-            Spanned spanned;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
+            if(AppCompatDelegate.isCompatVectorFromResourcesEnabled()){
+                Log.d(TAG,"isCompatVectorFromResourcesEnabled");
+                /*AnimatedVectorDrawableCompat animatedVectorDrawableCompat
+                        = AnimatedVectorDrawableCompat.create(context, R.drawable.vector_test_anim);
+                mBinding.sendStatus.setImageDrawable(animatedVectorDrawableCompat);*/
+               // mBinding.sendStatus.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.vector_test_anim));
+              //  mBinding.sendStatus.setImageResource(R.drawable.vector_test_anim);
             } else {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null, new MattermostTagHandler());
+                Log.d(TAG,"NOT isCompatVectorFromResourcesEnabled");
             }
-            SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
-            Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
-            Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-                ssb.setSpan(new ForegroundColorSpan(mBinding.getRoot().getResources().getColor(R.color.colorPrimary)),
-                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return true;
-            }, null);
-
-            Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
-                String s = charSequence.toString();
-                StringBuilder builder = new StringBuilder();
-                for (int k = i; k < i1; k++) {
-                    builder.append(' ');
-                }
-                ssb.replace(i, i1, builder.toString());
-                ssb.setSpan(new HrSpannable(mBinding.getRoot().getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return true;
-            }, null);
-
-            return ssb;
+            if(mBinding.sendStatus.getDrawable() instanceof Animatable){
+                ((Animatable) mBinding.sendStatus.getDrawable()).start();
+            }
+            mBinding.executePendingBindings();
         }
 
         private void setRootMassage(String rootId) {
@@ -186,21 +167,43 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             mBinding.avatarRootPost.setTag(rootPost);
             mBinding.messageRootPost.setText(revertSpanned(getPostLinkifyMessage(rootPost)).toString().trim());
         }
-
-
     }
 
-//    static SpannableStringBuilder setComment(Post post) {
-//
-//        return ssb;
-//    }
+    @NonNull
+    private static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
+        Spanned spanned;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+        } else {
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
+        }
+        SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
+        Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
+        Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+            ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
+                    start,end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return true;
+        }, null);
+
+        Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
+            String s = charSequence.toString();
+            StringBuilder builder = new StringBuilder();
+            for (int k = i; k < i1; k++){
+                builder.append(' ');
+            }
+            ssb.replace(i,i1,builder.toString());
+            ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return true;
+        },null);
+        return ssb;
+    }
 
     static Spannable revertSpanned(Spanned stext) {
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
         if (spans != null && spans.length > 0) {
-            for (int i = spans.length - 1; i >= 0; --i) {
+            for(int i = spans.length - 1; i >= 0; --i) {
                 ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
             }
         }

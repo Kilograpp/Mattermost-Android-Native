@@ -1,5 +1,10 @@
 package com.kilogramm.mattermost.model.entity.post;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import android.os.Build;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.RealmString;
@@ -15,7 +20,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class Post extends RealmObject{
+public class Post extends RealmObject implements Parcelable {
 
     @PrimaryKey
     @SerializedName("id")
@@ -275,6 +280,72 @@ public class Post extends RealmObject{
 
     public void setFilenames(List<String> filenames) {
         this.filenames = new RealmList<>();
-        filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        if(Build.VERSION.SDK_INT == 24) {
+            filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        } else {
+            for (String filename : filenames) {
+                this.filenames.add(new RealmString(filename));
+            }
+        }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeValue(this.createAt);
+        dest.writeValue(this.updateAt);
+        dest.writeValue(this.deleteAt);
+        dest.writeString(this.userId);
+        dest.writeString(this.channelId);
+        dest.writeString(this.rootId);
+        dest.writeString(this.parentId);
+        dest.writeString(this.originalId);
+        dest.writeString(this.message);
+        dest.writeString(this.type);
+        dest.writeString(this.hashtags);
+        dest.writeList(this.filenames);
+        dest.writeString(this.pendingPostId);
+        dest.writeParcelable(this.user, flags);
+        dest.writeValue(this.viewed);
+    }
+
+    public Post() {
+    }
+
+    protected Post(Parcel in) {
+        this.id = in.readString();
+        this.createAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.updateAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.deleteAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.userId = in.readString();
+        this.channelId = in.readString();
+        this.rootId = in.readString();
+        this.parentId = in.readString();
+        this.originalId = in.readString();
+        this.message = in.readString();
+        this.type = in.readString();
+        this.hashtags = in.readString();
+        this.filenames = new RealmList<>();
+        in.readList(this.filenames, RealmString.class.getClassLoader());
+        this.pendingPostId = in.readString();
+        this.user = in.readParcelable(User.class.getClassLoader());
+        this.viewed = (Boolean) in.readValue(Boolean.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel source) {
+            return new Post(source);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 }

@@ -61,7 +61,7 @@
                         <EditText
                             android:hint="@string/login_hint_email"
                             android:id="@+id/editEmail"
-                            style="@style/DiscriptionBlackTextStyle"
+                            style="@style/DescriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:addTextChangedListener = "@{loginPresenter.emailTextWatcher}"
@@ -80,7 +80,7 @@
                         <EditText
                             android:hint="@string/login_hint_password"
                             android:id="@+id/editPassword"
-                            style="@style/DiscriptionBlackTextStyle"
+                            style="@style/DescriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:addTextChangedListener = "@{loginPresenter.passwordTextWatcher}"
