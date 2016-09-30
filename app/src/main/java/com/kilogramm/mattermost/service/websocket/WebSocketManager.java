@@ -41,6 +41,7 @@ public class WebSocketManager {
 
     private CheckStatusSocket mCheckStatusSocket;
 
+    private UpdateStatusUser mUpdateStatusUser;
 
     private ChannelRepository channelRepository;
 
@@ -53,6 +54,7 @@ public class WebSocketManager {
         handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
 
         mCheckStatusSocket = new CheckStatusSocket();
+        mUpdateStatusUser = new UpdateStatusUser();
 
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -179,12 +181,19 @@ public class WebSocketManager {
 
         handler.removeCallbacks(mCheckStatusSocket);
 
+        handler.removeCallbacks(mUpdateStatusUser);
+
         if(webSocket!=null){
             webSocket.disconnect();
         }
 
         handler.post(() -> handlerThread.quit());
 
+    }
+
+    public void updateUserStatusNow(){
+        handler.removeCallbacks(mUpdateStatusUser);
+        handler.post(mUpdateStatusUser);
     }
 
     public interface WebSocketMessage{
@@ -207,6 +216,23 @@ public class WebSocketManager {
         }
     }
     //TODO Review code
+    public class UpdateStatusUser implements Runnable{
+
+        @Override
+        public void run() {
+            if(webSocket!=null) {
+                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
+
+                String getStatus = "{\"action\":\"get_statuses\",\"seq\":1,\"data\":null}";
+                /*if(webSocket.getState() == WebSocketState.CLOSED){
+                    start();
+                }*/
+                Log.d(TAG,"send " + getStatus);
+                webSocket.sendBinary(getStatus.getBytes());
+            }
+            else  Log.d(TAG, "web socket not created");
+        }
+    }
 
 
 }

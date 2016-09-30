@@ -72,10 +72,6 @@ public class FilesView extends GridLayout {
                         initAndAddItem(binding,getImageUrl(s));
                         binding.image.setOnClickListener(view -> {
                             Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-                            /*ImageViewerActivity.startActivity(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(s));*/
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
@@ -92,7 +88,6 @@ public class FilesView extends GridLayout {
                                     getImageUrl(s));
 
                         });
-                        //binding.image.setOnClickListener(view -> Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show());
                         break;
                     default:
                         initAndAddItem(binding,getImageUrl(s));

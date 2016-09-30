@@ -1,10 +1,12 @@
 package com.kilogramm.mattermost.view.menu.directList;
 
+
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,10 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusAllSpecification;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
+import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuDirectViewModel;
 
 import io.realm.RealmResults;
@@ -33,12 +39,14 @@ public class MenuDirectListFragment extends Fragment {
 
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
+    private UserStatusRepository userStatusRepository;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userRepository = new UserRepository();
         channelRepository = new ChannelRepository();
+        userStatusRepository = new UserStatusRepository();
     }
 
     @Nullable
@@ -54,12 +62,13 @@ public class MenuDirectListFragment extends Fragment {
     }
 
     private void setupRecyclerViewDirection() {
+        RealmResults<UserStatus> statusRealmResults = userStatusRepository.query(new UserStatusAllSpecification());
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification(Channel.DIRECT));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuDirectList(getContext(), results, binding.recView,
                 (itemId, name) -> {
                     directItemClickListener.onDirectClick(itemId, name);
-                });
+                }, statusRealmResults);
 
         if(selectedItemChangeListener!=null){
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
@@ -99,5 +108,12 @@ public class MenuDirectListFragment extends Fragment {
 
     public void resetSelectItem(){
         adapter.setSelecteditem(-1);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("UPDATE STATUS","");
+        MattermostService.Helper.create(getContext()).updateUserStatusNow();
     }
 }
