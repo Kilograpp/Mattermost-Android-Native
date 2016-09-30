@@ -1,15 +1,15 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.app.Activity;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,10 +43,8 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.nononsenseapps.filepicker.FilePickerActivity;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -264,11 +262,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     pickedImage = data.getData();
                 }
             }
-            if (resultCode == getActivity().RESULT_OK && requestCode == PICKFILE_REQUEST_CODE)
-                if (data != null && data.getData() != null) {
-                    Uri uri = data.getData();
-                    getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
-                }
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == PICKFILE_REQUEST_CODE) {
+            if (data != null && data.getData() != null) {
+                Uri uri = data.getData();
+                binding.attachedFilesLayout.addItem(uri, teamId, channelId);
+            }
         }
     }
 

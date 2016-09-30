@@ -30,7 +30,7 @@ import rx.schedulers.Schedulers;
 
 public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
 
-    private static final String TAG = "ChatPresenter";
+    private static final String TAG = "AttachedFilesPresenter";
 
     private MattermostApp mMattermostApp;
     private Subscription mSubscription;
