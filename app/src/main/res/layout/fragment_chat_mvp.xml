@@ -67,8 +67,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="400dp"
                         android:visibility="gone"
-                        app:rrvLayoutType="LinearLayout"
-                        app:rrvSwipeToDelete="true">
+                        app:rrvLayoutType="LinearLayout">
                     </com.kilogramm.mattermost.ui.MRealmRecyclerView>
                 </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
