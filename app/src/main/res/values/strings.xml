@@ -42,4 +42,9 @@
     <string name="copy_link">Copy Link</string>
     <string name="edit_message">Edit message</string>
 
+    <string name="commented_on">Commented on</string>
+    <string name="is_message">s message:</string>
+
+    <string name="title_direct_list">Direct list</string>
+
 </resources>

@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import io.realm.Realm;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -87,15 +88,22 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         Calendar preDate = Calendar.getInstance();
         Post prePost;
         Boolean isTitle = false;
-        if(i-1 >= 0){
-            prePost = realmResults.get(i-1);
+        Boolean isComment = false;
+        if (i - 1 >= 0) {
+            prePost = realmResults.get(i - 1);
             curDate.setTime(new Date(post.getCreateAt()));
             preDate.setTime(new Date(prePost.getCreateAt()));
-            if(curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)){
+            if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
                 isTitle = true;
             }
+
+            if (post.getRootId() != null && post.getRootId().length() > 0 &&
+                    !prePost.getId().equals(post.getRootId())) {
+                isComment = true;
+            }
+
         }
-        myViewHolder.bindTo(post, context, isTitle, listener);
+        myViewHolder.bindTo(post, context, isTitle, isComment, listener);
     }
 
 
@@ -113,7 +121,8 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             super(binding.getRoot());
             mBinding = binding;
         }
-        public void bindTo(Post post, Context context, Boolean isTitle, OnItemClickListener listener) {
+
+        public void bindTo(Post post, Context context, Boolean isTitle, Boolean isComment, OnItemClickListener listener) {
             mBinding.controlMenu.setOnClickListener(view -> {
                 if (listener != null)
                     listener.OnItemClick(mBinding.controlMenu, post);
@@ -122,33 +131,49 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
-            if(mBinding.getViewModel() == null){
+            if (mBinding.getViewModel() == null) {
                 mBinding.setViewModel(new ItemChatViewModel(context, post));
             } else {
                 mBinding.getViewModel().setPost(post);
-
             }
-            if(isTitle){
+
+            if (isComment)
+                setRootMassage(post.getRootId());
+            else
+                mBinding.linearLayoutRootPost.setVisibility(View.GONE);
+
+            if (isTitle) {
                 mBinding.getViewModel().setTitleVisibility(View.VISIBLE);
             } else {
                 mBinding.getViewModel().setTitleVisibility(View.GONE);
             }
 
-            if(AppCompatDelegate.isCompatVectorFromResourcesEnabled()){
-                Log.d(TAG,"isCompatVectorFromResourcesEnabled");
+            if (AppCompatDelegate.isCompatVectorFromResourcesEnabled()) {
+                Log.d(TAG, "isCompatVectorFromResourcesEnabled");
                 /*AnimatedVectorDrawableCompat animatedVectorDrawableCompat
                         = AnimatedVectorDrawableCompat.create(context, R.drawable.vector_test_anim);
                 mBinding.sendStatus.setImageDrawable(animatedVectorDrawableCompat);*/
-               // mBinding.sendStatus.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.vector_test_anim));
-              //  mBinding.sendStatus.setImageResource(R.drawable.vector_test_anim);
+                // mBinding.sendStatus.setImageDrawable(AppCompatResources.getDrawable(context,R.drawable.vector_test_anim));
+                //  mBinding.sendStatus.setImageResource(R.drawable.vector_test_anim);
             } else {
-                Log.d(TAG,"NOT isCompatVectorFromResourcesEnabled");
+                Log.d(TAG, "NOT isCompatVectorFromResourcesEnabled");
             }
 
-            if(mBinding.sendStatus.getDrawable() instanceof Animatable){
+            if (mBinding.sendStatus.getDrawable() instanceof Animatable) {
                 ((Animatable) mBinding.sendStatus.getDrawable()).start();
             }
             mBinding.executePendingBindings();
+        }
+
+        private void setRootMassage(String rootId) {
+            Realm realm = Realm.getDefaultInstance();
+            Post rootPost = realm.where(Post.class)
+                    .equalTo("id", rootId).findFirst();
+            mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
+            mBinding.nickRootPost.setText(rootPost.getUser().getUsername());
+            mBinding.getViewModel().loadImage(mBinding.avatarRootPost, mBinding.getViewModel().getUrl(rootPost));
+            mBinding.messageRootPost.setText(revertSpanned(getSpannableStringBuilder(rootPost, mBinding.getRoot().getContext())).toString().trim());
+            realm.close();
         }
     }
 
@@ -156,29 +181,29 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
     private static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
         Spanned spanned;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
         } else {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null, new MattermostTagHandler());
         }
         SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
         Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
         Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-            ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
-                    start,end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return true;
         }, null);
 
         Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
             String s = charSequence.toString();
             StringBuilder builder = new StringBuilder();
-            for (int k = i; k < i1; k++){
+            for (int k = i; k < i1; k++) {
                 builder.append(' ');
             }
-            ssb.replace(i,i1,builder.toString());
+            ssb.replace(i, i1, builder.toString());
             ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return true;
-        },null);
+        }, null);
         return ssb;
     }
 
@@ -186,7 +211,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
         if (spans != null && spans.length > 0) {
-            for(int i = spans.length - 1; i >= 0; --i) {
+            for (int i = spans.length - 1; i >= 0; --i) {
                 ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
             }
         }

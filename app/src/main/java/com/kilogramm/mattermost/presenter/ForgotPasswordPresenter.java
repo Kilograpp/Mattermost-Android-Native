@@ -42,17 +42,17 @@ public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
         super.onDestroy();
     }
 
-    public void sendEmail(String userEmail){
+    public void sendEmail(String userEmail) {
 
-        if(mSubscription!=null && !mSubscription.isUnsubscribed()){
+        if (mSubscription != null && !mSubscription.isUnsubscribed()) {
             mSubscription.unsubscribe();
         }
 
         //TODO FIX logic
         ApiMethod service = null;
-        try{
+        try {
             service = mMattermostApp.getMattermostRetrofitService();
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             getView().showErrorText("Url is not valid https://");
             return;

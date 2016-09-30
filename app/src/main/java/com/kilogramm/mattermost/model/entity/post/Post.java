@@ -1,9 +1,8 @@
 package com.kilogramm.mattermost.model.entity.post;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import android.os.Build;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -61,7 +60,7 @@ public class Post extends RealmObject implements Parcelable {
     private String hashtags;
     @SerializedName("filenames")
     @Expose
-    private RealmList<RealmString>  filenames = new RealmList<>();
+    private RealmList<RealmString> filenames = new RealmList<>();
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
@@ -279,8 +278,11 @@ public class Post extends RealmObject implements Parcelable {
     }
 
     public void setFilenames(List<String> filenames) {
+        if (filenames == null) {
+            return;
+        }
         this.filenames = new RealmList<>();
-        if(Build.VERSION.SDK_INT == 24) {
+        if (Build.VERSION.SDK_INT == 24) {
             filenames.forEach(s -> this.filenames.add(new RealmString(s)));
         } else {
             for (String filename : filenames) {
