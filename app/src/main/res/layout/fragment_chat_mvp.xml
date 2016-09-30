@@ -106,6 +106,11 @@
                 android:id="@+id/edit_message_layout"
                 layout="@layout/edit_message_layout"/>
 
+            <com.kilogramm.mattermost.ui.AttachedFilesLayout
+                android:id="@+id/attachedFilesLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -115,9 +120,12 @@
                 android:background="@color/very_light_grey" />
 
             <LinearLayout
+                android:id="@+id/sendingMessageContainer"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:visibility="gone"
+                android:animateLayoutChanges="true">
 
                 <ImageView
                     android:id="@+id/buttonAttachFile"
@@ -125,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    android:src="@drawable/ic_attachment_grey_24dp" />
+                    android:src="@drawable/ic_attachment_grey_24dp"/>
 
                 <EditText
                     android:id="@+id/writingMessage"
@@ -136,7 +144,7 @@
                     android:hint="@string/type_something"
                     android:padding="10dp"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/very_light_grey" />
+                    android:textColorHint="@color/very_light_grey"/>
 
                 <TextView
                     android:id="@+id/btnSend"
@@ -149,11 +157,17 @@
                 <!--<ImageView
                     android:id="@+id/btnSend"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_heght="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
                     android:src="@drawable/ic_send_white_24dp" />-->
             </LinearLayout>
+
         </LinearLayout>
-    </LinearLayout>
+
+       <include
+           android:id="@+id/bottomToolbar"
+           layout="@layout/bottom_toolbar_layout" />
+
+</LinearLayout>
 </layout>

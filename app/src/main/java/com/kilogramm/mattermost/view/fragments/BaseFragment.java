@@ -15,6 +15,4 @@ public abstract class BaseFragment<P extends Presenter> extends NucleusFragment<
     protected void setupToolbar(String activityTitle,String channelName, View.OnClickListener listener){
         ((BaseActivity) getActivity()).setupChannelToolbar(activityTitle,channelName,listener);
     }
-
-
 }

@@ -14,6 +14,8 @@
     <color name="blue_selected">#d7ecfa</color>
     <color name="blue_light_selected">#e6f3fa</color>
 
+    <color name="file_picker_icon">#e7c702</color>
+
     <color name="comment_cardview_Background">#f7f7f7</color>
 
 </resources>

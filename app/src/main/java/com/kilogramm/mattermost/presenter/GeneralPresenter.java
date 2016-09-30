@@ -12,6 +12,8 @@ import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.SaveData;
+
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
@@ -29,6 +31,9 @@ import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
 import java.util.Map;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import nucleus.presenter.Presenter;
@@ -41,14 +46,16 @@ import rx.schedulers.Schedulers;
  * Created by kraftu on 14.09.16.
  */
 public class GeneralPresenter extends Presenter<GeneralActivity> {
-
-    public static final String TAG = "GeneralPresenter";
+    private static final String TAG = "GeneralPresenter";
 
     Realm realm;
     Subscription subscription;
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
     private String teamId;
+
+    private boolean setDialogFragment = false;
+    private SaveData mSaveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -115,6 +122,11 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
                     @Override
                     public void onCompleted() {
+                        if (setDialogFragment){
+                            setSelectedDirect(mSaveData.getUser_id(), mSaveData.getName());
+                            Log.d(TAG, "Must open direct dialog");
+                            setDialogFragment = false;
+                        }
                         Log.d(TAG, "complete load channels");
                        // loadUsersTeam(teamId);
                     }
@@ -162,6 +174,46 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     }
                 });
     }*/
+
+    public void save(SaveData saveData) {
+        if (subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        if (saveData != null) {
+            List<SaveData> toSend = new ArrayList<>();
+            toSend.add(saveData);
+            subscription = service.save(toSend)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Boolean>() {
+                        @Override
+                        public void onCompleted() {
+                            Realm realm = Realm.getDefaultInstance();
+                            String teamId = realm.where(Team.class).findFirst().getId();
+                            realm.close();
+                            loadChannels(teamId);
+                            setDialogFragment = true;
+                            mSaveData = saveData;
+                            Log.d(TAG, "mSaveData created");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onNext(Boolean aBoolean) {
+                            Log.d(TAG, "onNext");
+                            if (!aBoolean) {
+                                Log.d(TAG, "Save didn`t work out");
+                            }
+                        }
+                    });
+        }
+    }
 
     public void setSelectedDirect(String itemId,String name){
         /*String myId = realm.where(User.class).findFirst().getId();

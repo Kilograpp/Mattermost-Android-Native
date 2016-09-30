@@ -37,6 +37,9 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         this.titleVisibility = new ObservableInt(View.GONE);
     }
 
+    public ItemChatViewModel(){
+
+    }
 
     public String getMessage() {
         return post.getMessage();
