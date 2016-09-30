@@ -153,15 +153,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         });
     }
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.setUsers(realmResult);
+        dropDownListAdapter.updateData(realmResult);
     }
+
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
