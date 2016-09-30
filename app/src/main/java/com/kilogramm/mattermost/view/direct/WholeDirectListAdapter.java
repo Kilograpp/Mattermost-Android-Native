@@ -60,6 +60,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
                 }
             }
         });
+
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -77,6 +78,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         }
 
         public void bindTo(User user) {
+
             directBinding.directProfileName.setText(user.getUsername());
 
             StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
@@ -98,6 +100,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(directBinding.avatarDirect);
+
         }
 
         public ItemDirectListBinding getmBinding() {

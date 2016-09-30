@@ -51,7 +51,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     }
 
     public void setRecycleView() {
-        RealmResults<User> users = realm.where(User.class).isNotNull("id").findAllSorted("username");
+        RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
         ArrayList<String> usersIds = new ArrayList<>();
         for (User user : users) {
             usersIds.add(user.getId());

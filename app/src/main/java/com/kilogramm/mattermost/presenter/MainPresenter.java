@@ -127,7 +127,6 @@ public class MainPresenter extends Presenter<MainActivity> {
                         });
                     }
                 });
-
     }
 
     public void checkEnterUrl(String url){

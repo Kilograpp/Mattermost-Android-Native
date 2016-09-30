@@ -15,6 +15,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
@@ -73,8 +74,11 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                         Log.d(TAG, "onNext success");
                         realm.executeTransaction(realm1 -> {
                             for (User user : stringUserMap.values()) {
-                                users.add(user);
+                                if (user.getEmail() != null) {
+                                    users.add(user);
+                                }
                             }
+
                             realm1.insertOrUpdate(users);
                             realm1.close();
                         });
