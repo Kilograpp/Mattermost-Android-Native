@@ -16,6 +16,7 @@ apply plugin: 'io.fabric'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://clojars.org/repo/" }
 }
 
 
@@ -112,6 +113,8 @@ dependencies {
     compile 'info.android15.nucleus:nucleus:4.0.0'
     compile 'info.android15.nucleus:nucleus-support-v4:4.0.0'
     compile 'info.android15.nucleus:nucleus-support-v7:4.0.0'
+
+    compile "frankiesardo:icepick-processor:3.2.0"
 
     apt 'com.google.dagger:dagger-compiler:2.5'
     compile 'com.google.dagger:dagger:2.5'

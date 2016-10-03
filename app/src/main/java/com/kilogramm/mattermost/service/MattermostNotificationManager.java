@@ -54,10 +54,10 @@ public class MattermostNotificationManager {
             case WebSocketObj.EVENT_TYPING:
                 break;
             case WebSocketObj.ALL_USER_STATUS:
+                userStatusRepository.remove(new AllRemove());
                 for (String s : webSocketObj.getData().getStatusMap().keySet()) {
                     Log.d(TAG, "EVENT_ALL_USER_STATUS: useid = "+ s + "\n" +
                             "status = " + webSocketObj.getData().getStatusMap().get(s));
-                    userStatusRepository.remove(new AllRemove());
                     userStatusRepository.add(new UserStatus(s,webSocketObj.getData().getStatusMap().get(s)));
                     //userRepository.updateUserStatus(s,webSocketObj.getData().getStatusMap().get(s));
                 }
