@@ -263,11 +263,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     pickedImage = data.getData();
                 }
             }
-            if (resultCode == getActivity().RESULT_OK && requestCode == PICKFILE_REQUEST_CODE)
-                if (data != null && data.getData() != null) {
-                    Uri uri = data.getData();
-                    getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
-                }
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == PICKFILE_REQUEST_CODE) {
+            if (data != null && data.getData() != null) {
+                Uri uri = data.getData();
+                binding.attachedFilesLayout.addItem(uri, teamId, channelId);
+            }
         }
     }
 
