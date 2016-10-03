@@ -47,4 +47,11 @@
 
     <string name="title_direct_list">Direct list</string>
 
+    <string name="search_hint">Search</string>
+    <string name="default_text"> If you\'re searching a partial phrase (ex. searching \'rea\', looking
+                                    for \'reach\' or \'reaction\'), append a * to your search term. \n
+                                     Two letter searches and common words like \'this\', \'a\' and \'is\'
+                                    won\'t appear in search results due to excessive results returned.
+    </string>
+
 </resources>

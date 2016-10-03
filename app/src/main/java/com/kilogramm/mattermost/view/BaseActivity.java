@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.kilogramm.mattermost.R;
 
@@ -69,11 +70,16 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
 
     //====================== channel toolbar ========================================
 
-    public void setupChannelToolbar(String acrivityTitle, String channelName, View.OnClickListener listener) {
+    public void setupChannelToolbar(String acrivityTitle, String channelName, View.OnClickListener listenerChannelName,
+                                    View.OnClickListener listenerSearch) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         Button channel_name = (Button) toolbar.findViewById(R.id.channel_title);
         channel_name.setText(channelName);
-        channel_name.setOnClickListener(listener);
+        channel_name.setOnClickListener(listenerChannelName);
+
+        ImageView search_message = (ImageView) toolbar.findViewById(R.id.search_message);
+        search_message.setOnClickListener(listenerSearch);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_dehaze_white_24dp);

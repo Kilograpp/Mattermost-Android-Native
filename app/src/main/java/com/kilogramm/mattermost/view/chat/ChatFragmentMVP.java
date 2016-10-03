@@ -44,6 +44,7 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
+import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.util.ArrayList;
@@ -97,7 +98,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
         this.postRepository = new PostRepository();
-        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
+        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show(),
+                v -> searchMessage());
     }
 
     @Nullable
@@ -133,6 +135,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);
+    }
+
+    private void searchMessage(){
+        startActivity(new Intent(getActivity(), SearchMessageActivity.class));
     }
 
     private void setBottomToolbarOnClickListeners() {

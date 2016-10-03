@@ -4,6 +4,7 @@ import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.SearchResult;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -163,4 +164,12 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST ("api/v3/preferences/save")
     Observable<Boolean> save(@Body List<SaveData> saveData);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/posts/activity_search")
+    Observable<SearchResult> searchForPosts(@Path("team_id") String team_id,
+                                            @Path("terms") String terms);
 }

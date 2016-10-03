@@ -16,8 +16,6 @@
     <dimen name="status_margin_bottom">3dp</dimen>
     <dimen name="status_margin_end">8dp</dimen>
 
-
-
     <dimen name="comment_margin_element">10dp</dimen>
     <dimen name="comment_margin_text">20dp</dimen>
     <dimen name="image_comment_size">20dp</dimen>
