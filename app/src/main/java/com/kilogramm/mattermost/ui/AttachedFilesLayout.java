@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
+import com.kilogramm.mattermost.databinding.AttachedFilesLayoutBinding;
 import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
 import com.kilogramm.mattermost.view.NucleusLinearLayout;
 
@@ -19,9 +20,11 @@ import nucleus.view.NucleusLayout;
  * Created by kepar on 29.9.16.
  */
 @RequiresPresenter(AttachedFilesPresenter.class)
-public class AttachedFilesLayout extends NucleusLinearLayout<AttachedFilesPresenter> {
+public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
 
     private static final String TAG = "AttachedFilesLayout";
+
+    AttachedFilesLayoutBinding bindingRoot;
 
     public AttachedFilesLayout(Context context) {
         super(context);
@@ -56,6 +59,9 @@ public class AttachedFilesLayout extends NucleusLinearLayout<AttachedFilesPresen
 
     private void init(Context context) {
         inflate(context, R.layout.attached_files_layout, this);
+        bindingRoot = DataBindingUtil.inflate((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
+                R.layout.attached_files_layout,
+                null,false);
     }
 
     public void addItem(Uri uri, String teamId, String channelId){
@@ -72,6 +78,6 @@ public class AttachedFilesLayout extends NucleusLinearLayout<AttachedFilesPresen
                 .error(R.drawable.ic_attachment_grey_24dp)
                 .thumbnail(0.1f)
                 .into(binding.imageView);
-        addView(binding.getRoot());
+        bindingRoot.attachedFilesLayout.addView(binding.getRoot());
     }
 }
