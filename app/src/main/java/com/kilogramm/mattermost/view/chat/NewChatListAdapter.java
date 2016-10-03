@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
@@ -32,6 +34,7 @@ import io.realm.Realm;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
+import rx.Subscription;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -110,6 +113,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
     public static class MyViewHolder extends RealmViewHolder {
 
         private ChatListItemBinding mBinding;
+        private PostRepository postRepository;
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
             ChatListItemBinding binding = ChatListItemBinding
@@ -119,6 +123,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
         private MyViewHolder(ChatListItemBinding binding) {
             super(binding.getRoot());
+            this.postRepository = new PostRepository();
             mBinding = binding;
         }
 
@@ -138,7 +143,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             }
 
             if (isComment)
-                setRootMassage(post.getRootId());
+                setRootMassage(post);
             else
                 mBinding.linearLayoutRootPost.setVisibility(View.GONE);
 
@@ -165,15 +170,67 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             mBinding.executePendingBindings();
         }
 
-        private void setRootMassage(String rootId) {
+        private void setRootMassage(Post post) {
             Realm realm = Realm.getDefaultInstance();
-            Post rootPost = realm.where(Post.class)
-                    .equalTo("id", rootId).findFirst();
+            Post rootPost = postRepository.query((new PostByIdSpecification(post.getRootId()))).first();
+//            if (rootPost == null) {
+                getRootPost(post, realm);
+//            }
             mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
             mBinding.nickRootPost.setText(rootPost.getUser().getUsername());
             mBinding.getViewModel().loadImage(mBinding.avatarRootPost, mBinding.getViewModel().getUrl(rootPost));
             mBinding.messageRootPost.setText(revertSpanned(getSpannableStringBuilder(rootPost, mBinding.getRoot().getContext())).toString().trim());
             realm.close();
+        }
+
+        public Subscription mSubscription;
+
+        public Post getRootPost(Post postBase, Realm realm) {
+//            ApiMethod service;
+//            service = MattermostApp.getSingleton().getMattermostRetrofitService();
+//
+//            String teamId = realm.where(Team.class).findFirst().getId();
+//            mSubscription = service.getPost(teamId, postBase.getChannelId(), postBase.getRootId())
+//                    .subscribeOn(Schedulers.newThread())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Subscriber<Posts>() {
+//                        @Override
+//                        public void onCompleted() {
+//                            Log.d(TAG, "Complete load post");
+//                        }
+//
+//                        @Override
+//                        public void onError(Throwable e) {
+//                            e.printStackTrace();
+//                            Log.d(TAG, "Error");
+//                        }
+//
+//                        @Override
+//                        public void onNext(Posts posts) {
+//                            for (Post post : posts.getPosts().values())
+//                                post.getRootId();
+////                                postRepository.add(post);
+//                        }
+//                    });
+//                    .subscribe(new Subscriber<Post>() {
+//                        @Override
+//                        public void onCompleted() {
+//                            Log.d(TAG, "Complete load post");
+//                        }
+//
+//                        @Override
+//                        public void onError(Throwable e) {
+//                            e.printStackTrace();
+//                            Log.d(TAG, "Error");
+//                        }
+//
+//                        @Override
+//                        public void onNext(Post post) {
+//                            postRepository.add(post);
+//                        }
+//                    });
+
+            return null;
         }
     }
 
