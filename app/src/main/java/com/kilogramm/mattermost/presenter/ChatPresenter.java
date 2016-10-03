@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
@@ -106,6 +107,43 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     } //  +
 
+
+    public Post getRootPost(Post postBase, String teamId) {
+        RealmResults<Post> postsList = postRepository.query((new PostByIdSpecification(postBase.getRootId())));
+        Post rootPost = null;
+        if (postsList.size() > 0)
+            rootPost = postsList.first();
+        if (rootPost != null)
+            return rootPost;
+
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+        ApiMethod service;
+        service = MattermostApp.getSingleton().getMattermostRetrofitService();
+        mSubscription = service.getPost(teamId, postBase.getChannelId(), postBase.getRootId())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "Complete load post");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "Error");
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+                        for (Post post : posts.getPosts().values())
+                            postRepository.add(post);
+                    }
+                });
+        return null;
+    }
+
     public void loadPosts(String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
@@ -169,7 +207,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
-                        if(getView()!=null)
+                        if (getView() != null)
                             getView().showList();
                         else {
                             if (isLoadNext) {
@@ -315,11 +353,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         isLoadNext = true;
     }
 
-    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri){
+    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri) {
         String filePath = FileUtils.getPath(context, uri);
         String mimeType = FileUtils.getMimeType(filePath);
         File file = new File(filePath);
-        if(file.exists()) {
+        if (file.exists()) {
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, new ProgressRequestBody.UploadCallbacks() {
                 @Override
                 public void onProgressUpdate(int percentage) {
@@ -362,7 +400,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                            if(fileNames == null) fileNames = new ArrayList<>();
+                            if (fileNames == null) fileNames = new ArrayList<>();
                             fileNames.addAll(fileUploadResponse.getFilenames());
                         }
                     });
@@ -371,12 +409,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         }
     }
 
-    public void deletePost(Post post,String teamId, String channelId) {
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    public void deletePost(Post post, String teamId, String channelId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.deletePost(teamId,channelId, post.getId(), new Object())
+        mSubscription = service.deletePost(teamId, channelId, post.getId(), new Object())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -399,11 +437,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void editPost(Post post, String teamId, String channelId) {
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.editPost(teamId,channelId, post)
+        mSubscription = service.editPost(teamId, channelId, post)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {

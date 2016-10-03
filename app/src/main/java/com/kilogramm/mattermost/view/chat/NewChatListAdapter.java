@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
@@ -30,11 +29,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import io.realm.Realm;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
-import rx.Subscription;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -46,6 +43,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
     private Context context;
 
     private OnItemClickListener<Post> listener;
+    public GetRootPost getRootPost;
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
                               boolean animateResults, String animateExtraColumnName,
@@ -56,10 +54,11 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
-                              boolean animateResults, OnItemClickListener<Post> listener) {
+                              boolean animateResults, OnItemClickListener<Post> listener, GetRootPost getRootPost) {
         super(context, realmResults, true, animateResults);
         this.context = context;
         this.listener = listener;
+        this.getRootPost = getRootPost;
     }
 
     public NewChatListAdapter(Context context, RealmResults<Post> realmResults,
@@ -81,7 +80,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
     @Override
     public MyViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int i) {
-        return MyViewHolder.create(inflater, viewGroup);
+        return MyViewHolder.create(inflater, viewGroup, getRootPost);
     }
 
     @Override
@@ -114,16 +113,18 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
 
         private ChatListItemBinding mBinding;
         private PostRepository postRepository;
+        private GetRootPost rootPost;
 
-        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
+        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent, GetRootPost rootPost) {
             ChatListItemBinding binding = ChatListItemBinding
                     .inflate(inflater, parent, false);
-            return new MyViewHolder(binding);
+            return new MyViewHolder(binding, rootPost);
         }
 
-        private MyViewHolder(ChatListItemBinding binding) {
+        private MyViewHolder(ChatListItemBinding binding, GetRootPost rootPost) {
             super(binding.getRoot());
             this.postRepository = new PostRepository();
+            this.rootPost = rootPost;
             mBinding = binding;
         }
 
@@ -170,67 +171,16 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
             mBinding.executePendingBindings();
         }
 
-        private void setRootMassage(Post post) {
-            Realm realm = Realm.getDefaultInstance();
-            Post rootPost = postRepository.query((new PostByIdSpecification(post.getRootId()))).first();
-//            if (rootPost == null) {
-                getRootPost(post, realm);
-//            }
-            mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
-            mBinding.nickRootPost.setText(rootPost.getUser().getUsername());
-            mBinding.getViewModel().loadImage(mBinding.avatarRootPost, mBinding.getViewModel().getUrl(rootPost));
-            mBinding.messageRootPost.setText(revertSpanned(getSpannableStringBuilder(rootPost, mBinding.getRoot().getContext())).toString().trim());
-            realm.close();
-        }
+        private void setRootMassage(Post comment) {
+            Post rootPost;
+            rootPost = this.rootPost.getRootPost(comment);
 
-        public Subscription mSubscription;
-
-        public Post getRootPost(Post postBase, Realm realm) {
-//            ApiMethod service;
-//            service = MattermostApp.getSingleton().getMattermostRetrofitService();
-//
-//            String teamId = realm.where(Team.class).findFirst().getId();
-//            mSubscription = service.getPost(teamId, postBase.getChannelId(), postBase.getRootId())
-//                    .subscribeOn(Schedulers.newThread())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(new Subscriber<Posts>() {
-//                        @Override
-//                        public void onCompleted() {
-//                            Log.d(TAG, "Complete load post");
-//                        }
-//
-//                        @Override
-//                        public void onError(Throwable e) {
-//                            e.printStackTrace();
-//                            Log.d(TAG, "Error");
-//                        }
-//
-//                        @Override
-//                        public void onNext(Posts posts) {
-//                            for (Post post : posts.getPosts().values())
-//                                post.getRootId();
-////                                postRepository.add(post);
-//                        }
-//                    });
-//                    .subscribe(new Subscriber<Post>() {
-//                        @Override
-//                        public void onCompleted() {
-//                            Log.d(TAG, "Complete load post");
-//                        }
-//
-//                        @Override
-//                        public void onError(Throwable e) {
-//                            e.printStackTrace();
-//                            Log.d(TAG, "Error");
-//                        }
-//
-//                        @Override
-//                        public void onNext(Post post) {
-//                            postRepository.add(post);
-//                        }
-//                    });
-
-            return null;
+            if (rootPost != null) {
+                mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
+                mBinding.nickRootPost.setText(rootPost.getUser().getUsername());
+                mBinding.getViewModel().loadImage(mBinding.avatarRootPost, mBinding.getViewModel().getUrl(rootPost));
+                mBinding.messageRootPost.setText(revertSpanned(getSpannableStringBuilder(rootPost, mBinding.getRoot().getContext())).toString().trim());
+            }
         }
     }
 
@@ -274,5 +224,10 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         }
 
         return ret;
+    }
+
+
+    public interface GetRootPost {
+        Post getRootPost(Post post);
     }
 }
