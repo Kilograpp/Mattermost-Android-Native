@@ -105,6 +105,11 @@
                 android:id="@+id/edit_message_layout"
                 layout="@layout/edit_message_layout"/>
 
+            <com.kilogramm.mattermost.ui.AttachedFilesLayout
+                android:id="@+id/attachedFilesLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
