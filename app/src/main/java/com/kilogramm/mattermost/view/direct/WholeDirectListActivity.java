@@ -39,7 +39,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
-        View view = binding.getRoot();
         init();
         setRecycleView();
     }

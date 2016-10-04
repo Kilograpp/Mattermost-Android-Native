@@ -27,12 +27,9 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     private static final String TAG = "ItemChatViewModel";
 
     private Post post;
-    private Context context;
-    private ImageView targetImageView;
     private ObservableInt titleVisibility;
 
-    public ItemChatViewModel(Context context, Post post){
-        this.context = context;
+    public ItemChatViewModel(Post post){
         this.post = post;
         this.titleVisibility = new ObservableInt(View.GONE);
     }
@@ -54,7 +51,6 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     public String getImageUrl(){
        return getUrl(post);
-
     }
 
     public String getUrl(Post post) {
@@ -92,15 +88,14 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     @BindingAdapter("bind:items")
     public static void setItems(FilesView v, Post post){
         for (String s : post.getFilenames()) {
-            Log.d(TAG, "post "+ post.getMessage() +"\n"+ post.getFilenames());
+            Log.d(TAG, "post "+ post.getMessage() +"\n"+ s);
         }
         v.setItems(post.getFilenames());
     }
 
-
     @Override
     public void destroy() {
-        context = null;
+
     }
 
     @Override
@@ -137,7 +132,6 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                     .into(view);
         }
     }
-
 
     public ObservableInt getTitleVis() {
         return titleVisibility;

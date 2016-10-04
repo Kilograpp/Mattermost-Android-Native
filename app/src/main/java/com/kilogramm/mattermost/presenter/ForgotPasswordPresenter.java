@@ -49,7 +49,7 @@ public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
         }
 
         //TODO FIX logic
-        ApiMethod service = null;
+        ApiMethod service;
         try {
             service = mMattermostApp.getMattermostRetrofitService();
         } catch (IllegalArgumentException e) {

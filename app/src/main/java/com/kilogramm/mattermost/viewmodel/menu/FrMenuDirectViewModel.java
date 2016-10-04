@@ -24,6 +24,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Evgeny on 23.08.2016.
  */
+// TODO класс не используется
 public class FrMenuDirectViewModel implements ViewModel {
     private static final String TAG = "FrMenuDirectViewModel";
 
