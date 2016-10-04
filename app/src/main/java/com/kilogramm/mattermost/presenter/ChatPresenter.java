@@ -108,39 +108,13 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     } //  +
 
 
-    public Post getRootPost(Post postBase, String teamId) {
+    public Post getRootPost(Post postBase) {
         RealmResults<Post> postsList = postRepository.query((new PostByIdSpecification(postBase.getRootId())));
         Post rootPost = null;
         if (postsList.size() > 0)
             rootPost = postsList.first();
         if (rootPost != null)
             return rootPost;
-
-        if (mSubscription != null && !mSubscription.isUnsubscribed())
-            mSubscription.unsubscribe();
-        ApiMethod service;
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
-        mSubscription = service.getPost(teamId, postBase.getChannelId(), postBase.getRootId())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Posts>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "Complete load post");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "Error");
-                    }
-
-                    @Override
-                    public void onNext(Posts posts) {
-                        for (Post post : posts.getPosts().values())
-                            postRepository.add(post);
-                    }
-                });
         return null;
     }
 

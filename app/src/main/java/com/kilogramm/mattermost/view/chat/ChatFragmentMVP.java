@@ -421,7 +421,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     @Override
     public Post getRootPost(Post post){
-        return getPresenter().getRootPost(post, teamId);
+        return getPresenter().getRootPost(post);
     }
 
 
