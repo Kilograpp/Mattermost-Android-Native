@@ -37,6 +37,9 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         this.titleVisibility = new ObservableInt(View.GONE);
     }
 
+    public ItemChatViewModel(){
+
+    }
 
     public String getMessage() {
         return post.getMessage();
@@ -50,6 +53,11 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getImageUrl(){
+       return getUrl(post);
+
+    }
+
+    public String getUrl(Post post) {
         if(post.getUser()!=null){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()

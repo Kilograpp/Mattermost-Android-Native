@@ -6,13 +6,16 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 /**
  * Created by Evgeny on 03.08.2016.
  */
 public class ItemDiretionProfileViewModel extends BaseObservable implements ViewModel {
+
+    public static final String TAG = "ItemDiretion";
 
     private Channel channel;
     private Context context;
@@ -23,17 +26,17 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
     }
 
     public String getChannelName(){
-        return channel.getUsername();}
+        return channel.getUser().getUsername();}
 
     public Drawable getStatusIconDrawable() {
-        switch (channel.getStatus()){
-            case Channel.ONLINE:
+        switch (channel.getUser().getStatus()){
+            case User.ONLINE:
                 return context.getResources().getDrawable(R.drawable.status_online_drawable);
-            case Channel.OFFLINE:
+            case User.OFFLINE:
                 return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-            case Channel.AWAY:
+            case User.AWAY:
                 return context.getResources().getDrawable(R.drawable.status_away_drawable);
-            case Channel.REFRESH:
+            case User.REFRESH:
                 return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
             default:
                 return context.getResources().getDrawable(R.drawable.status_offline_drawable);
@@ -41,12 +44,13 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
     }
 
     public String getUnreadedMessage(){
-        Integer unreadedMessage = channel.getUnreadedMessage();
+        /*Integer unreadedMessage = channel.getUnreadedMessage();
         if(unreadedMessage != 0) {
             return channel.getUnreadedMessage() + "";
         } else {
             return  "";
-        }
+        }*/
+        return "";
     }
 
 

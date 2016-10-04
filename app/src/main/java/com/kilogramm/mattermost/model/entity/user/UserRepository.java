@@ -1,9 +1,10 @@
 package com.kilogramm.mattermost.model.entity.user;
 
+import android.util.Log;
+
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
-import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Collection;
 
@@ -14,6 +15,8 @@ import io.realm.RealmResults;
  * Created by Evgeny on 19.09.2016.
  */
 public class UserRepository implements Repository<User> {
+
+    public static final String TAG = "UserRepository";
 
     @Override
     public void add(User item) {
@@ -26,7 +29,6 @@ public class UserRepository implements Repository<User> {
     @Override
     public void add(Collection<User> items) {
         final Realm realm = Realm.getDefaultInstance();
-
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
         realm.close();
     }
@@ -36,6 +38,19 @@ public class UserRepository implements Repository<User> {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
+        realm.close();
+    }
+
+    public void updateUserStatus(String id, String new_status){
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            User user = realm.where(User.class)
+                    .equalTo("id", id)
+                    .findFirst();
+            user.setStatus(new_status);
+        });
+
         realm.close();
     }
 

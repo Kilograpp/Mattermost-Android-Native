@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.adapters;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -11,24 +13,19 @@ import com.kilogramm.mattermost.databinding.ItemUserDropDownListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
-import io.realm.RealmResults;
+import io.realm.RealmRecyclerViewAdapter;
 
 /**
  * Created by ngers on 16.09.16.
  */
-//TODO fix logic
-public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDownListAdapter.ViewHolder> {
-    private RealmResults<User> users;
+
+public class UsersDropDownListAdapter extends RealmRecyclerViewAdapter<User, UsersDropDownListAdapter.ViewHolder> {
+
     private OnItemClickListener onItemClickListener;
-
-    public UsersDropDownListAdapter(OnItemClickListener onItemClickListener) {
+    public UsersDropDownListAdapter(@NonNull Context context,
+                                    OnItemClickListener onItemClickListener) {
+        super(context,null,true);
         this.onItemClickListener = onItemClickListener;
-    }
-
-
-    public void setUsers(RealmResults<User> users) {
-        this.users = users;
-        notifyDataSetChanged();
     }
 
 
@@ -44,7 +41,7 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        User user = users.get(position);
+        User user = getData().get(position);
         if (user.getId() != null) {
             holder.binding.avatar.setTag(user);
             holder.binding.userNikname.setText("@" + user.getUsername());
@@ -77,10 +74,6 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
     }
 
 
-    @Override
-    public int getItemCount() {
-        return users != null ? users.size() : 0;
-    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private ItemUserDropDownListBinding binding;
@@ -89,10 +82,10 @@ public class UsersDropDownListAdapter extends RecyclerView.Adapter<UsersDropDown
             super(binding.getRoot());
             this.binding = binding;
         }
-
     }
 
     public interface OnItemClickListener{
         void onItemClick(String name);
     }
+
 }

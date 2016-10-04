@@ -11,10 +11,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
         <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>
     </style>
-
 
     <style name="TitleBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
@@ -38,6 +38,29 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <style name="scrollbar_shape_style">
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">false</item>
+        <item name="android:scrollbarStyle">insideInset</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadeScrollbars">false</item>
+        <item name="android:scrollbarThumbVertical">@drawable/scroll_bar_vertical_thumb</item>
+        <item name="android:scrollbarSize">5dp</item>
+    </style>
+
+    <!-- For dialog picker-->
+    <style name="FilePickerTheme" parent="NNF_BaseTheme.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
+        <item name="alertDialogTheme">@style/FilePickerDialogTheme</item>
+    </style>
+
+    <style name="FilePickerDialogTheme" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
+    </style>
+
     <style name="PopupMenu" parent="@android:style/Widget.DeviceDefault.Light.PopupMenu">
         <item name="android:textSize">10sp</item>
         <item name="android:textColor">@color/black</item>
@@ -51,5 +74,13 @@
     <style name="myPopupMenuTextAppearanceLarge" parent="@android:style/TextAppearance.DeviceDefault.Widget.PopupMenu.Large">
         <item name="android:textColor">#000</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:keyTextSize">14sp</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:background">@color/white</item>
     </style>
 </resources>

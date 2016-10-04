@@ -7,13 +7,17 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.SaveData;
+
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -24,6 +28,11 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
 import com.kilogramm.mattermost.view.authorization.MainActivity;
 import com.kilogramm.mattermost.view.menu.GeneralActivity;
+
+import java.util.Map;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -37,18 +46,23 @@ import rx.schedulers.Schedulers;
  * Created by kraftu on 14.09.16.
  */
 public class GeneralPresenter extends Presenter<GeneralActivity> {
-
-    public static final String TAG = "GeneralPresenter";
+    private static final String TAG = "GeneralPresenter";
 
     Realm realm;
     Subscription subscription;
     private UserRepository userRepository;
+    private ChannelRepository channelRepository;
+    private String teamId;
+
+    private boolean setDialogFragment = false;
+    private SaveData mSaveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
         userRepository = new UserRepository();
+        channelRepository = new ChannelRepository();
     }
 
     @Override
@@ -59,13 +73,42 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     @Override
     protected void onTakeView(GeneralActivity generalActivity) {
         super.onTakeView(generalActivity);
-        String teamId = realm.where(Team.class).findFirst().getId();
-        loadChannels(teamId);
-        Channel channel = realm.where(Channel.class).equalTo("type", "O").findFirst();
-        if(channel!=null){
-            setSelectedChannel(channel.getId(),channel.getName());
-        }
+        teamId = realm.where(Team.class).findFirst().getId();
+        loadDirectProfiles();
         //loadChannels(realm.where(Team.class).findFirst().getId());
+    }
+
+    private void loadDirectProfiles(){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.getDirectProfile()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MattermostHttpSubscriber<Map<String, User>>() {
+                    @Override
+                    public void onErrorMattermost(HttpError httpError, Throwable e) {
+                        getView().showErrorText(httpError.toString());
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "complete load channels");
+                        loadChannels(teamId);
+                    }
+
+                    @Override
+                    public void onNext(Map<String, User> stringUserMap) {
+                       // channelRepository.add(channelsWithMembers.getChannels());
+                        RealmList<User> users = new RealmList<>();
+                        users.addAll(stringUserMap.values());
+                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
+                        userRepository.add(users);
+                    }
+                });
+
     }
 
     private void loadChannels(String teamId){
@@ -79,7 +122,13 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
                     @Override
                     public void onCompleted() {
-
+                        if (setDialogFragment){
+                            setSelectedDirect(mSaveData.getUser_id(), mSaveData.getName());
+                            Log.d(TAG, "Must open direct dialog");
+                            setDialogFragment = false;
+                        }
+                        Log.d(TAG, "complete load channels");
+                       // loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -89,34 +138,101 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
                     @Override
                     public void onNext(ChannelsWithMembers channelsWithMembers) {
-                        realm.executeTransaction(realm1 -> {
-                            realm1.insertOrUpdate(channelsWithMembers.getChannels());
-                        });
-
-                        RealmList<User> users = new RealmList<>();
-                        users.addAll(channelsWithMembers.getMembers().values());
-                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
-                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
-                        userRepository.add(users);
+                        channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                                MattermostPreference.getInstance().getMyUserId(),userRepository);
                     }
                 });
 
     }
 
+   /* private void loadUsersTeam(String teamId){
+        if(subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        subscription = service.getTeamUsers(teamId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Map<String, User>>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "complete load users");
+                        Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                        if(channel!=null){
+                            setSelectedChannel(channel.getId(),channel.getName());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Map<String, User> stringUserMap) {
+                        userRepository.add(stringUserMap.values());
+                    }
+                });
+    }*/
+
+    public void save(SaveData saveData) {
+        if (subscription != null && !subscription.isUnsubscribed())
+            subscription.unsubscribe();
+
+        MattermostApp application = MattermostApp.getSingleton();
+        ApiMethod service = application.getMattermostRetrofitService();
+        if (saveData != null) {
+            List<SaveData> toSend = new ArrayList<>();
+            toSend.add(saveData);
+            subscription = service.save(toSend)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Boolean>() {
+                        @Override
+                        public void onCompleted() {
+                            Realm realm = Realm.getDefaultInstance();
+                            String teamId = realm.where(Team.class).findFirst().getId();
+                            realm.close();
+                            loadChannels(teamId);
+                            setDialogFragment = true;
+                            mSaveData = saveData;
+                            Log.d(TAG, "mSaveData created");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onNext(Boolean aBoolean) {
+                            Log.d(TAG, "onNext");
+                            if (!aBoolean) {
+                                Log.d(TAG, "Save didn`t work out");
+                            }
+                        }
+                    });
+        }
+    }
+
     public void setSelectedDirect(String itemId,String name){
-        String myId = realm.where(User.class).findFirst().getId();
+        /*String myId = realm.where(User.class).findFirst().getId();
 
         String channelId = realm.where(Channel.class)
                 .equalTo("name", myId + "__" + itemId)
                 .or()
                 .equalTo("name", itemId + "__" + myId)
                 .findFirst()
-                .getId();
-        getView().setFragmentChat(channelId,name,false);
+                .getId();*/
+        if(getView()!=null){
+            getView().setFragmentChat(itemId,name,false);
+        }
     }
 
     public void setSelectedChannel(String channelId,String name){
-        getView().setFragmentChat(channelId,name,true);
+        if(getView()!=null){
+            getView().setFragmentChat(channelId,name,true);
+        }
     }
 
     public void logout() {

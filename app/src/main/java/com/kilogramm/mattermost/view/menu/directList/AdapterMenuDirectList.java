@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
-import com.kilogramm.mattermost.model.entity.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 
@@ -63,6 +63,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             public boolean onPreBind(ViewDataBinding binding) {
                 return mRecyclerView != null && mRecyclerView.isComputingLayout();
             }
+
             public void onCanceled(ViewDataBinding binding) {
                 if (mRecyclerView == null || mRecyclerView.isComputingLayout()) {
                     return;
@@ -78,18 +79,18 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Channel channel = getData().get(position);
+        Channel channel= getData().get(position);
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(), channel.getUsername());
+                        directItemClickListener.onDirectClick(channel.getId(), channel.getUser().getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
                     }
                 });
-        if(holder.getAdapterPosition() == selecteditem){
+        if (holder.getAdapterPosition() == selecteditem) {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
@@ -100,7 +101,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
-        if(isForDataBinding(payloads)){
+        if (isForDataBinding(payloads)) {
             holder.getmBinding().executePendingBindings();
         } else {
             onBindViewHolder(holder, position);
@@ -118,7 +119,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
     }
 
     private void onChangeSelected() {
-        if(selectedItemChangeListener!=null){
+        if (selectedItemChangeListener != null) {
             selectedItemChangeListener.onChangeSelected(selecteditem);
         }
     }
@@ -143,12 +144,12 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
         }
 
         public void bindTo(Channel channel, Context context) {
-            if(mBinding.getViewModel() == null){
+            if (mBinding.getViewModel() == null) {
                 mBinding.setViewModel(new ItemDiretionProfileViewModel(context, channel));
             } else {
                 mBinding.getViewModel().setChannel(channel);
             }
-            if(mBinding.linearLayout.isChecked()){
+            if (mBinding.linearLayout.isChecked()) {
                 mBinding.channelName.setTextColor(context.getResources().getColor(R.color.black));
                 mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.black));
             } else {
