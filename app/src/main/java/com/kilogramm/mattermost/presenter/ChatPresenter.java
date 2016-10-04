@@ -11,7 +11,6 @@ import android.util.Log;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -20,6 +19,7 @@ import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
@@ -31,10 +31,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import nucleus.presenter.Presenter;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -246,17 +244,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
 
     public void getUsers(String search) {
-        RealmResults<User> users;
-        String currentUser = MattermostPreference.getInstance().getMyUserId();
-        Realm realm = Realm.getDefaultInstance();
-        if (search == null)
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).findAllSorted("username", Sort.ASCENDING);
-        else {
-            String[] username = search.split("@");
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
-        }
+        RealmResults<User> users =  userRepository.query(new UserByNameSearchSpecification(search));
         getView().setDropDown(users);
-        realm.close();
     }
 
     private String getLastMessageId() {
