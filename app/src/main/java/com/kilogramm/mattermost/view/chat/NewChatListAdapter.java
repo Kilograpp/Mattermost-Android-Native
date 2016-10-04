@@ -129,10 +129,12 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
         }
 
         public void bindTo(Post post, Context context, Boolean isTitle, Boolean isComment, OnItemClickListener listener) {
-            mBinding.controlMenu.setOnClickListener(view -> {
-                if (listener != null)
-                    listener.OnItemClick(mBinding.controlMenu, post);
-            });
+
+            if (!post.isSystemMessage())
+                mBinding.controlMenu.setOnClickListener(view -> {
+                    if (listener != null)
+                        listener.OnItemClick(mBinding.controlMenu, post);
+                });
             mBinding.avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             mBinding.message.setText(revertSpanned(ssb));

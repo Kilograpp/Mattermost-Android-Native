@@ -98,6 +98,10 @@ public class User extends RealmObject implements Parcelable {
         this.firstName = firstName;
     }
 
+    public User(String username) {
+        this.username = username;
+    }
+
     public String getStatus() {
         return status;
     }

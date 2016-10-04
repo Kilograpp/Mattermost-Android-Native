@@ -116,6 +116,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         return null;
     }
 
+    //TODO много повторяющегося кода в этих методах
     public void loadPosts(String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
@@ -155,7 +156,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            if (!post.isSystemMessage())
+                                post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            else
+                                post.setUser(new User("System"));
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
@@ -244,7 +248,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
 
     public void getUsers(String search) {
-        RealmResults<User> users =  userRepository.query(new UserByNameSearchSpecification(search));
+        RealmResults<User> users = userRepository.query(new UserByNameSearchSpecification(search));
         getView().setDropDown(users);
     }
 

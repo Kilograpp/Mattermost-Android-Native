@@ -30,11 +30,13 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     private Context context;
     private ImageView targetImageView;
     private ObservableInt titleVisibility;
+    private ObservableInt controlMenuVisibility;
 
     public ItemChatViewModel(Context context, Post post){
         this.context = context;
         this.post = post;
         this.titleVisibility = new ObservableInt(View.GONE);
+        this.controlMenuVisibility = new ObservableInt(View.VISIBLE);
     }
 
     public ItemChatViewModel(){
@@ -58,7 +60,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getUrl(Post post) {
-        if(post.getUser()!=null){
+        if(post.getUser()!=null && !post.isSystemMessage()){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/users/"
@@ -87,6 +89,10 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
             titleVisibility.set(View.GONE);
             return  "";
         }
+    }
+
+    public ObservableInt getControlMenuVisibility() {
+        return post.isSystemMessage()? new ObservableInt(View.GONE) : controlMenuVisibility;
     }
 
     @BindingAdapter("bind:items")
@@ -135,6 +141,9 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(view);
+        } else {
+            view.setImageResource(R.drawable.ic_system_grey_24dp);
+            view.setRotation(-145);
         }
     }
 
