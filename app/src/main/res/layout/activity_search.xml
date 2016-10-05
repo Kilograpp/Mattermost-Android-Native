@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
 <LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,35 +36,35 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/searchResultContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <!--<LinearLayout-->
+            <!--android:id="@+id/searchResultContainer"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="vertical">-->
 
-            <LinearLayout
-                android:id="@+id/defaultContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            <!--<LinearLayout-->
+                <!--android:id="@+id/defaultContainer"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="vertical">-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="15dp"
-                    android:layout_marginTop="20dp"
-                    android:text="Not found"
-                    android:textSize="20dp"
-                    android:textColor="@color/black" />
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_margin="15dp"-->
+                    <!--android:layout_marginTop="20dp"-->
+                    <!--android:text="Not found"-->
+                    <!--android:textSize="20dp"-->
+                    <!--android:textColor="@color/black" />-->
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="15dp"
-                    android:text="@string/default_text"
-                    android:textColor="@color/black" />
+                <!--<TextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_margin="15dp"-->
+                    <!--android:text="@string/default_text"-->
+                    <!--android:textColor="@color/black"/>-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recViewSearchResultList"
@@ -70,8 +72,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:visibility="gone"
+                android:background="@color/blue_selected"/>
+
+            <TextView
+                android:id="@+id/txtNoResults"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No results"
                 android:visibility="gone"/>
 
-        </LinearLayout>
+        <!--</LinearLayout>-->
     </LinearLayout>
 </layout>

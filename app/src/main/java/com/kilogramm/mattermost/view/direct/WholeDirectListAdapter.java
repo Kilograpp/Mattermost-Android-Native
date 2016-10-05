@@ -27,7 +27,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     private static Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
-    private ArrayList<String> mUsersIds = new ArrayList<>();
+    private ArrayList<String> mUsersIds;
 
     public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
                                   WholeDirectListPresenter wholeDirectListPresenter,
@@ -60,7 +60,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
                 }
             }
         });
-
     }
 
     public static class MyViewHolder extends RealmViewHolder {

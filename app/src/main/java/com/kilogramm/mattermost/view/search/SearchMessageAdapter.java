@@ -1,8 +1,11 @@
 package com.kilogramm.mattermost.view.search;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
@@ -10,6 +13,8 @@ import com.kilogramm.mattermost.databinding.ItemSearchResultBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.squareup.picasso.Picasso;
 
+import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmViewHolder;
@@ -23,13 +28,17 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
     private static final String TAG = "SearchMessageAdapter";
 
-//    private ArrayList<String> foundMessagesIds;
+    private Realm realm;
+    Context mContext;
 
-    public SearchMessageAdapter(Context context, RealmList<Post> realmResults/*,
-                                ArrayList<String> foundMessagesIds*/) {
-        super(context, realmResults, true);
-//        this.foundMessagesIds = foundMessagesIds;
-        Log.d(TAG, "CONSTRUCTOR");
+    public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
+                                boolean autoUpdate) {
+        super(context, data, autoUpdate);
+        if (data != null) {
+            Log.d(TAG, "CONSTRUCTOR");
+        }
+        realm = Realm.getDefaultInstance();
+        this.mContext = context;
     }
 
     @Override
@@ -40,9 +49,16 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Post post = getData().get(position);
-        holder.bindTo(post);
         Log.d(TAG, "onBindViewHolder");
+        String postId = getData().get(position).getId();
+        Post post = realm.where(Post.class).contains("id", postId).findFirst();
+        holder.bindTo(post);
+    }
+
+    @Override
+    public int getItemCount() {
+        Log.d(TAG, "getItemCount");
+        return super.getItemCount();
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -59,7 +75,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             return new MyViewHolder(bindingSearchResult);
         }
 
-        public void bindTo(Post post) {
+        void bindTo(Post post) {
             Log.d(TAG, "bindTo");
             binding.userName.setText(post.getUser().getUsername());
             binding.postedTime.setText(post.getCreateAt().toString());

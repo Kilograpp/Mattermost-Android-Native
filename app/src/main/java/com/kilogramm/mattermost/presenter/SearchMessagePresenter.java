@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
@@ -70,7 +71,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> imp
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "Error get search");
                         e.printStackTrace();
                     }
 
@@ -78,13 +78,17 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> imp
                     public void onNext(Posts searchResult) {
                         Log.d(TAG, "OnNext");
 
-                        RealmList<Post> foundPosts = new RealmList<>();
-                        realm.executeTransaction(realm1 -> {
-                            foundPosts.addAll(searchResult.getPosts().values());
-                            foundMessageId.addAll(searchResult.getPosts().keySet());
-                            realm1.insertOrUpdate(foundPosts);
-                            realm1.close();
-                        });
+                        if (searchResult.getPosts().values().isEmpty()){
+                            getView().noResults();
+                        } else {
+                            RealmList<Post> foundPosts = new RealmList<>();
+                            realm.executeTransaction(realm1 -> {
+                                foundPosts.addAll(searchResult.getPosts().values());
+                                foundMessageId.addAll(searchResult.getPosts().keySet());
+                                realm1.insertOrUpdate(foundPosts);
+                                realm1.close();
+                            });
+                        }
                     }
                 });
     }

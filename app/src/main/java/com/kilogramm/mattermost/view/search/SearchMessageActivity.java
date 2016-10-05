@@ -25,18 +25,16 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter> {
-
     private static final String TEAM_ID = "team_id";
-    private static final String TAG = "SearchMessageActivity";
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
     private Realm realm;
 
-    private String terms;
     private String teamId;
-    private ArrayList<String> foundMessageId;
-    private boolean isMessageIdsSet;
+
+    ArrayList<String> foundMessageId;
+    String terms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +43,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter> 
     }
 
     public void init() {
-        isMessageIdsSet = false;
         teamId = getIntent().getStringExtra(TEAM_ID);
         realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search);
@@ -53,37 +50,37 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter> 
     }
 
     public void setRecycleView(ArrayList<String> messagesIds) {
-        foundMessageId = messagesIds;
-        isMessageIdsSet = true;
+        this.foundMessageId = messagesIds;
 
         RealmList<Post> foundPosts = new RealmList<>();
         for (String postId : foundMessageId) {
             foundPosts.add(realm.where(Post.class).equalTo("id", postId).findFirst());
         }
 
-//        RealmResults<Post> foundPosts = realm.where(Post.class).contains("id", foundMessageId.get());
+//        binding.recViewSearchResultList.setVisibility(View.VISIBLE);
+//        binding.defaultContainer.setVisibility(View.GONE);
 
-        if (isMessageIdsSet) {
-            binding.recViewSearchResultList.setVisibility(View.VISIBLE);
-            binding.defaultContainer.setVisibility(View.GONE);
-            adapter = new SearchMessageAdapter(this, foundPosts/*, foundMessageId*/);
-            binding.recViewSearchResultList.setAdapter(adapter);
-
-            RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
-            binding.recViewSearchResultList.setLayoutManager(manager);
-        }
+        adapter = new SearchMessageAdapter(this, foundPosts, true);
+        binding.recViewSearchResultList.setAdapter(adapter);
+        binding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
     }
 
     protected void cancelClick() {
-        finish();
+        this.finish();
+    }
+
+    public void noResults() {
+        binding.txtNoResults.setVisibility(View.VISIBLE);
+//        binding.defaultContainer.setVisibility(View.GONE);
+        binding.recViewSearchResultList.setVisibility(View.GONE);
     }
 
     public void doMessageSearch() {
         terms = binding.searchText.getText().toString();
-        if (terms != null) {
-            getPresenter().search(teamId, terms);
+        if (terms.equals("")) {
+            Toast.makeText(this, this.getResources().getString(R.string.empty_search), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Search field cannot be empty", Toast.LENGTH_LONG).show();
+            getPresenter().search(teamId, terms);
         }
     }
 }
