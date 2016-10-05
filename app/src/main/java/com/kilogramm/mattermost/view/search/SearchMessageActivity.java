@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -25,7 +24,7 @@ import nucleus.factory.RequiresPresenter;
  */
 
 @RequiresPresenter(SearchMessagePresenter.class)
-public class SearchMessageActivity extends BaseActivity <SearchMessagePresenter> {
+public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter> {
 
     private static final String TEAM_ID = "team_id";
     private static final String TAG = "SearchMessageActivity";
@@ -45,7 +44,7 @@ public class SearchMessageActivity extends BaseActivity <SearchMessagePresenter>
         init();
     }
 
-    public void init(){
+    public void init() {
         isMessageIdsSet = false;
         teamId = getIntent().getStringExtra(TEAM_ID);
         realm = Realm.getDefaultInstance();
@@ -58,7 +57,7 @@ public class SearchMessageActivity extends BaseActivity <SearchMessagePresenter>
         isMessageIdsSet = true;
 
         RealmList<Post> foundPosts = new RealmList<>();
-        for (String postId : foundMessageId){
+        for (String postId : foundMessageId) {
             foundPosts.add(realm.where(Post.class).equalTo("id", postId).findFirst());
         }
 
@@ -75,11 +74,11 @@ public class SearchMessageActivity extends BaseActivity <SearchMessagePresenter>
         }
     }
 
-    protected void cancelClick(){
+    protected void cancelClick() {
         finish();
     }
 
-    public void doMessageSearch(){
+    public void doMessageSearch() {
         Toast.makeText(this, "Search", Toast.LENGTH_LONG).show();
 
         terms = binding.searchText.getText().toString();

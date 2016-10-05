@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.view.search;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -11,13 +10,8 @@ import com.kilogramm.mattermost.databinding.ItemSearchResultBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
-import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
-import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
 
 import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getImageUrl;
@@ -49,7 +43,6 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
         Post post = getData().get(position);
         holder.bindTo(post);
         Log.d(TAG, "onBindViewHolder");
-        // click on element
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -84,7 +77,6 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                     .into(binding.avatarDirect);
         }
 
-        // for init on click listener
         public ItemSearchResultBinding getmBinding() {
             return binding;
         }
