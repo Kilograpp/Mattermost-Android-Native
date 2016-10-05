@@ -7,8 +7,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
-import android.util.Log;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -65,7 +65,6 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
-
         //initChannelList
         channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId, name));
 
