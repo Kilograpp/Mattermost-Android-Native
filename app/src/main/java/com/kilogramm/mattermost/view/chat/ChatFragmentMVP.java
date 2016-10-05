@@ -67,6 +67,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final String TAG = "ChatFragmentMVP";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
+    private static final String TEAM_ID = "team_id";
 
     private static final Integer TYPING_DURATION = 5000;
     private static final int PICKFILE_REQUEST_CODE = 5;
@@ -138,7 +139,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     private void searchMessage(){
-        startActivity(new Intent(getActivity(), SearchMessageActivity.class));
+        startActivity(new Intent(getActivity(), SearchMessageActivity.class)
+            .putExtra(TEAM_ID, teamId));
     }
 
     private void setBottomToolbarOnClickListeners() {

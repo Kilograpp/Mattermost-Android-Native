@@ -4,7 +4,7 @@ import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
-import com.kilogramm.mattermost.model.entity.SearchResult;
+import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -169,7 +169,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST ("api/v3/teams/{team_id}/posts/activity_search")
-    Observable<SearchResult> searchForPosts(@Path("team_id") String team_id,
-                                            @Path("terms") String terms);
+    @POST ("api/v3/teams/{team_id}/posts/search")
+    Observable<Posts> searchForPosts(@Path("team_id") String team_id,
+                                     @Body SearchParams searchParams);
 }

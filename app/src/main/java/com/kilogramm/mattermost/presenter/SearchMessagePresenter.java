@@ -6,16 +6,19 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.SearchResult;
+import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.SearchParams;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
+import java.util.ArrayList;
+
 import io.realm.Realm;
+import io.realm.RealmList;
 import nucleus.presenter.Presenter;
-import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,13 +35,14 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> imp
     private Subscription mSubscription;
     private ApiMethod service;
 
-    private String searchString = "";
+    private ArrayList<String> foundMessageId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
+        foundMessageId = new ArrayList<>();
     }
 
     @Override
@@ -51,25 +55,36 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> imp
             mSubscription.unsubscribe();
         }
 
-        getView().hideKeyboard(getView());
+        Realm realm = Realm.getDefaultInstance();
+        SearchParams params = new SearchParams(terms, true);
 
-        mSubscription = service.searchForPosts(teamId, terms)
+        mSubscription = service.searchForPosts(teamId, params)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<SearchResult>() {
+                .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted");
+                        getView().setRecycleView(foundMessageId);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "Error get search");
+                        e.printStackTrace();
                     }
 
                     @Override
-                    public void onNext(SearchResult searchResult) {
+                    public void onNext(Posts searchResult) {
                         Log.d(TAG, "OnNext");
+
+                        RealmList<Post> foundPosts = new RealmList<>();
+                        realm.executeTransaction(realm1 -> {
+                            foundPosts.addAll(searchResult.getPosts().values());
+                            foundMessageId.addAll(searchResult.getPosts().keySet());
+                            realm1.insertOrUpdate(foundPosts);
+                            realm1.close();
+                        });
                     }
                 });
     }
@@ -77,7 +92,8 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> imp
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH){
-            getView().test();
+            getView().hideKeyboard(getView());
+            getView().doMessageSearch();
         } else {
             return false;
         }
