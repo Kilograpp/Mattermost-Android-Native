@@ -58,7 +58,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post> {
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post>, NewChatListAdapter.GetRootPost {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -161,15 +161,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         });
     }
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.setUsers(realmResult);
+        dropDownListAdapter.updateData(realmResult);
     }
+
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -189,7 +190,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity(), results, true, this);
+        adapter = new NewChatListAdapter(getActivity(), results, true, this, this);
         binding.rev.setAdapter(adapter);
         binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
@@ -426,6 +427,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         startActivityForResult(i, FILE_CODE);
     }
 
+    @Override
+    public Post getRootPost(Post post){
+        return getPresenter().getRootPost(post);
+    }
 
 
     @Override

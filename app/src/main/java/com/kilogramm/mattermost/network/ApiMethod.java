@@ -78,6 +78,13 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{id}/get")
+    Observable<Posts> getPost(@Path("teamId") String teamId, @Path("channelId") String channelId, @Path("id") String id);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/before/0/60")
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
