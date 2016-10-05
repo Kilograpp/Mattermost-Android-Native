@@ -79,8 +79,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter> 
     }
 
     public void doMessageSearch() {
-        Toast.makeText(this, "Search", Toast.LENGTH_LONG).show();
-
         terms = binding.searchText.getText().toString();
         if (terms != null) {
             getPresenter().search(teamId, terms);
