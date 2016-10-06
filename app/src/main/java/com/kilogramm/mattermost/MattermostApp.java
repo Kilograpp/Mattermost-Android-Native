@@ -24,6 +24,7 @@ import rx.Scheduler;
 /**
  * Created by Evgeny on 25.07.2016.
  */
+// TODO тут почти ни один класс не используется. Их можно удалить? (Kepar)
 public class MattermostApp extends Application{
 
     public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
@@ -54,11 +55,7 @@ public class MattermostApp extends Application{
     }
     public ApiMethod getMattermostRetrofitService() throws IllegalArgumentException{
         if(mattermostRetrofitService == null){
-            try {
-                mattermostRetrofitService = MattermostRetrofitService.create();
-            } catch (IllegalArgumentException e){
-                throw e;
-            }
+            mattermostRetrofitService = MattermostRetrofitService.create();
         }
         return mattermostRetrofitService;
     }
@@ -74,14 +71,10 @@ public class MattermostApp extends Application{
         defaultSubscribeSchedulder = scheduler;
     }
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
-        if(BuildConfig.DEBUG){
-
-        }else{
+        if(!BuildConfig.DEBUG){
             Fabric.with(this, new Crashlytics());
         }
         singleton = this;
@@ -110,7 +103,4 @@ public class MattermostApp extends Application{
                 .build();
         Realm.compactRealm(configuration);
     }
-
-
-
 }
