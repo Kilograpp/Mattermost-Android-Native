@@ -13,7 +13,6 @@ import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
 import com.kilogramm.mattermost.view.NucleusLinearLayout;
 
 import nucleus.factory.RequiresPresenter;
-import nucleus.view.NucleusLayout;
 
 /**
  * Created by kepar on 29.9.16.

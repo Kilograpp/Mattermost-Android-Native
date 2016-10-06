@@ -58,6 +58,8 @@ android {
             sourceCompatibility JavaVersion . VERSION_1_8
             targetCompatibility JavaVersion . VERSION_1_8
         }
+        multiDexEnabled true
+
     }
     buildTypes {
         release {
@@ -74,6 +76,8 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
+
+    compile 'com.android.support:multidex:1.0.1'
 
     compile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.android.support:support-compat:24.2.0'

@@ -55,5 +55,6 @@
                                     won\'t appear in search results due to excessive results returned.
     </string>
     <string name="empty_search">Search field cannot be empty</string>
+    <string name="no_results_search">No results</string>
 
 </resources>

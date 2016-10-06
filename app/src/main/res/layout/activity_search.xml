@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-<LinearLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -17,71 +16,78 @@
                 android:id="@+id/searchText"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="200dp"
-                android:singleLine="true"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
+                android:layout_margin="15dp"
                 android:layout_weight="1"
                 android:hint="@string/search_hint"
-                android:imeOptions="actionSearch"/>
+                android:imeOptions="actionSearch"
+                android:singleLine="true" />
 
             <TextView
                 android:id="@+id/cancelBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
                 android:text="Cancel"
                 android:textColor="@color/colorPrimary" />
 
         </LinearLayout>
 
-        <!--<LinearLayout-->
-            <!--android:id="@+id/searchResultContainer"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="vertical">-->
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:id="@+id/progressBar"
+            android:visibility="gone"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:mpb_progressStyle="circular" />
 
-            <!--<LinearLayout-->
-                <!--android:id="@+id/defaultContainer"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:orientation="vertical">-->
+        <LinearLayout
+            android:id="@+id/searchResultContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-                <!--<TextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_margin="15dp"-->
-                    <!--android:layout_marginTop="20dp"-->
-                    <!--android:text="Not found"-->
-                    <!--android:textSize="20dp"-->
-                    <!--android:textColor="@color/black" />-->
-
-                <!--<TextView-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_margin="15dp"-->
-                    <!--android:text="@string/default_text"-->
-                    <!--android:textColor="@color/black"/>-->
-
-            <!--</LinearLayout>-->
+            <LinearLayout
+                android:id="@+id/defaultContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Not found"
+                    android:textColor="@color/black"
+                    android:layout_margin="15dp"
+                    android:layout_marginTop="20dp"
+                    android:textSize="20sp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="@string/default_text"
+                    android:textColor="@color/black" />
+            </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recViewSearchResultList"
-                style="@style/scrollbar_shape_style"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_height="500dp"
                 android:visibility="gone"
-                android:background="@color/blue_selected"/>
+                android:orientation="vertical" />
 
             <TextView
                 android:id="@+id/txtNoResults"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="No results"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:text="@string/no_results_search"
+                android:textColor="@color/black"
+                android:layout_margin="15dp"
+                android:layout_marginTop="20dp"
+                android:textSize="20sp"/>
 
-        <!--</LinearLayout>-->
+        </LinearLayout>
     </LinearLayout>
 </layout>
