@@ -7,15 +7,15 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.SaveData;
-
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByIdSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -29,13 +29,13 @@ import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
 import com.kilogramm.mattermost.view.authorization.MainActivity;
 import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
-import java.util.Map;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
@@ -78,8 +78,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
-    private void loadDirectProfiles(){
-        if(subscription != null && !subscription.isUnsubscribed())
+    private void loadDirectProfiles() {
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
@@ -100,19 +100,19 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
                     @Override
                     public void onNext(Map<String, User> stringUserMap) {
-                       // channelRepository.add(channelsWithMembers.getChannels());
+                        // channelRepository.add(channelsWithMembers.getChannels());
                         RealmList<User> users = new RealmList<>();
                         users.addAll(stringUserMap.values());
-                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
-                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
+                        users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                        users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
                         userRepository.add(users);
                     }
                 });
 
     }
 
-    private void loadChannels(String teamId){
-        if(subscription != null && !subscription.isUnsubscribed())
+    private void loadChannels(String teamId) {
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
@@ -122,13 +122,13 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
                     @Override
                     public void onCompleted() {
-                        if (setDialogFragment){
+                        if (setDialogFragment) {
                             setSelectedDirect(mSaveData.getUser_id(), mSaveData.getName());
                             Log.d(TAG, "Must open direct dialog");
                             setDialogFragment = false;
                         }
                         Log.d(TAG, "complete load channels");
-                       // loadUsersTeam(teamId);
+                        // loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -139,7 +139,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     @Override
                     public void onNext(ChannelsWithMembers channelsWithMembers) {
                         channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                                MattermostPreference.getInstance().getMyUserId(),userRepository);
+                                MattermostPreference.getInstance().getMyUserId(), userRepository);
                     }
                 });
 
@@ -215,7 +215,41 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
         }
     }
 
-    public void setSelectedDirect(String itemId,String name){
+    @Override
+    public void takeView(GeneralActivity generalActivity) {
+        super.takeView(generalActivity);
+        setSelectedLast(MattermostPreference.getInstance().getLastChannelId());
+    }
+
+    public void setSelectedLast(String id) {
+        Channel channel;
+        if (id != null) {
+            channel = channelRepository.query(new ChannelByIdSpecification(id)).first();
+            if (channel != null)
+                switch (channel.getType()) {
+                    case "O":
+                        setSelectedChannel(channel.getId(), channel.getName());
+                        break;
+                    case "D":
+                        setSelectedDirect(channel.getId(), channel.getUsername());
+                        break;
+                    case "P":
+                        break;
+                }
+        } else {
+            RealmResults<Channel> channels = channelRepository.query(new ChannelByTypeSpecification("O"));
+            if (channels.size() != 0) {
+                setSelectedChannel(channels.first().getId(), channels.first().getName());
+            } else {
+                channels.addChangeListener(element -> {
+                    if (element.size() != 0)
+                        setSelectedChannel(element.first().getId(), element.first().getName());
+                });
+            }
+        }
+    }
+
+    public void setSelectedDirect(String itemId, String name) {
         /*String myId = realm.where(User.class).findFirst().getId();
 
         String channelId = realm.where(Channel.class)
@@ -224,19 +258,21 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                 .equalTo("name", itemId + "__" + myId)
                 .findFirst()
                 .getId();*/
-        if(getView()!=null){
-            getView().setFragmentChat(itemId,name,false);
+        if (getView() != null) {
+            getView().setFragmentChat(itemId, name, false);
         }
+        MattermostPreference.getInstance().setLastChannelId(itemId);
     }
 
-    public void setSelectedChannel(String channelId,String name){
-        if(getView()!=null){
-            getView().setFragmentChat(channelId,name,true);
+    public void setSelectedChannel(String channelId, String name) {
+        if (getView() != null) {
+            getView().setFragmentChat(channelId, name, true);
         }
+        MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
     public void logout() {
-        if(subscription != null && !subscription.isUnsubscribed())
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
@@ -258,8 +294,10 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                         e.printStackTrace();
                         Log.d(TAG, "Error logout");
                     }
+
                     @Override
-                    public void onNext(LogoutData logoutData) { }
+                    public void onNext(LogoutData logoutData) {
+                    }
                 });
     }
 
@@ -267,7 +305,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
         MattermostPreference.getInstance().setAuthToken(null);
     }
 
-    private void clearDataBaseAfterLogout(){
+    private void clearDataBaseAfterLogout() {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             realm.delete(Post.class);

@@ -8,18 +8,18 @@ import io.realm.RealmResults;
 /**
  * Created by Evgeny on 20.09.2016.
  */
-public class UserByIdSpecification implements RealmSpecification {
+public class UserByNameSpecification implements RealmSpecification {
 
-    private final String id;
+    private final String name;
 
-    public UserByIdSpecification(String id) {
-        this.id = id;
+    public UserByNameSpecification(String name) {
+        this.name = name;
     }
 
     @Override
     public RealmResults<User> toRealmResults(Realm realm) {
         return realm.where(User.class)
-                .equalTo("id", id)
+                .equalTo("name", name)
                 .findAll();
     }
 }

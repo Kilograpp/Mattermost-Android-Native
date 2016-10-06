@@ -11,14 +11,15 @@ import android.util.Log;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
@@ -30,10 +31,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import nucleus.presenter.Presenter;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -106,6 +105,18 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     } //  +
 
+
+    public Post getRootPost(Post postBase) {
+        RealmResults<Post> postsList = postRepository.query((new PostByIdSpecification(postBase.getRootId())));
+        Post rootPost = null;
+        if (postsList.size() > 0)
+            rootPost = postsList.first();
+        if (rootPost != null)
+            return rootPost;
+        return null;
+    }
+
+    //TODO много повторяющегося кода в этих методах
     public void loadPosts(String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
@@ -145,7 +156,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
-                            post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            if (!post.isSystemMessage())
+                                post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                            else
+                                post.setUser(new User("System"));
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
@@ -169,7 +183,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
-                        if(getView()!=null)
+                        if (getView() != null)
                             getView().showList();
                         else {
                             if (isLoadNext) {
@@ -234,17 +248,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
 
     public void getUsers(String search) {
-        RealmResults<User> users;
-        String currentUser = MattermostPreference.getInstance().getMyUserId();
-        Realm realm = Realm.getDefaultInstance();
-        if (search == null)
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).findAllSorted("username", Sort.ASCENDING);
-        else {
-            String[] username = search.split("@");
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
-        }
+        RealmResults<User> users = userRepository.query(new UserByNameSearchSpecification(search));
         getView().setDropDown(users);
-        realm.close();
     }
 
     private String getLastMessageId() {
@@ -315,11 +320,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         isLoadNext = true;
     }
 
-    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri){
+    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri) {
         String filePath = FileUtils.getPath(context, uri);
         String mimeType = FileUtils.getMimeType(filePath);
         File file = new File(filePath);
-        if(file.exists()) {
+        if (file.exists()) {
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, new ProgressRequestBody.UploadCallbacks() {
                 @Override
                 public void onProgressUpdate(int percentage) {
@@ -362,7 +367,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                            if(fileNames == null) fileNames = new ArrayList<>();
+                            if (fileNames == null) fileNames = new ArrayList<>();
                             fileNames.addAll(fileUploadResponse.getFilenames());
                         }
                     });
@@ -371,12 +376,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         }
     }
 
-    public void deletePost(Post post,String teamId, String channelId) {
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+    public void deletePost(Post post, String teamId, String channelId) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.deletePost(teamId,channelId, post.getId(), new Object())
+        mSubscription = service.deletePost(teamId, channelId, post.getId(), new Object())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -399,11 +404,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void editPost(Post post, String teamId, String channelId) {
-        if(mSubscription != null && !mSubscription.isUnsubscribed())
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.editPost(teamId,channelId, post)
+        mSubscription = service.editPost(teamId, channelId, post)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
