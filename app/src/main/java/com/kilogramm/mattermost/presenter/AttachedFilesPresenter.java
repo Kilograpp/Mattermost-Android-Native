@@ -8,13 +8,14 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import nucleus.presenter.Presenter;
 import okhttp3.MediaType;
@@ -95,8 +96,10 @@ public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                           /* if(fileNames == null) fileNames = new ArrayList<>();
-                            fileNames.addAll(fileUploadResponse.getFilenames());*/
+                            for (String s : fileUploadResponse.getFilenames()) {
+                                FileToAttachRepository.getInstance().add(new FileToAttach(filePath, s));
+                            }
+
                         }
                     });
         } else {

@@ -56,6 +56,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
             usersIds.add(user.getId());
         }
 
+        // TODO говорят, не хорошо передавать ссылку на презентер внутрь адаптера
         adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
 

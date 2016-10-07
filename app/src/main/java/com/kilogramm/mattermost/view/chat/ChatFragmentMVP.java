@@ -18,7 +18,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -156,7 +158,32 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
-        binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
+        binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().contains("@"))
+                    if (charSequence.charAt(charSequence.length() - 1) == '@')
+                        getPresenter().getUsers(null);
+                    else
+                        getPresenter().getUsers(charSequence.toString());
+                else
+                    setDropDown(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
@@ -280,6 +307,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setCreateAt(Calendar.getInstance().getTimeInMillis());
         post.setMessage(getMessage());
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
+        post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
 
         setMessage("");

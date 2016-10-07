@@ -24,6 +24,7 @@ import io.realm.RealmViewHolder;
  */
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
     static WholeDirectListPresenter mWholeDirectListPresenter;
+    // TODO иметь статическую ссылку на контекст очень плохо. Поправь. Или я могу поправить, если хошь =) (Kepar)
     private static Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;

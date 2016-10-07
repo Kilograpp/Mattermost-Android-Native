@@ -13,6 +13,7 @@ import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
@@ -221,32 +222,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    public TextWatcher getMassageTextWatcher() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt(charSequence.length() - 1) == '@')
-                        getUsers(null);
-                    else
-                        getUsers(charSequence.toString());
-                else
-                    getView().setDropDown(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-    }
-
-
     public void getUsers(String search) {
         RealmResults<User> users = userRepository.query(new UserByNameSearchSpecification(search));
         getView().setDropDown(users);
@@ -274,6 +249,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         updateLastViewedAt(teamId, channelId);
                         getView().onItemAdded();
                         Log.d(TAG, "Complete create post");
+                        FileToAttachRepository.getInstance().clearData();
                     }
 
                     @Override
