@@ -230,7 +230,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 .subscribe(new Subscriber<Posts>() {
                     @Override
                     public void onCompleted() {
-                        getView().showList();
+                        if (getView() != null)
+                            getView().showList();
+                        else {
+                            if (isLoadNext) {
+                                loadNextPost(teamId, channelId, getLastMessageId());
+                            }
+                            Log.d(TAG, "Complete load next post");
+                        }
                     }
 
                     @Override
@@ -240,8 +247,21 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Posts posts) {
-                        for (String postId : posts.getPosts().keySet()) {
-
+                        if (posts.getPosts() == null) {
+                            isLoadNext = false;
+                            return;
+                        }
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                        if (realmList.size() < 60) {
+                            isLoadNext = false;
                         }
                     }
                 });
