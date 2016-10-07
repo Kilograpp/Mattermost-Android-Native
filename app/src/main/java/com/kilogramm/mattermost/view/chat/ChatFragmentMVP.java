@@ -44,6 +44,7 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
+import com.kilogramm.mattermost.view.menu.GeneralActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
@@ -75,6 +76,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final int PICK_IMAGE = 1;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
+    private static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
     private NewChatListAdapter adapter;
@@ -139,26 +141,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     private void searchMessage(){
-        startActivity(new Intent(getActivity(), SearchMessageActivity.class)
-            .putExtra(TEAM_ID, teamId));
+        Intent intent = new Intent(getActivity(), SearchMessageActivity.class)
+                .putExtra(TEAM_ID, teamId);
+        getActivity().startActivityForResult(intent, SEARCH_CODE);
     }
 
     private void setBottomToolbarOnClickListeners() {
-        binding.bottomToolbar.writeText.setOnClickListener(view -> {
-            OnClickAddText();
-        });
-
-        binding.bottomToolbar.makePhoto.setOnClickListener(view -> {
-            OnClickMakePhoto();
-        });
-
-        binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> {
-            OnClickOpenGallery();
-        });
-
-        binding.bottomToolbar.addDocs.setOnClickListener(view -> {
-            OnClickChooseDoc();
-        });
+        binding.bottomToolbar.writeText.setOnClickListener(view -> OnClickAddText());
+        binding.bottomToolbar.makePhoto.setOnClickListener(view -> OnClickMakePhoto());
+        binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> OnClickOpenGallery());
+        binding.bottomToolbar.addDocs.setOnClickListener(view -> OnClickChooseDoc());
     }
     private void setDropDownUserList() {
         dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);

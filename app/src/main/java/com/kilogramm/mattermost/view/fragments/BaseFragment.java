@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.view.fragments;
 
 import android.view.View;
 
+import com.android.annotations.Nullable;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import nucleus.presenter.Presenter;

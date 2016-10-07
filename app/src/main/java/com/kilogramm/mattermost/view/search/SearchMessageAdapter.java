@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
@@ -31,9 +32,12 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
 
+    private OnJumpClickListener jumpClickListener;
+
     public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
-                                boolean autoUpdate) {
+                                boolean autoUpdate, OnJumpClickListener listener) {
         super(context, data, autoUpdate);
+        this.jumpClickListener = listener;
     }
 
     @Override
@@ -44,6 +48,17 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.bindTo(getData().get(position));
+
+        String messageId = getData().get(position).getId();
+        String channelId = getData().get(position).getChannelId();
+        Realm realm = Realm.getDefaultInstance();
+        String channelName = realm.where(Channel.class).equalTo("id", channelId).findFirst().getName();
+
+        holder.getmBinding().getRoot().setOnClickListener( v -> {
+                if (jumpClickListener != null){
+                    jumpClickListener.onJumpClick(messageId, channelId, channelName);
+                }
+        });
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -94,5 +109,9 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
         } else {
             return new SimpleDateFormat("dd.MM.yyyy").format(dateTime);
         }
+    }
+
+    public interface OnJumpClickListener {
+        void onJumpClick(String messageId, String channelId, String channelName);
     }
 }

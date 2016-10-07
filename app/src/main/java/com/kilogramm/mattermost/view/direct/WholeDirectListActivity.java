@@ -76,7 +76,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     @Override
     public void onDirectClick(String itemId, String name) {
-        Intent intent = new Intent()
+        Intent intent = new Intent(this, WholeDirectListActivity.class)
                 .putExtra(USER_ID, itemId)
                 .putExtra(NAME, name);
         setResult(Activity.RESULT_OK, intent);

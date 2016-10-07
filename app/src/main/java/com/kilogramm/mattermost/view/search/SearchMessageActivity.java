@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.search;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,8 +28,12 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
-                                    implements TextView.OnEditorActionListener, View.OnClickListener {
+                                   implements TextView.OnEditorActionListener, SearchMessageAdapter.OnJumpClickListener {
+
     private static final String TEAM_ID = "team_id";
+    public static final String MESSAGE_ID = "message_id";
+    public static final String CHANNEL_ID = "channel_id";
+    public static final String CHANNEL_NAME = "channel_name";
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
@@ -49,7 +54,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search);
         binding.searchText.setOnEditorActionListener(this);
-        binding.cancelBtn.setOnClickListener(this);
+        binding.cancelBtn.setOnClickListener(v -> finish());
     }
 
     public void setRecycleView() {
@@ -64,13 +69,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.recViewSearchResultList.setVisibility(View.VISIBLE);
         binding.defaultContainer.setVisibility(View.GONE);
 
-        adapter = new SearchMessageAdapter(this, query.findAll(), true);
+        adapter = new SearchMessageAdapter(this, query.findAll(), true, this);
         binding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
         binding.recViewSearchResultList.setAdapter(adapter);
-    }
-
-    protected void cancelClick() {
-        this.finish();
     }
 
     public void doMessageSearch() {
@@ -109,7 +110,12 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     @Override
-    public void onClick(View v) {
-        this.cancelClick();
+    public void onJumpClick(String messageId, String channelId, String channelName) {
+        Intent intent = new Intent(getApplicationContext(), SearchMessageActivity.class)
+                .putExtra(MESSAGE_ID, messageId)
+                .putExtra(CHANNEL_ID, channelId)
+                .putExtra(CHANNEL_NAME, channelName);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }

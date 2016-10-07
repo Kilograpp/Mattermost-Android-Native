@@ -22,6 +22,7 @@ import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
+import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
 import nucleus.factory.RequiresPresenter;
 
@@ -34,6 +35,8 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
+    private static final int SEARCH_CODE = 4;
 
     private static final String TAG = "GeneralActivity";
     private ActivityMenuBinding binding;
@@ -136,6 +139,13 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
                     getPresenter().save(saveData);
                 }
             }
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == SEARCH_CODE) {
+            String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+            String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
+            String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
+            Toast.makeText(this, "MessageId = " + messageId, Toast.LENGTH_SHORT).show();
+            this.replaceFragment(channelId, channelName);
         }
     }
 }

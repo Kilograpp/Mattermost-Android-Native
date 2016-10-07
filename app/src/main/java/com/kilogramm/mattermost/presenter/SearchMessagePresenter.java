@@ -29,7 +29,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
     private Subscription mSubscription;
     private ApiMethod service;
 
-//    private ArrayList<String> foundMessageId;
     private PostRepository postRepository;
     private boolean isSearchEmpty;
 
@@ -38,7 +37,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-//        foundMessageId = new ArrayList<>();
         postRepository = new PostRepository();
         this.isSearchEmpty = false;
     }
@@ -48,7 +46,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         super.onTakeView(searchMessageActivity);
     }
 
-    // TODO foundMessageId записать во временную таблицу
     public void search(String teamId, String terms) {
         if (mSubscription != null && !mSubscription.isUnsubscribed()) {
             mSubscription.unsubscribe();
@@ -86,7 +83,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                             isSearchEmpty = true;
                         } else {
                             Realm realm = Realm.getDefaultInstance();
-                            RealmList<FoundMessagesIds> list = new RealmList<FoundMessagesIds>();
+                            RealmList<FoundMessagesIds> list = new RealmList<>();
                             realm.beginTransaction();
                             for (String s : searchResult.getPosts().keySet()){
                                 list.add(new FoundMessagesIds(s));
@@ -95,15 +92,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                             realm.insertOrUpdate(list);
                             realm.commitTransaction();
                             realm.close();
-//                            realm.beginTransaction();
-//                            FoundMessagesIds messageId = realm.createObject(FoundMessagesIds.class);
-////                            messagesIds.setMessagesIds(searchResult.getPosts().keySet());
-//                            for (String id : searchResult.getPosts().keySet()) {
-//                                messageId.setMessageId(id);
-//                                realm.insertOrUpdate(messageId);
-//                            }
-//                            realm.commitTransaction();
-//                            realm.close();
 
                             postRepository.add(searchResult.getPosts().values());
                         }
