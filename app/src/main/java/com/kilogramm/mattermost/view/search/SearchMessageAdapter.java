@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
@@ -81,7 +82,11 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             RealmResults<Channel> channel = realm.where(Channel.class).equalTo("id", post.getChannelId()).findAll();
 
             binding.postedDate.setText(DateOrTimeConvert(post.getCreateAt(), false));
-            binding.chatName.setText(channel.first().getName());
+
+            String chName = channel.first().getName();
+            binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
+
+            binding.userName.setText(user.first().getUsername());
             binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
             binding.foundMessage.setText(post.getMessage());
@@ -99,6 +104,16 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         public ItemSearchResultBinding getmBinding() {
             return binding;
+        }
+
+        public String getChatName(String rawName) {
+            String[] channelNameParsed = rawName.split("_");
+            String myId = realm.where(User.class).findFirst().getId();
+            if (channelNameParsed[0] == myId) {
+                return realm.where(User.class).equalTo("id", channelNameParsed[1]).findFirst().getUsername();
+            } else {
+                return realm.where(User.class).equalTo("id", channelNameParsed[0]).findFirst().getUsername();
+            }
         }
     }
 

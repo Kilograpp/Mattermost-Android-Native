@@ -144,7 +144,9 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
-            Toast.makeText(this, "MessageId = " + messageId, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "MessageId = " + messageId, Toast.LENGTH_SHORT).show();
+            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
+            chatFragment.loadBeforeAndAfter(messageId, channelId);
             this.replaceFragment(channelId, channelName);
         }
     }

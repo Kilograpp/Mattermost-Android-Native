@@ -217,6 +217,36 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
+    public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsAfter(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+                        for (String postId : posts.getPosts().keySet()) {
+
+                        }
+                    }
+                });
+    }
+
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
             @Override

@@ -36,6 +36,7 @@ import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
@@ -514,5 +515,11 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setText(link);
         Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
+    }
+
+    public void loadBeforeAndAfter(String postId, String channelId){
+        String teamId = realm.where(Channel.class).findFirst().getTeamId();
+        getPresenter().loadNextPost(teamId, channelId, postId);
+        getPresenter().loadPostsAfter(teamId, channelId, postId, "0", "10");
     }
 }
