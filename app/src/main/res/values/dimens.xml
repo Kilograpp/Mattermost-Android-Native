@@ -20,4 +20,8 @@
     <dimen name="comment_margin_text">20dp</dimen>
     <dimen name="image_comment_size">20dp</dimen>
 
+    <!--Bottom toolbar-->
+    <dimen name="bottom_toolbar_icon_size">20dp</dimen>
+    <dimen name="bottom_toolbar_margin">10dp</dimen>
+
 </resources>

@@ -1,8 +1,5 @@
 package com.kilogramm.mattermost.model.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
