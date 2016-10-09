@@ -22,7 +22,7 @@ public class ItemChannelViewModel extends BaseObservable implements ViewModel {
 
 
     public String getChannelName(){
-        return "# " + channel.getDisplayName();
+        return channel.getDisplayName();
     }
 
     public String getUnreadedMessage(){
