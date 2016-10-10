@@ -85,7 +85,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                             Realm realm = Realm.getDefaultInstance();
                             RealmList<FoundMessagesIds> list = new RealmList<>();
                             realm.beginTransaction();
-                            for (String s : searchResult.getPosts().keySet()){
+                            for (String s : searchResult.getPosts().keySet()) {
                                 list.add(new FoundMessagesIds(s));
                             }
                             realm.where(FoundMessagesIds.class).findAll().deleteAllFromRealm();
