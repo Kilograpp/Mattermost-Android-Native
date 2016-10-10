@@ -38,7 +38,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
         postRepository = new PostRepository();
-        this.isSearchEmpty = false;
     }
 
     @Override
@@ -51,15 +50,16 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
             mSubscription.unsubscribe();
         }
 
+        this.isSearchEmpty = false;
+
         SearchParams params = new SearchParams(terms, true);
         getView().hideKeyboard(getView());
         getView().ProgressBarVisibility(true);
-//        getView().NoResultsVisibility(false);
         getView().SearchResultVisibility(false);
         getView().DefaultVisibility(false);
 
         mSubscription = service.searchForPosts(teamId, params)
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Posts>() {
                     @Override

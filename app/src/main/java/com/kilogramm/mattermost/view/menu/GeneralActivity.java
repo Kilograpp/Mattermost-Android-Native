@@ -145,8 +145,8 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
 
-            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
-            chatFragment.loadBeforeAndAfter(messageId, channelId);
+//            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
+//            chatFragment.loadBeforeAndAfter(messageId, channelId);
             this.replaceFragment(channelId, channelName);
         }
     }

@@ -107,7 +107,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
         }
 
         public String getChatName(String rawName) {
-            String[] channelNameParsed = rawName.split("_");
+            String[] channelNameParsed = rawName.split("__");
             String myId = realm.where(User.class).findFirst().getId();
             if (channelNameParsed[0] == myId) {
                 return realm.where(User.class).equalTo("id", channelNameParsed[1]).findFirst().getUsername();

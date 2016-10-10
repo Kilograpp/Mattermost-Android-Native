@@ -91,10 +91,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.progressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-//    public void NoResultsVisibility(boolean isShow) {
-//        binding.txtNoResults.setVisibility(isShow ? View.VISIBLE : View.GONE);
-//    }
-
     public void DefaultVisibility(boolean isShow) {
         binding.defaultContainer.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
