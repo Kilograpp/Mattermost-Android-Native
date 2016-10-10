@@ -143,7 +143,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
-
+// TODO расскоментировать, как смержусь с Женей (melkshake)
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
 //            chatFragment.loadBeforeAndAfter(messageId, channelId);
             this.replaceFragment(channelId, channelName);

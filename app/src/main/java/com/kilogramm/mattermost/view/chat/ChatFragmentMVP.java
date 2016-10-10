@@ -102,8 +102,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
         this.postRepository = new PostRepository();
-        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show(),
-                v -> searchMessage());
+        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
+                "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
     }
 
     @Nullable
@@ -141,7 +141,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 channelId);
     }
 
-    private void searchMessage(){
+    private void searchMessage() {
         Intent intent = new Intent(getActivity(), SearchMessageActivity.class)
                 .putExtra(TEAM_ID, teamId);
         getActivity().startActivityForResult(intent, SEARCH_CODE);
@@ -181,10 +181,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             }
         });
     }
-
-
-
-
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -537,7 +533,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
-    public void loadBeforeAndAfter(String postId, String channelId){
+    public void loadBeforeAndAfter(String postId, String channelId) {
         Realm realm = Realm.getDefaultInstance();
         String teamId = realm.where(Team.class).findFirst().getId();
         getPresenter().loadPostsAfter(teamId, channelId, postId, "0", "10");
