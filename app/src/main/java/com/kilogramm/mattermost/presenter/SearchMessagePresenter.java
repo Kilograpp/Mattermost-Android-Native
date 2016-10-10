@@ -54,7 +54,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         SearchParams params = new SearchParams(terms, true);
         getView().hideKeyboard(getView());
         getView().ProgressBarVisibility(true);
-        getView().NoResultsVisibility(false);
+//        getView().NoResultsVisibility(false);
         getView().SearchResultVisibility(false);
         getView().DefaultVisibility(false);
 
@@ -79,7 +79,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                     @Override
                     public void onNext(Posts searchResult) {
                         if (searchResult.getPosts() == null) {
-                            getView().NoResultsVisibility(true);
+                            getView().DefaultVisibility(true);
                             isSearchEmpty = true;
                         } else {
                             Realm realm = Realm.getDefaultInstance();

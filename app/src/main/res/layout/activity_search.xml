@@ -91,16 +91,16 @@
                 android:visibility="gone"
                 android:orientation="vertical" />
 
-            <TextView
-                android:id="@+id/txtNoResults"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="@string/no_results_search"
-                android:textColor="@color/black"
-                android:layout_margin="15dp"
-                android:layout_marginTop="20dp"
-                android:textSize="20sp"/>
+            <!--<TextView-->
+                <!--android:id="@+id/txtNoResults"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:visibility="gone"-->
+                <!--android:text="@string/no_results_search"-->
+                <!--android:textColor="@color/black"-->
+                <!--android:layout_margin="15dp"-->
+                <!--android:layout_marginTop="20dp"-->
+                <!--android:textSize="20sp"/>-->
 
         </LinearLayout>
     </LinearLayout>
