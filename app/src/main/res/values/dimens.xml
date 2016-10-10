@@ -24,4 +24,14 @@
     <dimen name="bottom_toolbar_icon_size">20dp</dimen>
     <dimen name="bottom_toolbar_margin">10dp</dimen>
 
+    <!--Search-->
+    <dimen name="search_image_margin_start">15dp</dimen>
+    <dimen name="search_image_margin_end">20dp</dimen>
+    <dimen name="search_edit_text_margin">10dp</dimen>
+    <dimen name="search_view_margin">10dp</dimen>
+    <dimen name="search_margin">10dp</dimen>
+    <dimen name="search_double_margin">20dp</dimen>
+    <dimen name="search_some_margin">15dp</dimen>
+    <dimen name="search_margin_top_bottom">5dp</dimen>
+
 </resources>

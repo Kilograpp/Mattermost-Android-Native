@@ -54,6 +54,6 @@
                                     Due to the volume of results, two letter searches and common words like
                                     "this", "a", and "is" won\'t appear in search results. </string>
     <string name="empty_search">Search field cannot be empty</string>
-    <string name="no_results_search">No results</string>
+    <string name="no_results_found">Not found</string>
 
 </resources>

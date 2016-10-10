@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -11,97 +12,82 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <ImageView
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_back"/>
+                android:layout_marginStart="@dimen/search_image_margin_start"
+                android:src="@drawable/ic_back" />
+
             <EditText
                 android:id="@+id/searchText"
                 style="@style/DescriptionBlackTextStyle"
-                android:layout_width="300dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="@dimen/search_edit_text_margin"
+                android:layout_marginStart="@dimen/search_edit_text_margin"
+                android:layout_marginTop="@dimen/search_edit_text_margin"
                 android:layout_weight="1"
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:singleLine="true" />
+
             <ImageView
                 android:id="@+id/btnClear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
                 android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/search_image_margin_end"
                 android:src="@drawable/ic_clear" />
         </LinearLayout>
 
         <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="10dp"
-        android:background="@color/very_light_grey" />
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="@dimen/search_view_margin"
+            android:layout_marginStart="@dimen/search_view_margin"
+            android:background="@color/very_light_grey" />
 
         <me.zhanghai.android.materialprogressbar.MaterialProgressBar
             android:id="@+id/progressBar"
-            android:visibility="gone"
-            android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
             android:indeterminate="true"
+            android:visibility="gone"
             app:mpb_progressStyle="circular" />
 
         <LinearLayout
-            android:id="@+id/searchResultContainer"
+            android:id="@+id/defaultContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
             android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/defaultContainer"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/no_results_found"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="100dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Not found"
-                    android:textColor="@color/black"
-                    android:layout_margin="15dp"
-                    android:layout_marginTop="20dp"
-                    android:textSize="20sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="15dp"
-                    android:text="@string/default_text"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recViewSearchResultList"
-                android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:visibility="gone"
-                android:orientation="vertical" />
-
-            <!--<TextView-->
-                <!--android:id="@+id/txtNoResults"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:visibility="gone"-->
-                <!--android:text="@string/no_results_search"-->
-                <!--android:textColor="@color/black"-->
-                <!--android:layout_margin="15dp"-->
-                <!--android:layout_marginTop="20dp"-->
-                <!--android:textSize="20sp"/>-->
-
+                android:layout_margin="15dp"
+                android:text="@string/default_text"
+                android:textColor="@color/black" />
         </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recViewSearchResultList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
     </LinearLayout>
 </layout>
