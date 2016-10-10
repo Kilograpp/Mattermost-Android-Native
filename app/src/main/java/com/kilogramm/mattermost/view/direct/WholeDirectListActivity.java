@@ -59,7 +59,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
         adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
-
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
     }
