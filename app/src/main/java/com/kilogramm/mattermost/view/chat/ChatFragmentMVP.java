@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
@@ -59,7 +60,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 13.09.2016.
  */
 @RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post>, NewChatListAdapter.GetRootPost {
+public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post>, NewChatListAdapter.GetRootPost, AttachedFilesAdapter.EmptyListListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -135,6 +136,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);
+        binding.attachedFilesLayout.setEmptyListListener(this);
     }
 
     private void setBottomToolbarOnClickListeners() {
@@ -294,6 +296,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         if (resultCode == Activity.RESULT_OK && requestCode == PICKFILE_REQUEST_CODE) {
             if (data != null && data.getData() != null) {
                 Uri uri = data.getData();
+                binding.attachedFilesLayout.setVisibility(View.VISIBLE);
                 binding.attachedFilesLayout.addItem(uri, teamId, channelId);
             }
         }
@@ -543,5 +546,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setText(link);
         Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onEmptyList() {
+        binding.attachedFilesLayout.setVisibility(View.GONE);
     }
 }

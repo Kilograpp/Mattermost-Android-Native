@@ -79,4 +79,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
         }
         return fileNames;
     }
+
+    public void setEmptyListListener(AttachedFilesAdapter.EmptyListListener emptyListListener) {
+        attachedFilesAdapter.setEmptyListListener(emptyListListener);
+    }
 }

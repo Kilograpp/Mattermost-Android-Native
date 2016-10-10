@@ -84,8 +84,6 @@
 
         </LinearLayout>
 
-
-
         <LinearLayout
             android:id="@+id/newMessageLayout"
             android:layout_width="match_parent"
@@ -104,12 +102,13 @@
 
             <include
                 android:id="@+id/edit_message_layout"
-                layout="@layout/edit_message_layout"/>
+                layout="@layout/edit_message_layout" />
 
             <com.kilogramm.mattermost.ui.AttachedFilesLayout
                 android:id="@+id/attachedFilesLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
 
             <View
                 android:layout_width="match_parent"

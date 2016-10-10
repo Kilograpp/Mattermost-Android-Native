@@ -21,9 +21,17 @@ import io.realm.RealmViewHolder;
 public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach, AttachedFilesAdapter.MyViewHolder> {
     private Context context;
 
+    private EmptyListListener emptyListListener;
+
     public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults) {
         super(context, realmResults, true);
         this.context = context;
+    }
+
+    public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) {
+        super(context, realmResults, true);
+        this.context = context;
+        this.emptyListListener = emptyListListener;
     }
 
     @Override
@@ -41,6 +49,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                 .placeholder(R.drawable.ic_attachment_grey_24dp)
                 .error(R.drawable.ic_attachment_grey_24dp)
                 .thumbnail(0.1f)
+                .centerCrop()
                 .into(holder.getBinding().imageView);
         if(fileToAttach.getProgress() < 100) {
             holder.getBinding().progressBar.setVisibility(View.VISIBLE);
@@ -50,6 +59,9 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         }
         holder.getBinding().close.setOnClickListener(v -> {
             FileToAttachRepository.getInstance().remove(fileToAttach);
+            if(emptyListListener != null && getItemCount() == 0){
+                emptyListListener.onEmptyList();
+            }
         });
     }
 
@@ -70,5 +82,13 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         public AttachedFileLayoutBinding getBinding() {
             return binding;
         }
+    }
+
+    public interface EmptyListListener{
+        void onEmptyList();
+    }
+
+    public void setEmptyListListener(EmptyListListener emptyListListener) {
+        this.emptyListListener = emptyListListener;
     }
 }
