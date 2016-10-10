@@ -49,11 +49,10 @@
 
     <!--Search posts-->
     <string name="search_hint">Search</string>
-    <string name="default_text"> If you\'re searching a partial phrase (ex. searching \'rea\', looking
-                                    for \'reach\' or \'reaction\'), append a * to your search term. \n
-                                     Two letter searches and common words like \'this\', \'a\' and \'is\'
-                                    won\'t appear in search results due to excessive results returned.
-    </string>
+    <string name="default_text"> If you\'re searching a partial phrase (ex. searching "real", looking
+                                    for "reach" or "reaction"), append a * to your search term. \n\n
+                                    Due to the volume of results, two letter searches and common words like
+                                    "this", "a", and "is" won\'t appear in search results. </string>
     <string name="empty_search">Search field cannot be empty</string>
     <string name="no_results_search">No results</string>
 

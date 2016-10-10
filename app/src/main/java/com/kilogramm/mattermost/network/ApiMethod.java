@@ -105,6 +105,17 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/before/{offset}/{limit}")
+    Observable<Posts> getPostsBefore_search(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId,
+                                    @Path("post_id") String postId,
+                                    @Path("offset") String offset,
+                                    @Path("limit") String limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);

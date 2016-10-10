@@ -192,7 +192,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        Log.d(TAG, "Error");
                     }
 
                     @Override
@@ -216,6 +215,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     }
                 });
     }
+
+    /******************************** for search **************************/
 
     public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit ) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
@@ -232,12 +233,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     public void onCompleted() {
                         if (getView() != null)
                             getView().showList();
-                        else {
-                            if (isLoadNext) {
-                                loadNextPost(teamId, channelId, getLastMessageId());
-                            }
-                            Log.d(TAG, "Complete load next post");
-                        }
                     }
 
                     @Override
@@ -247,10 +242,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onNext(Posts posts) {
-                        if (posts.getPosts() == null) {
-                            isLoadNext = false;
-                            return;
-                        }
                         RealmList<Post> realmList = new RealmList<>();
                         for (Post post : posts.getPosts().values()) {
                             User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
@@ -260,12 +251,49 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         }
                         realmList.addAll(posts.getPosts().values());
                         postRepository.add(realmList);
-                        if (realmList.size() < 60) {
-                            isLoadNext = false;
-                        }
                     }
                 });
     }
+
+    public void loadPostsBefore(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsBefore_search(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        if (getView() != null)
+                            getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                    }
+                });
+    }
+
+/*******************************************************************************/
 
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {

@@ -518,9 +518,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     public void loadBeforeAndAfter(String postId, String channelId){
+        Realm realm = Realm.getDefaultInstance();
         String teamId = realm.where(Team.class).findFirst().getId();
-        getPresenter().loadNextPost(teamId, channelId, postId);
         getPresenter().loadPostsAfter(teamId, channelId, postId, "0", "10");
-//        this.setupListChat(channelId);
+        getPresenter().loadPostsBefore(teamId, channelId, postId, "0", "10");
     }
 }

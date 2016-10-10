@@ -55,8 +55,10 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         teamId = getIntent().getStringExtra(TEAM_ID);
         realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search);
+
         binding.searchText.setOnEditorActionListener(this);
-        binding.cancelBtn.setOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnClear.setOnClickListener(v -> binding.searchText.setText(""));
     }
 
     public void setRecycleView() {
