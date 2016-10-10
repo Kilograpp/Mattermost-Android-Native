@@ -129,8 +129,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
-                Log.d(TAG,obj.getEvent());
-                if(obj.getChannelId().equals(channelId)){
+                Log.d(TAG, obj.getEvent());
+                if (obj.getChannelId().equals(channelId)) {
                     getActivity().runOnUiThread(() -> showTyping());
                 }
             }
@@ -153,16 +153,37 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> OnClickOpenGallery());
         binding.bottomToolbar.addDocs.setOnClickListener(view -> OnClickChooseDoc());
     }
+
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(), this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getPresenter().getMassageTextWatcher());
+        setListenerToRootView();
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
         dropDownListAdapter.updateData(realmResult);
     }
+
+    boolean isOpened = false;
+
+    public void setListenerToRootView() {
+        final View activityRootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+            if (heightDiff > 100) {
+                binding.idRecUser.setVisibility(View.VISIBLE);
+                isOpened = true;
+            } else if (isOpened == true) {
+                binding.idRecUser.setVisibility(View.INVISIBLE);
+                isOpened = false;
+            }
+        });
+    }
+
+
+
 
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
@@ -211,7 +232,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);
     }
-
 
     public String getChId() {
         return this.channelId;
@@ -419,7 +439,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     @Override
-    public Post getRootPost(Post post){
+    public Post getRootPost(Post post) {
         return getPresenter().getRootPost(post);
     }
 
@@ -435,7 +455,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     @Override
     public void OnItemClick(View view, Post item) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.controlMenu:
                 showPopupMenu(view, item);
                 break;
@@ -444,32 +464,32 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     private void showPopupMenu(View view, Post post) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
-        if(post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+        if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
             popupMenu.inflate(R.menu.my_chat_item_popupmenu);
         } else {
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
-                    R.layout.edit_dialog_layout,null,false);
-            switch (menuItem.getItemId()){
+                    R.layout.edit_dialog_layout, null, false);
+            switch (menuItem.getItemId()) {
                 case R.id.edit:
                     showEditView(Html.fromHtml(post.getMessage()).toString());
                     break;
                 case R.id.delete:
-                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.confirm_post_delete))
                             .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                                 dialogInterface.dismiss();
                             })
                             .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                getPresenter().deletePost(post,teamId,channelId);
+                                getPresenter().deletePost(post, teamId, channelId);
                             })
                             .show();
                     break;
                 case R.id.permalink:
                     binding.edit.setText(getMessageLink(post.getId()));
-                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.copy_permalink))
                             .setView(binding.getRoot())
                             .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
@@ -491,7 +511,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private void showEditView(String message) {
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
-        Animation upAnim = AnimationUtils.loadAnimation(getActivity(),R.anim.edit_card_up);
+        Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
         binding.editMessageLayout.editableText.setText(message);
         binding.editMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
@@ -511,10 +531,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         adapter.notifyDataSetChanged();
     }
 
-    public void copyLink(String link){
+    public void copyLink(String link) {
         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setText(link);
-        Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
     public void loadBeforeAndAfter(String postId, String channelId){

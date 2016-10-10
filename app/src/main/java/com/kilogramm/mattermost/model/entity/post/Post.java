@@ -85,6 +85,10 @@ public class Post extends RealmObject implements Parcelable {
         this.user = user;
     }
 
+    public boolean isSystemMessage(){
+       return type.equals("system_join_leave");
+    }
+
     /**
      * @return The id
      */

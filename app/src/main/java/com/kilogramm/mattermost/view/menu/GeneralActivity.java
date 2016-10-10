@@ -68,7 +68,6 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
-
         //initChannelList
         channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId, name));
 

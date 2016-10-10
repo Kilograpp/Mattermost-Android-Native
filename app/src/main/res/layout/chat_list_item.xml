@@ -151,6 +151,7 @@
                 android:id="@+id/controlMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="@{viewModel.controlMenuVisibility}"
                 android:src="@drawable/ic_more_horiz_grey_24dp" />
 
             <ImageView

@@ -22,10 +22,19 @@ public class UserByNameSearchSpecification implements RealmSpecification {
     public RealmResults<User> toRealmResults(Realm realm) {
         String currentUser = MattermostPreference.getInstance().getMyUserId();
         if (name == null)
-            return realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).findAllSorted("username", Sort.ASCENDING);
+            return realm.where(User.class)
+                    .isNotNull("id")
+                    .notEqualTo("id", currentUser)
+                    .equalTo("deleteAt", 0l)
+                    .findAllSorted("username", Sort.ASCENDING);
         else {
             String[] username = name.split("@");
-            return realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
+            return realm.where(User.class)
+                    .isNotNull("id")
+                    .notEqualTo("id", currentUser)
+                    .equalTo("deleteAt", 0l)
+                    .contains("username", username[username.length - 1])
+                    .findAllSorted("username", Sort.ASCENDING);
         }
     }
 }
