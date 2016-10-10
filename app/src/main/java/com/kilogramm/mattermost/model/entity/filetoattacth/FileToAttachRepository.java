@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.model.entity.filetoattacth;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
@@ -39,9 +40,21 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
     public void add(FileToAttach item) {
         final Realm realm = Realm.getDefaultInstance();
 
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
+        realm.executeTransaction(realm1 -> realm.copyToRealm(item));
         realm.close();
     }
+
+    public void add(String fileName, String filePath) {
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.createObject(FileToAttach.class);
+            fileToAttach.setFileName(fileName);
+            fileToAttach.setFilePath(filePath);
+        });
+        realm.close();
+    }
+
 
     @Override
     public void add(Collection<FileToAttach> items) {
@@ -53,9 +66,63 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
     }
 
+    public void updateName(String oldName, String fileName){
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("fileName", oldName)
+                    .findFirst();
+            if(fileToAttach != null) {
+                fileToAttach.setFileName(fileName);
+            }
+        });
+
+        realm.close();
+    }
+
+    public void updateUploadStatus(String fileName, boolean status){
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
+                    .findFirst();
+            if(fileToAttach != null) {
+                fileToAttach.setUploaded(status);
+            }
+        });
+
+        realm.close();
+    }
+
+    public void updateProgress(String fileName, int progress){
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
+                    .findFirst();
+            if(fileToAttach != null) {
+                fileToAttach.setProgress(progress);
+            }
+        });
+
+        realm.close();
+    }
+
     @Override
     public void remove(FileToAttach item) {
+        final Realm realm = Realm.getDefaultInstance();
 
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileToAttach> fileToAttachList = realm1.where(FileToAttach.class)
+                    .equalTo("fileName", item.getFileName())
+                    .findAll();
+            fileToAttachList.deleteAllFromRealm();
+        });
+
+        realm.close();
     }
 
     @Override
@@ -74,5 +141,27 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         realm.delete(FileToAttach.class);
         realm.commitTransaction();
         realm.close();
+    }
+
+    public RealmResults<FileToAttach> query(){
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class).findAll();
+    }
+
+    public boolean haveUnloadedFiles(){
+        final Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        RealmResults<FileToAttach> fileToAttachRealmResults =  realm.where(FileToAttach.class).findAll();
+        for (FileToAttach fileToAttachRealmResult : fileToAttachRealmResults) {
+            if(!fileToAttachRealmResult.isUploaded){
+                realm.commitTransaction();
+                realm.close();
+                return true;
+            }
+        }
+        realm.commitTransaction();
+        realm.close();
+        return false;
     }
 }

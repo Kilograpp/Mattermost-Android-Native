@@ -58,8 +58,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     private PostRepository postRepository;
     private UserRepository userRepository;
 
-    private List<String> fileNames;
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
@@ -236,9 +234,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void sendToServer(Post post, String teamId, String channelId) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+            return;
+        }
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
-        post.setFilenames(fileNames);
+
         ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.sendPost(teamId, channelId, post)
                 .subscribeOn(Schedulers.newThread())
@@ -250,6 +251,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         getView().onItemAdded();
                         Log.d(TAG, "Complete create post");
                         FileToAttachRepository.getInstance().clearData();
+                        getView().setMessage("");
                     }
 
                     @Override
@@ -343,8 +345,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                            if (fileNames == null) fileNames = new ArrayList<>();
-                            fileNames.addAll(fileUploadResponse.getFilenames());
                         }
                     });
         } else {

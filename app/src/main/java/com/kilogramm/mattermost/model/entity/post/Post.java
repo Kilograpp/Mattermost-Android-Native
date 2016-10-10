@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -293,6 +295,15 @@ public class Post extends RealmObject implements Parcelable {
                 this.filenames.add(new RealmString(filename));
             }
         }
+    }
+
+    public void setFilenames(RealmResults<FileToAttach> attachedFiles) {
+        if (attachedFiles == null) {
+            return;
+        }
+            for (FileToAttach attachedFile : attachedFiles) {
+                this.filenames.add(new RealmString(attachedFile.getFileName()));
+            }
     }
 
     @Override

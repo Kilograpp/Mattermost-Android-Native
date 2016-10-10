@@ -310,7 +310,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
 
-        setMessage("");
         if (post.getMessage().length() != 0) {
             getPresenter().sendToServer(post, teamId, channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());

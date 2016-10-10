@@ -42,7 +42,7 @@ public class MattermostRetrofitService {
         headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
                 // Caused twice writeTo() method call for uploading file
-                .addInterceptor(logging)
+//                .addInterceptor(logging)
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token;

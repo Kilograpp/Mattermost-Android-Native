@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
-import android.net.Uri;
-
 import io.realm.RealmObject;
 
 /**
@@ -11,6 +9,7 @@ public class FileToAttach extends RealmObject {
     String fileName;
     String filePath;
     int progress;
+    boolean isUploaded;
 
     public FileToAttach(String filePath) {
         this.filePath = filePath;
@@ -45,5 +44,13 @@ public class FileToAttach extends RealmObject {
 
     public void setProgress(int progress) {
         this.progress = progress;
+    }
+
+    public boolean isUploaded() {
+        return isUploaded;
+    }
+
+    public void setUploaded(boolean uploaded) {
+        isUploaded = uploaded;
     }
 }

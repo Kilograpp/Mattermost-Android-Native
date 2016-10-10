@@ -16,7 +16,11 @@ import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -49,28 +53,16 @@ public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
             mSubscription.unsubscribe();
     }
 
-    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri){
+    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri) {
         String filePath = FileUtils.getPath(context, uri);
         String mimeType = FileUtils.getMimeType(filePath);
-        File file = new File(filePath);
-        if(file.exists()) {
-            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, new ProgressRequestBody.UploadCallbacks() {
-                @Override
-                public void onProgressUpdate(int percentage) {
-                    Log.d(TAG, String.format("Progress: %d", percentage));
-                }
+        final File file = new File(filePath);
+        if (file.exists()) {
+            FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
 
-                @Override
-                public void onError() {
-
-                }
-
-                @Override
-                public void onFinish() {
-
-                }
-            });
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+
             RequestBody channelId = RequestBody.create(MediaType.parse("multipart/form-data"), channel_id);
             RequestBody clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
@@ -84,7 +76,7 @@ public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
                     .subscribe(new Subscriber<FileUploadResponse>() {
                         @Override
                         public void onCompleted() {
-                            Log.d(TAG, "Complete update last viewed at");
+                            Log.d(TAG, "Complete upload files");
                         }
 
                         @Override
@@ -96,10 +88,8 @@ public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                            for (String s : fileUploadResponse.getFilenames()) {
-                                FileToAttachRepository.getInstance().add(new FileToAttach(filePath, s));
-                            }
-
+                            FileToAttachRepository.getInstance().updateName(file.getName(), fileUploadResponse.getFilenames().get(0));
+                            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), true);
                         }
                     });
         } else {

@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
 
 import java.util.ArrayList;
@@ -23,8 +24,6 @@ import nucleus.view.NucleusLayout;
  */
 @RequiresPresenter(AttachedFilesPresenter.class)
 public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
-
-    private static final String TAG = "AttachedFilesLayout";
 
     AttachedFilesAdapter attachedFilesAdapter;
 
@@ -64,7 +63,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), Realm.getDefaultInstance().where(FileToAttach.class).findAll());
+        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().query());
         recyclerView.setAdapter(attachedFilesAdapter);
     }
 
