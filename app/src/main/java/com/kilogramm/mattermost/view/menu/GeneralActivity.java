@@ -101,8 +101,8 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), fragmentMVP)
                     .commit();
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
         }
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     public static void start(Context context, Integer flags) {
