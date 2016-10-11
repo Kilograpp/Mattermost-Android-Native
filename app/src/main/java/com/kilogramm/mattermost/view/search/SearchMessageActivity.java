@@ -99,6 +99,10 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.recViewSearchResultList.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
+    public void DefaultMessageVisibility(boolean isShow) {
+        binding.defaultMessage.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {

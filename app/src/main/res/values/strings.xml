@@ -55,5 +55,6 @@
                                     "this", "a", and "is" won\'t appear in search results. </string>
     <string name="empty_search">Search field cannot be empty</string>
     <string name="no_results_found">Not found</string>
+    <string name="default_message">Your search results will be here</string>
 
 </resources>

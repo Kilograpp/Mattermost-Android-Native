@@ -57,6 +57,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         getView().ProgressBarVisibility(true);
         getView().SearchResultVisibility(false);
         getView().DefaultVisibility(false);
+        getView().DefaultMessageVisibility(false);
 
         mSubscription = service.searchForPosts(teamId, params)
                 .subscribeOn(Schedulers.io())

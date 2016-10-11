@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -61,33 +60,49 @@
             app:mpb_progressStyle="circular" />
 
         <LinearLayout
-            android:id="@+id/defaultContainer"
+            android:id="@+id/searchResultContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
             android:orientation="vertical">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:layout_marginTop="20dp"
-                android:text="@string/no_results_found"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-            <TextView
+                android:id="@+id/defaultMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:text="@string/default_text"
-                android:textColor="@color/black" />
+                android:layout_marginTop="100dp"
+                android:text="@string/default_message"
+                android:textColor="@color/grey"
+                android:textSize="15sp"
+                android:gravity="center"/>
+            <LinearLayout
+                android:id="@+id/defaultContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/no_results_found"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="@string/default_text"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recViewSearchResultList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
         </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recViewSearchResultList"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
     </LinearLayout>
 </layout>
