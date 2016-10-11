@@ -101,8 +101,8 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), fragmentMVP)
                     .commit();
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
         }
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     public static void start(Context context, Integer flags) {
@@ -131,6 +131,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
                 if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
                     String itemId = data.getStringExtra(WholeDirectListActivity.USER_ID);
                     String name = data.getStringExtra(WholeDirectListActivity.NAME);
+                    //TODO проверить после кореектирования архитектуры (melkshake)
 //                    getPresenter().setSelectedDirect(itemId, name);
                     SaveData saveData = new SaveData(name, itemId, true);
                     Log.d(TAG, "saveData constructor");
@@ -144,6 +145,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
 
+            //TODO проверить после кореектирования архитектуры (melkshake)
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
 //            chatFragment.loadBeforeAndAfter(messageId, channelId);
             this.replaceFragment(channelId, channelName);
