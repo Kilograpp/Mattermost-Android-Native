@@ -36,6 +36,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String MESSAGE_ID = "message_id";
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
+    public static final String IS_CHANNEL = "is_channel";
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
@@ -66,7 +67,11 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         RealmResults<FoundMessagesIds> foundMessageId = realm.where(FoundMessagesIds.class).findAll();
         if (foundMessageId.size() != 0) {
             for (int i = 0; i < foundMessageId.size(); i++) {
-                query.equalTo("id", foundMessageId.get(i).getMessageId()).or();
+                if (foundMessageId.size() > 1) {
+                    query.equalTo("id", foundMessageId.get(i).getMessageId()).or();
+                } else {
+                    query.equalTo("id", foundMessageId.get(i).getMessageId());
+                }
             }
         }
 
@@ -114,11 +119,12 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     @Override
-    public void onJumpClick(String messageId, String channelId, String channelName) {
+    public void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel) {
         Intent intent = new Intent(getApplicationContext(), SearchMessageActivity.class)
                 .putExtra(MESSAGE_ID, messageId)
                 .putExtra(CHANNEL_ID, channelId)
-                .putExtra(CHANNEL_NAME, channelName);
+                .putExtra(CHANNEL_NAME, channelName)
+                .putExtra(IS_CHANNEL, isChannel);
         setResult(RESULT_OK, intent);
         finish();
     }

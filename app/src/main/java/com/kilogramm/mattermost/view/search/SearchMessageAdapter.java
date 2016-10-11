@@ -57,7 +57,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (jumpClickListener != null) {
-                jumpClickListener.onJumpClick(messageId, channelId, channelName);
+                jumpClickListener.onJumpClick(messageId, channelId, channelName, holder.isChannel());
             }
         });
     }
@@ -66,6 +66,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         private ItemSearchResultBinding binding;
         private Realm realm;
+        private boolean isChannel;
 
         private MyViewHolder(ItemSearchResultBinding binding) {
             super(binding.getRoot());
@@ -84,6 +85,15 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             binding.postedDate.setText(DateOrTimeConvert(post.getCreateAt(), false));
 
             String chName = channel.first().getName();
+
+            if (Pattern.matches(".+\\w[_].+\\w", chName)) {
+                binding.chatName.setText(this.getChatName(chName));
+                isChannel = false;
+            } else {
+                binding.chatName.setText(chName);
+                isChannel = true;
+            }
+
             binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
 
             binding.userName.setText(user.first().getUsername());
@@ -100,6 +110,10 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(binding.avatarDirect);
+        }
+
+        public boolean isChannel() {
+            return isChannel;
         }
 
         public ItemSearchResultBinding getmBinding() {
@@ -127,6 +141,6 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     }
 
     public interface OnJumpClickListener {
-        void onJumpClick(String messageId, String channelId, String channelName);
+        void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel);
     }
 }

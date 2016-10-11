@@ -144,11 +144,14 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
+            boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
 
-            //TODO проверить после кореектирования архитектуры (melkshake)
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
 //            chatFragment.loadBeforeAndAfter(messageId, channelId);
-            this.replaceFragment(channelId, channelName);
+//            this.replaceFragment(channelId, channelName);
+            // TODO проверить логику setSelectedChannel:MattermostPreference
+            // TODO немного неправильно заменяет фрагменты чатов
+            this.setFragmentChat(channelId, channelName, isChannel);
         }
     }
 }
