@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostByPendingPostIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
@@ -29,8 +31,6 @@ import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -337,15 +337,55 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         return id;
     }
 
-    public void sendToServer(Post post, String teamId, String channelId) {
+    public void sendToServerError(Post sendedPost, String teamId, String channelId) {
         if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
             return;
         }
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
+        String sendedPostId = sendedPost.getPendingPostId();
+        sendedPost.setUpdateAt(null);
+        postRepository.update(sendedPost);
+        getView().refreshItem();
+        sendedPost.setId(null);
+        sendedPost.setUser(null);
+        sendedPost.setMessage(Html.fromHtml(sendedPost.getMessage()).toString().trim());
         ApiMethod service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.sendPost(teamId, channelId, post)
+        mSubscription = service.sendPost(teamId, channelId, sendedPost)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Post>() {
+                    @Override
+                    public void onCompleted() {
+                        updateLastViewedAt(teamId, channelId);
+                        getView().onItemAdded();
+                        Log.d(TAG, "Complete create post");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        setErrorPost(sendedPostId);
+                        e.printStackTrace();
+                        Log.d(TAG, "Error repetition create post " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Post post) {
+                        setpostData(post, sendedPostId);
+                    }
+                });
+    }
+
+    public void sendToServer(Post sendedPost, String teamId, String channelId) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+            return;
+        }
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+        String sendedPostId = sendedPost.getPendingPostId();
+        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
+        mSubscription = service.sendPost(teamId, channelId, sendedPost)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -361,17 +401,40 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onError(Throwable e) {
+                        setErrorPost(sendedPostId);
+                        getView().setMessage("");
                         e.printStackTrace();
                         Log.d(TAG, "Error create post " + e.getMessage());
                     }
 
                     @Override
                     public void onNext(Post post) {
-                        post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-                        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-                        postRepository.add(post);
+                        setpostData(post, sendedPostId);
                     }
                 });
+        Post forSavePost = new Post(sendedPost);
+        forSavePost.setId(sendedPostId);
+        forSavePost.setUser(userRepository.query(new UserByIdSpecification(forSavePost.getUserId()))
+                .first());
+        forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        postRepository.add(forSavePost);
+    }
+
+
+    private void setErrorPost(String sendedPostId){
+        Post post = new Post(postRepository.query(new PostByIdSpecification(sendedPostId)).first());
+        post.setUpdateAt(Post.NO_UPDATE);
+        Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
+        postRepository.update(post);
+        getView().refreshItem();
+    }
+
+    private void setpostData(Post post, String sendedPostId){
+        post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        Log.d("CreateAt", "setpostData: " + post.getCreateAt());
+        postRepository.remove(new PostByPendingPostIdSpecification(sendedPostId));
+        postRepository.add(post);
     }
 
     private void updateLastViewedAt(String teamId, String channelId) {
@@ -455,6 +518,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         } else {
             Log.e(TAG, "file not found");
         }
+    }
+
+    public void deleteErrorSendPost(Post post) {
+        postRepository.remove(post);
     }
 
     public void deletePost(Post post, String teamId, String channelId) {
