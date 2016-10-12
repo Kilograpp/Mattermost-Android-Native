@@ -32,6 +32,7 @@
     <string name="logout">logout</string>
     <string name="confirm_post_delete">Confirm Post Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="try_again">Try again</string>
     <string name="reply">Replay</string>
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
@@ -55,5 +56,6 @@
                                     "this", "a", and "is" won\'t appear in search results. </string>
     <string name="empty_search">Search field cannot be empty</string>
     <string name="no_results_found">Not found</string>
+    <string name="default_message">Your search results will be here</string>
 
 </resources>

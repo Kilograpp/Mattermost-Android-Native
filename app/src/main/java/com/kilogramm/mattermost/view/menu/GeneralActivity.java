@@ -139,6 +139,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
                 if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
                     String itemId = data.getStringExtra(WholeDirectListActivity.USER_ID);
                     String name = data.getStringExtra(WholeDirectListActivity.NAME);
+                    //TODO проверить после кореектирования архитектуры (melkshake)
 //                    getPresenter().setSelectedDirect(itemId, name);
                     SaveData saveData = new SaveData(name, itemId, true);
                     Log.d(TAG, "saveData constructor");
@@ -152,9 +153,14 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
 // TODO расскоментировать, как смержусь с Женей (melkshake)
+            boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
+
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
 //            chatFragment.loadBeforeAndAfter(messageId, channelId);
-            this.replaceFragment(channelId, channelName);
+//            this.replaceFragment(channelId, channelName);
+            // TODO проверить логику setSelectedChannel:MattermostPreference
+            // TODO немного неправильно заменяет фрагменты чатов
+            this.setFragmentChat(channelId, channelName, isChannel);
         }
     }
 

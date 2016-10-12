@@ -57,6 +57,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         getView().ProgressBarVisibility(true);
         getView().SearchResultVisibility(false);
         getView().DefaultVisibility(false);
+        getView().DefaultMessageVisibility(false);
 
         mSubscription = service.searchForPosts(teamId, params)
                 .subscribeOn(Schedulers.io())
@@ -66,7 +67,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                     public void onCompleted() {
                         getView().ProgressBarVisibility(false);
                         if (!isSearchEmpty) {
-                            getView().setRecycleView();
+                            getView().setRecycleView(terms);
                         }
                     }
 

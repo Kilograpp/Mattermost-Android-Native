@@ -29,7 +29,7 @@ public class UserRepository implements Repository<User> {
     @Override
     public void add(Collection<User> items) {
         final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
+        realm.executeTransaction(realm1 -> realm.copyToRealmOrUpdate(items));
         realm.close();
     }
 

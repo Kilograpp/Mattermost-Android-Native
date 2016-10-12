@@ -157,9 +157,11 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     @Override
                     public void onCompleted() {
                         Log.d(TAG, "complete load users");
-                        Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
-                        if (channel != null) {
-                            setSelectedChannel(channel.getId(), channel.getName());
+                        if (MattermostPreference.getInstance().getLastChannelId() == null) {
+                            Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                            if (channel != null) {
+                                setSelectedChannel(channel.getId(), channel.getName());
+                            }
                         }
                     }
 
