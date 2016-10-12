@@ -43,6 +43,7 @@ import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
@@ -51,6 +52,8 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
+import com.kilogramm.mattermost.view.menu.GeneralActivity;
+import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.util.ArrayList;
@@ -74,15 +77,16 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final String TAG = "ChatFragmentMVP";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
+    private static final String TEAM_ID = "team_id";
 
     private static final Integer TYPING_DURATION = 5000;
     private static final int PICKFILE_REQUEST_CODE = 5;
     private static final int PERMISSIONS_REQUEST_CODE = 6;
 
-
     private static final int PICK_IMAGE = 1;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
+    private static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
     private NewChatListAdapter adapter;
@@ -107,7 +111,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
         this.postRepository = new PostRepository();
-        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
+        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
+                "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
     }
 
     @Nullable
@@ -146,29 +151,25 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         binding.attachedFilesLayout.setEmptyListListener(this);
     }
 
+    private void searchMessage() {
+        Intent intent = new Intent(getActivity(), SearchMessageActivity.class)
+                .putExtra(TEAM_ID, teamId);
+        getActivity().startActivityForResult(intent, SEARCH_CODE);
+    }
+
     private void setBottomToolbarOnClickListeners() {
-        binding.bottomToolbar.writeText.setOnClickListener(view -> {
-            OnClickAddText();
-        });
-
-        binding.bottomToolbar.makePhoto.setOnClickListener(view -> {
-            OnClickMakePhoto();
-        });
-
-        binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> {
-            OnClickOpenGallery();
-        });
-
-        binding.bottomToolbar.addDocs.setOnClickListener(view -> {
-            OnClickChooseDoc();
-        });
+        binding.bottomToolbar.writeText.setOnClickListener(view -> OnClickAddText());
+        binding.bottomToolbar.makePhoto.setOnClickListener(view -> OnClickMakePhoto());
+        binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> OnClickOpenGallery());
+        binding.bottomToolbar.addDocs.setOnClickListener(view -> OnClickChooseDoc());
     }
 
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(), this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
+        setListenerToRootView();
     }
 
     public TextWatcher getMassageTextWatcher() {
@@ -200,6 +201,21 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         dropDownListAdapter.updateData(realmResult);
     }
 
+    boolean isOpened = false;
+
+    public void setListenerToRootView() {
+        final View activityRootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+            if (heightDiff > 100) {
+                binding.idRecUser.setVisibility(View.VISIBLE);
+                isOpened = true;
+            } else if (isOpened == true) {
+                binding.idRecUser.setVisibility(View.INVISIBLE);
+                isOpened = false;
+            }
+        });
+    }
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
         ChatFragmentMVP chatFragment = new ChatFragmentMVP();
@@ -247,7 +263,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);
     }
-
 
     public String getChId() {
         return this.channelId;
@@ -596,5 +611,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     @Override
     public void onEmptyList() {
         binding.attachedFilesLayout.setVisibility(View.GONE);
+    }
+
+    public void loadBeforeAndAfter(String postId, String channelId) {
+        Realm realm = Realm.getDefaultInstance();
+        String teamId = realm.where(Team.class).findFirst().getId();
+        getPresenter().loadPostsAfter(teamId, channelId, postId, "0", "10");
+        getPresenter().loadPostsBefore(teamId, channelId, postId, "0", "10");
     }
 }

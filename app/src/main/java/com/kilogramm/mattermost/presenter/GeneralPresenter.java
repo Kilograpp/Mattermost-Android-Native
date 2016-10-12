@@ -128,7 +128,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                             setDialogFragment = false;
                         }
                         Log.d(TAG, "complete load channels");
-                        // loadUsersTeam(teamId);
+                        loadUsersTeam(teamId);
                     }
 
                     @Override
@@ -145,8 +145,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
     }
 
-   /* private void loadUsersTeam(String teamId){
-        if(subscription != null && !subscription.isUnsubscribed())
+    private void loadUsersTeam(String teamId) {
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
@@ -158,8 +158,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     public void onCompleted() {
                         Log.d(TAG, "complete load users");
                         Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
-                        if(channel!=null){
-                            setSelectedChannel(channel.getId(),channel.getName());
+                        if (channel != null) {
+                            setSelectedChannel(channel.getId(), channel.getName());
                         }
                     }
 
@@ -173,7 +173,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                         userRepository.add(stringUserMap.values());
                     }
                 });
-    }*/
+    }
 
     public void save(SaveData saveData) {
         if (subscription != null && !subscription.isUnsubscribed())
@@ -224,18 +224,22 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
     public void setSelectedLast(String id) {
         Channel channel;
         if (id != null) {
-            channel = channelRepository.query(new ChannelByIdSpecification(id)).first();
-            if (channel != null)
-                switch (channel.getType()) {
-                    case "O":
-                        setSelectedChannel(channel.getId(), channel.getName());
-                        break;
-                    case "D":
-                        setSelectedDirect(channel.getId(), channel.getUsername());
-                        break;
-                    case "P":
-                        break;
-                }
+            try {
+                channel = channelRepository.query(new ChannelByIdSpecification(id)).first();
+                if (channel != null)
+                    switch (channel.getType()) {
+                        case "O":
+                            setSelectedChannel(channel.getId(), channel.getName());
+                            break;
+                        case "D":
+                            setSelectedDirect(channel.getId(), channel.getUsername());
+                            break;
+                        case "P":
+                            break;
+                    }
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
         } else {
             RealmResults<Channel> channels = channelRepository.query(new ChannelByTypeSpecification("O"));
             if (channels.size() != 0) {
@@ -303,6 +307,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
     private void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);
+        MattermostPreference.getInstance().setLastChannelId(null);
     }
 
     private void clearDataBaseAfterLogout() {

@@ -2,6 +2,7 @@ package com.kilogramm.mattermost;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -73,6 +74,7 @@ public class MattermostApp extends Application{
 
     @Override
     public void onCreate() {
+        MultiDex.install(getApplicationContext());
         super.onCreate();
         if(!BuildConfig.DEBUG){
             Fabric.with(this, new Crashlytics());

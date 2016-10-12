@@ -73,8 +73,11 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                         Log.d(TAG, "onNext success");
                         realm.executeTransaction(realm1 -> {
                             for (User user : stringUserMap.values()) {
-                                users.add(user);
+                                if (user.getEmail() != null) {
+                                    users.add(user);
+                                }
                             }
+
                             realm1.insertOrUpdate(users);
                             realm1.close();
                         });

@@ -195,7 +195,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        Log.d(TAG, "Error");
                     }
 
                     @Override
@@ -219,6 +218,111 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     }
                 });
     }
+
+    /******************************** for search **************************/
+
+    public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsAfter(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        if (getView() != null)
+                            getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                    }
+                });
+    }
+
+    public void loadPostsBefore(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsBefore_search(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        if (getView() != null)
+                            getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                    }
+                });
+    }
+
+/*******************************************************************************/
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().contains("@"))
+                    if (charSequence.charAt(charSequence.length() - 1) == '@')
+                        getUsers(null);
+                    else
+                        getUsers(charSequence.toString());
+                else
+                    getView().setDropDown(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
 
     public void getUsers(String search) {
         RealmResults<User> users = userRepository.query(new UserByNameSearchSpecification(search));
