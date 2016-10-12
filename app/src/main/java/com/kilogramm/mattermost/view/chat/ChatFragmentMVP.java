@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.chat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -7,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,6 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,6 +55,7 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -72,6 +77,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     private static final Integer TYPING_DURATION = 5000;
     private static final int PICKFILE_REQUEST_CODE = 5;
+    private static final int PERMISSIONS_REQUEST_CODE = 6;
+
 
     private static final int PICK_IMAGE = 1;
     private static final int CAMERA_PIC_REQUEST = 2;
@@ -126,8 +133,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
-                Log.d(TAG,obj.getEvent());
-                if(obj.getChannelId().equals(channelId)){
+                Log.d(TAG, obj.getEvent());
+                if (obj.getChannelId().equals(channelId)) {
                     getActivity().runOnUiThread(() -> showTyping());
                 }
             }
@@ -156,8 +163,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             OnClickChooseDoc();
         });
     }
+
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(),this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapter(binding.getRoot().getContext(), this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
@@ -250,10 +258,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     public void setButtonAddFileOnClickListener() {
-        binding.buttonAttachFile.setOnClickListener(view -> attachFile());
+        binding.buttonAttachFile.setOnClickListener(view -> pickFile());
     }
-
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -296,8 +302,28 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         if (resultCode == Activity.RESULT_OK && requestCode == PICKFILE_REQUEST_CODE) {
             if (data != null && data.getData() != null) {
                 Uri uri = data.getData();
-                binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-                binding.attachedFilesLayout.addItem(uri, teamId, channelId);
+                List<Uri> uriList = new ArrayList<>();
+                uriList.add(uri);
+                attachFiles(uriList);
+            }
+        }
+    }
+
+    private void attachFiles(List<Uri> uriList){
+        binding.attachedFilesLayout.setVisibility(View.VISIBLE);
+        binding.attachedFilesLayout.addItem(uriList, teamId, channelId);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openFilePicker();
+                }
             }
         }
     }
@@ -321,7 +347,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         }
     } // +
 
-    private void attachFile() {
+    private void pickFile() {
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        intent.setType("*/*");
 //        startActivityForResult(intent, PICKFILE_REQUEST_CODE);
@@ -330,6 +356,25 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 //        intent.putExtra("CONTENT_TYPE", "*/*");
 //        intent.addCategory(Intent.CATEGORY_DEFAULT);
 
+        openFile(getActivity(), "*/*", PICKFILE_REQUEST_CODE);
+
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_CODE);
+            } else {
+                openFilePicker();
+            }
+        } else {
+            openFilePicker();
+        }
+    }
+
+    private void openFilePicker() {
         openFile(getActivity(), "*/*", PICKFILE_REQUEST_CODE);
     }
 
@@ -450,7 +495,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     @Override
-    public Post getRootPost(Post post){
+    public Post getRootPost(Post post) {
         return getPresenter().getRootPost(post);
     }
 
@@ -466,7 +511,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     @Override
     public void OnItemClick(View view, Post item) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.controlMenu:
                 showPopupMenu(view, item);
                 break;
@@ -475,32 +520,32 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     private void showPopupMenu(View view, Post post) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
-        if(post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
+        if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
             popupMenu.inflate(R.menu.my_chat_item_popupmenu);
         } else {
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
-                    R.layout.edit_dialog_layout,null,false);
-            switch (menuItem.getItemId()){
+                    R.layout.edit_dialog_layout, null, false);
+            switch (menuItem.getItemId()) {
                 case R.id.edit:
                     showEditView(Html.fromHtml(post.getMessage()).toString());
                     break;
                 case R.id.delete:
-                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.confirm_post_delete))
                             .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                                 dialogInterface.dismiss();
                             })
                             .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                getPresenter().deletePost(post,teamId,channelId);
+                                getPresenter().deletePost(post, teamId, channelId);
                             })
                             .show();
                     break;
                 case R.id.permalink:
                     binding.edit.setText(getMessageLink(post.getId()));
-                    new AlertDialog.Builder(getActivity(),R.style.AppCompatAlertDialogStyle)
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.copy_permalink))
                             .setView(binding.getRoot())
                             .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
@@ -522,7 +567,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private void showEditView(String message) {
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
-        Animation upAnim = AnimationUtils.loadAnimation(getActivity(),R.anim.edit_card_up);
+        Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
         binding.editMessageLayout.editableText.setText(message);
         binding.editMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
@@ -542,10 +587,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         adapter.notifyDataSetChanged();
     }
 
-    public void copyLink(String link){
+    public void copyLink(String link) {
         ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setText(link);
-        Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
     @Override

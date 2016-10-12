@@ -11,6 +11,9 @@ import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
+import java.io.File;
+
+import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -45,24 +48,29 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
         Glide.with(context)
                 .load(fileToAttach.getFilePath())
-                .override(150,150)
+                .override(150, 150)
                 .placeholder(R.drawable.ic_attachment_grey_24dp)
                 .error(R.drawable.ic_attachment_grey_24dp)
                 .thumbnail(0.1f)
                 .centerCrop()
-                .into(holder.getBinding().imageView);
-        if(fileToAttach.getProgress() < 100) {
-            holder.getBinding().progressBar.setVisibility(View.VISIBLE);
-            holder.getBinding().progressBar.setProgress(fileToAttach.getProgress());
+                .into(holder.binding.imageView);
+        if (fileToAttach.getProgress() < 100) {
+            holder.binding.progressBar.setVisibility(View.VISIBLE);
+            holder.binding.progressBar.setProgress(fileToAttach.getProgress());
         } else {
-            holder.getBinding().progressBar.setVisibility(View.GONE);
+            holder.binding.progressBar.setVisibility(View.GONE);
         }
-        holder.getBinding().close.setOnClickListener(v -> {
-            FileToAttachRepository.getInstance().remove(fileToAttach);
-            if(emptyListListener != null && getItemCount() == 0){
-                emptyListListener.onEmptyList();
-            }
-        });
+        if (!holder.binding.close.hasOnClickListeners()) {
+            holder.binding.close.setOnClickListener(v -> {
+                // TODO при удалении во время загрузки объект может стать невалидным и удалить его будет невозможно
+                if (fileToAttach.isValid()) {
+                    FileToAttachRepository.getInstance().remove(fileToAttach);
+                    if (emptyListListener != null && Realm.getDefaultInstance().where(FileToAttach.class).findAll().isEmpty()) {
+                        emptyListListener.onEmptyList();
+                    }
+                }
+            });
+        }
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -78,13 +86,9 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             AttachedFileLayoutBinding binding = AttachedFileLayoutBinding.inflate(inflater, parent, false);
             return new MyViewHolder(binding);
         }
-
-        public AttachedFileLayoutBinding getBinding() {
-            return binding;
-        }
     }
 
-    public interface EmptyListListener{
+    public interface EmptyListListener {
         void onEmptyList();
     }
 

@@ -67,8 +67,10 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
         recyclerView.setAdapter(attachedFilesAdapter);
     }
 
-    public void addItem(Uri uri, String teamId, String channelId){
-        getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+    public void addItem(List<Uri> uriList, String teamId, String channelId){
+        for (Uri uri : uriList) {
+            getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+        }
     }
 
     public List<String> getAttachedFiles(){
