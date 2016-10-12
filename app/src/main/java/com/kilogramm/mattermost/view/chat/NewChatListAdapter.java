@@ -98,8 +98,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 isTitle = true;
             }
 
-            if (post.getRootId() != null && post.getRootId().length() > 0 &&
-                    !prePost.getId().equals(post.getRootId())) {
+            if (post.getRootId() != null && post.getRootId().length() > 0) {
                 isComment = true;
             }
 
