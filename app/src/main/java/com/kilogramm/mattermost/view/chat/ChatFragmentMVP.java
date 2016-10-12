@@ -45,6 +45,7 @@ import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -96,7 +97,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private String teamId;
     private String channelName;
 
-    private String rootPostId;
+    private Post rootPost;
 
     private boolean isMessageTextOpen = false;
 
@@ -284,7 +285,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     public void setBtnSendOnClickListener() {
-        binding.btnSend.setOnClickListener(view -> sendMessage());
+        binding.btnSend.setOnClickListener(view -> {
+            if (!binding.btnSend.getText().equals("Save"))
+                sendMessage();
+            else
+                editMessage();
+        });
     }
 
     public void setButtonAddFileOnClickListener() {
@@ -327,14 +333,14 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         }
         if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
             if (data != null) {
-                if(data.getData() != null) {
+                if (data.getData() != null) {
                     Uri uri = data.getData();
                     List<Uri> uriList = new ArrayList<>();
                     uriList.add(uri);
                     attachFiles(uriList);
-                } else if (data.getClipData() != null){
+                } else if (data.getClipData() != null) {
                     ClipData clipData = data.getClipData();
-                    for(int i = 0; i < clipData.getItemCount(); i++){
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
                         List<Uri> uriList = new ArrayList<>();
                         uriList.add(clipData.getItemAt(i).getUri());
                         attachFiles(uriList);
@@ -342,7 +348,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         }
-        if(pickedFiles.size() > 0){
+        if (pickedFiles.size() > 0) {
             attachFiles(pickedFiles);
         }
     }
@@ -374,8 +380,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setChannelId(channelId);
         post.setCreateAt(getTimePost());
         post.setMessage(getMessage());
-        if(rootPostId != null) {
-            post.setRootId(rootPostId);
+        if (rootPost != null) {
+            post.setRootId(rootPost.getId());
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
@@ -385,6 +391,20 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         if (post.getMessage().length() != 0) {
             getPresenter().sendToServer(post, teamId, channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
+        } else {
+            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+        }
+    } // +
+
+    private void editMessage() {
+        PostEdit postEdit = new PostEdit();
+        postEdit.setId(rootPost.getId());
+        postEdit.setChannelId(channelId);
+        postEdit.setMessage(getMessage());
+        closeEditView();
+        if (postEdit.getMessage().length() != 0) {
+            setMessage("");
+            getPresenter().editPost(postEdit, teamId, channelId);
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
@@ -592,6 +612,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     R.layout.edit_dialog_layout, null, false);
             switch (menuItem.getItemId()) {
                 case R.id.edit:
+                    rootPost = post;
                     showEditView(Html.fromHtml(post.getMessage()).toString(), EDIT_MESSAGE);
                     break;
                 case R.id.delete:
@@ -619,7 +640,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                             .show();
                     break;
                 case R.id.reply:
-                    rootPostId = post.getId();
+                    rootPost = post;
                     showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
@@ -632,10 +653,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
-        if(type.equals(REPLY_MESSAGE))
+        if (type.equals(REPLY_MESSAGE))
             binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
-        else
+        else {
             binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+            binding.btnSend.setText(R.string.save);
+        }
         binding.editReplyMessageLayout.editableText.setText(message);
         binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
@@ -645,7 +668,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private void closeEditView() {
         binding.editReplyMessageLayout.editableText.setText(null);
         binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
-        rootPostId = null;
+        rootPost = null;
+        binding.btnSend.setText("Send");
     }
 
     private String getMessageLink(String postId) {
@@ -667,7 +691,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
-    public void hideAttachedFilesLayout(){
+    public void hideAttachedFilesLayout() {
         binding.attachedFilesLayout.setVisibility(View.GONE);
     }
 

@@ -19,6 +19,7 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostByPendingPostIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
@@ -549,7 +550,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    public void editPost(Post post, String teamId, String channelId) {
+    public void editPost(PostEdit post, String teamId, String channelId) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
