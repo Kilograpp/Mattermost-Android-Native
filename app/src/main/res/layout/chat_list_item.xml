@@ -154,10 +154,17 @@
                 android:visibility="@{viewModel.controlMenuVisibility}"
                 android:src="@drawable/ic_more_horiz_grey_24dp" />
 
+            <ProgressBar
+                android:id="@id/progressBar"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="@{viewModel.progressSendVisibility}" />
+
             <ImageView
-                android:visibility="gone"
-                android:id="@+id/sendStatus"
+                android:visibility="@{viewModel.progressErrorSendVisibility}"
+                android:id="@+id/sendStatusError"
                 android:layout_width="24dp"
+                android:src="@drawable/ic_error_red_24dp"
                 android:layout_height="24dp" />
             </LinearLayout>
         </LinearLayout>

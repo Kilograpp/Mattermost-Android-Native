@@ -11,6 +11,9 @@
     <color name="very_light_grey">#d7dee3</color>
     <color name="transparent">#00000000</color>
 
+    <color name="green_send_massage">#00bf30</color>
+    <color name="red_error_send_massage">#d1353d</color>
+
     <color name="blue_selected">#d7ecfa</color>
     <color name="blue_light_selected">#e6f3fa</color>
 

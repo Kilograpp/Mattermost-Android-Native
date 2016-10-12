@@ -181,8 +181,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         });
     }
 
-
-
+    public void refreshItem() {
+        adapter.notifyItemChanged(binding.rev.getRecycleView().getAdapter().getItemCount() - 1);
+    }
 
 
     public static ChatFragmentMVP createFragment(String channelId, String channelName) {
@@ -297,7 +298,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private void sendMessage() {
         Post post = new Post();
         post.setChannelId(channelId);
-        post.setCreateAt(Calendar.getInstance().getTimeInMillis());
+        post.setCreateAt(getTimePost());
         post.setMessage(getMessage());
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
@@ -310,6 +311,15 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
     } // +
+
+    private Long getTimePost() {
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+        Long currentTime = Calendar.getInstance().getTimeInMillis();
+        if ((currentTime / 10000 * 10000) < lastTime)
+            return currentTime;
+        else
+            return lastTime + 1;
+    }
 
     private void attachFile() {
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -457,10 +467,32 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     @Override
     public void OnItemClick(View view, Post item) {
         switch (view.getId()) {
+            case R.id.sendStatusError:
+                showErrorSendMenu(view, item);
+                break;
             case R.id.controlMenu:
                 showPopupMenu(view, item);
                 break;
         }
+    }
+
+
+    private void showErrorSendMenu(View view, Post post) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+        popupMenu.inflate(R.menu.error_send_item_popupmenu);
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.try_again:
+                    Post p = new Post(post);
+                    getPresenter().sendToServerError(p, teamId, channelId);
+                    break;
+                case R.id.delete:
+                    getPresenter().deleteErrorSendPost(post);
+                    break;
+            }
+            return true;
+        });
+        popupMenu.show();
     }
 
     private void showPopupMenu(View view, Post post) {

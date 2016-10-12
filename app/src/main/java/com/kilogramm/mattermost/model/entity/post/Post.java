@@ -21,6 +21,8 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Post extends RealmObject implements Parcelable {
 
+    public static final long NO_UPDATE = -1;
+
     @PrimaryKey
     @SerializedName("id")
     @Expose
@@ -85,8 +87,11 @@ public class Post extends RealmObject implements Parcelable {
         this.user = user;
     }
 
-    public boolean isSystemMessage(){
-       return type.equals("system_join_leave");
+    public boolean isSystemMessage() {
+        if (type != null)
+            return type.equals("system_join_leave");
+        else
+            return false;
     }
 
     /**
@@ -322,6 +327,29 @@ public class Post extends RealmObject implements Parcelable {
 
     public Post() {
     }
+
+    public Post(Post post){
+        this.id=post.getId();
+        this.createAt=post.getCreateAt();
+        this.updateAt=post.getUpdateAt();
+        this.deleteAt=post.getDeleteAt();
+        this.userId=post.getUserId();
+        this.channelId=post.getChannelId();
+        this.rootId=post.getRootId();
+        this.parentId=post.getParentId();
+        this.originalId=post.getOriginalId();
+        this.message=post.getMessage();
+        this.type=post.getType();
+        this.hashtags=post.getHashtags();
+        this.filenames = new RealmList<>();
+        for (String s : post.getFilenames()) {
+            this.filenames.add(new RealmString(s));
+        }
+        this.pendingPostId=post.getPendingPostId();
+        this.user=post.getUser();
+        this.viewed=post.getViewed();
+    }
+
 
     protected Post(Parcel in) {
         this.id = in.readString();
