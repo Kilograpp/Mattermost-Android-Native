@@ -35,7 +35,7 @@ import rx.schedulers.Schedulers;
  * Created by Evgeny on 13.09.2016.
  */
 public class ChatPresenter extends Presenter<ChatFragmentMVP> {
-    private static final String TAG = "ChatPresenter";
+   /* private static final String TAG = "ChatPresenter";
 
     private Subscription mSubscription;
 
@@ -364,5 +364,5 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         getView().invalidateAdapter();
                     }
                 });
-    }
+    }*/
 }

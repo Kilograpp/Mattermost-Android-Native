@@ -60,6 +60,7 @@ android {
             sourceCompatibility JavaVersion . VERSION_1_8
             targetCompatibility JavaVersion . VERSION_1_8
         }
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -76,6 +77,8 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
+
+    compile 'com.android.support:multidex:1.0.0'
 
     compile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.android.support:support-compat:24.2.0'
@@ -114,8 +117,6 @@ dependencies {
     compile 'info.android15.nucleus:nucleus-support-v4:4.0.0'
     compile 'info.android15.nucleus:nucleus-support-v7:4.0.0'
 
-    compile "frankiesardo:icepick-processor:3.2.0"
-
     apt 'com.google.dagger:dagger-compiler:2.5'
     compile 'com.google.dagger:dagger:2.5'
     provided 'javax.annotation:jsr250-api:1.0'
@@ -131,5 +132,7 @@ dependencies {
         transitive = true;
     }
 
+    compile 'frankiesardo:icepick:3.2.0'
+    apt 'frankiesardo:icepick-processor:3.2.0'
 
 }

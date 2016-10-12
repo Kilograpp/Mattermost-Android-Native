@@ -20,15 +20,10 @@
         <activity
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:name=".view.authorization.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".view.authorization.LoginActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible"
-            android:screenOrientation="portrait"/>
+            android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity android:name=".view.menu.GeneralActivity"
@@ -36,6 +31,22 @@
         <activity android:name=".view.ImageViewerActivity"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait"/>
+
+        <!--RX activity-->
+        <activity
+            android:name=".rxtest.MainRxAcivity"
+            android:windowSoftInputMode="adjustResize|stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".rxtest.LoginRxActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
+        <activity android:name=".rxtest.GeneralRxActivity"/>
+
+
+
         <service android:name=".service.MattermostService"/>
         <meta-data
             android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"

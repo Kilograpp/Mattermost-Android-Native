@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.ui;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -105,7 +104,7 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
-        Log.d(TAG, url);
+        //Log.d(TAG, url);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
         String title = "";

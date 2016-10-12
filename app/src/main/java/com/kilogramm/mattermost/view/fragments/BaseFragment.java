@@ -1,9 +1,11 @@
 package com.kilogramm.mattermost.view.fragments;
 
+import android.os.Bundle;
 import android.view.View;
 
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import icepick.Icepick;
 import nucleus.presenter.Presenter;
 import nucleus.view.NucleusFragment;
 
@@ -16,5 +18,15 @@ public abstract class BaseFragment<P extends Presenter> extends NucleusFragment<
         ((BaseActivity) getActivity()).setupChannelToolbar(activityTitle,channelName,listener);
     }
 
+    @Override
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        Icepick.restoreInstanceState(this,bundle);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        Icepick.saveInstanceState(this,bundle);
+    }
 }

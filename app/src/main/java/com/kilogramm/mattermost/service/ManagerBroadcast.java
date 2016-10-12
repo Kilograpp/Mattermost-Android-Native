@@ -77,7 +77,10 @@ public class ManagerBroadcast {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
             case WebSocketObj.EVENT_POSTED:
-                String mentions = dataJSON.getString(WebSocketObj.MENTIONS);
+                String mentions = null;
+                if(dataJSON.has(WebSocketObj.MENTIONS)){
+                    mentions = dataJSON.getString(WebSocketObj.MENTIONS);
+                }
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))

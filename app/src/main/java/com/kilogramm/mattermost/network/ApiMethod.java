@@ -142,4 +142,12 @@ public interface ApiMethod {
     Observable<Map<String, User>> getDirectProfile();
 
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
+    Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
+                                     @Path("channelId") String channelId,
+                                     @Path("firstMessageId") String firstMessageId);
 }

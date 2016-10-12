@@ -1,9 +1,10 @@
-package com.kilogramm.mattermost.view.menu;
+package com.kilogramm.mattermost.rxtest;
 
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -12,21 +13,20 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
-import com.kilogramm.mattermost.presenter.GeneralPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 
+import icepick.Icepick;
 import nucleus.factory.RequiresPresenter;
 
 /**
- * Created by Evgeny on 28.07.2016.
+ * Created by Evgeny on 05.10.2016.
  */
-@RequiresPresenter(GeneralPresenter.class)
-public class GeneralActivity extends BaseActivity<GeneralPresenter> {
-
-
+@RequiresPresenter(GeneralRxPresenter.class)
+public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
     MenuDirectListFragment directListFragment;
@@ -38,12 +38,11 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
         setupRightMenu();
-
         MattermostService.Helper.create(this).startWebSocket();
     }
 
     private void setupRightMenu() {
-        binding.logout.setOnClickListener(view -> getPresenter().logout());
+        binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -84,22 +83,29 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
 
     private void replaceFragment(String channelId, String channelName){
         if(!channelId.equals(currentChannel)){
-            /*ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
+            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
-                    .replace(binding.contentFrame.getId(), fragmentMVP)
+                    .replace(binding.contentFrame.getId(), rxFragment)
                     .commit();
             binding.drawerLayout.closeDrawer(GravityCompat.START);
-        */}
+        }
     }
 
     public static void start(Context context, Integer flags ) {
-         Intent starter = new Intent(context, GeneralActivity.class);
-         if (flags != null) {
-             starter.setFlags(flags);
-         }
-         context.startActivity(starter);
+        Intent starter = new Intent(context, GeneralRxActivity.class);
+        if (flags != null) {
+            starter.setFlags(flags);
+        }
+        context.startActivity(starter);
     }
+
+    public void showMainRxActivity() {
+        MainRxAcivity.start(this,
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
     public void showErrorText(String text){
         Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
 
@@ -110,4 +116,5 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         super.onResume();
         MattermostService.Helper.create(this).updateUserStatusNow();
     }
+
 }

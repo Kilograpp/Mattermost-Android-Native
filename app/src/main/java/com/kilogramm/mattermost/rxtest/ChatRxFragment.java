@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.view.chat;
+package com.kilogramm.mattermost.rxtest;
 
 import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
@@ -34,30 +36,35 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
-import com.kilogramm.mattermost.presenter.ChatPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.ui.MRealmRecyclerView;
+import com.kilogramm.mattermost.view.chat.NewChatListAdapter;
+import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
+import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
 import java.util.Calendar;
 
+import icepick.State;
 import io.realm.Realm;
+import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
- * Created by Evgeny on 13.09.2016.
+ * Created by Evgeny on 06.10.2016.
  */
-@RequiresPresenter(ChatPresenter.class)
-public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements OnItemAddedListener, OnItemClickListener<Post> {
+@RequiresPresenter(ChatRxPresenter.class)
+public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
+        OnItemClickListener<Post>,OnMoreLoadListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private static final String TAG = "ChatFragmentMVP";
+    private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
 
@@ -65,18 +72,21 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
 
     private FragmentChatMvpBinding binding;
 
-    private String channelId;
+    @State
+    String channelId;
 
-    private String teamId;
+    @State
+    String teamId;
 
-    private String channelName;
+    @State
+    String channelName;
 
     private Realm realm;
 
-    private NewChatListAdapter adapter;
+    private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
-    private PostRepository  postRepository;
+    private PostRepository postRepository;
     private UserRepository userRepository;
 
     private BroadcastReceiver brReceiverTyping;
@@ -90,7 +100,7 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         this.teamId = realm.where(Team.class).findFirst().getId();
         this.postRepository = new PostRepository();
         this.userRepository = new UserRepository();
-        setupToolbar("",channelName,v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
+        getPresenter().initPresenter(teamId,channelId);
     }
 
     @Nullable
@@ -121,8 +131,14 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         };
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
-        getPresenter().getExtraInfo(teamId,
-                channelId);
+        getPresenter().requestExtraInfo();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPresenter().initPresenter(teamId,channelId);
+        setupToolbar("",channelName,v -> Toast.makeText(getActivity().getApplicationContext(), "In development", Toast.LENGTH_SHORT).show());
     }
 
     private void setDropDownUserList() {
@@ -136,8 +152,8 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         dropDownListAdapter.setUsers(realmResult);
     }
 
-    public static ChatFragmentMVP createFragment(String channelId, String channelName){
-        ChatFragmentMVP chatFragment = new ChatFragmentMVP();
+    public static ChatRxFragment createFragment(String channelId, String channelName){
+        ChatRxFragment chatFragment = new ChatRxFragment();
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
         bundle.putString(CHANNEL_NAME, channelName);
@@ -149,29 +165,16 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         RealmResults<Post> results = postRepository.query(new PostByChannelId(channelId));
         results.addChangeListener(element -> {
             if(adapter!=null){
-                if(results.size()-2 == binding.rev.findLastCompletelyVisibleItemPosition()){
+                if(results.size()-2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()){
                     onItemAdded();
                 }
             }
         });
-        adapter = new NewChatListAdapter(getActivity(), results, true, this);
+        adapter = new AdapterPost(getActivity(),results, this);
+        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
-        binding.rev.getRecycleView().addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-            }
-        });
+        binding.rev.setListener(this);
+        //setupPaginationListener();
     }
 
     @Override
@@ -207,7 +210,7 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         setMessage("");
         if(post.getMessage().length() != 0){
-            getPresenter().sendToServer(post, teamId,channelId);
+            getPresenter().requestSendToServer(post);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
@@ -215,16 +218,23 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
     } // +
 
     private void setupRefreshListener() {
-        binding.rev.getRecycleView().addOnScrollListener(new RecyclerView.OnScrollListener(){
+        binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener(){
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int bottomRow =
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount()-1;
-                binding.swipeRefreshLayout
-                        .setEnabled(bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
-                                .findLastCompletelyVisibleItemPosition());
+
+                if(bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
+                        .findLastCompletelyVisibleItemPosition()){
+                    binding.swipeRefreshLayout
+                            .setEnabled(true);
+                } else {
+                    binding.swipeRefreshLayout
+                            .setEnabled(false);
+                }
+
 
             }
 
@@ -234,10 +244,60 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
             }
         });
         binding.swipeRefreshLayout.setOnRefreshListener(direction -> {
-            getPresenter().initLoadNext();
-            getPresenter().loadPosts(teamId, channelId);
+            //getPresenter().initLoadNext();
+            Log.d("DISABLE", "disable loading");
+            binding.rev.disableShowLoadMoreTop();
+            binding.rev.disableShowLoadMoreBot();
+            binding.rev.setCanPagination(false);
+
+            postRepository.remove(new PostByChannelId(channelId));
+            getPresenter().requestLoadPosts();
         });
     }
+
+//    private void setupPaginationListener(){
+//        binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                tryPagination();
+//            }
+//        });
+//    }
+
+//    private void tryPagination() {
+//        int firstvisibleItem = ((LinearLayoutManager) binding.rev.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+//        int lastvisibleItem = ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition();
+//        int countItems = binding.rev.getAdapter().getItemCount();
+//        if(!showShowLoadMoreTop) {
+////            Log.d(TAG, "Log scrolling recyclerview: \n" +
+////                    "findFirstCompletelyVisibleItemPosition = " + firstvisibleItem + "\n" +
+////                    "findLastCompletelyVisibleItemPosition = " + lastvisibleItem + "\n" +
+////                    "countItem = " + binding.rev.getAdapter().getItemCount());
+//            if (firstvisibleItem < 2 && !((AdapterPost) binding.rev.getAdapter()).getTopLoading()) {
+//                Log.d(TAG, "Top Loader");
+//                this.enableShowLoadMoreTop();
+//                //((AdapterPost) binding.rev.getAdapter()).setLoadingTop(true);
+//            } else {
+//                // ((AdapterPost) binding.rev.getAdapter()).setLoadingTop(false);
+//            }
+//        }
+//        if(!showShowLoadMoreBot) {
+//            if (countItems - lastvisibleItem < 2 && !((AdapterPost) binding.rev.getAdapter()).getBottomLoading()) {
+//                Log.d(TAG, "Bottom loader");
+//                this.enableShowLoadMoreBot();
+//                //((AdapterPost) binding.rev.getAdapter()).setLoadingBottom(true);
+//            } else {
+//                //((AdapterPost) binding.rev.getAdapter()).setLoadingBottom(false);
+//            }
+//        }
+//
+//    }
 
     public void showEmptyList() {
         Log.d(TAG, "showEmptyList()");
@@ -255,6 +315,9 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
 
     public void setRefreshing(boolean b) {
         binding.swipeRefreshLayout.setRefreshing(false);
+        binding.rev.setCanPagination(true);
+        binding.rev.setCanPaginationTop(true);
+        binding.rev.setCanPaginationBot(true);
     }
 
     public void showTyping(){
@@ -271,9 +334,10 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
     }
 
 
+
     @Override
     public void onItemAdded() {
-        binding.rev.smoothScrollToPosition(binding.rev.getRecycleView().getAdapter().getItemCount()-1);
+        binding.rev.smoothScrollToPosition(binding.rev.getAdapter().getItemCount()-1);
     }
 
     public void addUserLinkMessage(String s){
@@ -310,7 +374,7 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
                                 dialogInterface.dismiss();
                             })
                             .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                getPresenter().deletePost(post,teamId,channelId);
+                                getPresenter().requestDeletePost(post);
                             })
                             .show();
                     break;
@@ -363,4 +427,36 @@ public class ChatFragmentMVP {}/*extends BaseFragment<ChatPresenter> implements 
         clipboard.setText(link);
         Toast.makeText(getActivity(),"link copied",Toast.LENGTH_SHORT).show();
     }
-}*/
+
+    @Override
+    public void onTopLoadMore() {
+        Log.d(TAG,"onTopLoadMore()");
+        getPresenter().requestLoadBefore();
+    }
+
+    @Override
+    public void onBotLoadMore() {
+        Log.d(TAG,"onBotLoadMore()");
+        getPresenter().requestLoadAfter();
+    }
+
+    public void disableShowLoadMoreTop() {
+        Log.d(TAG,"disableShowLoadMoreTop()");
+        binding.rev.disableShowLoadMoreTop();
+    }
+
+    public void disableShowLoadMoreBot() {
+        Log.d(TAG,"disableShowLoadMoreBot()");
+        binding.rev.disableShowLoadMoreBot();
+    }
+
+    public void setCanPaginationTop(Boolean aBoolean) {
+        disableShowLoadMoreTop();
+        binding.rev.setCanPaginationTop(aBoolean);
+    }
+
+    public void setCanPaginationBot(Boolean aBoolean) {
+        disableShowLoadMoreBot();
+        binding.rev.setCanPaginationBot(aBoolean);
+    }
+}
