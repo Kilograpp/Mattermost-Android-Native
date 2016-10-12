@@ -34,6 +34,7 @@ public class MainPresenter extends Presenter<MainActivity> {
 
     private static final String TAG = "MainPresenter";
 
+    // TODO к чему эта тудуха?
     //TODO pattern url null fix
     private static Pattern mPatternUrl = Patterns.WEB_URL;
 
@@ -48,7 +49,6 @@ public class MainPresenter extends Presenter<MainActivity> {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         mRealm = Realm.getDefaultInstance();
-
     }
 
     @Override

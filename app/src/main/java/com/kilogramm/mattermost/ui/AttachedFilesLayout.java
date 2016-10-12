@@ -1,26 +1,31 @@
 package com.kilogramm.mattermost.ui;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
+import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
-import com.kilogramm.mattermost.view.NucleusLinearLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.realm.Realm;
 import nucleus.factory.RequiresPresenter;
+import nucleus.view.NucleusLayout;
 
 /**
  * Created by kepar on 29.9.16.
  */
 @RequiresPresenter(AttachedFilesPresenter.class)
-public class AttachedFilesLayout extends NucleusLinearLayout<AttachedFilesPresenter> {
+public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
 
-    private static final String TAG = "AttachedFilesLayout";
+    AttachedFilesAdapter attachedFilesAdapter;
 
     public AttachedFilesLayout(Context context) {
         super(context);
@@ -55,22 +60,29 @@ public class AttachedFilesLayout extends NucleusLinearLayout<AttachedFilesPresen
 
     private void init(Context context) {
         inflate(context, R.layout.attached_files_layout, this);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().query());
+        recyclerView.setAdapter(attachedFilesAdapter);
     }
 
-    public void addItem(Uri uri, String teamId, String channelId){
-        showFile(uri);
-        getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+    public void addItem(List<Uri> uriList, String teamId, String channelId){
+        for (Uri uri : uriList) {
+            getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+        }
     }
 
-    private void showFile(Uri uri){
-        AttachedFileLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.attached_file_layout, this,false);
-        Glide.with(getContext())
-                .load(uri)
-                .override(150,150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
-                .thumbnail(0.1f)
-                .into(binding.imageView);
-        addView(binding.getRoot());
+    public List<String> getAttachedFiles(){
+        // lambda requires min API level 24, so use old method
+        List<String> fileNames = new ArrayList<>();
+        for (FileToAttach fileToAttach : attachedFilesAdapter.getData()) {
+            fileNames.add(fileToAttach.getFileName());
+        }
+        return fileNames;
+    }
+
+    public void setEmptyListListener(AttachedFilesAdapter.EmptyListListener emptyListListener) {
+        attachedFilesAdapter.setEmptyListListener(emptyListListener);
     }
 }

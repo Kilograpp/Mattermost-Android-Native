@@ -144,6 +144,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
+// TODO расскоментировать, как смержусь с Женей (melkshake)
             boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
 
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();

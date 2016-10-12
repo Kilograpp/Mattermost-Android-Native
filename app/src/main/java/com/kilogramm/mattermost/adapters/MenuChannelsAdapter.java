@@ -21,6 +21,7 @@ import io.realm.RealmBaseAdapter;
 /**
  * Created by Evgeny on 03.08.2016.
  */
+// TODO класс не используется
 public class MenuChannelsAdapter extends RealmBaseAdapter<Channel> implements ListAdapter{
 
     private static final String TAG = "MenuChannelsAdapter";
@@ -50,7 +51,7 @@ public class MenuChannelsAdapter extends RealmBaseAdapter<Channel> implements Li
         }
         Channel item = adapterData.get(position);
         if(viewHolder.binding.getViewModel() == null){
-            viewHolder.binding.setViewModel(new ItemChannelViewModel(context, item));
+            viewHolder.binding.setViewModel(new ItemChannelViewModel(item));
         } else {
             viewHolder.binding.getViewModel().setChannel(item);
         }

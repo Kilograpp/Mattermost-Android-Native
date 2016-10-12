@@ -9,6 +9,7 @@ import io.realm.annotations.Ignore;
 /**
  * Created by Evgeny on 17.08.2016.
  */
+// TODO класс не используется (Kepar)
 public class UserStatusList {
 
     @Expose

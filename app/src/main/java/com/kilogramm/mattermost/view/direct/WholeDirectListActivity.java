@@ -39,7 +39,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
-        View view = binding.getRoot();
         init();
         setRecycleView();
     }
@@ -57,6 +56,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
             usersIds.add(user.getId());
         }
 
+        // TODO говорят, не хорошо передавать ссылку на презентер внутрь адаптера
         adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
