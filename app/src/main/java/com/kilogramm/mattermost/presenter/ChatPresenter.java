@@ -158,7 +158,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             if (!post.isSystemMessage())
                                 post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
                             else
-                                post.setUser(new User("System"));
+                                post.setUser(new User("System","System","System"));
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
