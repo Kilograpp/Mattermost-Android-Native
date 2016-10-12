@@ -356,6 +356,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         Log.d(TAG, "Complete create post");
                         FileToAttachRepository.getInstance().clearData();
                         getView().setMessage("");
+                        getView().hideAttachedFilesLayout();
                     }
 
                     @Override
