@@ -140,10 +140,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 Log.d(TAG, obj.getEvent());
                 if (obj.getChannelId().equals(channelId)) {
                     getActivity().runOnUiThread(() -> showTyping());
+                    getActivity().runOnUiThread(() -> invalidateAdapter());
                 }
             }
         };
-        IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WebSocketObj.EVENT_TYPING);
+        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);

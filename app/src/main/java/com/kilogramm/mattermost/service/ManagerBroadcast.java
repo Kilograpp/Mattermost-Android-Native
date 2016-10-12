@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 
 import org.json.JSONArray;
@@ -34,8 +35,11 @@ public class ManagerBroadcast {
 
     public Context mContext;
 
+    private UserRepository userRepository;
+
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
+        this.userRepository = new UserRepository();
     }
 
     public WebSocketObj praseMessage(String message){
@@ -69,7 +73,9 @@ public class ManagerBroadcast {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
             case WebSocketObj.EVENT_POSTED:
-                String mentions = dataJSON.getString(WebSocketObj.MENTIONS);
+                String mentions = null;
+                if(dataJSON.has(WebSocketObj.MENTIONS))
+                    mentions = dataJSON.getString(WebSocketObj.MENTIONS);
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
@@ -99,6 +105,7 @@ public class ManagerBroadcast {
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
+                userRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()
