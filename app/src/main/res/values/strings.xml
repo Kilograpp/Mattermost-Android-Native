@@ -42,6 +42,7 @@
     <string name="copy_permalink">Copy Permalink</string>
     <string name="copy_link">Copy Link</string>
     <string name="edit_message">Edit message</string>
+    <string name="reply_message">Reply message</string>
 
     <string name="commented_on">Commented on</string>
     <string name="is_message">s message:</string>

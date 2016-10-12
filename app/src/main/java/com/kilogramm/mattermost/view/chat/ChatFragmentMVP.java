@@ -10,11 +10,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -46,6 +46,7 @@ import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -55,8 +56,12 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -78,9 +83,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final String CHANNEL_NAME = "channel_name";
     private static final String TEAM_ID = "team_id";
 
+    private static final String REPLY_MESSAGE = "reply_message";
+    private static final String EDIT_MESSAGE = "edit_message";
+
     private static final Integer TYPING_DURATION = 5000;
     private static final int PICKFILE_REQUEST_CODE = 5;
-    private static final int PERMISSIONS_REQUEST_CODE = 6;
+    private static final int WRITE_STORAGE_PERMISSION_REQUEST_CODE = 6;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 7;
 
     private static final int PICK_IMAGE = 1;
     private static final int CAMERA_PIC_REQUEST = 2;
@@ -93,6 +102,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private String channelId;
     private String teamId;
     private String channelName;
+
+    private Uri fileFromCamera;
+
+    private Post rootPost;
 
     private boolean isMessageTextOpen = false;
 
@@ -151,6 +164,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         getPresenter().getExtraInfo(teamId,
                 channelId);
         binding.attachedFilesLayout.setEmptyListListener(this);
+
+        binding.editReplyMessageLayout.close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                closeEditView();
+            }
+        });
     }
 
     private void searchMessage() {
@@ -161,7 +181,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     private void setBottomToolbarOnClickListeners() {
         binding.bottomToolbar.writeText.setOnClickListener(view -> OnClickAddText());
-        binding.bottomToolbar.makePhoto.setOnClickListener(view -> OnClickMakePhoto());
+        binding.bottomToolbar.makePhoto.setOnClickListener(view -> makePhoto());
         binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> OnClickOpenGallery());
         binding.bottomToolbar.addDocs.setOnClickListener(view -> OnClickChooseDoc());
     }
@@ -276,7 +296,12 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     public void setBtnSendOnClickListener() {
-        binding.btnSend.setOnClickListener(view -> sendMessage());
+        binding.btnSend.setOnClickListener(view -> {
+            if (!binding.btnSend.getText().equals("Save"))
+                sendMessage();
+            else
+                editMessage();
+        });
     }
 
     public void setButtonAddFileOnClickListener() {
@@ -291,7 +316,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == CAMERA_PIC_REQUEST) {
-                Bitmap image = (Bitmap) data.getExtras().get("data");
+                pickedFiles.add(fileFromCamera);
             }
             if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
@@ -319,14 +344,14 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         }
         if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
             if (data != null) {
-                if(data.getData() != null) {
+                if (data.getData() != null) {
                     Uri uri = data.getData();
                     List<Uri> uriList = new ArrayList<>();
                     uriList.add(uri);
                     attachFiles(uriList);
-                } else if (data.getClipData() != null){
+                } else if (data.getClipData() != null) {
                     ClipData clipData = data.getClipData();
-                    for(int i = 0; i < clipData.getItemCount(); i++){
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
                         List<Uri> uriList = new ArrayList<>();
                         uriList.add(clipData.getItemAt(i).getUri());
                         attachFiles(uriList);
@@ -334,7 +359,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         }
-        if(pickedFiles.size() > 0){
+        if (pickedFiles.size() > 0) {
             attachFiles(pickedFiles);
         }
     }
@@ -349,11 +374,18 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE: {
+            case WRITE_STORAGE_PERMISSION_REQUEST_CODE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openFilePicker();
+                }
+            }
+            case CAMERA_PERMISSION_REQUEST_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    dispatchTakePictureIntent();
                 }
             }
         }
@@ -366,6 +398,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setChannelId(channelId);
         post.setCreateAt(getTimePost());
         post.setMessage(getMessage());
+        if (rootPost != null) {
+            post.setRootId(rootPost.getId());
+            closeEditView();
+        }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
@@ -373,6 +409,20 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         if (post.getMessage().length() != 0) {
             getPresenter().sendToServer(post, teamId, channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
+        } else {
+            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+        }
+    } // +
+
+    private void editMessage() {
+        PostEdit postEdit = new PostEdit();
+        postEdit.setId(rootPost.getId());
+        postEdit.setChannelId(channelId);
+        postEdit.setMessage(getMessage());
+        closeEditView();
+        if (postEdit.getMessage().length() != 0) {
+            setMessage("");
+            getPresenter().editPost(postEdit, teamId, channelId);
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
@@ -394,7 +444,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSIONS_REQUEST_CODE);
+                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
             } else {
                 openFilePicker();
             }
@@ -507,6 +557,66 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
     }
 
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createTempImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+/*
+                Uri photoURI = FileProvider.getUriForFile(getActivity(),
+                        "com.example.android.fileprovider",
+                        photoFile);
+*/
+                fileFromCamera = Uri.fromFile(photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
+                startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
+            }
+        }
+    }
+
+    private void makePhoto() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        CAMERA_PERMISSION_REQUEST_CODE);
+            } else {
+                dispatchTakePictureIntent();
+            }
+        } else {
+            dispatchTakePictureIntent();
+        }
+    }
+
+    public File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + "/Mattermost");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",                          /* suffix */
+                storageDir                       /* directory */
+        );
+    }
+
+
     public void OnClickOpenGallery() {
         openFile(getActivity(), "image/*", PICK_IMAGE);
     }
@@ -580,7 +690,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     R.layout.edit_dialog_layout, null, false);
             switch (menuItem.getItemId()) {
                 case R.id.edit:
-                    showEditView(Html.fromHtml(post.getMessage()).toString());
+                    rootPost = post;
+                    showEditView(Html.fromHtml(post.getMessage()).toString(), EDIT_MESSAGE);
                     break;
                 case R.id.delete:
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
@@ -607,6 +718,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                             .show();
                     break;
                 case R.id.reply:
+                    rootPost = post;
+                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -614,14 +727,27 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         popupMenu.show();
     }
 
-    private void showEditView(String message) {
+    private void showEditView(String message, String type) {
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
-        binding.editMessageLayout.editableText.setText(message);
-        binding.editMessageLayout.root.startAnimation(upAnim);
+        if (type.equals(REPLY_MESSAGE))
+            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
+        else {
+            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+            binding.btnSend.setText(R.string.save);
+        }
+        binding.editReplyMessageLayout.editableText.setText(message);
+        binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
-        binding.editMessageLayout.getRoot().setVisibility(View.VISIBLE);
+        binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
+    }
+
+    private void closeEditView() {
+        binding.editReplyMessageLayout.editableText.setText(null);
+        binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
+        rootPost = null;
+        binding.btnSend.setText("Send");
     }
 
     private String getMessageLink(String postId) {
@@ -643,7 +769,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
-    public void hideAttachedFilesLayout(){
+    public void hideAttachedFilesLayout() {
         binding.attachedFilesLayout.setVisibility(View.GONE);
     }
 

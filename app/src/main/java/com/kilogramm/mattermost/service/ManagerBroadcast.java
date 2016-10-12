@@ -77,9 +77,9 @@ public class ManagerBroadcast {
                 if(dataJSON.has(WebSocketObj.MENTIONS))
                     mentions = dataJSON.getString(WebSocketObj.MENTIONS);
                 data = new WebSocketObj.BuilderData()
-                        .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
-                        .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
-                        .setMentions((mentions!=null)
+                                .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
+                                .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
+                                .setMentions((mentions!=null)
                                         ?mentions
                                         :"")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
