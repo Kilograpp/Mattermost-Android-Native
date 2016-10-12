@@ -14,7 +14,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -78,6 +77,9 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private static final String CHANNEL_NAME = "channel_name";
     private static final String TEAM_ID = "team_id";
 
+    private static final String REPLY_MESSAGE = "reply_message";
+    private static final String EDIT_MESSAGE = "edit_message";
+
     private static final Integer TYPING_DURATION = 5000;
     private static final int PICKFILE_REQUEST_CODE = 5;
     private static final int PERMISSIONS_REQUEST_CODE = 6;
@@ -93,6 +95,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     private String channelId;
     private String teamId;
     private String channelName;
+
+    private String rootPostId;
 
     private boolean isMessageTextOpen = false;
 
@@ -148,6 +152,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         getPresenter().getExtraInfo(teamId,
                 channelId);
         binding.attachedFilesLayout.setEmptyListListener(this);
+
+        binding.editReplyMessageLayout.close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                closeEditView();
+            }
+        });
     }
 
     private void searchMessage() {
@@ -363,10 +374,14 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         post.setChannelId(channelId);
         post.setCreateAt(getTimePost());
         post.setMessage(getMessage());
+        if(rootPostId != null) {
+            post.setRootId(rootPostId);
+            closeEditView();
+        }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-
+        setMessage("");
         if (post.getMessage().length() != 0) {
             getPresenter().sendToServer(post, teamId, channelId);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -577,7 +592,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                     R.layout.edit_dialog_layout, null, false);
             switch (menuItem.getItemId()) {
                 case R.id.edit:
-                    showEditView(Html.fromHtml(post.getMessage()).toString());
+                    showEditView(Html.fromHtml(post.getMessage()).toString(), EDIT_MESSAGE);
                     break;
                 case R.id.delete:
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
@@ -604,6 +619,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                             .show();
                     break;
                 case R.id.reply:
+                    rootPostId = post.getId();
+                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -611,14 +628,24 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         popupMenu.show();
     }
 
-    private void showEditView(String message) {
+    private void showEditView(String message, String type) {
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
-        binding.editMessageLayout.editableText.setText(message);
-        binding.editMessageLayout.root.startAnimation(upAnim);
+        if(type.equals(REPLY_MESSAGE))
+            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
+        else
+            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+        binding.editReplyMessageLayout.editableText.setText(message);
+        binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
-        binding.editMessageLayout.getRoot().setVisibility(View.VISIBLE);
+        binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
+    }
+
+    private void closeEditView() {
+        binding.editReplyMessageLayout.editableText.setText(null);
+        binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
+        rootPostId = null;
     }
 
     private String getMessageLink(String postId) {

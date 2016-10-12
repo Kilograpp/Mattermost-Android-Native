@@ -395,14 +395,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         getView().onItemAdded();
                         Log.d(TAG, "Complete create post");
                         FileToAttachRepository.getInstance().clearData();
-                        getView().setMessage("");
                         getView().hideAttachedFilesLayout();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         setErrorPost(sendedPostId);
-                        getView().setMessage("");
                         e.printStackTrace();
                         Log.d(TAG, "Error create post " + e.getMessage());
                     }
