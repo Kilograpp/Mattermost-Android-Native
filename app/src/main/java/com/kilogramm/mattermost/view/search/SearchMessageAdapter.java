@@ -119,7 +119,6 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
             binding.foundMessage.setText(post.getMessage());
 
-
             Picasso.with(binding.avatarDirect.getContext())
                     .load(getImageUrl(user.first().getId()))
                     .resize(60, 60)
