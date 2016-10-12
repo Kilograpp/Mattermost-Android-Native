@@ -36,6 +36,7 @@
                 android:layout_height="wrap_content">
                 <TextView
                     android:paddingBottom="10dp"
+                    android:id="@+id/title"
                     android:textColor="@color/colorPrimaryDark"
                     android:text="@string/edit_message"
                     android:layout_width="wrap_content"
@@ -49,6 +50,7 @@
             </LinearLayout>
             <ImageView
                 android:padding="4dp"
+                android:id="@+id/close"
                 android:src="@drawable/ic_close_grey_24dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

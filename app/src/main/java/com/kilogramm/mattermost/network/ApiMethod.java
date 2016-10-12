@@ -6,6 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
@@ -168,7 +169,7 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
     Observable<Post> editPost(@Path("teamId") String teamId,
                                 @Path("channelId") String channelId,
-                                @Body Post post);
+                                @Body PostEdit post);
 
     @Headers({
             "Accept: application/json",

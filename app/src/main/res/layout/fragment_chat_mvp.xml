@@ -100,7 +100,7 @@
                 tools:text="typing..." />
 
             <include
-                android:id="@+id/edit_message_layout"
+                android:id="@+id/edit_reply_message_layout"
                 layout="@layout/edit_message_layout" />
 
             <com.kilogramm.mattermost.ui.AttachedFilesLayout
