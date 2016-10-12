@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#258ad7</color>
+    <!--<color name="colorPrimary">#258ad7</color>-->
     <color name="colorPrimaryDark">#227dc2</color>
     <color name="colorAccent">#FF4081</color>
 
@@ -21,5 +21,10 @@
     <color name="file_picker_icon">#e7c702</color>
 
     <color name="comment_cardview_Background">#f7f7f7</color>
+
+    <!--Avocode colors-->
+    <color name="colorPrimary">#2380c2</color>
+    <color name="hint_grey">#767676</color>
+    <color name="color_highlight">#d3ddfb</color>
 
 </resources>

@@ -28,6 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textStyle="bold"
                 android:layout_marginEnd="@dimen/search_some_margin"
                 tools:text="DATE" />
         </LinearLayout>
@@ -69,13 +70,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_start"
                         android:layout_weight="1"
+                        android:textStyle="bold"
                         tools:text="userName"
                         android:textColor="@color/black" />
                     <TextView
                         android:id="@+id/postedTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin_start"
                         android:layout_weight="4"
                         tools:text="postedTime"
                         android:textColor="@color/light_grey" />

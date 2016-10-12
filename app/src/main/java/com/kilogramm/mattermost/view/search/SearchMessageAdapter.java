@@ -16,7 +16,6 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 import io.realm.OrderedRealmCollection;
@@ -34,11 +33,14 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
 
     private OnJumpClickListener jumpClickListener;
+    private static String terms;
 
     public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
-                                boolean autoUpdate, OnJumpClickListener listener) {
+                                boolean autoUpdate, OnJumpClickListener listener,
+                                String terms) {
         super(context, data, autoUpdate);
         this.jumpClickListener = listener;
+        this.terms = terms;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (jumpClickListener != null) {
-                jumpClickListener.onJumpClick(messageId, channelId, channelName);
+                jumpClickListener.onJumpClick(messageId, channelId, channelName, holder.isChannel());
             }
         });
     }
@@ -66,6 +68,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         private ItemSearchResultBinding binding;
         private Realm realm;
+        private boolean isChannel;
 
         private MyViewHolder(ItemSearchResultBinding binding) {
             super(binding.getRoot());
@@ -84,12 +87,21 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             binding.postedDate.setText(DateOrTimeConvert(post.getCreateAt(), false));
 
             String chName = channel.first().getName();
+
+            if (Pattern.matches(".+\\w[_].+\\w", chName)) {
+                binding.chatName.setText(this.getChatName(chName));
+                isChannel = false;
+            } else {
+                binding.chatName.setText(chName);
+                isChannel = true;
+            }
+
             binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
 
             binding.userName.setText(user.first().getUsername());
-            binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
             binding.foundMessage.setText(post.getMessage());
+
             Picasso.with(binding.avatarDirect.getContext())
                     .load(getImageUrl(user.first().getId()))
                     .resize(60, 60)
@@ -100,6 +112,10 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(binding.avatarDirect);
+        }
+
+        public boolean isChannel() {
+            return isChannel;
         }
 
         public ItemSearchResultBinding getmBinding() {
@@ -120,13 +136,14 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     public static String DateOrTimeConvert(Long createAt, boolean isTime) {
         Date dateTime = new Date(createAt);
         if (isTime) {
-            return new SimpleDateFormat("hh:mm").format(dateTime);
+            return new SimpleDateFormat("HH:mm").format(dateTime);
+//            return new SimpleDateFormat("hh:mm a").format(dateTime);
         } else {
             return new SimpleDateFormat("dd.MM.yyyy").format(dateTime);
         }
     }
 
     public interface OnJumpClickListener {
-        void onJumpClick(String messageId, String channelId, String channelName);
+        void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel);
     }
 }

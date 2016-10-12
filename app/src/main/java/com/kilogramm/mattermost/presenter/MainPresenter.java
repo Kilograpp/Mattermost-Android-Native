@@ -103,7 +103,7 @@ public class MainPresenter extends Presenter<MainActivity> {
                     @Override
                     public void onErrorMattermost(HttpError httpError, Throwable e) {
                         getView().setShowProgress(false);
-                        getView().showErrorText(httpError.getMessage());
+                        getView().showErrorText(e.getLocalizedMessage());
                     }
 
                     @Override
@@ -137,5 +137,4 @@ public class MainPresenter extends Presenter<MainActivity> {
         Matcher m = mPatternUrl.matcher(url);
         return m.matches();
     }
-
 }

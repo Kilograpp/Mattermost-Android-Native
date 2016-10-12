@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -12,7 +11,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <ImageView
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
@@ -20,7 +18,6 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/search_image_margin_start"
                 android:src="@drawable/ic_back" />
-
             <EditText
                 android:id="@+id/searchText"
                 style="@style/DescriptionBlackTextStyle"
@@ -33,7 +30,6 @@
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:singleLine="true" />
-
             <ImageView
                 android:id="@+id/btnClear"
                 android:layout_width="wrap_content"
@@ -61,33 +57,49 @@
             app:mpb_progressStyle="circular" />
 
         <LinearLayout
-            android:id="@+id/defaultContainer"
+            android:id="@+id/searchResultContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
             android:orientation="vertical">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:layout_marginTop="20dp"
-                android:text="@string/no_results_found"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
-            <TextView
+                android:id="@+id/defaultMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:text="@string/default_text"
-                android:textColor="@color/black" />
+                android:layout_marginTop="100dp"
+                android:text="@string/default_message"
+                android:textColor="@color/hint_grey"
+                android:textSize="15sp"
+                android:gravity="center"/>
+            <LinearLayout
+                android:id="@+id/defaultContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/no_results_found"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="@string/default_text"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recViewSearchResultList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
         </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recViewSearchResultList"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
     </LinearLayout>
 </layout>
