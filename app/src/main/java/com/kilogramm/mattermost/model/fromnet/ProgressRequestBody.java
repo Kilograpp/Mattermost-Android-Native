@@ -2,6 +2,9 @@ package com.kilogramm.mattermost.model.fromnet;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,12 +25,19 @@ public class ProgressRequestBody extends RequestBody {
 
     private static final int DEFAULT_BUFFER_SIZE = 2048;
 
+    FileToAttachRepository fileToAttachRepository;
+
     public ProgressRequestBody(final File file, String mediaType, final  UploadCallbacks listener) {
-        mFile = file;
+        this(file, mediaType);
         mListener = listener;
+    }
+
+    public ProgressRequestBody(final File file, String mediaType) {
+        mFile = file;
         if(mediaType != null && mediaType.length() > 0) {
             mMediaType = mediaType;
         }
+        fileToAttachRepository = new FileToAttachRepository();
     }
 
     @Override
@@ -44,22 +54,23 @@ public class ProgressRequestBody extends RequestBody {
     public void writeTo(BufferedSink sink) throws IOException {
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        FileInputStream in = new FileInputStream(mFile);
         long uploaded = 0;
 
-        try {
+        try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             Handler handler = new Handler(Looper.getMainLooper());
             while ((read = in.read(buffer)) != -1) {
 
                 // update progress on UI thread
-                handler.post(new ProgressUpdater(uploaded, fileLength));
+//                handler.post(new ProgressUpdater(uploaded, fileLength));
 
                 uploaded += read;
+
+                fileToAttachRepository.updateProgress(mFile.getName(), (int) (100 * uploaded / fileLength));
+                Log.d("Progress", String.valueOf(100 * uploaded / fileLength));
+
                 sink.write(buffer, 0, read);
             }
-        } finally {
-            in.close();
         }
     }
 

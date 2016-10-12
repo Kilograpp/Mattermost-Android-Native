@@ -15,7 +15,7 @@ import rx.Subscriber;
 public abstract class MattermostHttpSubscriber<T> extends Subscriber<T> {
     @Override
     public void onError(Throwable e) {
-        HttpError error = null;
+        HttpError error;
         if(e instanceof HttpException){
             try {
                 error = new Gson()

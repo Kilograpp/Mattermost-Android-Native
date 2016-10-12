@@ -10,6 +10,7 @@ import io.realm.RealmList;
 /**
  * Created by Evgeny on 28.07.2016.
  */
+// TODO класс не используется (Kepar)
 public class AfterLoginData {
 
     @SerializedName("client_cfg")

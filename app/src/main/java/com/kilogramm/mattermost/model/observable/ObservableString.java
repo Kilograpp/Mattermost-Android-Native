@@ -9,6 +9,7 @@ import java.io.Serializable;
 /**
  * Created by Evgeny on 26.07.2016.
  */
+// TODO класс не используется
 public class ObservableString extends BaseObservable implements Parcelable, Serializable{
 
     static final long serialVersionUID = 1L;
@@ -52,7 +53,8 @@ public class ObservableString extends BaseObservable implements Parcelable, Seri
     public ObservableString() {
     }
 
-    protected ObservableString(Parcel in) {
+    // TODO заменил модификатор доступа с protected на private, потому что студия рекомендовала (Kepar)
+    private ObservableString(Parcel in) {
         this.mValue = in.readString();
     }
 

@@ -144,7 +144,7 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
 
         public void bindTo(Channel channel, Context context) {
             if(mBinding.getViewModel() == null){
-                mBinding.setViewModel(new ItemChannelViewModel(context, channel));
+                mBinding.setViewModel(new ItemChannelViewModel(channel));
             } else {
                 mBinding.getViewModel().setChannel(channel);
             }

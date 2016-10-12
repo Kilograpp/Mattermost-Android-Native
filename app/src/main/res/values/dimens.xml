@@ -16,10 +16,22 @@
     <dimen name="status_margin_bottom">3dp</dimen>
     <dimen name="status_margin_end">8dp</dimen>
 
-
-
     <dimen name="comment_margin_element">10dp</dimen>
     <dimen name="comment_margin_text">20dp</dimen>
     <dimen name="image_comment_size">20dp</dimen>
+
+    <!--Bottom toolbar-->
+    <dimen name="bottom_toolbar_icon_size">20dp</dimen>
+    <dimen name="bottom_toolbar_margin">10dp</dimen>
+
+    <!--Search-->
+    <dimen name="search_image_margin_start">15dp</dimen>
+    <dimen name="search_image_margin_end">20dp</dimen>
+    <dimen name="search_edit_text_margin">10dp</dimen>
+    <dimen name="search_view_margin">10dp</dimen>
+    <dimen name="search_margin">10dp</dimen>
+    <dimen name="search_double_margin">20dp</dimen>
+    <dimen name="search_some_margin">15dp</dimen>
+    <dimen name="search_margin_top_bottom">5dp</dimen>
 
 </resources>

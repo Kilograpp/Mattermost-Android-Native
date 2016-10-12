@@ -27,15 +27,12 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     private static final String TAG = "ItemChatViewModel";
 
     private Post post;
-    private Context context;
-    private ImageView targetImageView;
     private ObservableInt titleVisibility;
     private ObservableInt controlMenuVisibility;
     private ObservableInt progressSendVisibility;
     private ObservableInt progressErrorSendVisibility;
 
-    public ItemChatViewModel(Context context, Post post) {
-        this.context = context;
+    public ItemChatViewModel(Post post){
         this.post = post;
         this.titleVisibility = new ObservableInt(View.GONE);
         this.controlMenuVisibility = new ObservableInt(View.VISIBLE);
@@ -43,7 +40,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         this.progressErrorSendVisibility = new ObservableInt(View.VISIBLE);
     }
 
-    public ItemChatViewModel() {
+    public ItemChatViewModel(){
 
     }
 
@@ -52,19 +49,18 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getNick() {
-        if (post.getUser() != null)
+        if(post.getUser()!=null)
             return post.getUser().getUsername();
         else
             return "";
     }
 
-    public String getImageUrl() {
-        return getUrl(post);
-
+    public String getImageUrl(){
+       return getUrl(post);
     }
 
     public String getUrl(Post post) {
-        if (post.getUser() != null && !post.isSystemMessage()) {
+        if(post.getUser()!=null && !post.isSystemMessage()){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/users/"
@@ -75,8 +71,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         }
     }
 
-    public String getTime() {
-        if (post != null) {
+    public String getTime(){
+        if(post != null){
             Date postDate = new Date(post.getCreateAt());
             SimpleDateFormat format = new SimpleDateFormat("h:mm a");
             return format.format(postDate);
@@ -85,13 +81,13 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         }
     }
 
-    public String getTitle() {
-        if (post != null) {
+    public String getTitle(){
+        if(post!=null){
             SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy");
             return format.format(post.getCreateAt());
         } else {
             titleVisibility.set(View.GONE);
-            return "";
+            return  "";
         }
     }
 
@@ -117,17 +113,16 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     @BindingAdapter("bind:items")
-    public static void setItems(FilesView v, Post post) {
+    public static void setItems(FilesView v, Post post){
         for (String s : post.getFilenames()) {
-            Log.d(TAG, "post " + post.getMessage() + "\n" + post.getFilenames());
+            Log.d(TAG, "post "+ post.getMessage() +"\n"+ s);
         }
         v.setItems(post.getFilenames());
     }
 
-
     @Override
     public void destroy() {
-        context = null;
+
     }
 
     @Override
@@ -167,7 +162,6 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
             view.setImageResource(R.drawable.ic_system_grey_24dp);
         }
     }
-
 
     public ObservableInt getTitleVis() {
         return titleVisibility;

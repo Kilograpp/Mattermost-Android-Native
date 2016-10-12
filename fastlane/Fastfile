@@ -9,7 +9,7 @@ platform :android do
       task: "assemble",
       build_type: "Release",
       properties: {
-	       "versionCode" => number_of_commits,
+	       "versionCode" => ENV['TRAVIS_BUILD_NUMBER'],
 	       "versionName" => ENV['VERSION_NAME']
       }
      )
@@ -30,18 +30,20 @@ platform :android do
 
   after_all do |lane|
     versionName = ENV['VERSION_NAME']
+    versionCode = ENV['TRAVIS_BUILD_NUMBER']
     slack(
       channel: "mattermost-android",
-      message: "**#{versionName}** - successfully distributed version **#{number_of_commits}**:rocket:",
+      message: "**#{versionName}** - successfully distributed version **#{versionCode}**:rocket:",
       default_payloads: []
     )
   end
 
   error do |lane, exception|
+    versionCode = ENV['TRAVIS_BUILD_NUMBER']
     versionName = ENV['VERSION_NAME']
     slack(
       channel: "mattermost-android",
-      message: "**#{versionName}** - failed to distribute version **#{number_of_commits}**:exclamation:",
+      message: "**#{versionName}** - failed to distribute version **#{versionCode}**:exclamation:",
       default_payloads: [],
       success: false
     )

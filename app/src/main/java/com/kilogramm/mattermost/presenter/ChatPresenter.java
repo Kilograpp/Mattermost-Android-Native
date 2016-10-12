@@ -14,6 +14,7 @@ import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
@@ -30,8 +31,6 @@ import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -58,8 +57,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     private Boolean isLoadNext = true;
     private PostRepository postRepository;
     private UserRepository userRepository;
-
-    private List<String> fileNames;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -198,7 +195,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
-                        Log.d(TAG, "Error");
                     }
 
                     @Override
@@ -223,6 +219,85 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
+    /******************************** for search **************************/
+
+    public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsAfter(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        if (getView() != null)
+                            getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                    }
+                });
+    }
+
+    public void loadPostsBefore(String teamId, String channelId, String postId, String offset, String limit ) {
+        if (mSubscription != null && !mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+
+        ApiMethod service;
+        service = mMattermostApp.getMattermostRetrofitService();
+
+        mSubscription = service.getPostsBefore_search(teamId, channelId, postId, offset, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Posts>() {
+                    @Override
+                    public void onCompleted() {
+                        if (getView() != null)
+                            getView().showList();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Posts posts) {
+
+                        RealmList<Post> realmList = new RealmList<>();
+                        for (Post post : posts.getPosts().values()) {
+                            User user = userRepository.query(new UserByIdSpecification(post.getUserId())).first();
+                            post.setUser(user);
+                            post.setViewed(true);
+                            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                        }
+                        realmList.addAll(posts.getPosts().values());
+                        postRepository.add(realmList);
+                    }
+                });
+    }
+
+/*******************************************************************************/
+
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
             @Override
@@ -238,11 +313,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                     else
                         getUsers(charSequence.toString());
                 else
-                try { //TODO удалить как решиться баг с морганием каналов
                     getView().setDropDown(null);
-                } catch (NullPointerException e){
-                    e.printStackTrace();
-                }
             }
 
             @Override
@@ -266,10 +337,13 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         return id;
     }
 
-
     public void sendToServerError(Post sendedPost, String teamId, String channelId) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+            return;
+        }
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
+
         String sendedPostId = sendedPost.getPendingPostId();
         sendedPost.setUpdateAt(null);
         postRepository.update(sendedPost);
@@ -304,12 +378,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void sendToServer(Post sendedPost, String teamId, String channelId) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+            return;
+        }
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
-        sendedPost.setFilenames(fileNames);
-        Log.d("CreateAt", "sendToServer: " + sendedPost.getCreateAt());
         String sendedPostId = sendedPost.getPendingPostId();
-        sendedPost.setId(null);
         ApiMethod service = mMattermostApp.getMattermostRetrofitService();
         mSubscription = service.sendPost(teamId, channelId, sendedPost)
                 .subscribeOn(Schedulers.newThread())
@@ -320,11 +394,14 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         updateLastViewedAt(teamId, channelId);
                         getView().onItemAdded();
                         Log.d(TAG, "Complete create post");
+                        FileToAttachRepository.getInstance().clearData();
+                        getView().setMessage("");
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         setErrorPost(sendedPostId);
+                        getView().setMessage("");
                         e.printStackTrace();
                         Log.d(TAG, "Error create post " + e.getMessage());
                     }
@@ -435,8 +512,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         @Override
                         public void onNext(FileUploadResponse fileUploadResponse) {
                             Log.d(TAG, fileUploadResponse.toString());
-                            if (fileNames == null) fileNames = new ArrayList<>();
-                            fileNames.addAll(fileUploadResponse.getFilenames());
                         }
                     });
         } else {

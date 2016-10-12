@@ -4,6 +4,7 @@ import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -93,6 +94,28 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/after/{offset}/{limit}")
+    Observable<Posts> getPostsAfter(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId,
+                                    @Path("post_id") String postId,
+                                    @Path("offset") String offset,
+                                    @Path("limit") String limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/before/{offset}/{limit}")
+    Observable<Posts> getPostsBefore_search(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId,
+                                    @Path("post_id") String postId,
+                                    @Path("offset") String offset,
+                                    @Path("limit") String limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);
@@ -170,4 +193,12 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST ("api/v3/preferences/save")
     Observable<Boolean> save(@Body List<SaveData> saveData);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/posts/search")
+    Observable<Posts> searchForPosts(@Path("team_id") String team_id,
+                                     @Body SearchParams searchParams);
 }

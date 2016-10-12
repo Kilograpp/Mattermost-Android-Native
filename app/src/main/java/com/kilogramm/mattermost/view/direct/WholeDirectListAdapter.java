@@ -24,10 +24,11 @@ import io.realm.RealmViewHolder;
  */
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
     static WholeDirectListPresenter mWholeDirectListPresenter;
+    // TODO иметь статическую ссылку на контекст очень плохо. Поправь. Или я могу поправить, если хошь =) (Kepar)
     private static Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
-    private ArrayList<String> mUsersIds = new ArrayList<>();
+    private ArrayList<String> mUsersIds;
 
     public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
                                   WholeDirectListPresenter wholeDirectListPresenter,
@@ -77,6 +78,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         }
 
         public void bindTo(User user) {
+
             directBinding.directProfileName.setText(user.getUsername());
 
             StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
@@ -98,6 +100,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(directBinding.avatarDirect);
+
         }
 
         public ItemDirectListBinding getmBinding() {

@@ -39,7 +39,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
-        View view = binding.getRoot();
         init();
         setRecycleView();
     }
@@ -51,15 +50,15 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     }
 
     public void setRecycleView() {
-        RealmResults<User> users = realm.where(User.class).isNotNull("id").findAllSorted("username");
+        RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
         ArrayList<String> usersIds = new ArrayList<>();
         for (User user : users) {
             usersIds.add(user.getId());
         }
 
+        // TODO говорят, не хорошо передавать ссылку на презентер внутрь адаптера
         adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
-
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
     }
@@ -76,7 +75,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     @Override
     public void onDirectClick(String itemId, String name) {
-        Intent intent = new Intent()
+        Intent intent = new Intent(this, WholeDirectListActivity.class)
                 .putExtra(USER_ID, itemId)
                 .putExtra(NAME, name);
         setResult(Activity.RESULT_OK, intent);
