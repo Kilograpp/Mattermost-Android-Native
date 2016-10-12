@@ -23,7 +23,7 @@ public class ProgressRequestBody extends RequestBody {
     private String mMediaType = "*"; // also can use: "application/octet-stream"
     private UploadCallbacks mListener;
 
-    private static final int DEFAULT_BUFFER_SIZE = 2048;
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
 
     FileToAttachRepository fileToAttachRepository;
 
@@ -58,17 +58,11 @@ public class ProgressRequestBody extends RequestBody {
 
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
-            Handler handler = new Handler(Looper.getMainLooper());
             while ((read = in.read(buffer)) != -1) {
-
                 // update progress on UI thread
 //                handler.post(new ProgressUpdater(uploaded, fileLength));
-
                 uploaded += read;
-
                 fileToAttachRepository.updateProgress(mFile.getName(), (int) (100 * uploaded / fileLength));
-                Log.d("Progress", String.valueOf(100 * uploaded / fileLength));
-
                 sink.write(buffer, 0, read);
             }
         }
