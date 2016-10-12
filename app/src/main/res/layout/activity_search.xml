@@ -11,7 +11,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <ImageView
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
@@ -19,7 +18,6 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/search_image_margin_start"
                 android:src="@drawable/ic_back" />
-
             <EditText
                 android:id="@+id/searchText"
                 style="@style/DescriptionBlackTextStyle"
@@ -32,7 +30,6 @@
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:singleLine="true" />
-
             <ImageView
                 android:id="@+id/btnClear"
                 android:layout_width="wrap_content"
@@ -70,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100dp"
                 android:text="@string/default_message"
-                android:textColor="@color/grey"
+                android:textColor="@color/hint_grey"
                 android:textSize="15sp"
                 android:gravity="center"/>
             <LinearLayout

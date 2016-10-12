@@ -59,10 +59,15 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
         binding.searchText.setOnEditorActionListener(this);
         binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnClear.setOnClickListener(v -> binding.searchText.setText(""));
+        binding.btnClear.setOnClickListener(v -> {
+            binding.searchText.setText("");
+            DefaultMessageVisibility(true);
+            SearchResultVisibility(false);
+            DefaultVisibility(false);
+        });
     }
 
-    public void setRecycleView() {
+    public void setRecycleView(String terms) {
         RealmQuery<Post> query = realm.where(Post.class);
         RealmResults<FoundMessagesIds> foundMessageId = realm.where(FoundMessagesIds.class).findAll();
         if (foundMessageId.size() != 0) {
@@ -78,7 +83,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.recViewSearchResultList.setVisibility(View.VISIBLE);
         binding.defaultContainer.setVisibility(View.GONE);
 
-        adapter = new SearchMessageAdapter(this, query.findAll(), true, this);
+        adapter = new SearchMessageAdapter(this, query.findAll(), true, this, terms);
         binding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
         binding.recViewSearchResultList.setAdapter(adapter);
     }

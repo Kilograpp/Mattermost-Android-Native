@@ -67,7 +67,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                     public void onCompleted() {
                         getView().ProgressBarVisibility(false);
                         if (!isSearchEmpty) {
-                            getView().setRecycleView();
+                            getView().setRecycleView(terms);
                         }
                     }
 

@@ -4,6 +4,10 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -17,6 +21,7 @@ import com.squareup.picasso.Picasso;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.OrderedRealmCollection;
@@ -34,11 +39,14 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
 
     private OnJumpClickListener jumpClickListener;
+    private static String terms;
 
     public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
-                                boolean autoUpdate, OnJumpClickListener listener) {
+                                boolean autoUpdate, OnJumpClickListener listener,
+                                String terms) {
         super(context, data, autoUpdate);
         this.jumpClickListener = listener;
+        this.terms = terms;
     }
 
     @Override
@@ -97,9 +105,21 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
 
             binding.userName.setText(user.first().getUsername());
-            binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
+
+//            // в строке найти подстроку terms и выделить ее другим цветом
+//            String message = post.getMessage();
+//            Pattern part = Pattern.compile(terms);
+//            StringBuffer sb = new StringBuffer(message.length());
+//            Matcher o = part.matcher(message);
+//            while(o.find()) {
+//                o.appendReplacement(sb, "<font color=\"#437C17\">" + o.group(1) + "</font>");
+//            }
+//            o.appendTail(sb);
+
             binding.foundMessage.setText(post.getMessage());
+
+
             Picasso.with(binding.avatarDirect.getContext())
                     .load(getImageUrl(user.first().getId()))
                     .resize(60, 60)
@@ -134,7 +154,8 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     public static String DateOrTimeConvert(Long createAt, boolean isTime) {
         Date dateTime = new Date(createAt);
         if (isTime) {
-            return new SimpleDateFormat("hh:mm").format(dateTime);
+            return new SimpleDateFormat("HH:mm").format(dateTime);
+//            return new SimpleDateFormat("hh:mm a").format(dateTime);
         } else {
             return new SimpleDateFormat("dd.MM.yyyy").format(dateTime);
         }
