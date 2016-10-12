@@ -17,8 +17,6 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.presenter.SearchMessagePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import java.util.regex.Pattern;
-
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;

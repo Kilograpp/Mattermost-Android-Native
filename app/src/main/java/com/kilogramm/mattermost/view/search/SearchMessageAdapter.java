@@ -4,10 +4,6 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -20,8 +16,6 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.OrderedRealmCollection;
@@ -106,20 +100,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
             binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
-
-//            // в строке найти подстроку terms и выделить ее другим цветом
-//            String message = post.getMessage();
-//            Pattern part = Pattern.compile(terms);
-//            StringBuffer sb = new StringBuffer(message.length());
-//            Matcher o = part.matcher(message);
-//            while(o.find()) {
-//                o.appendReplacement(sb, "<font color=\"#437C17\">" + o.group(1) + "</font>");
-//            }
-//            o.appendTail(sb);
-
             binding.foundMessage.setText(post.getMessage());
-
-
             Picasso.with(binding.avatarDirect.getContext())
                     .load(getImageUrl(user.first().getId()))
                     .resize(60, 60)
