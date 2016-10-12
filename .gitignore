@@ -55,5 +55,5 @@ captures/
 # Keystore files
 *.jks
 
-GetBerry.iws
-.idea\workspace.xml
+#fabric
+app/fabric.properties

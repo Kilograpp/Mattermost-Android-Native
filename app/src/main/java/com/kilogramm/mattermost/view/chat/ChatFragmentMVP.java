@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -277,14 +278,10 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Uri imageFromGallery;
         ArrayList<Uri> pickedFiles = new ArrayList<>();
         Uri pickedImage;
 
         if (resultCode != Activity.RESULT_CANCELED) {
-            if (requestCode == PICK_IMAGE) {
-                imageFromGallery = data.getData();
-            }
             if (requestCode == CAMERA_PIC_REQUEST) {
                 Bitmap image = (Bitmap) data.getExtras().get("data");
             }
@@ -312,13 +309,25 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
                 }
             }
         }
-        if (resultCode == Activity.RESULT_OK && requestCode == PICKFILE_REQUEST_CODE) {
-            if (data != null && data.getData() != null) {
-                Uri uri = data.getData();
-                List<Uri> uriList = new ArrayList<>();
-                uriList.add(uri);
-                attachFiles(uriList);
+        if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
+            if (data != null) {
+                if(data.getData() != null) {
+                    Uri uri = data.getData();
+                    List<Uri> uriList = new ArrayList<>();
+                    uriList.add(uri);
+                    attachFiles(uriList);
+                } else if (data.getClipData() != null){
+                    ClipData clipData = data.getClipData();
+                    for(int i = 0; i < clipData.getItemCount(); i++){
+                        List<Uri> uriList = new ArrayList<>();
+                        uriList.add(clipData.getItemAt(i).getUri());
+                        attachFiles(uriList);
+                    }
+                }
             }
+        }
+        if(pickedFiles.size() > 0){
+            attachFiles(pickedFiles);
         }
     }
 
@@ -329,7 +338,8 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE: {
                 // If request is cancelled, the result arrays are empty.
@@ -361,17 +371,6 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     } // +
 
     private void pickFile() {
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        intent.setType("*/*");
-//        startActivityForResult(intent, PICKFILE_REQUEST_CODE);
-
-//        Intent intent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
-//        intent.putExtra("CONTENT_TYPE", "*/*");
-//        intent.addCategory(Intent.CATEGORY_DEFAULT);
-
-        openFile(getActivity(), "*/*", PICKFILE_REQUEST_CODE);
-
-
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -396,6 +395,7 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType(minmeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
         // special intent for Samsung file manager
         Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
@@ -491,20 +491,18 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
     }
 
     public void OnClickOpenGallery() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, ""), PICK_IMAGE);
+        openFile(getActivity(), "image/*", PICK_IMAGE);
     }
 
     public void OnClickChooseDoc() {
-        Intent i = new Intent(getActivity(), FilePickerActivity.class)
+/*        Intent i = new Intent(getActivity(), FilePickerActivity.class)
                 .putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
                 .putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
                 .putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE)
                 .putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
 
-        startActivityForResult(i, FILE_CODE);
+        startActivityForResult(i, FILE_CODE);*/
+        pickFile();
     }
 
     @Override
@@ -606,9 +604,13 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
     }
 
+    public void hideAttachedFilesLayout(){
+        binding.attachedFilesLayout.setVisibility(View.GONE);
+    }
+
     @Override
     public void onEmptyList() {
-        binding.attachedFilesLayout.setVisibility(View.GONE);
+        hideAttachedFilesLayout();
     }
 
     public void loadBeforeAndAfter(String postId, String channelId) {
