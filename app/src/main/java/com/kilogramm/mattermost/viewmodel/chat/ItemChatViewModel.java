@@ -29,11 +29,15 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     private Post post;
     private ObservableInt titleVisibility;
     private ObservableInt controlMenuVisibility;
+    private ObservableInt progressSendVisibility;
+    private ObservableInt progressErrorSendVisibility;
 
     public ItemChatViewModel(Post post){
         this.post = post;
         this.titleVisibility = new ObservableInt(View.GONE);
         this.controlMenuVisibility = new ObservableInt(View.VISIBLE);
+        this.progressSendVisibility = new ObservableInt(View.VISIBLE);
+        this.progressErrorSendVisibility = new ObservableInt(View.VISIBLE);
     }
 
     public ItemChatViewModel(){
@@ -88,7 +92,24 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getControlMenuVisibility() {
-        return post.isSystemMessage()? new ObservableInt(View.GONE) : controlMenuVisibility;
+        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE)
+            return post.isSystemMessage() ? new ObservableInt(View.GONE) : controlMenuVisibility;
+        return new ObservableInt(View.GONE);
+    }
+
+    public ObservableInt getProgressSendVisibility() {
+        if (post.getUpdateAt() == null)
+            return post.getId().equals(post.getPendingPostId()) ? progressSendVisibility : new ObservableInt(View.GONE);
+        else
+            return new ObservableInt(View.GONE);
+    }
+
+    public ObservableInt getProgressErrorSendVisibility() {
+        if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE)
+            return progressErrorSendVisibility;
+        else
+            return new ObservableInt(View.GONE);
+
     }
 
     @BindingAdapter("bind:items")
@@ -125,7 +146,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        if(imageUrl!=null && imageUrl!="") {
+        if (imageUrl != null && imageUrl != "") {
             view.setRotation(0);
             Picasso.with(view.getContext())
                     .load(imageUrl)

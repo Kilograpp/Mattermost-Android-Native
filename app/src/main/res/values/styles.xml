@@ -23,7 +23,7 @@
 
     <style name="DescriptionBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
-        <item name="android:textColorHint">@color/grey</item>
+        <item name="android:textColorHint">@color/hint_grey</item>
         <item name="android:textSize">@dimen/discription_text_size</item>
     </style>
 

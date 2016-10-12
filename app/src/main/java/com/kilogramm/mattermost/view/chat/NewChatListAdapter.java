@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.view.chat;
 
 import android.content.Context;
-import android.graphics.drawable.Animatable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
@@ -99,8 +98,7 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 isTitle = true;
             }
 
-            if (post.getRootId() != null && post.getRootId().length() > 0 &&
-                    !prePost.getId().equals(post.getRootId())) {
+            if (post.getRootId() != null && post.getRootId().length() > 0) {
                 isComment = true;
             }
 
@@ -135,6 +133,12 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                     if (listener != null)
                         listener.OnItemClick(mBinding.controlMenu, post);
                 });
+            if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
+                mBinding.sendStatusError.setOnClickListener(view -> {
+                    if (listener != null)
+                        listener.OnItemClick(mBinding.sendStatusError, post);
+                });
+            }
             mBinding.avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             mBinding.message.setText(revertSpanned(ssb));
@@ -167,9 +171,9 @@ public class NewChatListAdapter extends RealmBasedRecyclerViewAdapter<Post, NewC
                 Log.d(TAG, "NOT isCompatVectorFromResourcesEnabled");
             }
 
-            if (mBinding.sendStatus.getDrawable() instanceof Animatable) {
-                ((Animatable) mBinding.sendStatus.getDrawable()).start();
-            }
+//            if (mBinding.sendStatusError.getDrawable() instanceof Animatable) {
+//                ((Animatable) mBinding.sendStatusError.getDrawable()).start();
+//            }
             mBinding.executePendingBindings();
         }
 

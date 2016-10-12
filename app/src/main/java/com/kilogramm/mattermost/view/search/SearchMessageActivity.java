@@ -17,8 +17,6 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.presenter.SearchMessagePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import java.util.regex.Pattern;
-
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -36,6 +34,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String MESSAGE_ID = "message_id";
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
+    public static final String IS_CHANNEL = "is_channel";
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
@@ -58,22 +57,31 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
         binding.searchText.setOnEditorActionListener(this);
         binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnClear.setOnClickListener(v -> binding.searchText.setText(""));
+        binding.btnClear.setOnClickListener(v -> {
+            binding.searchText.setText("");
+            DefaultMessageVisibility(true);
+            SearchResultVisibility(false);
+            DefaultVisibility(false);
+        });
     }
 
-    public void setRecycleView() {
+    public void setRecycleView(String terms) {
         RealmQuery<Post> query = realm.where(Post.class);
         RealmResults<FoundMessagesIds> foundMessageId = realm.where(FoundMessagesIds.class).findAll();
         if (foundMessageId.size() != 0) {
             for (int i = 0; i < foundMessageId.size(); i++) {
-                query.equalTo("id", foundMessageId.get(i).getMessageId()).or();
+                if (foundMessageId.size() > 1) {
+                    query.equalTo("id", foundMessageId.get(i).getMessageId()).or();
+                } else {
+                    query.equalTo("id", foundMessageId.get(i).getMessageId());
+                }
             }
         }
 
         binding.recViewSearchResultList.setVisibility(View.VISIBLE);
         binding.defaultContainer.setVisibility(View.GONE);
 
-        adapter = new SearchMessageAdapter(this, query.findAll(), true, this);
+        adapter = new SearchMessageAdapter(this, query.findAll(), true, this, terms);
         binding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
         binding.recViewSearchResultList.setAdapter(adapter);
     }
@@ -99,6 +107,10 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.recViewSearchResultList.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
+    public void DefaultMessageVisibility(boolean isShow) {
+        binding.defaultMessage.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -110,11 +122,12 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     @Override
-    public void onJumpClick(String messageId, String channelId, String channelName) {
+    public void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel) {
         Intent intent = new Intent(getApplicationContext(), SearchMessageActivity.class)
                 .putExtra(MESSAGE_ID, messageId)
                 .putExtra(CHANNEL_ID, channelId)
-                .putExtra(CHANNEL_NAME, channelName);
+                .putExtra(CHANNEL_NAME, channelName)
+                .putExtra(IS_CHANNEL, isChannel);
         setResult(RESULT_OK, intent);
         finish();
     }

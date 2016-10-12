@@ -1,10 +1,13 @@
 package com.kilogramm.mattermost.view.menu;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
@@ -24,6 +27,8 @@ import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
+import java.util.List;
+
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -31,6 +36,8 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralPresenter.class)
 public class GeneralActivity extends BaseActivity<GeneralPresenter> {
+
+    private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -99,7 +106,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
-                    .replace(binding.contentFrame.getId(), fragmentMVP)
+                    .replace(binding.contentFrame.getId(), fragmentMVP, FRAGMENT_TAG)
                     .commit();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -112,8 +119,9 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         }
         context.startActivity(starter);
     }
-    public void showErrorText(String text){
-        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
+
+    public void showErrorText(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -131,6 +139,7 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
                 if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
                     String itemId = data.getStringExtra(WholeDirectListActivity.USER_ID);
                     String name = data.getStringExtra(WholeDirectListActivity.NAME);
+                    //TODO проверить после кореектирования архитектуры (melkshake)
 //                    getPresenter().setSelectedDirect(itemId, name);
                     SaveData saveData = new SaveData(name, itemId, true);
                     Log.d(TAG, "saveData constructor");
@@ -144,9 +153,24 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
 // TODO расскоментировать, как смержусь с Женей (melkshake)
+            boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
+
 //            ChatFragmentMVP chatFragment = new ChatFragmentMVP();
 //            chatFragment.loadBeforeAndAfter(messageId, channelId);
-            this.replaceFragment(channelId, channelName);
+//            this.replaceFragment(channelId, channelName);
+            // TODO проверить логику setSelectedChannel:MattermostPreference
+            // TODO немного неправильно заменяет фрагменты чатов
+            this.setFragmentChat(channelId, channelName, isChannel);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (Build.VERSION.SDK_INT >= 23 && fragment != null) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
