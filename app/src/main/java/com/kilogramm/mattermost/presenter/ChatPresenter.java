@@ -533,12 +533,12 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    public void editPost(PostEdit post, String teamId, String channelId) {
+    public void editPost(PostEdit postEdit, String teamId, String channelId, Long updateAt) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         ApiMethod service;
         service = mMattermostApp.getMattermostRetrofitService();
-        mSubscription = service.editPost(teamId, channelId, post)
+        mSubscription = service.editPost(teamId, channelId, postEdit)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Post>() {
@@ -549,6 +549,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
                     @Override
                     public void onError(Throwable e) {
+                        Post post = new Post(postRepository.query(new PostByIdSpecification(postEdit.getId())).first());
+                        post.setUpdateAt(updateAt);
+                        postRepository.update(post);
+                        getView().refreshList();
                         e.printStackTrace();
                         Log.d(TAG, "Error edit post " + e.getMessage());
                     }
@@ -561,5 +565,10 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         getView().invalidateAdapter();
                     }
                 });
+
+        Post post = new Post(postRepository.query(new PostByIdSpecification(postEdit.getId())).first());
+        post.setUpdateAt(null);
+        postRepository.update(post);
+        getView().refreshList();
     }
 }

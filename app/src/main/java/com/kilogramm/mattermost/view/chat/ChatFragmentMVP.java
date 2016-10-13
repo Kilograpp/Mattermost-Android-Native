@@ -151,12 +151,18 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if (obj.getChannelId().equals(channelId)) {
-                    getActivity().runOnUiThread(() -> showTyping());
+                if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
+                    getActivity().runOnUiThread(() -> invalidateAdapter());
+                } else {
+                    if (obj.getChannelId().equals(channelId)) {
+                        getActivity().runOnUiThread(() -> showTyping());
+                    }
                 }
             }
         };
-        IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WebSocketObj.EVENT_TYPING);
+        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
         getPresenter().getExtraInfo(teamId,
                 channelId);
@@ -416,14 +422,18 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         postEdit.setId(rootPost.getId());
         postEdit.setChannelId(channelId);
         postEdit.setMessage(getMessage());
-        closeEditView();
         if (postEdit.getMessage().length() != 0) {
             setMessage("");
-            getPresenter().editPost(postEdit, teamId, channelId);
+            getPresenter().editPost(postEdit, teamId, channelId, rootPost.getUpdateAt());
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
+        closeEditView();
     } // +
+
+    public void refreshList(){
+        adapter.notifyDataSetChanged();
+    }
 
     private Long getTimePost() {
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
