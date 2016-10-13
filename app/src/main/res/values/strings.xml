@@ -32,6 +32,7 @@
     <string name="logout">logout</string>
     <string name="confirm_post_delete">Confirm Post Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="try_again">Try again</string>
     <string name="reply">Replay</string>
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
@@ -41,5 +42,21 @@
     <string name="copy_permalink">Copy Permalink</string>
     <string name="copy_link">Copy Link</string>
     <string name="edit_message">Edit message</string>
+    <string name="reply_message">Reply message</string>
+
+    <string name="commented_on">Commented on</string>
+    <string name="is_message">s message:</string>
+
+    <string name="title_direct_list">Direct list</string>
+
+    <!--Search posts-->
+    <string name="search_hint">Search</string>
+    <string name="default_text"> If you\'re searching a partial phrase (ex. searching "real", looking
+                                    for "reach" or "reaction"), append a * to your search term. \n\n
+                                    Due to the volume of results, two letter searches and common words like
+                                    "this", "a", and "is" won\'t appear in search results. </string>
+    <string name="empty_search">Search field cannot be empty</string>
+    <string name="no_results_found">Not found</string>
+    <string name="default_message">Your search results will be here</string>
 
 </resources>

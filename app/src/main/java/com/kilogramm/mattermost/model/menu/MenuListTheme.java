@@ -5,6 +5,7 @@ import android.databinding.BaseObservable;
 /**
  * Created by Evgeny on 24.08.2016.
  */
+// TODO класс не используется (Kepar)
 public class MenuListTheme extends BaseObservable {
 
     private Integer textColor;

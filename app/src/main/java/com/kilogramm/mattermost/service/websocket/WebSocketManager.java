@@ -26,10 +26,11 @@ public class WebSocketManager {
 
     private static final String TAG = "Websocket";
 
+    // TODO неюзабельные константы. Удалить?
     private static final String HEADER_WEB_SOCKET = "Cookie";
-    public static final int TIME_REPEAT_CONNET = 10*1000;
-    public static final int TIME_REPEAT_RECONNECT = 30*1000;
-    public static final int TIME_REPEAT_UPDATEUSER = 30*1000;
+    public static final int TIME_REPEAT_CONNEСT = 10 * 1000;
+    public static final int TIME_REPEAT_RECONNECT = 30 * 1000;
+    public static final int TIME_REPEAT_UPDATE_USER = 30 * 1000;
 
     private static WebSocket webSocket = null;
 
@@ -49,8 +50,6 @@ public class WebSocketManager {
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;
 
-        channelRepository = new ChannelRepository();
-
         handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
 
         mCheckStatusSocket = new CheckStatusSocket();
@@ -59,15 +58,14 @@ public class WebSocketManager {
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
 
-        handler.postDelayed(mCheckStatusSocket,TIME_REPEAT_RECONNECT);
-
+        handler.postDelayed(mCheckStatusSocket, TIME_REPEAT_RECONNECT);
     }
 
-    public void setHeader(WebSocket webSocket){
-        if(webSocket == null) return;
+    public void setHeader(WebSocket webSocket) {
+        if (webSocket == null) return;
         List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
         webSocket.removeHeaders(HEADER_WEB_SOCKET);
-        if(cookies!=null && cookies.size()!=0) {
+        if (cookies != null && cookies.size() != 0) {
             Cookie cookie = cookies.get(0);
             webSocket.addHeader(HEADER_WEB_SOCKET, cookie.name() + "=" + cookie.value());
         }
@@ -78,7 +76,7 @@ public class WebSocketManager {
         try {
             webSocket = new WebSocketFactory().createSocket(MattermostApp.URL_WEB_SOCKET);
             setHeader(webSocket);
-            webSocket.addListener(new MWebSocketListener(){
+            webSocket.addListener(new MWebSocketListener() {
                 @Override
                 public void onTextMessage(WebSocket websocket, String text) throws Exception {
                     super.onTextMessage(websocket, text);
@@ -86,7 +84,7 @@ public class WebSocketManager {
                     Log.d(TAG, "onMessage " + webMessage);
                     websocket.flush();
 
-                    if(mWebSocketMessage!=null) mWebSocketMessage.receiveMessage(webMessage);
+                    if (mWebSocketMessage != null) mWebSocketMessage.receiveMessage(webMessage);
                 }
 
                 @Override
@@ -101,13 +99,13 @@ public class WebSocketManager {
 
                 @Override
                 public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
-                    Log.d(TAG, "onError"+cause.getMessage());
+                    Log.d(TAG, "onError" + cause.getMessage());
                 }
 
                 @Override
                 public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-                    switch (newState){
-                        case OPEN:{
+                    switch (newState) {
+                        case OPEN: {
                             Log.d(TAG, "OPEN");
                             break;
                         }
@@ -115,37 +113,28 @@ public class WebSocketManager {
                             websocket.sendClose();
                     }
                 }
+
                 @Override
                 public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
                     Log.d(TAG, "onDisconnected");
                 }
-
-
             });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void onDisconnct() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                webSocket.sendClose();
-            }
-        });
+    private void onDisconnect() {
+        handler.post(() -> webSocket.sendClose());
     }
 
     public void start() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    connect();
-                } catch (Exception e) {
-                    Log.d(TAG, "error"+e.getMessage());
-                    e.printStackTrace();
-                }
+        handler.post(() -> {
+            try {
+                connect();
+            } catch (Exception e) {
+                Log.d(TAG, "error" + e.getMessage());
+                e.printStackTrace();
             }
         });
     }
@@ -153,70 +142,68 @@ public class WebSocketManager {
     private void connect() throws Exception {
         Log.d(TAG, "try connect");
 
-
-        if(webSocket != null && webSocket.getState() != WebSocketState.CREATED){
+        if (webSocket != null && webSocket.getState() != WebSocketState.CREATED) {
             webSocket.disconnect();
             webSocket = webSocket.recreate();
             setHeader(webSocket);
         }
 
-        if(webSocket == null){
+        if (webSocket == null) {
             create();
         }
         webSocket.connect();
 
     }
 
-    private boolean hasWebsocket(){
-        return ((webSocket!=null)&&(!(webSocket.getState() == WebSocketState.CLOSED)))?true:false;
+    private boolean hasWebsocket() {
+        return ((webSocket != null) && (!(webSocket.getState() == WebSocketState.CLOSED))) ? true : false;
     }
 
     public void reconnect() throws WebSocketException {
-        if(!hasWebsocket() && !webSocket.isOpen()){
+        if (!hasWebsocket() && !webSocket.isOpen()) {
             Log.d(TAG, "reconnect");
         }
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
 
         handler.removeCallbacks(mCheckStatusSocket);
 
         handler.removeCallbacks(mUpdateStatusUser);
 
-        if(webSocket!=null){
+        if(webSocket != null) {
             webSocket.disconnect();
         }
 
         handler.post(() -> handlerThread.quit());
-
     }
 
-    public void updateUserStatusNow(){
+    public void updateUserStatusNow() {
         handler.removeCallbacks(mUpdateStatusUser);
         handler.post(mUpdateStatusUser);
     }
 
-    public interface WebSocketMessage{
+    public interface WebSocketMessage {
         void receiveMessage(String message);
     }
 
-    public class CheckStatusSocket implements Runnable{
+    public class CheckStatusSocket implements Runnable {
 
         @Override
         public void run() {
-            handler.postDelayed(this,TIME_REPEAT_RECONNECT);
+            handler.postDelayed(this, TIME_REPEAT_RECONNECT);
             Log.d(TAG, "check state");
-            if(webSocket!=null) {
-                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
-                if(webSocket.getState() == WebSocketState.CLOSED){
+            if (webSocket != null) {
+                Log.d(TAG, "web socket State:" + webSocket.getState().toString());
+                if (webSocket.getState() == WebSocketState.CLOSED) {
                     start();
                 }
-            }
-            else  Log.d(TAG, "web socket not created");
+            } else Log.d(TAG, "web socket not created");
         }
     }
     //TODO Review code
-    public class UpdateStatusUser implements Runnable{
+    // TODO Kepar: сделал ревью, но логику не трогал
+    public class UpdateStatusUser implements Runnable {
 
         @Override
         public void run() {
@@ -233,6 +220,4 @@ public class WebSocketManager {
             else  Log.d(TAG, "web socket not created");
         }
     }
-
-
 }

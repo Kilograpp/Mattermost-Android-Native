@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 
 import org.json.JSONArray;
@@ -34,8 +35,11 @@ public class ManagerBroadcast {
 
     public Context mContext;
 
+    private UserRepository userRepository;
+
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
+        this.userRepository = new UserRepository();
     }
 
     public WebSocketObj praseMessage(String message){
@@ -78,13 +82,12 @@ public class ManagerBroadcast {
                 break;
             case WebSocketObj.EVENT_POSTED:
                 String mentions = null;
-                if(dataJSON.has(WebSocketObj.MENTIONS)){
+                if(dataJSON.has(WebSocketObj.MENTIONS))
                     mentions = dataJSON.getString(WebSocketObj.MENTIONS);
-                }
                 data = new WebSocketObj.BuilderData()
-                        .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
-                        .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
-                        .setMentions((mentions!=null)
+                                .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
+                                .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
+                                .setMentions((mentions!=null)
                                         ?mentions
                                         :"")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
@@ -110,6 +113,7 @@ public class ManagerBroadcast {
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
+                userRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()

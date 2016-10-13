@@ -135,4 +135,6 @@ dependencies {
     compile 'frankiesardo:icepick:3.2.0'
     apt 'frankiesardo:icepick-processor:3.2.0'
 
+    // File-picker
+    compile 'com.nononsenseapps:filepicker:3.0.0'
 }

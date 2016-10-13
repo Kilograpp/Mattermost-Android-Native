@@ -1,10 +1,10 @@
 package com.kilogramm.mattermost.model.entity.user;
 
-import android.util.Log;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class UserRepository implements Repository<User> {
     @Override
     public void add(Collection<User> items) {
         final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
+        realm.executeTransaction(realm1 -> realm.copyToRealmOrUpdate(items));
         realm.close();
     }
 
@@ -86,6 +86,17 @@ public class UserRepository implements Repository<User> {
         realm.close();
 
         return realmResults;
+    }
+
+    public void updateUserMessage(String postId, String message) {
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 ->
+                realm.where(Post.class)
+                .equalTo("id", postId)
+                .findFirst()
+                .setMessage(message));
+        realm.close();
     }
 
     public List<User> queryList(Specification specification){

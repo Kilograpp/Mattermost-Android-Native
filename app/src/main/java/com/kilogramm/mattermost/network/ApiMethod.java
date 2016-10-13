@@ -1,8 +1,12 @@
 package com.kilogramm.mattermost.network;
 
+import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
@@ -13,10 +17,14 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import rx.Observable;
 
@@ -71,10 +79,39 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{id}/get")
+    Observable<Posts> getPost(@Path("teamId") String teamId, @Path("channelId") String channelId, @Path("id") String id);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/before/0/60")
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
                                      @Path("lastMessageId") String lastMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/after/{offset}/{limit}")
+    Observable<Posts> getPostsAfter(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId,
+                                    @Path("post_id") String postId,
+                                    @Path("offset") String offset,
+                                    @Path("limit") String limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/before/{offset}/{limit}")
+    Observable<Posts> getPostsBefore_search(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId,
+                                    @Path("post_id") String postId,
+                                    @Path("offset") String offset,
+                                    @Path("limit") String limit);
 
     @Headers({
             "Accept: application/json",
@@ -132,7 +169,7 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
     Observable<Post> editPost(@Path("teamId") String teamId,
                                 @Path("channelId") String channelId,
-                                @Body Post post);
+                                @Body PostEdit post);
 
     @Headers({
             "Accept: application/json",
@@ -142,6 +179,29 @@ public interface ApiMethod {
     Observable<Map<String, User>> getDirectProfile();
 
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest"})
+    @Multipart
+    @POST("api/v3/teams/{team_id}/files/upload")
+    Observable<FileUploadResponse> uploadFile(@Path("team_id") String team_id,
+                                              @Part MultipartBody.Part file,
+                                              @Part("channel_id") RequestBody channel_id,
+                                              @Part("client_ids") RequestBody client_ids);
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/preferences/save")
+    Observable<Boolean> save(@Body List<SaveData> saveData);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/posts/search")
+    Observable<Posts> searchForPosts(@Path("team_id") String team_id,
+                                     @Body SearchParams searchParams);
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",

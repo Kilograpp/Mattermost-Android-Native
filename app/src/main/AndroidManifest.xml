@@ -2,21 +2,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kilogramm.mattermost">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:hardwareAccelerated="true"
         android:name=".MattermostApp"
-        android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <receiver android:name=".service.websocket.NetworkStateReceiver" >
+        <receiver android:name=".service.websocket.NetworkStateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
         <activity
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:name=".view.authorization.MainActivity">
@@ -26,8 +30,10 @@
             android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" />
+
         <activity android:name=".view.menu.GeneralActivity"
             android:screenOrientation="portrait"/>
+
         <activity android:name=".view.ImageViewerActivity"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait"/>
@@ -41,11 +47,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".rxtest.LoginRxActivity"
             android:windowSoftInputMode="adjustResize|stateVisible"/>
+
         <activity android:name=".rxtest.GeneralRxActivity"/>
 
+        <activity
+            android:name=".view.direct.WholeDirectListActivity"
+            android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".view.search.SearchMessageActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.nononsenseapps.filepicker.FilePickerActivity"
+            android:label="@string/app_name"
+            android:theme="@style/FilePickerTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".service.MattermostService"/>
         <meta-data

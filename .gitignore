@@ -49,11 +49,8 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# Intellij
-*.iml
-
 # Keystore files
 *.jks
 
-GetBerry.iws
-.idea\workspace.xml
+#fabric
+app/fabric.properties

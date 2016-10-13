@@ -73,6 +73,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             public boolean onPreBind(ViewDataBinding binding) {
                 return mRecyclerView != null && mRecyclerView.isComputingLayout();
             }
+
             public void onCanceled(ViewDataBinding binding) {
                 if (mRecyclerView == null || mRecyclerView.isComputingLayout()) {
                     return;
@@ -105,7 +106,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
                         onChangeSelected();
                     }
                 });
-        if(holder.getAdapterPosition() == selecteditem){
+        if (holder.getAdapterPosition() == selecteditem) {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
@@ -116,7 +117,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
-        if(isForDataBinding(payloads)){
+        if (isForDataBinding(payloads)) {
             holder.getmBinding().executePendingBindings();
         } else {
             onBindViewHolder(holder, position);
@@ -134,7 +135,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
     }
 
     private void onChangeSelected() {
-        if(selectedItemChangeListener!=null){
+        if (selectedItemChangeListener != null) {
             selectedItemChangeListener.onChangeSelected(selecteditem);
         }
     }
@@ -164,7 +165,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             } else {
                 mBinding.getViewModel().setChannel(channel);
             }
-            if(mBinding.linearLayout.isChecked()){
+            if (mBinding.linearLayout.isChecked()) {
                 mBinding.channelName.setTextColor(context.getResources().getColor(R.color.black));
                 mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.black));
             } else {

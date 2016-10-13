@@ -7,7 +7,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
-import com.kilogramm.mattermost.model.entity.channel.Channel;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -16,6 +15,8 @@ import io.realm.annotations.PrimaryKey;
  * Created by Evgeny on 25.07.2016.
  */
 public class User extends RealmObject implements Parcelable {
+
+    public static final Long SYSTEM_AT_DATA = 0l;
 
     public static final String ONLINE = "online";
     public static final String OFFLINE = "offline";
@@ -89,10 +90,19 @@ public class User extends RealmObject implements Parcelable {
 
     private String status = "offline";
 
+    public User(){
+
+    }
+
     public User(String id, String username, String firstName) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
+        this.deleteAt = SYSTEM_AT_DATA;
+    }
+
+    public User(String username) {
+        this.username = username;
     }
 
     public String getStatus() {
@@ -509,9 +519,7 @@ public class User extends RealmObject implements Parcelable {
         dest.writeValue(this.lastPasswordUpdate);
         dest.writeValue(this.lastPictureUpdate);
         dest.writeString(this.locale);
-    }
-
-    public User() {
+        dest.writeString(this.status);
     }
 
     protected User(Parcel in) {
@@ -536,9 +544,10 @@ public class User extends RealmObject implements Parcelable {
         this.lastPasswordUpdate = (Long) in.readValue(Long.class.getClassLoader());
         this.lastPictureUpdate = (Long) in.readValue(Long.class.getClassLoader());
         this.locale = in.readString();
+        this.status = in.readString();
     }
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel source) {
             return new User(source);

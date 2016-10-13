@@ -23,7 +23,6 @@ public class MainActivity extends BaseActivity<MainPresenter> {
 
     private ActivityMainBinding binding;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -40,6 +40,7 @@ public class MattermostNotificationManager {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
+                postRepository.remove(webSocketObj.getData().getPost());
                 break;
             case WebSocketObj.EVENT_POST_EDITED:
                 break;

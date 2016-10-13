@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.network;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.model.error.HttpError;
@@ -17,7 +15,7 @@ import rx.Subscriber;
 public abstract class MattermostHttpSubscriber<T> extends Subscriber<T> {
     @Override
     public void onError(Throwable e) {
-        HttpError error = null;
+        HttpError error;
         if(e instanceof HttpException){
             try {
                 error = new Gson()

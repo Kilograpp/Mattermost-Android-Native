@@ -1,11 +1,13 @@
 package com.kilogramm.mattermost.model.entity.post;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.ArrayList;
@@ -13,12 +15,15 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Evgeny on 18.08.2016.
  */
 public class Post extends RealmObject implements Parcelable {
+
+    public static final long NO_UPDATE = -1;
 
     @PrimaryKey
     @SerializedName("id")
@@ -59,38 +64,13 @@ public class Post extends RealmObject implements Parcelable {
     private String hashtags;
     @SerializedName("filenames")
     @Expose
-    private RealmList<RealmString>  filenames = new RealmList<>();
+    private RealmList<RealmString> filenames = new RealmList<>();
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
     private User user;
 
     private Boolean viewed = false;
-
-
-    public Post(Post post){
-        this.id=post.getId();
-        this.createAt=post.getCreateAt();
-        this.updateAt=post.getUpdateAt();
-        this.deleteAt=post.getDeleteAt();
-        this.userId=post.getUserId();
-        this.channelId=post.getChannelId();
-        this.rootId=post.getRootId();
-        this.parentId=post.getParentId();
-        this.originalId=post.getOriginalId();
-        this.message=post.getMessage();
-        this.type=post.getType();
-        this.hashtags=post.getHashtags();
-        this.filenames = new RealmList<>();
-        for (String s : post.getFilenames()) {
-            this.filenames.add(new RealmString(s));
-        }
-        this.pendingPostId=post.getPendingPostId();
-        this.user=post.getUser();
-        this.viewed=post.getViewed();
-    }
-
-
 
     public Boolean getViewed() {
         return viewed;
@@ -106,6 +86,13 @@ public class Post extends RealmObject implements Parcelable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isSystemMessage() {
+        if (type != null)
+            return type.equals("system_join_leave");
+        else
+            return false;
     }
 
     /**
@@ -301,8 +288,26 @@ public class Post extends RealmObject implements Parcelable {
     }
 
     public void setFilenames(List<String> filenames) {
+        if (filenames == null) {
+            return;
+        }
         this.filenames = new RealmList<>();
-        filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        if (Build.VERSION.SDK_INT == 24) {
+            filenames.forEach(s -> this.filenames.add(new RealmString(s)));
+        } else {
+            for (String filename : filenames) {
+                this.filenames.add(new RealmString(filename));
+            }
+        }
+    }
+
+    public void setFilenames(RealmResults<FileToAttach> attachedFiles) {
+        if (attachedFiles == null) {
+            return;
+        }
+            for (FileToAttach attachedFile : attachedFiles) {
+                this.filenames.add(new RealmString(attachedFile.getFileName()));
+            }
     }
 
     @Override
@@ -333,6 +338,29 @@ public class Post extends RealmObject implements Parcelable {
     public Post() {
     }
 
+
+
+    public Post(Post post){
+        this.id=post.getId();
+        this.createAt=post.getCreateAt();
+        this.updateAt=post.getUpdateAt();
+        this.deleteAt=post.getDeleteAt();
+        this.userId=post.getUserId();
+        this.channelId=post.getChannelId();
+        this.rootId=post.getRootId();
+        this.parentId=post.getParentId();
+        this.originalId=post.getOriginalId();
+        this.message=post.getMessage();
+        this.type=post.getType();
+        this.hashtags=post.getHashtags();
+        this.filenames = new RealmList<>();
+        for (String s : post.getFilenames()) {
+            this.filenames.add(new RealmString(s));
+        }
+        this.pendingPostId=post.getPendingPostId();
+        this.user=post.getUser();
+        this.viewed=post.getViewed();
+    }
 
 
     protected Post(Parcel in) {

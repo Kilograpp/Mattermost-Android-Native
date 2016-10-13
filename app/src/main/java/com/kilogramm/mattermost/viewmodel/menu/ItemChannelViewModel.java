@@ -13,16 +13,13 @@ import com.kilogramm.mattermost.viewmodel.ViewModel;
 public class ItemChannelViewModel extends BaseObservable implements ViewModel {
     
     private Channel channel;
-    private Context context;
 
-    public ItemChannelViewModel(Context context, Channel channel){
-        this.context = context;
+    public ItemChannelViewModel(Channel channel){
         this.channel = channel;
     }
 
-
     public String getChannelName(){
-        return "# " + channel.getDisplayName();
+        return channel.getDisplayName();
     }
 
     public String getUnreadedMessage(){
@@ -36,7 +33,7 @@ public class ItemChannelViewModel extends BaseObservable implements ViewModel {
 
     @Override
     public void destroy() {
-        context = null;
+
     }
 
     @Override
@@ -57,5 +54,4 @@ public class ItemChannelViewModel extends BaseObservable implements ViewModel {
         this.channel = channel;
         notifyChange();
     }
-
 }

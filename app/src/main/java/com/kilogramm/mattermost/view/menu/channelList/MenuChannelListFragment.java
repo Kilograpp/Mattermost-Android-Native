@@ -16,7 +16,6 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
-import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -53,7 +52,6 @@ public class MenuChannelListFragment extends Fragment {
 
 
     private void setupListView() {
-        Realm realm = Realm.getDefaultInstance();
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,

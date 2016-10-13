@@ -34,6 +34,7 @@ public class MainPresenter extends Presenter<MainActivity> {
 
     private static final String TAG = "MainPresenter";
 
+    // TODO к чему эта тудуха?
     //TODO pattern url null fix
     private static Pattern mPatternUrl = Patterns.WEB_URL;
 
@@ -43,13 +44,11 @@ public class MainPresenter extends Presenter<MainActivity> {
 
     private MattermostApp mMattermostApp;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         mRealm = Realm.getDefaultInstance();
-
     }
 
     @Override
@@ -104,7 +103,7 @@ public class MainPresenter extends Presenter<MainActivity> {
                     @Override
                     public void onErrorMattermost(HttpError httpError, Throwable e) {
                         getView().setShowProgress(false);
-                        getView().showErrorText(httpError.getMessage());
+                        getView().showErrorText(e.getLocalizedMessage());
                     }
 
                     @Override
@@ -127,7 +126,6 @@ public class MainPresenter extends Presenter<MainActivity> {
                         });
                     }
                 });
-
     }
 
     public void checkEnterUrl(String url){
@@ -139,5 +137,4 @@ public class MainPresenter extends Presenter<MainActivity> {
         Matcher m = mPatternUrl.matcher(url);
         return m.matches();
     }
-
 }
