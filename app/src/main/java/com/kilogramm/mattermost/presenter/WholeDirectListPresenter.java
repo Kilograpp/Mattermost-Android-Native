@@ -53,7 +53,7 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
         RealmList<User> users = new RealmList<>();
 
         mSubscription = service.getProfilesForDMList(team.getId())
-                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Map<String, User>>() {
                     @Override
@@ -85,46 +85,4 @@ public class WholeDirectListPresenter extends Presenter<WholeDirectListActivity>
                 });
     }
 
-    public void getUsersStatuses(ArrayList<String> usersIds) {
-        if (mSubscription != null && !mSubscription.isUnsubscribed())
-            mSubscription.unsubscribe();
-
-        mSubscription = service.getStatus(usersIds)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Map<String, String>>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onNext(Map<String, String> stringStringMap) {
-                        Log.d(TAG, "onNext added users statuses");
-
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        RealmResults<User> users = realm.getDefaultInstance()
-                                .where(User.class)
-                                .isNotNull("id")
-                                .findAll();
-
-                        for (User user : users) {
-                            user.setStatus(stringStringMap.get(user.getId()));
-                        }
-
-                        realm.commitTransaction();
-                        realm.close();
-                    }
-
-                });
-    }
-
-    public void finishActivity() {
-        getView().finishActivity();
-    }
 }

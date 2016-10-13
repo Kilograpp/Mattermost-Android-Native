@@ -30,6 +30,7 @@
             tools:listitem="@layout/item_direction_profile_channel"/>
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/btnMore"
             android:textColor="@color/white"
             android:layout_width="match_parent"

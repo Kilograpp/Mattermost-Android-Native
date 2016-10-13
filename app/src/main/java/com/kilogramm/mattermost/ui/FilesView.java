@@ -12,7 +12,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.tools.FileUtils;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 
 import java.io.UnsupportedEncodingException;
@@ -66,7 +66,7 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String s : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.files_item_layout, this,false);
-                switch (FileUtils.getFileType(s)) {
+                switch (FileUtil.getInstance().getFileType(s)) {
                     case PNG:
                         initAndAddItem(binding,getImageUrl(s));
                         binding.image.setOnClickListener(view -> {

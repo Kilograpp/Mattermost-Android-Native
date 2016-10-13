@@ -1,100 +1,94 @@
 package com.kilogramm.mattermost.presenter;
 
-import android.content.Context;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.tools.FileUtils;
+import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
-import nucleus.presenter.Presenter;
+import icepick.State;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import rx.Subscriber;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by kepar on 30.9.16.
  */
 
-public class AttachedFilesPresenter extends Presenter<AttachedFilesLayout> {
-
+public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout> {
     private static final String TAG = "AttachedFilesPresenter";
 
-    private MattermostApp mMattermostApp;
-    private Subscription mSubscription;
+    private static final int REQUEST_UPLOAD_TO_SERVER = 1;
+
+    private ApiMethod service;
+
+    @State
+    String teamId;
+    @State
+    String channelId;
+    @State
+    String uri;
+    @State
+    String fileName;
+
+    private RequestBody channel_Id;
+    private RequestBody clientId;
+
+    FileUtil fileUtil;
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        mMattermostApp = MattermostApp.getSingleton();
+        service = MattermostApp.getSingleton().getMattermostRetrofitService();
+        fileUtil = FileUtil.getInstance();
+        initRequests();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mSubscription != null && !mSubscription.isUnsubscribed())
-            mSubscription.unsubscribe();
-    }
+    private void initRequests(){
+        restartableFirst(REQUEST_UPLOAD_TO_SERVER,() -> {
+            String filePath = fileUtil.getPath(Uri.parse(uri));
+            String mimeType = fileUtil.getMimeType(filePath);
 
-    public void uploadFileToServer(Context context, String teamId, String channel_id, Uri uri) {
-        String filePath = FileUtils.getPath(context, uri);
-        String mimeType = FileUtils.getMimeType(filePath);
-        final File file = new File(filePath);
-        if (file.exists()) {
+            File file = new File(filePath);
+            this.fileName = file.getName();
             FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
-
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+            channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
+            clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
-            RequestBody channelId = RequestBody.create(MediaType.parse("multipart/form-data"), channel_id);
-            RequestBody clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
-
-            if (mSubscription != null && !mSubscription.isUnsubscribed())
-                mSubscription.unsubscribe();
-            ApiMethod service = mMattermostApp.getMattermostRetrofitService();
-
-            mSubscription = service.uploadFile(teamId, filePart, channelId, clientId)
+            return service.uploadFile(teamId, filePart, channel_Id, clientId)
                     .subscribeOn(Schedulers.newThread())
-                    .observeOn(Schedulers.io())
-                    .subscribe(new Subscriber<FileUploadResponse>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.d(TAG, "Complete upload files");
-                        }
+                    .observeOn(Schedulers.io());
+        }, (attachedFilesLayout, fileUploadResponse) -> {
+            Log.d(TAG, fileUploadResponse.toString());
+            FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
+            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), true);
+        }, (attachedFilesLayout1, throwable) -> {
+            throwable.printStackTrace();
+            Log.d(TAG, "Error");
+        });
+    }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            Log.d(TAG, "Error");
-                        }
-
-                        @Override
-                        public void onNext(FileUploadResponse fileUploadResponse) {
-                            Log.d(TAG, fileUploadResponse.toString());
-                            FileToAttachRepository.getInstance().updateName(file.getName(), fileUploadResponse.getFilenames().get(0));
-                            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), true);
-                        }
-                    });
-        } else {
-            Log.e(TAG, "file not found");
-        }
+    public void requestUploadFileToServer(String teamId, String channelId, String uri){
+        this.teamId = teamId;
+        this.channelId = channelId;
+        this.uri = uri;
+        start(REQUEST_UPLOAD_TO_SERVER);
     }
 
 }

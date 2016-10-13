@@ -5,17 +5,19 @@ import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
+import com.kilogramm.mattermost.tools.FileUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
 import nucleus.factory.RequiresPresenter;
 import nucleus.view.NucleusLayout;
 
@@ -24,6 +26,8 @@ import nucleus.view.NucleusLayout;
  */
 @RequiresPresenter(AttachedFilesPresenter.class)
 public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
+
+    public static final String TAG = "AttachedFilesLayout";
 
     AttachedFilesAdapter attachedFilesAdapter;
 
@@ -69,7 +73,14 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
 
     public void addItem(List<Uri> uriList, String teamId, String channelId){
         for (Uri uri : uriList) {
-            getPresenter().uploadFileToServer(getActivity(), teamId, channelId, uri);
+            String filePath = FileUtil.getInstance().getPath(uri);
+            final File file = new File(filePath);
+            if (file.exists()) {
+                getPresenter().requestUploadFileToServer(teamId,channelId,uri.toString());
+                //getPresenter().uploadFileToServer(getContext(), teamId, channelId, uri);
+            } else {
+                Log.d(TAG, "file does't exists");
+            }
         }
     }
 

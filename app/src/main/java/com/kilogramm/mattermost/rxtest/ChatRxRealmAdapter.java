@@ -104,7 +104,7 @@ public class ChatRxRealmAdapter<T extends RealmModel> extends RealmRecyclerViewA
             mBinding.message.setText(revertSpanned(ssb));
             mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
             if(mBinding.getViewModel() == null){
-                mBinding.setViewModel(new ItemChatViewModel(context, post));
+                mBinding.setViewModel(new ItemChatViewModel(post));
             } else {
                 mBinding.getViewModel().setPost(post);
 

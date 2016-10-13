@@ -2,19 +2,22 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.Html;
 import android.util.Log;
 
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -41,6 +44,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 7;
+    private static final int REQUEST_SEND_TO_SERVER_ERROR = 11;
+
+    private static final int REQUEST_DB_GETUSERS = 10;
 
     private static final int REQUEST_LOAD_BEFORE = 8;
     private static final int REQUEST_LOAD_AFTER = 9;
@@ -57,13 +63,17 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     @State
     Post forDeletePost;
     @State
-    Post forEditPost;
+    PostEdit forEditPost;
     @State
     String lastmessageId;
     @State
     String firstmessageId;
     @State
     Boolean hasNextPost;
+    @State
+    String search;
+    @State
+    Long updateAt;
 
     private Boolean isEmpty = false;
     private PostRepository postRepository;
@@ -98,6 +108,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initEditPost();
         initLoadAfter();
         initLoadBefore();
+        initGetUsers();
+        initSendToServerError();
     }
 
     private void initExtraInfo() {
@@ -174,6 +186,30 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         });
     }
 
+    private void initSendToServerError(){
+        restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()),
+                (chatRxFragment, post) -> {
+                    post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+                    post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
+                            .forceExtentedProfile()
+                            .build()));
+                    postRepository.removeTempPost(post.getPendingPostId());
+                    postRepository.add(post);
+
+                    requestUpdateLastViewedAt();
+                    sendOnItemAdded();
+                    sendHideFileAttachLayout();
+                    FileToAttachRepository.getInstance().clearData();
+                    Log.d(TAG, "Complete create post");
+                }, (chatRxFragment1, throwable) -> {
+                    setErrorPost(forSendPost.getPendingPostId());
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error create post " + throwable.getMessage());
+                });
+    }
+
     private void initSendToServer() {
 
         restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
@@ -189,8 +225,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
+                    sendHideFileAttachLayout();
+                    FileToAttachRepository.getInstance().clearData();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
+                    setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
                 });
@@ -210,7 +249,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initDeletePost() {
-        restartableFirst(REQUEST_DELETE_POST, () -> service.deletePost(teamId, channelId, forSendPost.getId(), new Object())
+        restartableFirst(REQUEST_DELETE_POST, () -> service.deletePost(teamId, channelId, forDeletePost.getId(), new Object())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread()),
                 (chatRxFragment, post1) -> postRepository.remove(post1),
@@ -222,17 +261,21 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initEditPost() {
         restartableFirst(REQUEST_EDIT_POST, () -> service.editPost(teamId, channelId, forEditPost)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread()),
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread()),
                 (chatRxFragment, post1) -> {
-            post1.setUser(userRepository.query(new UserByIdSpecification(post1.getUserId())).first());
-            post1.setMessage(Processor.process(post1.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-            postRepository.update(post1);
-            sendIvalidateAdapter();
-        }, (chatRxFragment1, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, "Error edit post " + throwable.getMessage());
-        });
+                    post1.setUser(userRepository.query(new UserByIdSpecification(post1.getUserId())).first());
+                    post1.setMessage(Processor.process(post1.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                    postRepository.update(post1);
+                    sendIvalidateAdapter();
+                }, (chatRxFragment1, throwable) -> {
+                    Post post = new Post(postRepository.query(new PostByIdSpecification(forEditPost.getId())).first());
+                    post.setUpdateAt(updateAt);
+                    postRepository.update(post);
+                    sendIvalidateAdapter();
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error edit post " + throwable.getMessage());
+                });
     }
 
     private void initLoadBefore(){
@@ -291,6 +334,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
+    private void initGetUsers(){
+        restartableFirst(REQUEST_DB_GETUSERS,
+                () ->
+                        userRepository.query((new UserByNameSearchSpecification(search))).asObservable(),
+                (chatRxFragment, o) -> sendDropDown(o));
+    }
+
     //endregion
 
     //region Requests
@@ -309,7 +359,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     public void requestSendToServer(Post post) {
         forSendPost = post;
-        String sendedPostId = post.getId();
+        String sendedPostId = post.getPendingPostId();
         post.setId(null);
 
         start(REQUEST_SEND_TO_SERVER);
@@ -321,14 +371,28 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         postRepository.add(forSavePost);
     }
 
+
+
+    public void requestSendToServerError(Post post){
+        forSendPost = post;
+        post.setId(null);
+        post.setUser(null);
+        post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());
+        start(REQUEST_SEND_TO_SERVER_ERROR);
+    }
+
     public void requestDeletePost(Post post) {
         forDeletePost = post;
         start(REQUEST_DELETE_POST);
     }
 
-    public void requestEditPost(Post post) {
+    public void requestEditPost(PostEdit post) {
         forEditPost = post;
         start(REQUEST_EDIT_POST);
+        Post post1 = new Post(postRepository.query(new PostByIdSpecification(forEditPost.getId())).first());
+        post1.setUpdateAt(null);
+        postRepository.update(post1);
+        sendIvalidateAdapter();
     }
 
     public void requestUpdateLastViewedAt() {
@@ -343,6 +407,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     public void requestLoadAfter(){
         getFirstMessageId();
         start(REQUEST_LOAD_AFTER);
+    }
+
+    public void requestGetUsers(String search){
+        this.search = search;
+        start(REQUEST_DB_GETUSERS);
     }
 
     //endregion
@@ -419,34 +488,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .compose(deliverFirst())
                 .subscribe(split(ChatRxFragment::setCanPaginationBot));
     }
+    private void sendDropDown(RealmResults<User> users){
+        Observable.just(users)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(deliverFirst())
+                .subscribe(split(ChatRxFragment::setDropDown));
+    }
+    private void sendHideFileAttachLayout(){
+        Observable.just(new Object())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(deliverFirst())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.hideAttachedFilesLayout()));
+
+    }
 
     //endregion
 
 
-    public TextWatcher getMassageTextWatcher() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
-                        getUsers(null);
-                    else
-                        getUsers(charSequence.toString());
-                else
-                    sendSetDropDown(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-    }
 
     public void getUsers(String search) {
         RealmResults<User> users;
@@ -464,13 +524,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void getLastMessageId() {
         RealmResults<Post> realmList = postRepository.query(new PostByChannelId(channelId));
-        lastmessageId = realmList.get(0).getId();
-        Log.d(TAG, "lastmessage " + realmList.get(0).getMessage());
+        if(realmList.size()!=0) {
+            lastmessageId = realmList.get(0).getId();
+            Log.d(TAG, "lastmessage " + realmList.get(0).getMessage());
+        }
     }
 
     public void getFirstMessageId() {
         RealmResults<Post> realmList = postRepository.query(new PostByChannelId(channelId));
-        firstmessageId = realmList.get(realmList.size()-1).getId();
-        Log.d(TAG, "firstmessage " + realmList.get(realmList.size()-1).getMessage());
+        if(realmList.size()!=0){
+            firstmessageId = realmList.get(realmList.size()-1).getId();
+            Log.d(TAG, "firstmessage " + realmList.get(realmList.size()-1).getMessage());
+        }
+    }
+
+    private void setErrorPost(String sendedPostId) {
+        Post post = new Post(postRepository.query(new PostByIdSpecification(sendedPostId)).first());
+        post.setUpdateAt(Post.NO_UPDATE);
+        Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
+        postRepository.update(post);
+        sendIvalidateAdapter();
     }
 }

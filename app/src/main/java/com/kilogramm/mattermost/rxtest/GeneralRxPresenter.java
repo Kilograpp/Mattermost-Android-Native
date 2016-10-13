@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -9,24 +8,33 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
+import com.kilogramm.mattermost.model.entity.ListSaveData;
 import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByIdSpecification;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 /**
@@ -39,12 +47,17 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_LOAD_CHANNELS = 2;
     private static final int REQUEST_USER_TEAM = 3;
     private static final int REQUEST_LOGOUT = 4;
+    private static final int REQUEST_SAVE = 5;
 
     Realm realm;
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
 
+    ApiMethod service;
+
     @State String teamId;
+    @State
+    ListSaveData mSaveData  = new ListSaveData();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -54,12 +67,50 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         userRepository = new UserRepository();
         channelRepository = new ChannelRepository();
         MattermostApp application = MattermostApp.getSingleton();
-        ApiMethod service = application.getMattermostRetrofitService();
-        initRequest(service);
+        service = application.getMattermostRetrofitService();
+        initRequest();
 
     }
 
-    private void initRequest(ApiMethod service) {
+    @Override
+    public void takeView(GeneralRxActivity generalActivity) {
+        super.takeView(generalActivity);
+        setSelectedLast(MattermostPreference.getInstance().getLastChannelId());
+    }
+
+    public void setSelectedLast(String id) {
+        Channel channel;
+        if (id != null) {
+            try {
+                channel = channelRepository.query(new ChannelByIdSpecification(id)).first();
+                if (channel != null)
+                    switch (channel.getType()) {
+                        case "O":
+                            setSelectedChannel(channel.getId(), channel.getName());
+                            break;
+                        case "D":
+                            setSelectedDirect(channel.getId(), channel.getUsername());
+                            break;
+                        case "P":
+                            break;
+                    }
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+        } else {
+            RealmResults<Channel> channels = channelRepository.query(new ChannelByTypeSpecification("O"));
+            if (channels.size() != 0) {
+                setSelectedChannel(channels.first().getId(), channels.first().getName());
+            } else {
+                channels.addChangeListener(element -> {
+                    if (element.size() != 0)
+                        setSelectedChannel(element.first().getId(), element.first().getName());
+                });
+            }
+        }
+    }
+
+    private void initRequest() {
 
         restartableFirst(REQUEST_DIRECT_PROFILE, () -> {
             return service.getDirectProfile()
@@ -94,6 +145,12 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                    .observeOn(AndroidSchedulers.mainThread());
         },(generalRxActivity, stringUserMap) -> {
             userRepository.add(stringUserMap.values());
+            if (MattermostPreference.getInstance().getLastChannelId() == null) {
+                Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                if (channel != null) {
+                    setSelectedChannel(channel.getId(), channel.getName());
+                }
+            }
         },(generalRxActivity1, throwable) -> {
             throwable.printStackTrace();
         });
@@ -111,7 +168,47 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             throwable.printStackTrace();
             Log.d(TAG, "Error logout");
         });
+
+        initSaveRequest();
     }
+
+    private void initSaveRequest(){
+        restartableFirst(REQUEST_SAVE,() -> {
+            return Observable.zip(service.save(mSaveData.getmSaveData())
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread()), service.getChannelsTeam(teamId)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread()),
+                    (aBoolean, channelsWithMembers) -> {
+                        channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                                MattermostPreference.getInstance().getMyUserId(),userRepository);
+                        String myId = MattermostPreference.getInstance().getMyUserId();
+                        RealmResults<Channel> channels = realm.where(Channel.class)
+                                .equalTo("name", myId + "__" + mSaveData.getmSaveData().get(0).getName())
+                                .or()
+                                .equalTo("name", mSaveData.getmSaveData().get(0).getName() + "__" + myId)
+                                .findAll();
+                        if(channels.size()!=0){
+                            return channels.get(0);
+                        } else {
+                            return null;
+                        }
+                        });
+        }, (generalRxActivity,channel) -> {
+            setSelectedDirect( channel.getId(), channel.getUsername());
+            Log.d(TAG, "Must open direct dialog");
+            mSaveData.getmSaveData().clear();
+        }, (generalRxActivity1, throwable) -> {
+            throwable.printStackTrace();
+        });
+    }
+
+    public void requestSaveData(SaveData data){
+        mSaveData.getmSaveData().clear();
+        mSaveData.getmSaveData().add(data);
+        start(REQUEST_SAVE);
+    }
+
 
     public void requestLoadChannels(){
         start(REQUEST_LOAD_CHANNELS);
@@ -141,98 +238,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
-//    private void loadDirectProfiles(){
-//        if(subscription != null && !subscription.isUnsubscribed())
-//            subscription.unsubscribe();
-//        MattermostApp application = MattermostApp.getSingleton();
-//        ApiMethod service = application.getMattermostRetrofitService();
-//        subscription = service.getDirectProfile()
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new MattermostHttpSubscriber<Map<String, User>>() {
-//                    @Override
-//                    public void onErrorMattermost(HttpError httpError, Throwable e) {
-//                        getView().showErrorText(httpError.toString());
-//                    }
-//
-//                    @Override
-//                    public void onCompleted() {
-//                        Log.d(TAG, "complete load channels");
-//                        loadChannels(teamId);
-//                    }
-//
-//                    @Override
-//                    public void onNext(Map<String, User> stringUserMap) {
-//                        // channelRepository.add(channelsWithMembers.getChannels());
-//                        RealmList<User> users = new RealmList<>();
-//                        users.addAll(stringUserMap.values());
-//                        users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
-//                        users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
-//                        userRepository.add(users);
-//                    }
-//                });
-//
-//    }
-
-//    private void loadChannels(String teamId){
-//        if(subscription != null && !subscription.isUnsubscribed())
-//            subscription.unsubscribe();
-//        MattermostApp application = MattermostApp.getSingleton();
-//        ApiMethod service = application.getMattermostRetrofitService();
-//        subscription = service.getChannelsTeam(teamId)
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new MattermostHttpSubscriber<ChannelsWithMembers>() {
-//                    @Override
-//                    public void onCompleted() {
-//                        Log.d(TAG, "complete load channels");
-//                        loadUsersTeam(teamId);
-//                    }
-//
-//                    @Override
-//                    public void onErrorMattermost(HttpError httpError, Throwable e) {
-//                        getView().showErrorText(httpError.toString());
-//                    }
-//
-//                    @Override
-//                    public void onNext(ChannelsWithMembers channelsWithMembers) {
-//                        channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-//                                MattermostPreference.getInstance().getMyUserId(),userRepository);
-//                    }
-//                });
-//
-//    }
-
-//    private void loadUsersTeam(String teamId){
-//        if(subscription != null && !subscription.isUnsubscribed())
-//            subscription.unsubscribe();
-//        MattermostApp application = MattermostApp.getSingleton();
-//        ApiMethod service = application.getMattermostRetrofitService();
-//        subscription = service.getTeamUsers(teamId)
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<Map<String, User>>() {
-//                    @Override
-//                    public void onCompleted() {
-//                        Log.d(TAG, "complete load users");
-//                        Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
-//                        if(channel!=null){
-//                            setSelectedChannel(channel.getId(),channel.getName());
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    @Override
-//                    public void onNext(Map<String, User> stringUserMap) {
-//                        userRepository.add(stringUserMap.values());
-//                    }
-//                });
-//    }
-
     public void setSelectedDirect(String itemId,String name){
 //        String myId = realm.where(User.class).findFirst().getId();
 //
@@ -243,42 +248,18 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //                .findFirst()
 //                .getId();
         sendSetFragmentChat(itemId,name,false);
+        MattermostPreference.getInstance().setLastChannelId(itemId);
     }
 
     public void setSelectedChannel(String channelId,String name){
         sendSetFragmentChat(channelId,name,true);
+        MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
-//    public void logout() {
-//        if(subscription != null && !subscription.isUnsubscribed())
-//            subscription.unsubscribe();
-//        MattermostApp application = MattermostApp.getSingleton();
-//        ApiMethod service = application.getMattermostRetrofitService();
-//        subscription = service.logout(new Object())
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<LogoutData>() {
-//                    @Override
-//                    public void onCompleted() {
-//                        Log.d(TAG, "Complete logout");
-//                        clearDataBaseAfterLogout();
-//                        clearPreference();
-//                        MainActivity.start(getView(), Intent.FLAG_ACTIVITY_NEW_TASK |
-//                                Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        e.printStackTrace();
-//                        Log.d(TAG, "Error logout");
-//                    }
-//                    @Override
-//                    public void onNext(LogoutData logoutData) { }
-//                });
-//    }
 
     private void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);
+        MattermostPreference.getInstance().setLastChannelId(null);
     }
 
     private void clearDataBaseAfterLogout(){

@@ -49,9 +49,11 @@
         </activity>
 
         <activity android:name=".rxtest.LoginRxActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible"/>
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".rxtest.GeneralRxActivity"/>
+        <activity android:name=".rxtest.GeneralRxActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"

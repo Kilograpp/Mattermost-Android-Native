@@ -1,23 +1,31 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
+import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
+import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
 import icepick.Icepick;
 import nucleus.factory.RequiresPresenter;
@@ -27,6 +35,11 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralRxPresenter.class)
 public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
+    private static final String TAG = "GeneralRxActivity";
+
+    private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+    private static final int SEARCH_CODE = 4;
+
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
     MenuDirectListFragment directListFragment;
@@ -51,16 +64,16 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
         directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId,name));
 
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(binding.fragmentDirectList.getId(), directListFragment);
-        fragmentTransaction.commit();
+        getFragmentManager().beginTransaction()
+                .replace(binding.fragmentDirectList.getId(), directListFragment)
+                .commit();
 
         //initChannelList
         channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId,name));
 
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(binding.fragmentChannelList.getId(), channelListFragment);
-        fragmentTransaction.commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(binding.fragmentChannelList.getId(), channelListFragment)
+                .commit();
     }
 
     @Override
@@ -79,6 +92,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }else{
             channelListFragment.resetSelectItem();
         }
+        MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
     private void replaceFragment(String channelId, String channelName){
@@ -86,10 +100,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
-                    .replace(binding.contentFrame.getId(), rxFragment)
+                    .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         }
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     public static void start(Context context, Integer flags ) {
@@ -115,6 +130,40 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     protected void onResume() {
         super.onResume();
         MattermostService.Helper.create(this).updateUserStatusNow();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (Build.VERSION.SDK_INT >= 23 && fragment != null) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_CANCELED) {
+            if (requestCode == MenuDirectListFragment.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+                if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
+                    String name = data.getStringExtra(WholeDirectListActivity.NAME);
+                    //TODO проверить после кореектирования архитектуры (melkshake)
+//                    getPresenter().setSelectedDirect(itemId, name);
+                    SaveData saveData = new SaveData(name, MattermostPreference.getInstance().getMyUserId(), true);
+                    Log.d(TAG, "saveData constructor");
+                    getPresenter().requestSaveData(saveData);
+                }
+            }
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == SEARCH_CODE) {
+            String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+            String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
+            String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
+            boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
+            this.setFragmentChat(channelId, channelName, isChannel);
+        }
     }
 
 }

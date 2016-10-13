@@ -129,6 +129,6 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     public void onResume() {
         super.onResume();
         Log.d("UPDATE STATUS","");
-        MattermostService.Helper.create(getContext()).updateUserStatusNow();
+        MattermostService.Helper.create(getActivity()).updateUserStatusNow();
     }
 }

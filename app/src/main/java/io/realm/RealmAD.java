@@ -118,6 +118,13 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         return rowPrimaryId;
     }
 
+    public Object getLastItem(){
+        if(getData()!=null && getData().size()!=0){
+            return getData().last();
+        }
+        return null;
+    }
+
     private boolean isDataValid() {
         return adapterData != null && adapterData.isValid();
     }

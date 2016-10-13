@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
+import com.kilogramm.mattermost.view.chat.NewChatListAdapter;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 import com.vdurmont.emoji.EmojiParser;
@@ -48,6 +49,8 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
     private Context context;
     private OnItemClickListener<Post> listener;
 
+    public NewChatListAdapter.GetRootPost getRootPost;
+
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
@@ -57,6 +60,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
         this.listener = listener;
+        this.getRootPost = getRootPost;
     }
 
     @Override
@@ -113,6 +117,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         switch (viewType){
             case ITEM:
                 Log.d(TAG, "bindItem ");
+
                 return MyViewHolder.createItem(inflater, parent);
             case LOADING_TOP:
                 Log.d(TAG, "bindTop ");
@@ -134,6 +139,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             Calendar preDate = Calendar.getInstance();
             Post prePost;
             Boolean isTitle = false;
+            Post root = null;
             if(pos-1 >= 0){
                 prePost = getData().get(pos-1);
                 curDate.setTime(new Date(post.getCreateAt()));
@@ -141,8 +147,13 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 if(curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)){
                     isTitle = true;
                 }
+                if (post.getRootId() != null
+                        && post.getRootId().length() > 0
+                        && getData().where().equalTo("id", post.getRootId()).findAll().size()!=0) {
+                        root = getData().where().equalTo("id", post.getRootId()).findFirst();
+                }
             }
-            holder.bindToItem(post, context, isTitle, listener);
+            holder.bindToItem(post, context, isTitle, root, listener);
         } else {
             holder.bindToLoadingBottom();
         }
@@ -182,7 +193,13 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             mBinding = binding;
         }
 
-        public void bindToItem(Post post, Context context, Boolean isTitle, OnItemClickListener listener) {
+        public void bindToItem(Post post, Context context, Boolean isTitle, Post root, OnItemClickListener listener) {
+            if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
+                ((ChatListItemBinding) mBinding).sendStatusError.setOnClickListener(view -> {
+                    if (listener != null)
+                        listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, post);
+                });
+            }
             ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
                 if (listener != null)
                     listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post);
@@ -192,11 +209,16 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
             ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
             if(((ChatListItemBinding) mBinding).getViewModel() == null){
-                ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(context, post));
+                ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(post));
             } else {
                 ((ChatListItemBinding) mBinding).getViewModel().setPost(post);
 
             }
+            if (root!=null)
+                setRootMassage(root);
+            else
+                ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.GONE);
+
             if(isTitle){
                 ((ChatListItemBinding) mBinding).getViewModel().setTitleVisibility(View.VISIBLE);
             } else {
@@ -219,6 +241,15 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
         public void bindToLoadingBottom(){
 
+        }
+
+        private void setRootMassage( Post root) {
+            if (root != null) {
+                ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
+                ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
+                ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
+                ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, ((ChatListItemBinding) mBinding).getRoot().getContext())).toString().trim());
+            }
         }
 
         @NonNull

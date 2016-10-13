@@ -141,7 +141,7 @@ public class ManagerBroadcast {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
                 .setContentText(post.getMessage())
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setSmallIcon(R.mipmap.icon);
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

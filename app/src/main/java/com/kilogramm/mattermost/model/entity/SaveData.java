@@ -1,15 +1,16 @@
 package com.kilogramm.mattermost.model.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by melkshake on 22.09.16.
  */
-public class SaveData {
+public class SaveData implements Parcelable {
 
-    @SerializedName("category")
-    public final String CATEGORY_DIRECT = "direct_channel_show";
-
+    private String category = "direct_channel_show";
     private String name;
     private String user_id;
     private String value;
@@ -43,4 +44,36 @@ public class SaveData {
     public void setValue(Boolean value) {
         this.value = value.toString();
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.category);
+        dest.writeString(this.name);
+        dest.writeString(this.user_id);
+        dest.writeString(this.value);
+    }
+
+    protected SaveData(Parcel in) {
+        this.category = in.readString();
+        this.name = in.readString();
+        this.user_id = in.readString();
+        this.value = in.readString();
+    }
+
+    public static final Creator<SaveData> CREATOR = new Creator<SaveData>() {
+        @Override
+        public SaveData createFromParcel(Parcel source) {
+            return new SaveData(source);
+        }
+
+        @Override
+        public SaveData[] newArray(int size) {
+            return new SaveData[size];
+        }
+    };
 }
