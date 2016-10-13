@@ -401,14 +401,18 @@ public class ChatFragmentMVP extends BaseFragment<ChatPresenter> implements OnIt
         postEdit.setId(rootPost.getId());
         postEdit.setChannelId(channelId);
         postEdit.setMessage(getMessage());
-        closeEditView();
         if (postEdit.getMessage().length() != 0) {
             setMessage("");
-            getPresenter().editPost(postEdit, teamId, channelId);
+            getPresenter().editPost(postEdit, teamId, channelId, rootPost.getUpdateAt());
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
         }
+        closeEditView();
     } // +
+
+    public void refreshList(){
+        adapter.notifyDataSetChanged();
+    }
 
     private Long getTimePost() {
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
