@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
@@ -55,6 +56,7 @@ public class ProgressRequestBody extends RequestBody {
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
+//        Realm realm = Realm.getDefaultInstance();
 
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
@@ -65,6 +67,8 @@ public class ProgressRequestBody extends RequestBody {
                 fileToAttachRepository.updateProgress(mFile.getName(), (int) (100 * uploaded / fileLength));
                 sink.write(buffer, 0, read);
             }
+        } finally {
+//            realm.close();
         }
     }
 
