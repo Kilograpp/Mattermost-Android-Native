@@ -56,6 +56,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 
     private Boolean isEmpty = false;
     private Boolean isLoadNext = true;
+    private boolean isPosting = false;
+
     private PostRepository postRepository;
     private UserRepository userRepository;
 
@@ -159,7 +161,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                             if (!post.isSystemMessage())
                                 post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
                             else
-                                post.setUser(new User("System","System","System"));
+                                post.setUser(new User("System", "System", "System"));
                             post.setViewed(true);
                             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                         }
@@ -220,9 +222,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    /******************************** for search **************************/
+    /********************************
+     * for search
+     **************************/
 
-    public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit ) {
+    public void loadPostsAfter(String teamId, String channelId, String postId, String offset, String limit) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
@@ -259,7 +263,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-    public void loadPostsBefore(String teamId, String channelId, String postId, String offset, String limit ) {
+    public void loadPostsBefore(String teamId, String channelId, String postId, String offset, String limit) {
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
 
@@ -297,33 +301,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                 });
     }
 
-/*******************************************************************************/
-
-    public TextWatcher getMassageTextWatcher() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt(charSequence.length() - 1) == '@')
-                        getUsers(null);
-                    else
-                        getUsers(charSequence.toString());
-                else
-                    getView().setDropDown(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-    }
-
+    /*******************************************************************************/
 
     public void getUsers(String search) {
         RealmResults<User> users = userRepository.query(new UserByNameSearchSpecification(search));
@@ -339,7 +317,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void sendToServerError(Post sendedPost, String teamId, String channelId) {
-        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+        if (FileToAttachRepository.getInstance().haveUnloadedFiles()) {
             return;
         }
         if (mSubscription != null && !mSubscription.isUnsubscribed())
@@ -379,9 +357,11 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
     public void sendToServer(Post sendedPost, String teamId, String channelId) {
-        if(FileToAttachRepository.getInstance().haveUnloadedFiles()){
+        if (isPosting) return;
+        if (FileToAttachRepository.getInstance().haveUnloadedFiles()) {
             return;
         }
+        isPosting = true;
         if (mSubscription != null && !mSubscription.isUnsubscribed())
             mSubscription.unsubscribe();
         String sendedPostId = sendedPost.getPendingPostId();
@@ -397,6 +377,8 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         Log.d(TAG, "Complete create post");
                         FileToAttachRepository.getInstance().clearData();
                         getView().hideAttachedFilesLayout();
+                        getView().setMessage("");
+                        isPosting = false;
                     }
 
                     @Override
@@ -404,6 +386,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
                         setErrorPost(sendedPostId);
                         e.printStackTrace();
                         Log.d(TAG, "Error create post " + e.getMessage());
+                        isPosting = false;
                     }
 
                     @Override
@@ -420,7 +403,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
     }
 
 
-    private void setErrorPost(String sendedPostId){
+    private void setErrorPost(String sendedPostId) {
         Post post = new Post(postRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
@@ -428,7 +411,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
         getView().refreshItem();
     }
 
-    private void setpostData(Post post, String sendedPostId){
+    private void setpostData(Post post, String sendedPostId) {
         post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         Log.d("CreateAt", "setpostData: " + post.getCreateAt());
