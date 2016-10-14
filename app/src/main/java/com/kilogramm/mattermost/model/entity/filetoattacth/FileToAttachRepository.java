@@ -132,7 +132,6 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-
         realm.close();
     }
 
