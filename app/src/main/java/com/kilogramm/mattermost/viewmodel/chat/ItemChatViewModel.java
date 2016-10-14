@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.viewmodel.chat;
 
-import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;

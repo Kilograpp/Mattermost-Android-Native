@@ -1,48 +1,8 @@
 package com.kilogramm.mattermost.presenter;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.Html;
-import android.text.TextWatcher;
-import android.util.Log;
-
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Processor;
-import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.FileUploadResponse;
-import com.kilogramm.mattermost.model.entity.Posts;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
-import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
-import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
-import com.kilogramm.mattermost.model.entity.post.PostByPendingPostIdSpecification;
-import com.kilogramm.mattermost.model.entity.post.PostEdit;
-import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
-import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
-import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
-import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.tools.FileUtils;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 
-import java.io.File;
-
-import io.realm.RealmList;
-import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 13.09.2016.
