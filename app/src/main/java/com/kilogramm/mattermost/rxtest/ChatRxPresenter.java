@@ -368,6 +368,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(userRepository.query(new UserByIdSpecification(forSavePost.getUserId()))
                 .first());
+        forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         postRepository.add(forSavePost);
     }
 
