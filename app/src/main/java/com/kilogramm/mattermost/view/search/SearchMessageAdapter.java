@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
     private OnJumpClickListener jumpClickListener;
     private static String terms;
+    private Context context;
 
     public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
                                 boolean autoUpdate, OnJumpClickListener listener,
@@ -46,6 +48,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
         super(context, data, autoUpdate);
         this.jumpClickListener = listener;
         this.terms = terms;
+        this.context = context;
     }
 
     @Override
@@ -55,16 +58,15 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.bindTo(getData().get(position));
+        holder.bindTo(getData().get(position), context);
 
         String messageId = getData().get(position).getId();
         String channelId = getData().get(position).getChannelId();
-        Realm realm = Realm.getDefaultInstance();
-        String channelName = realm.where(Channel.class).equalTo("id", channelId).findFirst().getName();
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (jumpClickListener != null) {
-                jumpClickListener.onJumpClick(messageId,
+                jumpClickListener.onJumpClick(
+                        messageId,
                         channelId,
                         holder.getmBinding().chatName.getText().toString(),
                         holder.isChannel());
@@ -88,7 +90,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.item_search_result, parent, false));
         }
 
-        void bindTo(Post post) {
+        void bindTo(Post post, Context context) {
             RealmResults<User> user = realm.where(User.class).equalTo("id", post.getUserId()).findAll();
             RealmResults<Channel> channel = realm.where(Channel.class).equalTo("id", post.getChannelId()).findAll();
 
@@ -104,21 +106,9 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                 isChannel = true;
             }
 
-//            binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
-
             binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
-
-//            Spannable word = new SpannableString(terms);
-//            word.setSpan(new BackgroundColorSpan(Color.CYAN), 0, terms.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//            Pattern highlightWord = Pattern.compile(terms);
-//            Matcher findWord = highlightWord.matcher(post.getMessage());
-//            findWord.replaceAll(word);
-
-
-
-            binding.foundMessage.setText(post.getMessage());
-
+            binding.foundMessage.setText(this.setTextWithHighlight(post.getMessage(), terms, context));
             Picasso.with(binding.avatarDirect.getContext())
                     .load(getImageUrl(user.first().getId()))
                     .resize(60, 60)
@@ -148,13 +138,28 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                 return realm.where(User.class).equalTo("id", channelNameParsed[0]).findFirst().getUsername();
             }
         }
+
+        public Spannable setTextWithHighlight(String message, String terms, Context context) {
+            Spannable spannableText = new SpannableStringBuilder(message);
+            Pattern mTerm = Pattern.compile(terms.toLowerCase());
+            Matcher findWord = mTerm.matcher(message.toLowerCase());
+
+            while (findWord.find()) {
+                spannableText.setSpan(new BackgroundColorSpan(
+                        context.getResources().getColor(R.color.color_highlight)),
+                        findWord.start(0),
+                        findWord.end(0),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            return spannableText;
+        }
     }
 
     public static String DateOrTimeConvert(Long createAt, boolean isTime) {
         Date dateTime = new Date(createAt);
         if (isTime) {
-            return new SimpleDateFormat("HH:mm").format(dateTime);
-//            return new SimpleDateFormat("hh:mm a").format(dateTime);
+            return new SimpleDateFormat("hh:mm a").format(dateTime);
         } else {
             return new SimpleDateFormat("dd.MM.yyyy").format(dateTime);
         }
