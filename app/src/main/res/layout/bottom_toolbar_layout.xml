@@ -23,9 +23,9 @@
             android:id="@+id/addDocs"
             style="@style/ChatBottomToolbar"
             android:src="@drawable/attach_doc_icon" />
-        <ImageView
-            android:id="@+id/addSmile"
-            style="@style/ChatBottomToolbar"
-            android:src="@drawable/attach_smile_icon" />
+        <!--<ImageView-->
+            <!--android:id="@+id/addSmile"-->
+            <!--style="@style/ChatBottomToolbar"-->
+            <!--android:src="@drawable/attach_smile_icon" />-->
     </LinearLayout>
 </layout>
