@@ -28,7 +28,7 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
     public String getChannelName(){
         return channel.getUser().getUsername();}
 
-    public Drawable getStatusIconDrawable() {
+    /*public Drawable getStatusIconDrawable() {
         switch (channel.getUser().getStatus()){
             case User.ONLINE:
                 return context.getResources().getDrawable(R.drawable.status_online_drawable);
@@ -41,7 +41,7 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
             default:
                 return context.getResources().getDrawable(R.drawable.status_offline_drawable);
         }
-    }
+    }*/
 
     public String getUnreadedMessage(){
         /*Integer unreadedMessage = channel.getUnreadedMessage();

@@ -62,13 +62,19 @@
                     app:srl_direction="bottom"
                     tools:visibility="visible">
 
-                    <com.kilogramm.mattermost.ui.MRealmRecyclerView
+                    <com.kilogramm.mattermost.ui.MatterRecyclerView
+                        android:id="@+id/rev"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:scrollbars="vertical"
+                        android:visibility="gone"/>
+                   <!--<com.kilogramm.mattermost.ui.MRealmRecyclerView
                         android:id="@+id/rev"
                         android:layout_width="match_parent"
                         android:layout_height="400dp"
                         android:visibility="gone"
                         app:rrvLayoutType="LinearLayout">
-                    </com.kilogramm.mattermost.ui.MRealmRecyclerView>
+                    </com.kilogramm.mattermost.ui.MRealmRecyclerView>-->
                 </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
 
@@ -131,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    android:src="@drawable/ic_attachment_grey_24dp"/>
+                    app:srcCompat="@drawable/ic_attachment_grey_24dp"/>
 
                 <EditText
                     android:id="@+id/writingMessage"
@@ -160,7 +166,6 @@
                     android:padding="10dp"
                     android:src="@drawable/ic_send_white_24dp" />-->
             </LinearLayout>
-
         </LinearLayout>
 
        <include

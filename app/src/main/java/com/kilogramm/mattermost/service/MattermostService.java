@@ -54,7 +54,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         }
 
         if(UPDATE_USER_STATUS.equals(intent.getAction())){
-
+            mWebSocketManager.updateUserStatusNow();
         }
         return Service.START_STICKY;
     }
@@ -114,5 +114,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
             mContext.startService(intent);
             return this;
         }
+
+
     }
 }

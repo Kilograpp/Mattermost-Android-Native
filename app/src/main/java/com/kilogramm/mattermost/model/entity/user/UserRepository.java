@@ -6,7 +6,9 @@ import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -95,5 +97,21 @@ public class UserRepository implements Repository<User> {
                 .findFirst()
                 .setMessage(message));
         realm.close();
+    }
+
+    public List<User> queryList(Specification specification){
+        final RealmSpecification realmSpecification = (RealmSpecification) specification;
+        final Realm realm = Realm.getDefaultInstance();
+        final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
+
+        final List<User> users = new ArrayList<>();
+
+        for (User user : realmResults) {
+            users.add(user);
+        }
+
+        realm.close();
+
+        return users;
     }
 }

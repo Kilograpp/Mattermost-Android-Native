@@ -1,12 +1,7 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
-import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
-
 import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
-import com.kilogramm.mattermost.tools.FileUtils;
 
 import java.util.Collection;
 

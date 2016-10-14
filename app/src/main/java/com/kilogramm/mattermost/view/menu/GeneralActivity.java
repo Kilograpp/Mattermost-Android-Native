@@ -10,24 +10,21 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.presenter.GeneralPresenter;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
-
-import java.util.List;
 
 import nucleus.factory.RequiresPresenter;
 
@@ -39,9 +36,6 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
 
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     private static final int SEARCH_CODE = 4;
 
@@ -99,16 +93,18 @@ public class GeneralActivity extends BaseActivity<GeneralPresenter> {
         } else {
             channelListFragment.resetSelectItem();
         }
+
     }
 
-    private void replaceFragment(String channelId, String channelName) {
-        if (!channelId.equals(currentChannel)) {
-            ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
+    private void replaceFragment(String channelId, String channelName){
+        if(!channelId.equals(currentChannel)){
+            /*ChatFragmentMVP fragmentMVP = ChatFragmentMVP.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), fragmentMVP, FRAGMENT_TAG)
                     .commit();
-        }
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
+        */}
         binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 

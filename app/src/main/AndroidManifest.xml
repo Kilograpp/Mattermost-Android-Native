@@ -22,30 +22,38 @@
         </receiver>
 
         <activity
-            android:name=".view.authorization.MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:name=".view.authorization.MainActivity">
+        </activity>
+        <activity
+            android:name=".view.authorization.LoginActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity android:name=".view.authorization.ForgotPasswordActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+
+        <activity android:name=".view.menu.GeneralActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".view.ImageViewerActivity"
+            android:theme="@style/Transparent"
+            android:screenOrientation="portrait"/>
+
+        <!--RX activity-->
+        <activity
+            android:name=".rxtest.MainRxAcivity"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".view.authorization.LoginActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
 
-        <activity
-            android:name=".view.authorization.ForgotPasswordActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity android:name=".rxtest.LoginRxActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:screenOrientation="portrait"/>
 
-        <activity
-            android:name=".view.menu.GeneralActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".view.ImageViewerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Transparent" />
+        <activity android:name=".rxtest.GeneralRxActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"
@@ -65,6 +73,7 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".service.MattermostService"/>
         <meta-data
             android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"
             android:value="GlideModule" />
@@ -72,8 +81,6 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="1373df4a388cbef38f2feb69c126b74abc82a69e" />
-
-        <service android:name=".service.MattermostService" />
     </application>
 
 </manifest>

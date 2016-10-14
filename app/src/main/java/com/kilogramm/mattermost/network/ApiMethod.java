@@ -202,4 +202,12 @@ public interface ApiMethod {
     @POST ("api/v3/teams/{team_id}/posts/search")
     Observable<Posts> searchForPosts(@Path("team_id") String team_id,
                                      @Body SearchParams searchParams);
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
+    Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
+                                     @Path("channelId") String channelId,
+                                     @Path("firstMessageId") String firstMessageId);
 }

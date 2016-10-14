@@ -25,7 +25,7 @@ import io.realm.RealmViewHolder;
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
     static WholeDirectListPresenter mWholeDirectListPresenter;
     // TODO иметь статическую ссылку на контекст очень плохо. Поправь. Или я могу поправить, если хошь =) (Kepar)
-    private static Context context;
+    private Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
     private ArrayList<String> mUsersIds;
@@ -38,7 +38,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         this.context = context;
         mWholeDirectListPresenter = wholeDirectListPresenter;
         this.directItemClickListener = listener;
-        mWholeDirectListPresenter.getUsersStatuses(mUsersIds);
     }
 
     @Override
@@ -50,15 +49,11 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getData().get(position);
 
-        holder.bindTo(user);
+        holder.bindTo(context,user);
 
-        holder.getmBinding().getRoot().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (directItemClickListener != null) {
-                    directItemClickListener.onDirectClick(user.getId(), user.getUsername());
-                    mWholeDirectListPresenter.finishActivity();
-                }
+        holder.getmBinding().getRoot().setOnClickListener(view -> {
+            if (directItemClickListener != null) {
+                directItemClickListener.onDirectClick(user.getId(), user.getUsername());
             }
         });
     }
@@ -66,6 +61,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public static class MyViewHolder extends RealmViewHolder {
 
         private ItemDirectListBinding directBinding;
+
 
         private MyViewHolder(ItemDirectListBinding binding) {
             super(binding.getRoot());
@@ -77,7 +73,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             return new MyViewHolder(binding);
         }
 
-        public void bindTo(User user) {
+        public void bindTo(Context context, User user) {
 
             directBinding.directProfileName.setText(user.getUsername());
 
@@ -85,9 +81,9 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             directBinding.emailProfile.setText(stringBuilder);
 
             if (user.getStatus() != null) {
-                directBinding.status.setImageDrawable(drawStatusIcon(user.getStatus()));
+                directBinding.status.setImageDrawable(drawStatusIcon(context,user.getStatus()));
             } else {
-                directBinding.status.setImageDrawable(drawStatusIcon(User.OFFLINE));
+                directBinding.status.setImageDrawable(drawStatusIcon(context,User.OFFLINE));
             }
 
             Picasso.with(directBinding.avatarDirect.getContext())
@@ -108,7 +104,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         }
     }
 
-    public static Drawable drawStatusIcon(String status) {
+    public static Drawable drawStatusIcon(Context context, String status) {
         if (status == null) {
             return context.getResources().getDrawable(R.drawable.status_offline_drawable);
         }

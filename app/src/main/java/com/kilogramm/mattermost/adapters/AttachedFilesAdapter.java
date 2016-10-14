@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +12,6 @@ import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
-import java.io.File;
-
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -22,6 +21,7 @@ import io.realm.RealmViewHolder;
  * Created by kepar on 7.10.16.
  */
 public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach, AttachedFilesAdapter.MyViewHolder> {
+    private static final String TAG = "AttachedFilesAdapter";
     private Context context;
 
     private EmptyListListener emptyListListener;
@@ -61,7 +61,9 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.progressBar.setVisibility(View.GONE);
         }
         if (!holder.binding.close.hasOnClickListeners()) {
+            Log.d(TAG, "hasOnClickListeners = fasle");
             holder.binding.close.setOnClickListener(v -> {
+                Log.d(TAG, "setOnClickListener");
                 // TODO при удалении во время загрузки объект может стать невалидным и удалить его будет невозможно
                 if (fileToAttach.isValid()) {
                     FileToAttachRepository.getInstance().remove(fileToAttach);

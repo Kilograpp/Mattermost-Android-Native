@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.viewmodel.chat;
 
+import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
@@ -98,7 +99,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     public ObservableInt getProgressSendVisibility() {
         if (post.getUpdateAt() == null)
-            return  progressSendVisibility;
+            return progressSendVisibility;
         else
             return new ObservableInt(View.GONE);
     }

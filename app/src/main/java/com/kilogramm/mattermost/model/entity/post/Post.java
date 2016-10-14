@@ -68,7 +68,6 @@ public class Post extends RealmObject implements Parcelable {
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
-
     private User user;
 
     private Boolean viewed = false;
@@ -338,6 +337,8 @@ public class Post extends RealmObject implements Parcelable {
 
     public Post() {
     }
+
+
 
     public Post(Post post){
         this.id=post.getId();

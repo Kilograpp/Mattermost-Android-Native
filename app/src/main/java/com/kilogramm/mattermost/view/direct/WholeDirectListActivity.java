@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
@@ -76,9 +75,10 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     @Override
     public void onDirectClick(String itemId, String name) {
         Intent intent = new Intent(this, WholeDirectListActivity.class)
-                .putExtra(USER_ID, itemId)
-                .putExtra(NAME, name);
+                .putExtra(USER_ID, "")
+                .putExtra(NAME, itemId);
         setResult(Activity.RESULT_OK, intent);
+        //finishActivity();
         finish();
     }
 }

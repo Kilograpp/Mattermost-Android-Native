@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.ui;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -13,7 +12,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.entity.Team;
-import com.kilogramm.mattermost.tools.FileUtils;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 
 import java.io.UnsupportedEncodingException;
@@ -67,15 +66,11 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String s : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.files_item_layout, this,false);
-                switch (FileUtils.getFileType(s)) {
+                switch (FileUtil.getInstance().getFileType(s)) {
                     case PNG:
                         initAndAddItem(binding,getImageUrl(s));
                         binding.image.setOnClickListener(view -> {
                             Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-                            /*ImageViewerActivity.startActivity(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(s));*/
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
@@ -92,7 +87,6 @@ public class FilesView extends GridLayout {
                                     getImageUrl(s));
 
                         });
-                        //binding.image.setOnClickListener(view -> Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show());
                         break;
                     default:
                         initAndAddItem(binding,getImageUrl(s));
@@ -110,7 +104,7 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
-        Log.d(TAG, url);
+        //Log.d(TAG, url);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
         String title = "";
