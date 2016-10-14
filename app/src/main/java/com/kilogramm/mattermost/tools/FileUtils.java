@@ -1,9 +1,7 @@
 package com.kilogramm.mattermost.tools;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -11,12 +9,13 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
 
 /**
  * Created by Evgeny on 01.09.2016.
  */
 public class FileUtils {
+
+
 
     public static String getFileType(String uri){
         String filenameArray[] = uri.split("\\.");

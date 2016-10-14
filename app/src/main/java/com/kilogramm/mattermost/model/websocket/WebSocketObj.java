@@ -45,7 +45,7 @@ public class WebSocketObj implements Parcelable {
 
     //Status
     public static final String STATUS = "status";
-    public static final String SEQ_REPLAY = "seq_replay";
+    public static final String SEQ_REPLAY = "seq_reply";
     public static final String ALL_USER_STATUS = "all_user_status";
     @SerializedName("team_id")
     @Expose

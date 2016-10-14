@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
 import com.kilogramm.mattermost.network.TestApiGuthubMethod;
 import com.kilogramm.mattermost.network.TestGithubRetrofitService;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import org.java_websocket.client.WebSocketClient;
@@ -80,6 +81,7 @@ public class MattermostApp extends Application{
             Fabric.with(this, new Crashlytics());
         }
         singleton = this;
+        FileUtil.createInstance(getApplicationContext());
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .build();

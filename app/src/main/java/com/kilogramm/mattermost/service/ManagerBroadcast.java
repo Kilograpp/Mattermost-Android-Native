@@ -56,19 +56,27 @@ public class ManagerBroadcast {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         WebSocketObj webSocketObj = new WebSocketObj();
-        webSocketObj.setTeamId(jsonObject.getString(WebSocketObj.TEAM_ID));
-        webSocketObj.setUserId(jsonObject.getString(WebSocketObj.USER_ID));
-        webSocketObj.setChannelId(jsonObject.getString(WebSocketObj.CHANNEL_ID));
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        webSocketObj.setEvent(jsonObject.getString(WebSocketObj.EVENT));
+        if(jsonObject.has(WebSocketObj.TEAM_ID)){
+            webSocketObj.setTeamId(jsonObject.getString(WebSocketObj.TEAM_ID));
+        }
+        if(jsonObject.has(WebSocketObj.USER_ID)){
+            webSocketObj.setUserId(jsonObject.getString(WebSocketObj.USER_ID));
+        }
+        if(jsonObject.has(WebSocketObj.CHANNEL_ID)){
+            webSocketObj.setChannelId(jsonObject.getString(WebSocketObj.CHANNEL_ID));
+        }
+        if(jsonObject.has(WebSocketObj.EVENT)){
+            webSocketObj.setEvent(jsonObject.getString(WebSocketObj.EVENT));
+        }
         if(jsonObject.has(WebSocketObj.SEQ_REPLAY)){
             webSocketObj.setSeqReplay(jsonObject.getInt(WebSocketObj.SEQ_REPLAY));
         }
-        String event = webSocketObj.getEvent();
-        Data data = null;
         if(webSocketObj.getSeqReplay()!=null){
             webSocketObj.setEvent(WebSocketObj.ALL_USER_STATUS);
         }
+        String event = webSocketObj.getEvent();
+        Data data = null;
         switch (event){
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
@@ -133,7 +141,7 @@ public class ManagerBroadcast {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
                 .setContentText(post.getMessage())
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setSmallIcon(R.mipmap.icon);
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

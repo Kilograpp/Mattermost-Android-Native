@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.view.search;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -130,5 +132,11 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
                 .putExtra(IS_CHANNEL, isChannel);
         setResult(RESULT_OK, intent);
         finish();
+    }
+
+    public static void startForResult(Activity context, String teamId, Integer id) {
+        Intent starter = new Intent(context, SearchMessageActivity.class);
+        starter.putExtra(TEAM_ID, teamId);
+        context.startActivityForResult(starter,id);
     }
 }

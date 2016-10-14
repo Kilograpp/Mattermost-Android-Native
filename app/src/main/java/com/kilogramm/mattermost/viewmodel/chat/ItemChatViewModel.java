@@ -98,7 +98,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     public ObservableInt getProgressSendVisibility() {
         if (post.getUpdateAt() == null)
-            return  progressSendVisibility;
+            return progressSendVisibility;
         else
             return new ObservableInt(View.GONE);
     }

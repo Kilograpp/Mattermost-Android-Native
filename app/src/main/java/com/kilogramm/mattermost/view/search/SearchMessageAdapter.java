@@ -59,7 +59,10 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (jumpClickListener != null) {
-                jumpClickListener.onJumpClick(messageId, channelId, channelName, holder.isChannel());
+                jumpClickListener.onJumpClick(messageId,
+                        channelId,
+                        holder.getmBinding().chatName.getText().toString(),
+                        holder.isChannel());
             }
         });
     }

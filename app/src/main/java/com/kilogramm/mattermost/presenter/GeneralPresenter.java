@@ -145,8 +145,8 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
 
     }
 
-    private void loadUsersTeam(String teamId) {
-        if (subscription != null && !subscription.isUnsubscribed())
+    private void loadUsersTeam(String teamId){
+        if(subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
         MattermostApp application = MattermostApp.getSingleton();
         ApiMethod service = application.getMattermostRetrofitService();
@@ -176,6 +176,7 @@ public class GeneralPresenter extends Presenter<GeneralActivity> {
                     }
                 });
     }
+
 
     public void save(SaveData saveData) {
         if (subscription != null && !subscription.isUnsubscribed())

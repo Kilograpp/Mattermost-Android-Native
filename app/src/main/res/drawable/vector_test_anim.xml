@@ -6,5 +6,12 @@
     <target
         android:animation="@animator/blink"
         android:name="bl"/>
+    <target
+        android:animation="@animator/scale_x_anim"
+        android:name="gr"/>
+
+    <target
+        android:animation="@animator/scale_y_anim"
+        android:name="gr"/>
 
 </animated-vector>
