@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
@@ -74,12 +75,17 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> {
     public void addItem(List<Uri> uriList, String teamId, String channelId){
         for (Uri uri : uriList) {
             String filePath = FileUtil.getInstance().getPath(uri);
+            if(filePath == null){
+                Toast.makeText(getContext(), getContext().getString(R.string.cannot_open_file_to_attach), Toast.LENGTH_SHORT).show();
+                return;
+            }
             final File file = new File(filePath);
             if (file.exists()) {
                 getPresenter().requestUploadFileToServer(teamId,channelId,uri.toString());
-                //getPresenter().uploadFileToServer(getContext(), teamId, channelId, uri);
             } else {
-                Log.d(TAG, "file does't exists");
+                Log.d(TAG, "file doesn't exists");
+                Toast.makeText(getContext(), getContext().getString(R.string.cannot_open_file_to_attach), Toast.LENGTH_SHORT).show();
+                return;
             }
         }
     }

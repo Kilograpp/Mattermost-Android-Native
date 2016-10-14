@@ -115,7 +115,6 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
                 fileToAttach.setProgress(progress);
             }
         });
-
     }
 
     @Override
@@ -126,9 +125,8 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
                     .equalTo("fileName", item.getFileName())
                     .findAll();
-            fileToAttachList.deleteAllFromRealm();
+            fileToAttachList.deleteFirstFromRealm();
         });
-
         realm.close();
     }
 
@@ -152,7 +150,7 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
     public RealmResults<FileToAttach> query(){
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(FileToAttach.class).findAll();
+        return realm.where(FileToAttach.class).findAllSorted("fileName");
     }
 
     public boolean haveUnloadedFiles(){
@@ -161,7 +159,7 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
         RealmResults<FileToAttach> fileToAttachRealmResults =  realm.where(FileToAttach.class).findAll();
         for (FileToAttach fileToAttachRealmResult : fileToAttachRealmResults) {
-            if(!fileToAttachRealmResult.isUploaded){
+            if(!fileToAttachRealmResult.isUploaded()){
                 realm.commitTransaction();
                 realm.close();
                 return true;

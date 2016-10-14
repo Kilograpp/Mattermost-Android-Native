@@ -1,15 +1,17 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by kepar on 7.10.16.
  */
 public class FileToAttach extends RealmObject {
-    String fileName;
-    String filePath;
-    int progress;
-    boolean isUploaded;
+    @PrimaryKey
+    private String fileName;
+    private String filePath;
+    private int progress;
+    private boolean isUploaded;
 
     public FileToAttach(String filePath) {
         this.filePath = filePath;
