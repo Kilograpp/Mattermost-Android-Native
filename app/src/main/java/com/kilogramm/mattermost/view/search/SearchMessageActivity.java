@@ -22,6 +22,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -83,7 +84,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.recViewSearchResultList.setVisibility(View.VISIBLE);
         binding.defaultContainer.setVisibility(View.GONE);
 
-        adapter = new SearchMessageAdapter(this, query.findAll(), true, this, terms);
+        adapter = new SearchMessageAdapter(this, query.findAll().sort("createAt", Sort.DESCENDING), true, this, terms);
         binding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
         binding.recViewSearchResultList.setAdapter(adapter);
     }
