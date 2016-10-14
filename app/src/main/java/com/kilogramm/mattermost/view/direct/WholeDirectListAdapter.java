@@ -10,11 +10,13 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -23,20 +25,25 @@ import io.realm.RealmViewHolder;
  * Created by melkshake on 14.09.16.
  */
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
-    static WholeDirectListPresenter mWholeDirectListPresenter;
-    // TODO иметь статическую ссылку на контекст очень плохо. Поправь. Или я могу поправить, если хошь =) (Kepar)
+//    static WholeDirectListPresenter mWholeDirectListPresenter;
     private Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
     private ArrayList<String> mUsersIds;
+    private RealmResults<UserStatus> userStatuses;
 
     public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
-                                  WholeDirectListPresenter wholeDirectListPresenter,
-                                  WholeDirectListAdapter.OnDirectItemClickListener listener) {
+                                  /*WholeDirectListPresenter wholeDirectListPresenter,*/
+                                  WholeDirectListAdapter.OnDirectItemClickListener listener,
+                                  RealmResults<UserStatus> statusRealmResults) {
         super(context, realmResults, true);
         this.mUsersIds = usersIds;
         this.context = context;
-        mWholeDirectListPresenter = wholeDirectListPresenter;
+        this.userStatuses = statusRealmResults;
+        this.userStatuses.addChangeListener(element -> {
+            notifyDataSetChanged();
+        });
+//        mWholeDirectListPresenter = wholeDirectListPresenter;
         this.directItemClickListener = listener;
     }
 
@@ -49,13 +56,19 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getData().get(position);
 
-        holder.bindTo(context,user);
-
         holder.getmBinding().getRoot().setOnClickListener(view -> {
             if (directItemClickListener != null) {
                 directItemClickListener.onDirectClick(user.getId(), user.getUsername());
             }
         });
+
+        UserStatus userStatus = null;
+        RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", user.getId());
+        if(byId.count()!=0){
+            userStatus = byId.findFirst();
+        }
+
+        holder.bindTo(context, user, userStatus);
     }
 
     public static class MyViewHolder extends RealmViewHolder {
@@ -73,7 +86,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             return new MyViewHolder(binding);
         }
 
-        public void bindTo(Context context, User user) {
+        public void bindTo(Context context, User user, UserStatus userStatus) {
 
             directBinding.directProfileName.setText(user.getUsername());
 
@@ -81,9 +94,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
             directBinding.emailProfile.setText(stringBuilder);
 
             if (user.getStatus() != null) {
-                directBinding.status.setImageDrawable(drawStatusIcon(context,user.getStatus()));
-            } else {
-                directBinding.status.setImageDrawable(drawStatusIcon(context,User.OFFLINE));
+                directBinding.status.setImageDrawable(drawStatusIcon(context,userStatus));
             }
 
             Picasso.with(directBinding.avatarDirect.getContext())
@@ -104,19 +115,15 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         }
     }
 
-    public static Drawable drawStatusIcon(Context context, String status) {
-        if (status == null) {
-            return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-        }
-
-        switch (status) {
-            case User.ONLINE:
+    public static Drawable drawStatusIcon(Context context, UserStatus status) {
+        switch (status.getStatus()){
+            case UserStatus.ONLINE:
                 return context.getResources().getDrawable(R.drawable.status_online_drawable);
-            case User.OFFLINE:
+            case UserStatus.OFFLINE:
                 return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-            case User.AWAY:
+            case UserStatus.AWAY:
                 return context.getResources().getDrawable(R.drawable.status_away_drawable);
-            case User.REFRESH:
+            case UserStatus.REFRESH:
                 return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
             default:
                 return context.getResources().getDrawable(R.drawable.status_offline_drawable);
