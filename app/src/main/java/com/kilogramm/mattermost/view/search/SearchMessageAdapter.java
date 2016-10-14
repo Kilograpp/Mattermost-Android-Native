@@ -2,8 +2,12 @@ package com.kilogramm.mattermost.view.search;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,6 +20,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.OrderedRealmCollection;
@@ -99,10 +104,19 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                 isChannel = true;
             }
 
-            binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
+//            binding.chatName.setText(Pattern.matches(".+\\w[_].+\\w", chName) ? this.getChatName(chName) : chName);
 
             binding.userName.setText(user.first().getUsername());
             binding.postedTime.setText(DateOrTimeConvert(post.getCreateAt(), true));
+
+//            Spannable word = new SpannableString(terms);
+//            word.setSpan(new BackgroundColorSpan(Color.CYAN), 0, terms.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            Pattern highlightWord = Pattern.compile(terms);
+//            Matcher findWord = highlightWord.matcher(post.getMessage());
+//            findWord.replaceAll(word);
+
+
+
             binding.foundMessage.setText(post.getMessage());
 
             Picasso.with(binding.avatarDirect.getContext())
