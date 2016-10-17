@@ -25,7 +25,6 @@ import io.realm.RealmViewHolder;
  * Created by melkshake on 14.09.16.
  */
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
-//    static WholeDirectListPresenter mWholeDirectListPresenter;
     private Context context;
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
@@ -33,7 +32,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     private RealmResults<UserStatus> userStatuses;
 
     public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
-                                  /*WholeDirectListPresenter wholeDirectListPresenter,*/
                                   WholeDirectListAdapter.OnDirectItemClickListener listener,
                                   RealmResults<UserStatus> statusRealmResults) {
         super(context, realmResults, true);
@@ -43,7 +41,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         this.userStatuses.addChangeListener(element -> {
             notifyDataSetChanged();
         });
-//        mWholeDirectListPresenter = wholeDirectListPresenter;
         this.directItemClickListener = listener;
     }
 
@@ -92,6 +89,7 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
 
             StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
             directBinding.emailProfile.setText(stringBuilder);
+
 
             if (user.getStatus() != null) {
                 directBinding.status.setImageDrawable(drawStatusIcon(context,userStatus));

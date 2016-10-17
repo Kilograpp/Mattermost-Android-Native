@@ -42,7 +42,6 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 //            mSubscription.unsubscribe();
 //
 //
-//        //TODO FIX logic
 //        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
 //        mSubscription = service.getExtraInfoChannel(teamId, channelId)
 //                .subscribeOn(Schedulers.newThread())
@@ -537,7 +536,7 @@ public class ChatPresenter extends Presenter<ChatFragmentMVP> {
 //            mSubscription.unsubscribe();
 //
 //
-//        //TODO FIX logic
+//
 //        ApiMethod service = mMattermostApp.getMattermostRetrofitService();
 //        mSubscription = service.getExtraInfoChannel(teamId, channelId)
 //                .subscribeOn(Schedulers.newThread())

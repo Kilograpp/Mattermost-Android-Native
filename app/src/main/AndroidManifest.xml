@@ -21,18 +21,8 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:name=".view.authorization.MainActivity">
-        </activity>
-        <activity
-            android:name=".view.authorization.LoginActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" />
-
-        <activity android:name=".view.menu.GeneralActivity"
-            android:screenOrientation="portrait"/>
 
         <activity android:name=".view.ImageViewerActivity"
             android:theme="@style/Transparent"
