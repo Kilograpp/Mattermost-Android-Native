@@ -96,9 +96,16 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         Log.d(TAG, "setLoadingTop("+enabled+");");
         if(isTopLoading != enabled){
             isTopLoading = enabled;
-            Handler handler = new Handler();
-            Runnable r = this::notifyDataSetChanged;
-            handler.post(r);
+            getItemCount();
+            if(enabled){
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemInserted(0);
+                handler.post(r);
+            } else {
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemRemoved(0);
+                handler.post(r);
+            }
         }
     }
 
@@ -106,9 +113,16 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         Log.d(TAG, "setLoadingBottom("+enabled+");");
         if(isBottomLoading != enabled){
             isBottomLoading = enabled;
-            Handler handler = new Handler();
-            Runnable r = this::notifyDataSetChanged;
-            handler.post(r);
+            getItemCount();
+            if(enabled){
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemInserted(getItemCount());
+                handler.post(r);
+            } else {
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemRemoved(getItemCount());
+                handler.post(r);
+            }
         }
     }
 
@@ -117,7 +131,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         switch (viewType){
             case ITEM:
                 Log.d(TAG, "bindItem ");
-
                 return MyViewHolder.createItem(inflater, parent);
             case LOADING_TOP:
                 Log.d(TAG, "bindTop ");

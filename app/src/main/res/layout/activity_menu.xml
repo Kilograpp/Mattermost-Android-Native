@@ -1,5 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -48,13 +49,83 @@
             </LinearLayout>
         </ScrollView>
 
-            <FrameLayout
+        <android.support.design.widget.NavigationView
+            android:id="@+id/right_menu"
+            android:background="@color/colorPrimary"
+            android:layout_width="240dp"
+            android:layout_gravity="end"
+            android:layout_height="match_parent"
+            app:menu="@menu/right_menu">
+
+        </android.support.design.widget.NavigationView>
+
+           <!-- <FrameLayout
                 android:padding="10dp"
                 android:orientation="vertical"
                 android:background="@color/colorPrimary"
-                android:layout_gravity="end"
                 android:layout_width="240dp"
                 android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/switch_team"
+                    android:textColor="@color/white"
+                    android:text="@string/switch_team"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/files"
+                    android:textColor="@color/white"
+                    android:text="@string/files"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/settings"
+                    android:textColor="@color/white"
+                    android:text="@string/settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/invite_new_member"
+                    android:textColor="@color/white"
+                    android:text="@string/invite_new_member"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/help"
+                    android:textColor="@color/white"
+                    android:text="@string/help"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/report_a_problem"
+                    android:textColor="@color/white"
+                    android:text="@string/report_a_problem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="10dp"
+                    android:id="@+id/about_mattermost"
+                    android:textColor="@color/white"
+                    android:text="@string/about_mattermost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
                 <TextView
                     android:padding="10dp"
@@ -63,7 +134,10 @@
                     android:text="@string/logout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
-            </FrameLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>-->
 
     </android.support.v4.widget.DrawerLayout>
 </layout>

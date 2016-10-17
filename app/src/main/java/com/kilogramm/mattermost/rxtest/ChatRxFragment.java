@@ -372,8 +372,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-
-            postRepository.remove(new PostByChannelId(channelId));
             getPresenter().requestLoadPosts();
         });
     }
@@ -728,13 +726,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setCanPaginationTop(Boolean aBoolean) {
-        disableShowLoadMoreTop();
         binding.rev.setCanPaginationTop(aBoolean);
+        disableShowLoadMoreTop();
     }
 
     public void setCanPaginationBot(Boolean aBoolean) {
-        disableShowLoadMoreBot();
         binding.rev.setCanPaginationBot(aBoolean);
+        disableShowLoadMoreBot();
     }
 
     @Override
