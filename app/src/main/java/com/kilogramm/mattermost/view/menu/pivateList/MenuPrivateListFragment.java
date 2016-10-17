@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.view.menu.channelList;
+package com.kilogramm.mattermost.view.menu.pivateList;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -10,11 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
+import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
+import com.kilogramm.mattermost.viewmodel.menu.FrMenuPrivateViewModel;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
@@ -23,13 +23,13 @@ import io.realm.RealmResults;
  * Created by Evgeny on 24.08.2016.
  */
 
-public class MenuChannelListFragment extends Fragment {
+public class MenuPrivateListFragment extends Fragment {
 
-    private FragmentMenuChannelListBinding binding;
-    private FrMenuChannelViewModel viewModel;
-    private OnChannelItemClickListener channelItemClickListener;
+    private FragmentMenuPrivateListBinding binding;
+    private FrMenuPrivateViewModel viewModel;
+    private OnPrivateItemClickListener privateItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
-    private AdapterMenuChannelList adapter;
+    private AdapterMenuPrivateList adapter;
 
     private ChannelRepository channelRepository;
 
@@ -41,10 +41,10 @@ public class MenuChannelListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_menu_channel_list,
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_menu_private_list,
                 container, false);
         View view = binding.getRoot();
-        viewModel = new FrMenuChannelViewModel(getContext());
+        viewModel = new FrMenuPrivateViewModel(getContext());
         binding.setViewModel(viewModel);
         channelRepository = new ChannelRepository();
         setupListView();
@@ -53,38 +53,26 @@ public class MenuChannelListFragment extends Fragment {
 
 
     private void setupListView() {
-        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
+        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("P"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
-                (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
-        if (selectedItemChangeListener != null) {
+        adapter = new AdapterMenuPrivateList(getContext(), results, binding.recView,
+                (itemId, name, type) ->  privateItemClickListener.onPrivatelClick(itemId, name, type));
+        if(selectedItemChangeListener!=null){
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }
         binding.recView.setAdapter(adapter);
     }
 
-    public OnChannelItemClickListener getListener() {
-        return channelItemClickListener;
+    public OnPrivateItemClickListener getListener() {
+        return privateItemClickListener;
     }
 
-    public void setListener(OnChannelItemClickListener listener) {
-        this.channelItemClickListener = listener;
+    public void setPrivateItemClickListener(OnPrivateItemClickListener listener) {
+        this.privateItemClickListener = listener;
     }
 
     public void setSelectedItemChangeListener(OnSelectedItemChangeListener selectedItemChangeListener) {
         this.selectedItemChangeListener = selectedItemChangeListener;
-    }
-
-    public interface OnChannelItemClickListener {
-        void onChannelClick(String itemId, String name, String type);
-    }
-
-    public interface OnSelectedItemChangeListener {
-        void onChangeSelected(int position);
-    }
-
-    public void resetSelectItem() {
-        adapter.setSelecteditem(-1);
     }
 
     public void selectItem(String id) {
@@ -98,5 +86,17 @@ public class MenuChannelListFragment extends Fragment {
             i++;
         }
     }
+
+    public interface OnPrivateItemClickListener{
+        void onPrivatelClick(String itemId, String name, String type);
+    }
+    public interface OnSelectedItemChangeListener{
+        void onChangeSelected(int position);
+    }
+
+    public void resetSelectItem(){
+        adapter.setSelecteditem(-1);
+    }
+
 }
 

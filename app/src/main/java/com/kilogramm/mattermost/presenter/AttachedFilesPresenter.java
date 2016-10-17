@@ -63,7 +63,12 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             String filePath = fileUtil.getPath(Uri.parse(uri));
             String mimeType = fileUtil.getMimeType(filePath);
 
-            File file = new File(filePath);
+            File file;
+            if(filePath != null) {
+                file = new File(filePath);
+            } else {
+                file = new File(uri);
+            }
             this.fileName = file.getName();
             FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);

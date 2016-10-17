@@ -28,14 +28,14 @@ public class ProgressRequestBody extends RequestBody {
 
     FileToAttachRepository fileToAttachRepository;
 
-    public ProgressRequestBody(final File file, String mediaType, final  UploadCallbacks listener) {
+    public ProgressRequestBody(final File file, String mediaType, final UploadCallbacks listener) {
         this(file, mediaType);
         mListener = listener;
     }
 
     public ProgressRequestBody(final File file, String mediaType) {
         mFile = file;
-        if(mediaType != null && mediaType.length() > 0) {
+        if (mediaType != null && mediaType.length() > 0) {
             mMediaType = mediaType;
         }
         fileToAttachRepository = new FileToAttachRepository();
@@ -56,8 +56,6 @@ public class ProgressRequestBody extends RequestBody {
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
-//        Realm realm = Realm.getDefaultInstance();
-
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             while ((read = in.read(buffer)) != -1) {
@@ -67,8 +65,6 @@ public class ProgressRequestBody extends RequestBody {
                 fileToAttachRepository.updateProgress(mFile.getName(), (int) (100 * uploaded / fileLength));
                 sink.write(buffer, 0, read);
             }
-        } finally {
-//            realm.close();
         }
     }
 
@@ -83,13 +79,15 @@ public class ProgressRequestBody extends RequestBody {
 
         @Override
         public void run() {
-            mListener.onProgressUpdate((int)(100 * mUploaded / mTotal));
+            mListener.onProgressUpdate((int) (100 * mUploaded / mTotal));
         }
     }
 
     public interface UploadCallbacks {
         void onProgressUpdate(int percentage);
+
         void onError();
+
         void onFinish();
     }
 }

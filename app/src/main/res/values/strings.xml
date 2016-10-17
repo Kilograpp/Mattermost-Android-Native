@@ -18,6 +18,7 @@
     <string name="more">More…</string>
     <string name="direct_message">DIRECT_MESSAGE</string>
     <string name="channels">CHANNELS</string>
+    <string name="private_groups">PRIVATE GROUPS</string>
     <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
@@ -60,6 +61,7 @@
     <string name="default_message">Your search results will be here</string>
 
     <string name="cannot_open_file_to_attach">Cannot open file to attach</string>
+    <string name="processing_data">Processing data…</string>
     <string name="switch_team">Switch Team</string>
     <string name="files">Files</string>
     <string name="settings">Settings</string>

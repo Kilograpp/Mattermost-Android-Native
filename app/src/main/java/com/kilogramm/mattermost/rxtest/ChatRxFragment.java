@@ -52,6 +52,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -561,7 +562,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             // Create the File where the photo should go
             File photoFile = null;
             try {
-                photoFile = createTempImageFile();
+                photoFile = FileUtil.getInstance().createTempImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -574,22 +575,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public File createTempImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
-        }
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
-    }
+
 
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
@@ -668,9 +654,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
         if (type.equals(REPLY_MESSAGE))
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
         else {
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
             binding.btnSend.setText(R.string.save);
         }
         binding.editReplyMessageLayout.editableText.setText(message);
