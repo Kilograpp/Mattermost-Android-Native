@@ -40,6 +40,13 @@
                 </FrameLayout>
 
                 <FrameLayout
+                    android:id="@+id/fragmentPrivateList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:layout="@layout/fragment_menu_private_list">
+                </FrameLayout>
+
+                <FrameLayout
                     android:id="@+id/fragmentDirectList"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
