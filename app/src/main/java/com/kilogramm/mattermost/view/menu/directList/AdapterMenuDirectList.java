@@ -191,7 +191,6 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
 
 
         public Drawable getStatusIconDrawable(UserStatus status, Context context) {
-            Log.d(TAG, "SET_STATUS " + status.getStatus());
             switch (status.getStatus()){
                 case UserStatus.ONLINE:
                     return context.getResources().getDrawable(R.drawable.status_online_drawable);

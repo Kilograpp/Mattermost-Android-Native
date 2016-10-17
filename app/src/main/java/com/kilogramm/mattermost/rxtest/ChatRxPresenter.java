@@ -113,8 +113,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initExtraInfo() {
-        //TODO FIX logic
-
         restartableLatestCache(REQUEST_EXTRA_INFO, () ->
                 service.getExtraInfoChannel(this.teamId, this.channelId)
                 .subscribeOn(Schedulers.io())

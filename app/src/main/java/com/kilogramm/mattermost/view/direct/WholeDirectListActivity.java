@@ -11,6 +11,9 @@ import android.view.MenuItem;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusAllSpecification;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -32,12 +35,15 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private WholeDirectListAdapter adapter;
     private Realm realm;
 
+    private UserStatusRepository userStatusRepository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
+        userStatusRepository = new UserStatusRepository();
         init();
         setRecycleView();
     }
@@ -50,13 +56,14 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     public void setRecycleView() {
         RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
+        RealmResults<UserStatus> statusRealmResults = userStatusRepository.query(new UserStatusAllSpecification());
         ArrayList<String> usersIds = new ArrayList<>();
         for (User user : users) {
             usersIds.add(user.getId());
         }
 
-        // TODO говорят, не хорошо передавать ссылку на презентер внутрь адаптера
-        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
+        adapter = new WholeDirectListAdapter(this, users, usersIds, this, statusRealmResults);
+//        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);

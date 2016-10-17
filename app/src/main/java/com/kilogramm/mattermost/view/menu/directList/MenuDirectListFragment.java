@@ -21,7 +21,6 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusAllSpecification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.viewmodel.menu.FrMenuDirectViewModel;
 import com.kilogramm.mattermost.presenter.MenuDirectListPresenter;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;

@@ -21,12 +21,8 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.view.menu.GeneralActivity;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import icepick.State;
 import io.realm.Realm;
@@ -34,14 +30,13 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 05.10.2016.
  */
 public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
-    public static final String TAG = "GeneralPresenter";
+    public static final String TAG = "GeneralRxPresenter";
 
     private static final int REQUEST_DIRECT_PROFILE = 1;
     private static final int REQUEST_LOAD_CHANNELS = 2;

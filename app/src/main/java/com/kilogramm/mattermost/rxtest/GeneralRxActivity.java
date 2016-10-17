@@ -149,8 +149,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             if (requestCode == MenuDirectListFragment.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
                 if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
                     String name = data.getStringExtra(WholeDirectListActivity.NAME);
-                    //TODO проверить после кореектирования архитектуры (melkshake)
-//                    getPresenter().setSelectedDirect(itemId, name);
                     SaveData saveData = new SaveData(name, MattermostPreference.getInstance().getMyUserId(), true);
                     Log.d(TAG, "saveData constructor");
                     getPresenter().requestSaveData(saveData);
