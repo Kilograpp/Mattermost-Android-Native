@@ -21,9 +21,9 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.rxtest.GetRootPost;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
-import com.kilogramm.mattermost.view.chat.NewChatListAdapter;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 import com.vdurmont.emoji.EmojiParser;
@@ -49,7 +49,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
     private Context context;
     private OnItemClickListener<Post> listener;
 
-    public NewChatListAdapter.GetRootPost getRootPost;
+    public GetRootPost getRootPost;
 
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;

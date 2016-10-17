@@ -23,7 +23,6 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -57,39 +56,36 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     private void setupRightMenu() {
-        binding.rightMenu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                binding.drawerLayout.closeDrawer(GravityCompat.END);
+        binding.rightMenu.setNavigationItemSelectedListener(item -> {
+            binding.drawerLayout.closeDrawer(GravityCompat.END);
 
-                switch (item.getItemId()){
-                    case R.id.switch_team:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.files:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.settings:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.invite_new_member:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.help:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.report_a_problem:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.about_mattermost:
-                        Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.logout:
-                        getPresenter().requestLogout();
-                        break;
-                }
-                return false;
+            switch (item.getItemId()){
+                case R.id.switch_team:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.files:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.settings:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.invite_new_member:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.help:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.report_a_problem:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.about_mattermost:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.logout:
+                    getPresenter().requestLogout();
+                    break;
             }
+            return false;
         });
       //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }

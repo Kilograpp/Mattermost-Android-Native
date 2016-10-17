@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.model.entity.channel;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
-import com.kilogramm.mattermost.presenter.ChatPresenter;
 
 import io.realm.Realm;
 import io.realm.RealmResults;

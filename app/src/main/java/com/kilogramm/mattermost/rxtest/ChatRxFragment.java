@@ -218,7 +218,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
-        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();

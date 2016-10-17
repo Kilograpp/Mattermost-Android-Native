@@ -40,7 +40,7 @@ import io.realm.RealmViewHolder;
  */
 public class ChatRxRealmAdapter<T extends RealmModel> extends RealmRecyclerViewAdapter<Post, ChatRxRealmAdapter.MyViewHolder> {
 
-    private static final String TAG = "NewChatListAdapter";
+    private static final String TAG = "ChatRxRealmAdapter";
     private OnItemClickListener<Post> listener;
 
     public ChatRxRealmAdapter(@NonNull Context context,
