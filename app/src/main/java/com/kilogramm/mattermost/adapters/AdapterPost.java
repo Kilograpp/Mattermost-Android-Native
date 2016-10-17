@@ -49,8 +49,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
     private Context context;
     private OnItemClickListener<Post> listener;
 
-    public GetRootPost getRootPost;
-
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
@@ -60,7 +58,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
         this.listener = listener;
-        this.getRootPost = getRootPost;
     }
 
     @Override
@@ -214,8 +211,10 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 });
             }
             ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
-                if (listener != null)
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post);
+                if (listener != null) {
+                    Post post1 = new Post(post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post1);
+                }
             });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
