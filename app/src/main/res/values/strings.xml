@@ -60,5 +60,6 @@
     <string name="default_message">Your search results will be here</string>
 
     <string name="cannot_open_file_to_attach">Cannot open file to attach</string>
+    <string name="processing_data">Processing data…</string>
 
 </resources>

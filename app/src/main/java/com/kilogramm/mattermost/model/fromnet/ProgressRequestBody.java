@@ -56,7 +56,6 @@ public class ProgressRequestBody extends RequestBody {
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
-
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             while ((read = in.read(buffer)) != -1) {

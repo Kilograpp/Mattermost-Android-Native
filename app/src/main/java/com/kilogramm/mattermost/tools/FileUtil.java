@@ -11,6 +11,11 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Evgeny on 13.10.2016.
  */
@@ -24,21 +29,21 @@ public class FileUtil {
         return ourInstance;
     }
 
-    public static void createInstance(Context context){
-        ourInstance  = new FileUtil(context);
+    public static void createInstance(Context context) {
+        ourInstance = new FileUtil(context);
     }
 
     private FileUtil(Context context) {
         this.mContext = context;
     }
 
-    public String getFileType(String uri){
+    public String getFileType(String uri) {
         String filenameArray[] = uri.split("\\.");
-        String extension = filenameArray[filenameArray.length-1];
+        String extension = filenameArray[filenameArray.length - 1];
         return extension;
     }
 
-    public String getPath(final Uri uri){
+    public String getPath(final Uri uri) {
 
         //check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -81,7 +86,7 @@ public class FileUtil {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -102,10 +107,6 @@ public class FileUtil {
             return uri.getPath();
         }
 //        return getRealPathFromURI(mContext, uri);
-
-/*        Cursor cursor =  mContext.getContentResolver().query(uri,null,null,null,null);
-        cursor.moveToNext();
-        String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));*/
 
         return null;
     }
@@ -170,6 +171,12 @@ public class FileUtil {
         return result;
     }
 
+    public String getFileNameByUri(Uri uri) {
+        Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToNext();
+        return cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+    }
+
     public String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -177,5 +184,36 @@ public class FileUtil {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return type;
+    }
+
+    public File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + "/Mattermost");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",                          /* suffix */
+                storageDir                       /* directory */
+        );
+    }
+
+    public File createTempFile(String fileName) throws IOException {
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/Mattermost");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        return File.createTempFile(
+                fileName,  /* prefix */
+                null,                          /* suffix */
+                storageDir                       /* directory */
+        );
     }
 }
