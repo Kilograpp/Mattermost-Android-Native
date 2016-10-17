@@ -23,7 +23,6 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 
-
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -50,9 +49,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     ApiMethod service;
 
-    @State String teamId;
     @State
-    ListSaveData mSaveData  = new ListSaveData();
+    String teamId;
+    @State
+    ListSaveData mSaveData = new ListSaveData();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -81,25 +81,27 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 if (channel != null)
                     switch (channel.getType()) {
                         case "O":
-                            setSelectedChannel(channel.getId(), channel.getName());
+                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
                             break;
                         case "D":
-                            setSelectedDirect(channel.getId(), channel.getUsername());
+                            setSelectedMenu(channel.getId(), channel.getUsername(), channel.getType());
                             break;
                         case "P":
+                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
                             break;
                     }
+                sendSetSelectChannel(id, channel.getType());
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         } else {
             RealmResults<Channel> channels = channelRepository.query(new ChannelByTypeSpecification("O"));
             if (channels.size() != 0) {
-                setSelectedChannel(channels.first().getId(), channels.first().getName());
+                setSelectedMenu(channels.first().getId(), channels.first().getName(), channels.first().getType());
             } else {
                 channels.addChangeListener(element -> {
                     if (element.size() != 0)
-                        setSelectedChannel(element.first().getId(), element.first().getName());
+                        setSelectedMenu(element.first().getId(), element.first().getName(), channels.first().getType());
                 });
             }
         }
@@ -111,14 +113,14 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             return service.getDirectProfile()
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread());
-        },(generalRxActivity, stringUserMap) -> {
+        }, (generalRxActivity, stringUserMap) -> {
             RealmList<User> users = new RealmList<>();
             users.addAll(stringUserMap.values());
-            users.add(new User("materMostAll","all","Notifies everyone in the channel, use in Town Square to notify the whole team"));
-            users.add(new User("materMostChannel","channel","Notifies everyone in the channel"));
+            users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+            users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
             userRepository.add(users);
             requestLoadChannels();
-        },(generalRxActivity1, throwable) -> {
+        }, (generalRxActivity1, throwable) -> {
             sendShowError(throwable.toString());
         });
 
@@ -126,40 +128,41 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             return service.getChannelsTeam(teamId)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread());
-        },(generalRxActivity, channelsWithMembers) -> {
+        }, (generalRxActivity, channelsWithMembers) -> {
             channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                    MattermostPreference.getInstance().getMyUserId(),userRepository);
+                    MattermostPreference.getInstance().getMyUserId(), userRepository);
             requestUserTeam();
-        },(generalRxActivity1, throwable) -> {
+        }, (generalRxActivity1, throwable) -> {
             sendShowError(throwable.toString());
         });
 
         restartableFirst(REQUEST_USER_TEAM, () -> {
-           return  service.getTeamUsers(teamId)
-                   .subscribeOn(Schedulers.computation())
-                   .observeOn(AndroidSchedulers.mainThread());
-        },(generalRxActivity, stringUserMap) -> {
+            return service.getTeamUsers(teamId)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread());
+        }, (generalRxActivity, stringUserMap) -> {
             userRepository.add(stringUserMap.values());
             if (MattermostPreference.getInstance().getLastChannelId() == null) {
                 Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                sendSetSelectChannel(channel.getId(), channel.getType());
                 if (channel != null) {
-                    setSelectedChannel(channel.getId(), channel.getName());
+                    setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
                 }
             }
-        },(generalRxActivity1, throwable) -> {
+        }, (generalRxActivity1, throwable) -> {
             throwable.printStackTrace();
         });
 
-        restartableFirst(REQUEST_LOGOUT,() -> {
+        restartableFirst(REQUEST_LOGOUT, () -> {
             return service.logout(new Object())
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread());
-        },(generalRxActivity, logoutData) -> {
+        }, (generalRxActivity, logoutData) -> {
             Log.d(TAG, "Complete logout");
             clearDataBaseAfterLogout();
             clearPreference();
             sendShowMainRxActivity();
-        },(generalRxActivity1, throwable) -> {
+        }, (generalRxActivity1, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, "Error logout");
         });
@@ -167,30 +170,30 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         initSaveRequest();
     }
 
-    private void initSaveRequest(){
-        restartableFirst(REQUEST_SAVE,() -> {
+    private void initSaveRequest() {
+        restartableFirst(REQUEST_SAVE, () -> {
             return Observable.zip(service.save(mSaveData.getmSaveData())
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread()), service.getChannelsTeam(teamId)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread()),
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread()), service.getChannelsTeam(teamId)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.mainThread()),
                     (aBoolean, channelsWithMembers) -> {
                         channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                                MattermostPreference.getInstance().getMyUserId(),userRepository);
+                                MattermostPreference.getInstance().getMyUserId(), userRepository);
                         String myId = MattermostPreference.getInstance().getMyUserId();
                         RealmResults<Channel> channels = realm.where(Channel.class)
                                 .equalTo("name", myId + "__" + mSaveData.getmSaveData().get(0).getName())
                                 .or()
                                 .equalTo("name", mSaveData.getmSaveData().get(0).getName() + "__" + myId)
                                 .findAll();
-                        if(channels.size()!=0){
+                        if (channels.size() != 0) {
                             return channels.get(0);
                         } else {
                             return null;
                         }
-                        });
-        }, (generalRxActivity,channel) -> {
-            setSelectedDirect( channel.getId(), channel.getUsername());
+                    });
+        }, (generalRxActivity, channel) -> {
+            setSelectedMenu(channel.getId(), channel.getUsername(), channel.getType());
             Log.d(TAG, "Must open direct dialog");
             mSaveData.getmSaveData().clear();
         }, (generalRxActivity1, throwable) -> {
@@ -198,26 +201,26 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         });
     }
 
-    public void requestSaveData(SaveData data){
+    public void requestSaveData(SaveData data) {
         mSaveData.getmSaveData().clear();
         mSaveData.getmSaveData().add(data);
         start(REQUEST_SAVE);
     }
 
 
-    public void requestLoadChannels(){
+    public void requestLoadChannels() {
         start(REQUEST_LOAD_CHANNELS);
     }
 
-    public void requestDirectProfile(){
+    public void requestDirectProfile() {
         start(REQUEST_DIRECT_PROFILE);
     }
 
-    public void requestUserTeam(){
+    public void requestUserTeam() {
         start(REQUEST_USER_TEAM);
     }
 
-    public void requestLogout(){
+    public void requestLogout() {
         start(REQUEST_LOGOUT);
     }
 
@@ -233,21 +236,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
-    public void setSelectedDirect(String itemId,String name){
-//        String myId = realm.where(User.class).findFirst().getId();
-//
-//        String channelId = realm.where(Channel.class)
-//                .equalTo("name", myId + "__" + itemId)
-//                .or()
-//                .equalTo("name", itemId + "__" + myId)
-//                .findFirst()
-//                .getId();
-        sendSetFragmentChat(itemId,name,false);
-        MattermostPreference.getInstance().setLastChannelId(itemId);
-    }
-
-    public void setSelectedChannel(String channelId,String name){
-        sendSetFragmentChat(channelId,name,true);
+    public void setSelectedMenu(String channelId, String name, String type) {
+        sendSetFragmentChat(channelId, name, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
@@ -257,7 +247,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostPreference.getInstance().setLastChannelId(null);
     }
 
-    private void clearDataBaseAfterLogout(){
+    private void clearDataBaseAfterLogout() {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             realm.delete(Post.class);
@@ -277,7 +267,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     //to view methods
 
-    private void sendShowError(String error){
+    private void sendShowError(String error) {
         Observable.just(error)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -285,46 +275,61 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 .subscribe(split(GeneralRxActivity::showErrorText));
     }
 
-    private void sendShowMainRxActivity(){
+    private void sendShowMainRxActivity() {
         Observable.just(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(deliverFirst())
-                .subscribe(split((mainRxAcivity,o) -> mainRxAcivity.showMainRxActivity()));
+                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showMainRxActivity()));
 
     }
 
-    private void sendSetFragmentChat(String channelId, String name, Boolean isChannel) {
-        Observable.just(new OpenChatObject(channelId, name, isChannel))
+    private void sendSetFragmentChat(String channelId, String name, String type) {
+        Observable.just(new OpenChatObject(channelId, name, type))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(deliverFirst())
                 .subscribe(split((generalRxActivity1, openChatObject)
-                        -> generalRxActivity1.setFragmentChat(openChatObject.getChannelId(),name,isChannel)));
-
+                        -> generalRxActivity1.setFragmentChat(openChatObject.getChannelId(), name, type)));
     }
 
+    private void sendSetSelectChannel(String channelId, String type) {
+        Observable.just(new OpenChatObject(channelId, type))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(deliverFirst())
+                .subscribe(split((generalRxActivity1, openChatObject)
+                        -> generalRxActivity1.setSelectItemMenu(openChatObject.getChannelId(), type)));
+
+    }
 
 
     public static class OpenChatObject {
         private String channelId;
         private String name;
-        private Boolean isChannel;
+        private String type;
 
-        public OpenChatObject(String channelId, String name, Boolean isChannel) {
+        public OpenChatObject(String channelId, String name, String type) {
             this.channelId = channelId;
             this.name = name;
-            this.isChannel = isChannel;
+            this.type = type;
+        }
+
+        public OpenChatObject(String channelId, String type) {
+            this.channelId = channelId;
+            this.type = type;
         }
 
         public String getChannelId() {
             return channelId;
         }
+
         public String getName() {
             return name;
         }
-        public Boolean getChannel() {
-            return isChannel;
+
+        public String getChannel() {
+            return type;
         }
     }
 }

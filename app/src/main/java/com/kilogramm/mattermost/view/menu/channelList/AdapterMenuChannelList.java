@@ -83,7 +83,7 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(channelItemClickListener!=null){
-                        channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName());
+                        channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
@@ -96,6 +96,7 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
         }
         holder.bindTo(channel, context);
     }
+
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {

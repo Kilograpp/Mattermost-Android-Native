@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
 import android.view.MenuItem;
@@ -21,13 +20,12 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
+import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
-import icepick.Icepick;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -42,6 +40,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
+    MenuPrivateListFragment privateListFragment;
     MenuDirectListFragment directListFragment;
     private String currentChannel = "";
 
@@ -60,16 +59,21 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private void setupMenu() {
         channelListFragment = new MenuChannelListFragment();
+        privateListFragment = new MenuPrivateListFragment();
         directListFragment = new MenuDirectListFragment();
 
-        directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId,name));
+        directListFragment.setDirectItemClickListener((itemId, name, type) ->  getPresenter().setSelectedMenu(itemId, type ,name));
 
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
 
+        privateListFragment.setPrivateItemClickListener((itemId, name, type) ->  getPresenter().setSelectedMenu(itemId, type ,name));
+        getSupportFragmentManager().beginTransaction()
+                .replace(binding.fragmentPrivateList.getId(), privateListFragment)
+                .commit();
         //initChannelList
-        channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId,name));
+        channelListFragment.setListener((itemId, name, type) ->  getPresenter().setSelectedMenu(itemId, type ,name));
 
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentChannelList.getId(), channelListFragment)
@@ -85,12 +89,35 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setFragmentChat(String channelId, String channelName,boolean isChannel){
+    public void setSelectItemMenu(String id, String typeChannel){
+        switch (typeChannel) {
+            case "O":
+                channelListFragment.selectItem(id);
+                break;
+            case "D":
+                directListFragment.selectItem(id);
+                break;
+            case "P":
+                privateListFragment.selectItem(id);
+                break;
+        }
+    }
+
+    public void setFragmentChat(String channelId, String channelName, String type ){
         replaceFragment(channelId,channelName);
-        if(isChannel){
-            directListFragment.resetSelectItem();
-        }else{
-            channelListFragment.resetSelectItem();
+        switch (type){
+            case "O":
+                directListFragment.resetSelectItem();
+                privateListFragment.resetSelectItem();
+                break;
+            case "D":
+                channelListFragment.resetSelectItem();
+                privateListFragment.resetSelectItem();
+                break;
+            case "P":
+                directListFragment.resetSelectItem();
+                channelListFragment.resetSelectItem();
+                break;
         }
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
@@ -159,8 +186,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
-            boolean isChannel = data.getBooleanExtra(SearchMessageActivity.IS_CHANNEL, true);
-            this.setFragmentChat(channelId, channelName, isChannel);
+            String typeChannel = data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL);
+            this.setFragmentChat(channelId, channelName, typeChannel);
         }
     }
 
