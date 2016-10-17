@@ -671,9 +671,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
         if (type.equals(REPLY_MESSAGE))
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
         else {
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
             binding.btnSend.setText(R.string.save);
         }
         binding.editReplyMessageLayout.editableText.setText(message);
