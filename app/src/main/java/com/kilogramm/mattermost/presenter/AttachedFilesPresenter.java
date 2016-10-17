@@ -65,11 +65,11 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
             File file = new File(filePath);
             this.fileName = file.getName();
-            FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
+            FileToAttachRepository.getInstance().add(new FileToAttach(filePath, fileName));
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
-            MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+            MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", fileName, fileBody);
             channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
-            clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+            clientId = RequestBody.create(MediaType.parse("multipart/form-data"), fileName);
 
             return service.uploadFile(teamId, filePart, channel_Id, clientId)
                     .subscribeOn(Schedulers.newThread())

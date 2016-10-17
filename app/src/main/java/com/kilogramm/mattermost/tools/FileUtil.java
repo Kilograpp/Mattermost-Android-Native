@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 /**
@@ -100,6 +101,11 @@ public class FileUtil {
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
+//        return getRealPathFromURI(mContext, uri);
+
+/*        Cursor cursor =  mContext.getContentResolver().query(uri,null,null,null,null);
+        cursor.moveToNext();
+        String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));*/
 
         return null;
     }
@@ -127,20 +133,41 @@ public class FileUtil {
         return null;
     }
 
-    private static boolean isExternalStorageDocument(Uri uri) {
+    private boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isDownloadsDocument(Uri uri) {
+    private boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isMediaDocument(Uri uri) {
+    private boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isGooglePhotosUri(Uri uri) {
+    private boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    private String getRealPathFromURI(Context context, Uri contentURI) {
+        String result = null;
+        try {
+            Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
+            if (cursor == null) { // Source is Dropbox or other similar local file path
+                result = contentURI.getPath();
+            } else {
+                cursor.moveToFirst();
+//                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                if (idx >= 0) {
+                    result = cursor.getString(idx);
+                }
+                cursor.close();
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public String getMimeType(String url) {
