@@ -211,7 +211,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             return null;
                         }
 
-                        String myId = MattermostPreference.getInstance().getMyUserId();
+//                        String myId = MattermostPreference.getInstance().getMyUserId();
 //                        channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
 //                                            myId, userRepository);
 
