@@ -54,7 +54,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     String teamId;
     @State
     ListSaveData mSaveData = new ListSaveData();
-    @State
+
     LogoutData user = new LogoutData();
 
     @Override
