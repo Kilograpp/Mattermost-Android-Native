@@ -8,6 +8,7 @@ import io.realm.annotations.PrimaryKey;
  */
 public class FileToAttach extends RealmObject {
     @PrimaryKey
+    private long id;
     private String fileName;
     private String filePath;
     private int progress;
@@ -20,6 +21,12 @@ public class FileToAttach extends RealmObject {
     public FileToAttach(String filePath, String fileName) {
         this.filePath = filePath;
         this.fileName = fileName;
+    }
+
+    public FileToAttach(long id, String fileName, String filePath) {
+        this.id = id;
+        this.fileName = fileName;
+        this.filePath = filePath;
     }
 
     public FileToAttach() {}
@@ -54,5 +61,9 @@ public class FileToAttach extends RealmObject {
 
     public void setUploaded(boolean uploaded) {
         isUploaded = uploaded;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

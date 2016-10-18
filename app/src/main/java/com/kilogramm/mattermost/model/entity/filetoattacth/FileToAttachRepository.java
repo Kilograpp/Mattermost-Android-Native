@@ -4,8 +4,10 @@ import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 /**
@@ -15,14 +17,6 @@ import io.realm.RealmResults;
 public class FileToAttachRepository implements Repository<FileToAttach>{
 
     private static FileToAttachRepository instance;
-/*
-    public static void saveAttachedFile(Context context, Uri uri){
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        FileToAttach fileToAttach = realm.createObject(FileToAttach.class);
-        fileToAttach.setFilePath(FileUtils.getPath(context, uri));
-        realm.commitTransaction();
-    }*/
 
     public static FileToAttachRepository getInstance(){
         if(instance == null){
@@ -35,7 +29,11 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
     public void add(FileToAttach item) {
         final Realm realm = Realm.getDefaultInstance();
 
-        realm.executeTransaction(realm1 -> realm.copyToRealm(item));
+        realm.executeTransaction(realm1 -> {
+            AtomicLong primaryKeyValue = new AtomicLong(realm.where(FileToAttach.class).max("id").longValue());
+            item.setId(primaryKeyValue.incrementAndGet());
+            realm.copyToRealm(item);
+        });
         realm.close();
     }
 
@@ -43,13 +41,16 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
+            AtomicLong primaryKeyValue = new AtomicLong(realm.where(FileToAttach.class).max("id").longValue());
+            FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, filePath);
+            realm.copyToRealm(fileToAttach);
+/*
             FileToAttach fileToAttach = realm1.createObject(FileToAttach.class);
             fileToAttach.setFileName(fileName);
-            fileToAttach.setFilePath(filePath);
+            fileToAttach.setFilePath(filePath);*/
         });
         realm.close();
     }
-
 
     @Override
     public void add(Collection<FileToAttach> items) {
