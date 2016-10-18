@@ -19,6 +19,9 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.chat.ChatFragmentMVP;
@@ -28,6 +31,8 @@ import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
 import icepick.Icepick;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -145,13 +150,31 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
-            if (requestCode == MenuDirectListFragment.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-                if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
-                    String name = data.getStringExtra(WholeDirectListActivity.NAME);
-                    SaveData saveData = new SaveData(name, MattermostPreference.getInstance().getMyUserId(), true);
-                    Log.d(TAG, "saveData constructor");
-                    getPresenter().requestSaveData(saveData);
+        if (resultCode == Activity.RESULT_OK && requestCode == MenuDirectListFragment.REQUEST_CODE) {
+            if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
+
+//                String name = data.getStringExtra(WholeDirectListActivity.NAME);
+                String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
+
+                SaveData saveData = new SaveData(
+                        userTalkToId,
+                        MattermostPreference.getInstance().getMyUserId(),
+                        true,
+                        "direct_channel_show");
+
+                String myId = MattermostPreference.getInstance().getMyUserId();
+
+                Realm realm = Realm.getDefaultInstance();
+                RealmResults<Channel> channels = realm.where(Channel.class)
+                        .equalTo("name", myId + "__" + userTalkToId)
+                        .or()
+                        .equalTo("name", userTalkToId + "__" + myId)
+                        .findAll();
+
+                if (channels.size() == 0) {
+                    getPresenter().requestSaveData(saveData, userTalkToId);
+                } else {
+                    getPresenter().setSelectedDirect(channels.get(0).getId(), channels.get(0).getUsername());
                 }
             }
         }

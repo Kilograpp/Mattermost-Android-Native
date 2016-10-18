@@ -5,6 +5,7 @@ import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -208,6 +209,14 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
     Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
-                                     @Path("channelId") String channelId,
-                                     @Path("firstMessageId") String firstMessageId);
+                                    @Path("channelId") String channelId,
+                                    @Path("firstMessageId") String firstMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/channels/create_direct")
+    Observable<Channel> createDirect(@Path ("team_id") String teamId,
+                                     @Body LogoutData user);
 }

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
@@ -89,12 +90,17 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Channel channel= getData().get(position);
+        Channel channel = getData().get(position);
         UserStatus userStatus = null;
-        RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
-        if(byId.count()!=0){
-            userStatus = byId.findFirst();
-        }
+
+//        if (channel.getType() == "D") {
+            RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
+            if (byId.count() != 0) {
+                userStatus = byId.findFirst();
+            }
+//        }
+
+
 
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
@@ -112,16 +118,6 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
         holder.bindTo(channel, context, userStatus);
-    }
-
-    @Override
-    public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
-        super.onBindViewHolder(holder, position, payloads);
-        if (isForDataBinding(payloads)) {
-            holder.getmBinding().executePendingBindings();
-        } else {
-            onBindViewHolder(holder, position);
-        }
     }
 
     public int getSelecteditem() {

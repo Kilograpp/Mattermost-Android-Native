@@ -10,12 +10,10 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import nucleus.presenter.Presenter;
 import rx.Subscriber;
 import rx.Subscription;
