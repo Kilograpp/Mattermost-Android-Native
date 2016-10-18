@@ -23,7 +23,6 @@ import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
-import com.kilogramm.mattermost.view.chat.NewChatListAdapter;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 import com.vdurmont.emoji.EmojiParser;
@@ -49,8 +48,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
     private Context context;
     private OnItemClickListener<Post> listener;
 
-    public NewChatListAdapter.GetRootPost getRootPost;
-
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
@@ -60,7 +57,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
         this.listener = listener;
-        this.getRootPost = getRootPost;
     }
 
     @Override
@@ -96,9 +92,16 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         Log.d(TAG, "setLoadingTop("+enabled+");");
         if(isTopLoading != enabled){
             isTopLoading = enabled;
-            Handler handler = new Handler();
-            Runnable r = this::notifyDataSetChanged;
-            handler.post(r);
+            getItemCount();
+            if(enabled){
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemInserted(0);
+                handler.post(r);
+            } else {
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemRemoved(0);
+                handler.post(r);
+            }
         }
     }
 
@@ -106,9 +109,16 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         Log.d(TAG, "setLoadingBottom("+enabled+");");
         if(isBottomLoading != enabled){
             isBottomLoading = enabled;
-            Handler handler = new Handler();
-            Runnable r = this::notifyDataSetChanged;
-            handler.post(r);
+            getItemCount();
+            if(enabled){
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemInserted(getItemCount());
+                handler.post(r);
+            } else {
+                Handler handler = new Handler();
+                Runnable r = () -> notifyItemRemoved(getItemCount());
+                handler.post(r);
+            }
         }
     }
 
@@ -117,7 +127,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         switch (viewType){
             case ITEM:
                 Log.d(TAG, "bindItem ");
-
                 return MyViewHolder.createItem(inflater, parent);
             case LOADING_TOP:
                 Log.d(TAG, "bindTop ");
@@ -201,8 +210,10 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 });
             }
             ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
-                if (listener != null)
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post);
+                if (listener != null) {
+                    Post post1 = new Post(post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post1);
+                }
             });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
@@ -245,6 +256,8 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
         private void setRootMassage( Post root) {
             if (root != null) {
+                ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
+                ((ChatListItemBinding) mBinding).filesViewRoot.setItems(root.getFilenames());
                 ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
                 ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));

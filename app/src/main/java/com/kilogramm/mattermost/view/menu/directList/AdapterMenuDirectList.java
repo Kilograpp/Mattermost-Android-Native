@@ -103,7 +103,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(), channel.getUser().getUsername());
+                        directItemClickListener.onDirectClick(channel.getId(), channel.getType(), channel.getUser().getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();

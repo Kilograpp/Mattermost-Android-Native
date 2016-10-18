@@ -52,6 +52,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -218,7 +219,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
-        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
@@ -376,8 +376,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-
-            postRepository.remove(new PostByChannelId(channelId));
             getPresenter().requestLoadPosts();
         });
     }
@@ -568,7 +566,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             // Create the File where the photo should go
             File photoFile = null;
             try {
-                photoFile = createTempImageFile();
+                photoFile = FileUtil.getInstance().createTempImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -581,22 +579,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public File createTempImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
-        }
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
-    }
+
 
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
@@ -732,13 +715,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setCanPaginationTop(Boolean aBoolean) {
-        disableShowLoadMoreTop();
         binding.rev.setCanPaginationTop(aBoolean);
+        disableShowLoadMoreTop();
     }
 
     public void setCanPaginationBot(Boolean aBoolean) {
-        disableShowLoadMoreBot();
         binding.rev.setCanPaginationBot(aBoolean);
+        disableShowLoadMoreBot();
     }
 
     @Override
