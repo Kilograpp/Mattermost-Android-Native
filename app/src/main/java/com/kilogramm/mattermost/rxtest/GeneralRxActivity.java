@@ -9,9 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -36,6 +35,9 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralRxPresenter.class)
 public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
     private static final String TAG = "GeneralRxActivity";
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
@@ -71,7 +73,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.invite_new_member:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    InviteUserRxActivity.start(this);
                     break;
                 case R.id.help:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();

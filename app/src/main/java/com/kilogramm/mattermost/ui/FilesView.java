@@ -119,8 +119,8 @@ public class FilesView extends GridLayout {
         Glide.with(getContext())
                 .load(url)
                 .override(150,150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .into(binding.image);
         this.addView(binding.getRoot());

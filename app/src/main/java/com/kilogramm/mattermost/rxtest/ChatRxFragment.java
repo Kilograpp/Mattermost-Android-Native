@@ -79,10 +79,6 @@ import nucleus.factory.RequiresPresenter;
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
         OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener  {
 
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
-
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";

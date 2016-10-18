@@ -114,6 +114,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
+        MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
         mRealm.commitTransaction();
         return teams;
     }

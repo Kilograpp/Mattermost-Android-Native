@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#efeff4"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar_layout" />
+
+        <include
+            android:id="@+id/l_invite"
+            layout="@layout/invite_member_item" />
+
+        <!--<Button
+            android:id="@+id/btnAddAnother"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/colorPrimary"
+            android:backgroundTint="@color/colorPrimary"
+            android:padding="10dp"
+            android:text="@string/add_another"
+            android:textAllCaps="false" />-->
+
+    </LinearLayout>
+</layout>

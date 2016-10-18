@@ -49,8 +49,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         Glide.with(context)
                 .load(fileToAttach.getFilePath())
                 .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .centerCrop()
                 .into(holder.binding.imageView);

@@ -495,12 +495,4 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         postRepository.update(post);
         sendIvalidateAdapter();
     }
-
-
-    public <T> Observable<Delivery<ChatRxFragment, T>> createTemplateObservable(T obj){
-        return Observable.just(obj)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .compose(deliverFirst());
-    }
 }
