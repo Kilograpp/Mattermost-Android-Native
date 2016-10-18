@@ -201,7 +201,11 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
     public FileToAttach getUnloadedFile(){
         final Realm realm = Realm.getDefaultInstance();
-        return realm.where(FileToAttach.class).equalTo("uploadState", UploadState.WAITING.name()).findFirst();
+        return realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.WAITING.name())
+                .or()
+                .equalTo("uploadState", UploadState.UPLOADING.name())
+                .findFirst();
     }
 
     public boolean haveUploadingFile(){

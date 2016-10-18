@@ -1,7 +1,12 @@
 package com.kilogramm.mattermost.ui;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +45,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     AttachedFilesAdapter attachedFilesAdapter;
 
+    BroadcastReceiver broadcastReceiver;
+
     public AttachedFilesLayout(Context context) {
         super(context);
         init(context);
@@ -62,6 +69,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     @Override
     protected void onDetachedFromWindow() {
+        getContext().unregisterReceiver(broadcastReceiver);
         super.onDetachedFromWindow();
     }
 
@@ -72,6 +80,25 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         recyclerView.setLayoutManager(linearLayoutManager);
         attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().query());
         recyclerView.setAdapter(attachedFilesAdapter);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getExtras() != null) {
+                    final ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+                    if (ni != null && ni.isConnectedOrConnecting()) {
+                        getPresenter().requestUploadFileToServer(teamId, channelId);
+                        Log.i(TAG, "Network " + ni.getTypeName() + " connected");
+                    } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
+                        Log.d(TAG, "There's no network connectivity");
+                    }
+                }
+            }
+        };
+        getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     public void addItems(List<Uri> uriList, String teamId, String channelId) {

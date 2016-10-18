@@ -1,6 +1,11 @@
 package com.kilogramm.mattermost.presenter;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +18,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.service.websocket.NetworkStateReceiver;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
@@ -59,6 +65,10 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         super.onCreate(savedState);
         service = MattermostApp.getSingleton().getMattermostRetrofitService();
         fileUtil = FileUtil.getInstance();
+
+
+
+
         initRequests();
     }
 
@@ -91,9 +101,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, "Error");
-            FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.WAITING);
-            FileToAttachRepository.getInstance().updateProgress(fileToAttach.getId(), 0);
-            startRequest();
         });
     }
 
