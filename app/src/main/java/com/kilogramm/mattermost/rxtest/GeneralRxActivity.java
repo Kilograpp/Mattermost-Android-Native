@@ -61,14 +61,14 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         channelListFragment = new MenuChannelListFragment();
         directListFragment = new MenuDirectListFragment();
 
-        directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId,name));
+        directListFragment.setDirectItemClickListener((itemId, name) -> getPresenter().setSelectedDirect(itemId, name));
 
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
 
         //initChannelList
-        channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId,name));
+        channelListFragment.setListener((itemId, name) -> getPresenter().setSelectedChannel(itemId, name));
 
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentChannelList.getId(), channelListFragment)
@@ -84,18 +84,18 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setFragmentChat(String channelId, String channelName,boolean isChannel){
-        replaceFragment(channelId,channelName);
-        if(isChannel){
+    public void setFragmentChat(String channelId, String channelName, boolean isChannel) {
+        replaceFragment(channelId, channelName);
+        if (isChannel) {
             directListFragment.resetSelectItem();
-        }else{
+        } else {
             channelListFragment.resetSelectItem();
         }
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
-    private void replaceFragment(String channelId, String channelName){
-        if(!channelId.equals(currentChannel)){
+    private void replaceFragment(String channelId, String channelName) {
+        if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
@@ -106,7 +106,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
-    public static void start(Context context, Integer flags ) {
+    public static void start(Context context, Integer flags) {
         Intent starter = new Intent(context, GeneralRxActivity.class);
         if (flags != null) {
             starter.setFlags(flags);
@@ -120,8 +120,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
-    public void showErrorText(String text){
-        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
+    public void showErrorText(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -146,7 +146,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && requestCode == MenuDirectListFragment.REQUEST_CODE) {
             if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
-
 //                String name = data.getStringExtra(WholeDirectListActivity.NAME);
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
 
