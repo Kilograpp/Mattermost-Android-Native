@@ -356,6 +356,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
@@ -367,6 +368,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setUser(userRepository.query(new UserByIdSpecification(forSavePost.getUserId()))
                 .first());
         forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        sendEmptyMessage();
         postRepository.add(forSavePost);
     }
 
@@ -494,13 +496,21 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .compose(deliverFirst())
                 .subscribe(split(ChatRxFragment::setDropDown));
     }
+
     private void sendHideFileAttachLayout(){
         Observable.just(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(deliverFirst())
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.hideAttachedFilesLayout()));
+    }
 
+    private void sendEmptyMessage(){
+        Observable.just(new Object())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(deliverFirst())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
 
     //endregion
