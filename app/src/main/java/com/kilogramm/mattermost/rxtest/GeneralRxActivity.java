@@ -168,7 +168,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 if (channels.size() == 0) {
                     getPresenter().requestSaveData(saveData, userTalkToId);
                 } else {
-                    getPresenter().setSelectedDirect(channels.get(0).getId(), channels.get(0).getUsername());
+                    this.setFragmentChat(channels.get(0).getId(), channels.get(0).getUsername(), false);
                 }
             }
         }
