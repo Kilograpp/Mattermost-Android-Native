@@ -76,7 +76,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener  {
+        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -164,7 +164,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
+                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
                     getActivity().runOnUiThread(() -> invalidateAdapter());
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
@@ -228,7 +228,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
-        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
@@ -309,7 +308,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         if (post.getMessage().length() != 0) {
@@ -342,13 +341,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private Long getTimePost() {
-        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
         Long currentTime = Calendar.getInstance().getTimeInMillis();
+
+        if (adapter.getLastItem() == null) {
+            return currentTime;
+        }
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+
         if ((currentTime / 10000 * 10000) < lastTime)
             return currentTime;
         else
             return lastTime + 1;
     }
+
     private void setupRefreshListener() {
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -366,8 +371,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.swipeRefreshLayout
                             .setEnabled(false);
                 }
-
-
             }
 
             @Override
@@ -381,8 +384,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-
-            postRepository.remove(new PostByChannelId(channelId));
             getPresenter().requestLoadPosts();
         });
     }
@@ -696,7 +697,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void searchMessage() {
-        SearchMessageActivity.startForResult(getActivity(),teamId,SEARCH_CODE);
+        SearchMessageActivity.startForResult(getActivity(), teamId, SEARCH_CODE);
     }
 
     @Override
@@ -722,13 +723,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setCanPaginationTop(Boolean aBoolean) {
-        disableShowLoadMoreTop();
         binding.rev.setCanPaginationTop(aBoolean);
+        disableShowLoadMoreTop();
     }
 
     public void setCanPaginationBot(Boolean aBoolean) {
-        disableShowLoadMoreBot();
         binding.rev.setCanPaginationBot(aBoolean);
+        disableShowLoadMoreBot();
     }
 
     @Override

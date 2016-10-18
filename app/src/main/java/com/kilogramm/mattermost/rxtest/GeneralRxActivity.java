@@ -9,8 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
@@ -26,6 +30,8 @@ import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -54,7 +60,38 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     private void setupRightMenu() {
-        binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
+        binding.rightMenu.setNavigationItemSelectedListener(item -> {
+            binding.drawerLayout.closeDrawer(GravityCompat.END);
+
+            switch (item.getItemId()){
+                case R.id.switch_team:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.files:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.settings:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.invite_new_member:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.help:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.report_a_problem:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.about_mattermost:
+                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.logout:
+                    getPresenter().requestLogout();
+                    break;
+            }
+            return false;
+        });
+      //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -122,8 +159,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
-    private void replaceFragment(String channelId, String channelName){
-        if(!channelId.equals(currentChannel)){
+    private void replaceFragment(String channelId, String channelName) {
+        if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
@@ -134,7 +171,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
-    public static void start(Context context, Integer flags ) {
+    public static void start(Context context, Integer flags) {
         Intent starter = new Intent(context, GeneralRxActivity.class);
         if (flags != null) {
             starter.setFlags(flags);
@@ -148,8 +185,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
-    public void showErrorText(String text){
-        Toast.makeText(this, text,Toast.LENGTH_SHORT).show();
+    public void showErrorText(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -172,17 +209,33 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
-            if (requestCode == MenuDirectListFragment.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-                if (data != null && data.hasExtra(WholeDirectListActivity.NAME) && data.hasExtra(WholeDirectListActivity.USER_ID)) {
-                    String name = data.getStringExtra(WholeDirectListActivity.NAME);
-                    SaveData saveData = new SaveData(name, MattermostPreference.getInstance().getMyUserId(), true);
-                    Log.d(TAG, "saveData constructor");
-                    getPresenter().requestSaveData(saveData);
+        if (resultCode == Activity.RESULT_OK && requestCode == MenuDirectListFragment.REQUEST_CODE) {
+            if (data != null && data.hasExtra(WholeDirectListActivity.USER_ID)) {
+                String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
+
+                SaveData saveData = new SaveData(
+                        userTalkToId,
+                        MattermostPreference.getInstance().getMyUserId(),
+                        true,
+                        "direct_channel_show");
+
+                Realm realm = Realm.getDefaultInstance();
+                String myId = MattermostPreference.getInstance().getMyUserId();
+                RealmResults<Channel> channels = realm.where(Channel.class)
+                        .equalTo("name", myId + "__" + userTalkToId)
+                        .or()
+                        .equalTo("name", userTalkToId + "__" + myId)
+                        .findAll();
+
+                if (channels.size() == 0) {
+                    getPresenter().requestSaveData(saveData, userTalkToId);
+                } else {
+                    this.setFragmentChat(channels.get(0).getId(), channels.get(0).getUsername(), "D");
                 }
             }
         }
         if (resultCode == Activity.RESULT_OK && requestCode == SEARCH_CODE) {
+            // TODO messageId будет нужен, когда будет осуществляться переход на середину диалога
             String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
             String channelId = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
             String channelName = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);

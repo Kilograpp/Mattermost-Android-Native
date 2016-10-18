@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
@@ -26,6 +27,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import nucleus.presenter.delivery.Delivery;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -35,11 +37,11 @@ import rx.schedulers.Schedulers;
  */
 public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
-    private static final String TAG = "ChatPresenter";
+    private static final String TAG = "ChatRxPresenter";
 
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
-    private static final int REQUEST_LOAD_NEXT_POST = 3;
+    //private static final int REQUEST_LOAD_NEXT_POST = 3;
     private static final int REQUEST_SEND_TO_SERVER = 4;
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
@@ -101,7 +103,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void initRequests() {
         initExtraInfo();
         initLoadPosts();
-        initLoadNextPost();
         initSendToServer();
         initUpdateLastViewedAt();
         initDeletePost();
@@ -121,7 +122,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, extraInfo) -> {
                     userRepository.add(extraInfo.getMembers());
                     requestLoadPosts();
-            }, (chatRxFragment1, throwable) -> throwable.printStackTrace());
+            }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
     }
 
     private void initLoadPosts() {
@@ -134,6 +135,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         isEmpty = true;
                         sendShowEmptyList();
                     }
+                    postRepository.remove(new PostByChannelId(channelId));
                     RealmList<Post> realmList = new RealmList<>();
                     for (Post post : posts.getPosts().values()) {
                         post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
@@ -147,41 +149,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendRefreshing(false);
                     if (!isEmpty) {
                         sendShowList();
-                        requestLoadNextPost();
                     }
                     Log.d(TAG, "Complete load post");
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
+                    sendError(throwable.getMessage());
                     throwable.printStackTrace();
                 });
-    }
-
-    private void initLoadNextPost() {
-        restartableFirst(REQUEST_LOAD_NEXT_POST, () ->
-                service.getPostsBefore(teamId, channelId, lastmessageId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()),
-        (chatRxFragment, posts) -> {
-            if (posts.getPosts() == null) {
-                //isLoadNext = false;
-                return;
-            }
-            RealmList<Post> realmList = new RealmList<>();
-            for (Post post : posts.getPosts().values()) {
-                User user = userRepository.queryList(new UserByIdSpecification(post.getUserId())).get(0);
-                post.setUser(user);
-                post.setViewed(true);
-                post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-            }
-            realmList.addAll(posts.getPosts().values());
-            postRepository.add(realmList);
-            sendShowList();
-            sendDisableShowLoadMoreTop();
-            Log.d(TAG, "Complete load next post");
-        }, (chatRxFragment1, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, "Error");
-        });
     }
 
     private void initSendToServerError(){
@@ -202,6 +176,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     FileToAttachRepository.getInstance().clearData();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
+                    sendError(throwable.getMessage());
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
@@ -227,6 +202,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     FileToAttachRepository.getInstance().clearData();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
+                    sendError(throwable.getMessage());
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
@@ -241,8 +217,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, post) -> {
 
         }, (chatRxFragment1, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, "Error");
+                    sendError(throwable.getMessage());
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error");
         });
     }
 
@@ -252,8 +229,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .observeOn(AndroidSchedulers.mainThread()),
                 (chatRxFragment, post1) -> postRepository.remove(post1),
                 (chatRxFragment1, throwable) -> {
-                        throwable.printStackTrace();
-                        Log.d(TAG, "Error delete post " + throwable.getMessage());
+                    sendError(throwable.getMessage());
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error delete post " + throwable.getMessage());
                 });
     }
 
@@ -277,10 +255,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initLoadBefore(){
+
         restartableFirst(REQUEST_LOAD_BEFORE,
-                () -> service.getPostsBefore(teamId, channelId, lastmessageId)
+                () -> {
+                    Log.d(TAG, "initLoadBefore");
+                    return service.getPostsBefore(teamId, channelId, lastmessageId)
                                 .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread()),
+                                .observeOn(AndroidSchedulers.mainThread());
+                },
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
                         sendCanPaginationTop(false);
@@ -299,6 +281,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendDisableShowLoadMoreTop();
                     Log.d(TAG, "Complete load next post");
                 }, (chatRxFragment1, throwable) -> {
+                    sendDisableShowLoadMoreTop();
+                    sendError(throwable.getMessage());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
                 });
@@ -306,10 +290,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initLoadAfter(){
         restartableFirst(REQUEST_LOAD_AFTER,
-                () -> service.getPostsAfter(teamId, channelId, firstmessageId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()),
-                (chatRxFragment, posts) -> {
+                () -> {
+                    Log.d(TAG, "initLoadAfter");
+                    return  service.getPostsAfter(teamId, channelId, firstmessageId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread());
+                }, (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
                         sendCanPaginationBot(false);
                         return;
@@ -327,6 +313,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendDisableShowLoadMoreBot();
                     Log.d(TAG, "Complete load next post");
                 }, (chatRxFragment1, throwable) -> {
+                    sendDisableShowLoadMoreBot();
+                    sendError(throwable.getMessage());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
                 });
@@ -350,10 +338,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_LOAD_POSTS);
     }
 
-    public void requestLoadNextPost() {
-        getLastMessageId();
-        start(REQUEST_LOAD_NEXT_POST);
-    }
 
     public void requestSendToServer(Post post) {
         if(FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
@@ -419,90 +403,54 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     // region To View
     private void sendShowEmptyList(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.showEmptyList()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.showEmptyList()));
 
     }
     private void sendRefreshing(Boolean isShow){
-        Observable.just(isShow)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(ChatRxFragment::setRefreshing));
+        createTemplateObservable(isShow).subscribe(split(
+                ChatRxFragment::setRefreshing));
     }
     private void sendShowList(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.showList()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.showList()));
     }
     private void sendOnItemAdded(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.onItemAdded()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.onItemAdded()));
     }
     private void sendIvalidateAdapter(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.invalidateAdapter()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.invalidateAdapter()));
     }
     private void sendSetDropDown(RealmResults<User> results){
-        Observable.just(results)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(ChatRxFragment::setDropDown));
+        createTemplateObservable(results).subscribe(split(
+                ChatRxFragment::setDropDown));
     }
     private void sendDisableShowLoadMoreTop(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.disableShowLoadMoreTop()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.disableShowLoadMoreTop()));
     }
     private void sendDisableShowLoadMoreBot(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.disableShowLoadMoreBot()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.disableShowLoadMoreBot()));
     }
     private void sendCanPaginationTop(Boolean b){
-        Observable.just(b)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(ChatRxFragment::setCanPaginationTop));
+        createTemplateObservable(b).subscribe(split(
+                ChatRxFragment::setCanPaginationTop));
     }
     private void sendCanPaginationBot(Boolean b){
-        Observable.just(b)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(ChatRxFragment::setCanPaginationBot));
+        createTemplateObservable(b).subscribe(split(
+                ChatRxFragment::setCanPaginationBot));
     }
     private void sendDropDown(RealmResults<User> users){
-        Observable.just(users)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(ChatRxFragment::setDropDown));
+        createTemplateObservable(users).subscribe(split(
+                ChatRxFragment::setDropDown));
     }
 
     private void sendHideFileAttachLayout(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((chatRxFragment, o) -> chatRxFragment.hideAttachedFilesLayout()));
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                        chatRxFragment.hideAttachedFilesLayout()));
     }
 
     private void sendEmptyMessage(){
@@ -512,7 +460,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .compose(deliverFirst())
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
-
+    private void sendError(String error){
+        createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
+                        Toast.makeText(chatRxFragment.getActivity(),s,Toast.LENGTH_SHORT).show()));
+    }
     //endregion
 
 
@@ -553,5 +504,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
         postRepository.update(post);
         sendIvalidateAdapter();
+    }
+
+
+    public <T> Observable<Delivery<ChatRxFragment, T>> createTemplateObservable(T obj){
+        return Observable.just(obj)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(deliverFirst());
     }
 }

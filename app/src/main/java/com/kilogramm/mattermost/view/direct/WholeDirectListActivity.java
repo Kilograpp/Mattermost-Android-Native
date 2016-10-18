@@ -63,7 +63,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
 
         adapter = new WholeDirectListAdapter(this, users, usersIds, this, statusRealmResults);
-//        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
@@ -75,17 +74,12 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         return super.onOptionsItemSelected(item);
     }
 
-    public void finishActivity() {
-        finish();
-    }
-
     @Override
-    public void onDirectClick(String itemId, String name) {
+    public void onDirectClick(String userTalkToId, String name) {
         Intent intent = new Intent(this, WholeDirectListActivity.class)
-                .putExtra(USER_ID, "")
-                .putExtra(NAME, itemId);
+                .putExtra(USER_ID, userTalkToId)
+                .putExtra(NAME, name);
         setResult(Activity.RESULT_OK, intent);
-        //finishActivity();
         finish();
     }
 }

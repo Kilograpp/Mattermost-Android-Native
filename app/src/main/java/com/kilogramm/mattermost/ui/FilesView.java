@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.ui;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
@@ -35,6 +36,7 @@ public class FilesView extends GridLayout {
     private static final String JPG = "jpg";
 
     private List<String> fileList = new ArrayList<>();
+    private Drawable backgroundColorId;
 
     public FilesView(Context context) {
         super(context);
@@ -56,19 +58,24 @@ public class FilesView extends GridLayout {
         init(context, attrs);
     }
 
-    private void init(Context context, AttributeSet attrs){
+    private void init(Context context, AttributeSet attrs) {
         inflate(context, R.layout.file_view_layout, this);
+    }
+
+
+    public void setBackgroundColorComment() {
+        backgroundColorId = getResources().getDrawable(R.drawable.files_item_background_comment);
     }
 
     public void setItems(List<String> items) {
         clearView();
-        if(items!=null && items.size()!=0) {
+        if (items != null && items.size() != 0) {
             fileList = items;
             for (String s : items) {
-                FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.files_item_layout, this,false);
+                FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
                 switch (FileUtil.getInstance().getFileType(s)) {
                     case PNG:
-                        initAndAddItem(binding,getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(s));
                         binding.image.setOnClickListener(view -> {
                             Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
                             ImageViewerActivity.start(getContext(),
@@ -79,7 +86,7 @@ public class FilesView extends GridLayout {
                         });
                         break;
                     case JPG:
-                        initAndAddItem(binding,getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(s));
                         binding.image.setOnClickListener(view -> {
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
@@ -89,10 +96,11 @@ public class FilesView extends GridLayout {
                         });
                         break;
                     default:
-                        initAndAddItem(binding,getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(s));
                         break;
                 }
-            };
+            }
+            ;
         } else {
             clearView();
         }
@@ -105,20 +113,22 @@ public class FilesView extends GridLayout {
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
         //Log.d(TAG, url);
+        if (backgroundColorId != null)
+            binding.root.setBackground(backgroundColorId);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
         String title = "";
-        if(matcher.find()){
+        if (matcher.find()) {
             title = matcher.group(1);
         }
         try {
-            binding.title.setText(URLDecoder.decode(title,"utf-8"));
+            binding.title.setText(URLDecoder.decode(title, "utf-8"));
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
         Glide.with(getContext())
                 .load(url)
-                .override(150,150)
+                .override(150, 150)
                 .placeholder(R.drawable.ic_attachment_grey_24dp)
                 .error(R.drawable.ic_attachment_grey_24dp)
                 .thumbnail(0.1f)
@@ -126,16 +136,16 @@ public class FilesView extends GridLayout {
         this.addView(binding.getRoot());
     }
 
-    private String getImageUrl(String id){
+    private String getImageUrl(String id) {
         Realm realm = Realm.getDefaultInstance();
         String s = new String(realm.where(Team.class).findFirst().getId());
         realm.close();
-        if(id!=null){
+        if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/teams/"
                     + s
-                    + "/files/get" +  id;
+                    + "/files/get" + id;
         } else {
             return "";
         }
