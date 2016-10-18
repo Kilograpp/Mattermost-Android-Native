@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.view.search;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -37,7 +36,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String MESSAGE_ID = "message_id";
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
-    public static final String IS_CHANNEL = "is_channel";
+    public static final String TYPE_CHANNEL = "type_channel";
+
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
@@ -125,12 +125,12 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     @Override
-    public void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel) {
+    public void onJumpClick(String messageId, String channelId, String channelName, String typeChannel) {
         Intent intent = new Intent(getApplicationContext(), SearchMessageActivity.class)
                 .putExtra(MESSAGE_ID, messageId)
                 .putExtra(CHANNEL_ID, channelId)
                 .putExtra(CHANNEL_NAME, channelName)
-                .putExtra(IS_CHANNEL, isChannel);
+                .putExtra(TYPE_CHANNEL, typeChannel);
         setResult(RESULT_OK, intent);
         finish();
     }

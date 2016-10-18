@@ -150,7 +150,7 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
     public RealmResults<FileToAttach> query(){
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(FileToAttach.class).findAllSorted("fileName");
+        return realm.where(FileToAttach.class).findAll();
     }
 
     public boolean haveUnloadedFiles(){

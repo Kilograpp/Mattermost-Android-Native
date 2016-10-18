@@ -14,10 +14,10 @@ public class SaveData implements Parcelable {
     private String value;
 
     public SaveData(String name, String user_id, Boolean value, String category) {
+        this.category = category;
         this.name = name;
         this.user_id = user_id;
         this.value = value.toString();
-        this.category = category;
     }
 
     public String getName() {

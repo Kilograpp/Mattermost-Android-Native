@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.databinding.FragmentMenuDirectListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusAllSpecification;
@@ -25,6 +26,8 @@ import com.kilogramm.mattermost.presenter.MenuDirectListPresenter;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
+import io.realm.Realm;
+import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -61,12 +64,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
                 container, false);
         View view = binding.getRoot();
 
-        binding.btnMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPresenter().onMoreClick();
-            }
-        });
+        binding.btnMore.setOnClickListener(view1 -> getPresenter().onMoreClick());
 
         setupRecyclerViewDirection();
 
@@ -79,12 +77,12 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
 
     private void setupRecyclerViewDirection() {
         RealmResults<UserStatus> statusRealmResults = userStatusRepository.query(new UserStatusAllSpecification());
+
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification(Channel.DIRECT));
         binding.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new AdapterMenuDirectList(getActivity(), results, binding.recView,
-                (itemId, name) -> {
-                    directItemClickListener.onDirectClick(itemId, name);
-                }, statusRealmResults);
+                (itemId, name, type) -> directItemClickListener.onDirectClick(itemId, name, type),
+                statusRealmResults);
 
         if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
@@ -113,7 +111,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     }
 
     public interface OnDirectItemClickListener {
-        void onDirectClick(String itemId, String name);
+        void onDirectClick(String itemId, String name, String type);
     }
 
     public interface OnSelectedItemChangeListener {
@@ -122,6 +120,18 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
 
     public void resetSelectItem() {
         adapter.setSelecteditem(-1);
+    }
+
+    public void selectItem(String id) {
+        OrderedRealmCollection<Channel> channels = adapter.getData();
+        int i = 0;
+        for (Channel channel : channels) {
+            if (channel.getId().equals(id)) {
+                adapter.setSelecteditem(i);
+                return;
+            }
+            i++;
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.view.menu.channelList;
+package com.kilogramm.mattermost.view.menu.pivateList;
 
 import android.content.Context;
 import android.databinding.OnRebindCallback;
@@ -24,22 +24,22 @@ import io.realm.RealmRecyclerViewAdapter;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, MenuChannelListHolder> {
+public class AdapterMenuPrivateList extends RealmRecyclerViewAdapter<Channel, AdapterMenuPrivateList.MyViewHolder> {
 
-    private static final String TAG = "AdapterMenuDirectList";
+    private static final String TAG = "AdapterMenuPrivateList";
 
     private Context context;
     private RecyclerView mRecyclerView;
-    private MenuChannelListFragment.OnChannelItemClickListener channelItemClickListener;
-    private MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
+    private MenuPrivateListFragment.OnPrivateItemClickListener privateItemClickListener;
+    private MenuPrivateListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
 
-    public AdapterMenuChannelList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
-                                  RecyclerView mRecyclerView, MenuChannelListFragment.OnChannelItemClickListener listener) {
+    public AdapterMenuPrivateList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
+                                  RecyclerView mRecyclerView, MenuPrivateListFragment.OnPrivateItemClickListener listener) {
         super(context, data, true);
         this.context = context;
         this.mRecyclerView = mRecyclerView;
-        this.channelItemClickListener = listener;
+        this.privateItemClickListener = listener;
     }
 
     static Object DATA_INVALIDATION = new Object();
@@ -57,8 +57,8 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
     }
 
     @Override
-    public MenuChannelListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        MenuChannelListHolder holder = MenuChannelListHolder.create(inflater, parent);
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MyViewHolder holder = MyViewHolder.create(inflater, parent);
         holder.getmBinding().addOnRebindCallback(new OnRebindCallback() {
             public boolean onPreBind(ViewDataBinding binding) {
                 return mRecyclerView != null && mRecyclerView.isComputingLayout();
@@ -77,13 +77,13 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
     }
 
     @Override
-    public void onBindViewHolder(MenuChannelListHolder holder, int position) {
+    public void onBindViewHolder(MyViewHolder holder, int position) {
         Channel channel = getData().get(position);
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
-                    if(channelItemClickListener!=null){
-                        channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
+                    if(privateItemClickListener !=null){
+                        privateItemClickListener.onPrivatelClick(channel.getId(), channel.getType(), channel.getDisplayName());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
@@ -97,9 +97,8 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
         holder.bindTo(channel, context);
     }
 
-
     @Override
-    public void onBindViewHolder(MenuChannelListHolder holder, int position, List<Object> payloads) {
+    public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
         if(isForDataBinding(payloads)){
             holder.getmBinding().executePendingBindings();
@@ -124,7 +123,43 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
         }
     }
 
-    public void setSelectedItemChangeListener(MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
+    public void setSelectedItemChangeListener(MenuPrivateListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
         this.selectedItemChangeListener = selectedItemChangeListener;
+    }
+
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+
+        private ItemChannelBinding mBinding;
+
+        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
+            ItemChannelBinding binding = ItemChannelBinding
+                    .inflate(inflater, parent, false);
+            return new MyViewHolder(binding);
+        }
+
+        private MyViewHolder(ItemChannelBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+        }
+
+        public void bindTo(Channel channel, Context context) {
+            if(mBinding.getViewModel() == null){
+                mBinding.setViewModel(new ItemChannelViewModel(channel));
+            } else {
+                mBinding.getViewModel().setChannel(channel);
+            }
+            if(mBinding.linearLayout.isChecked()){
+                mBinding.channelName.setTextColor(context.getResources().getColor(R.color.black));
+                mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.black));
+            } else {
+                mBinding.channelName.setTextColor(context.getResources().getColor(R.color.white));
+                mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.white));
+            }
+            mBinding.executePendingBindings();
+        }
+
+        public ItemChannelBinding getmBinding() {
+            return mBinding;
+        }
     }
 }

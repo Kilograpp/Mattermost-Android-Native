@@ -6,10 +6,15 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
+import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -18,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -37,9 +44,36 @@ public class ManagerBroadcast {
 
     private UserRepository userRepository;
 
+    private Gson gson;
+
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
         this.userRepository = new UserRepository();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
+
+                    @Override
+                    public void write(JsonWriter out, RealmList<RealmString> value) throws IOException {
+                        out.beginArray();
+                        for (RealmString realmString : value) {
+                            out.value(realmString.getString());
+                        }
+                        out.endArray();
+                    }
+
+                    @Override
+                    public RealmList<RealmString> read(JsonReader in) throws IOException {
+                        RealmList<RealmString> list = new RealmList<>();
+                        in.beginArray();
+                        while (in.hasNext()) {
+                            list.add(new RealmString(in.nextString()));
+                        }
+                        in.endArray();
+                        return list;
+                    }
+                })
+                .setLenient()
+                .create();
     }
 
     public WebSocketObj praseMessage(String message){
@@ -52,7 +86,6 @@ public class ManagerBroadcast {
     }
 
     private WebSocketObj parseWebSocketObject(String json, Context context) throws JSONException {
-        Gson gson = new Gson();
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         WebSocketObj webSocketObj = new WebSocketObj();

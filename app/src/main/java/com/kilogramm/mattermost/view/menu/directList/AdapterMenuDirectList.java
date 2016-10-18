@@ -22,6 +22,7 @@ import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -93,20 +94,16 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
         Channel channel = getData().get(position);
         UserStatus userStatus = null;
 
-//        if (channel.getType() == "D") {
-            RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
-            if (byId.count() != 0) {
-                userStatus = byId.findFirst();
-            }
-//        }
-
-
+        RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
+        if (byId.count() != 0) {
+            userStatus = byId.findFirst();
+        }
 
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(), channel.getUser().getUsername());
+                        directItemClickListener.onDirectClick(channel.getId(), channel.getType(), channel.getUser().getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
@@ -117,6 +114,7 @@ public class AdapterMenuDirectList extends RealmRecyclerViewAdapter<Channel, Ada
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
+
         holder.bindTo(channel, context, userStatus);
     }
 
