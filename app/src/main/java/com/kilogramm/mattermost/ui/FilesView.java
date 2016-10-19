@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
@@ -53,6 +54,7 @@ public class FilesView extends GridLayout {
         init(context, attrs);
     }
 
+    @TargetApi(21)
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
@@ -73,6 +75,7 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String s : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
+                binding.downloadFileControls.setFileId(s);
                 switch (FileUtil.getInstance().getFileType(s)) {
                     case PNG:
                         initAndAddItem(binding, getImageUrl(s));
@@ -100,7 +103,6 @@ public class FilesView extends GridLayout {
                         break;
                 }
             }
-            ;
         } else {
             clearView();
         }

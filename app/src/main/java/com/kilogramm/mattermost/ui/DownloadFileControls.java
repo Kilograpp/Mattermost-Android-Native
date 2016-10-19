@@ -1,35 +1,18 @@
 package com.kilogramm.mattermost.ui;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
-import com.kilogramm.mattermost.databinding.DownloadControlsBinding;
-import com.kilogramm.mattermost.model.entity.filetoattacth.DownloadFile;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
-import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
 import com.kilogramm.mattermost.presenter.DownLoadFilePresenter;
-import com.kilogramm.mattermost.tools.FileUtil;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.Inflater;
 
 import nucleus.factory.RequiresPresenter;
 import nucleus.view.NucleusLayout;
@@ -42,9 +25,13 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
 
     public static final String TAG = "AttachedFilesLayout";
 
-    BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
 
-    DownloadControlsBinding binding;
+    private String fileId;
+
+    private View iconActionDownload;
+    private ProgressBar progressBar;
+    private View viewClose;
 
     public DownloadFileControls(Context context) {
         super(context);
@@ -74,7 +61,10 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
 
     private void init(Context context) {
         inflate(context, R.layout.download_controls, this);
-        binding = DownloadControlsBinding.inflate(LayoutInflater.from(context), null, false);
+
+        iconActionDownload = findViewById(R.id.iconActionDownload);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        viewClose = findViewById(R.id.close);
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -94,26 +84,32 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
         };
         getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
-        binding.iconActionDownload.setOnClickListener(v -> {
+        iconActionDownload.setOnClickListener(v -> {
             showProgressControls();
-            getPresenter().downloadFile();
+            if(fileId != null) {
+                getPresenter().downloadFile(fileId);
+            }
         });
 
-        binding.close.setOnClickListener(v -> {
+        viewClose.setOnClickListener(v -> {
             hideProgressControls();
             getPresenter().stopDownload();
         });
     }
 
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
     private void showProgressControls() {
-        binding.iconActionDownload.setVisibility(INVISIBLE);
-        binding.progressBar.setVisibility(VISIBLE);
-        binding.close.setVisibility(VISIBLE);
+        iconActionDownload.setVisibility(INVISIBLE);
+        progressBar.setVisibility(VISIBLE);
+        viewClose.setVisibility(VISIBLE);
     }
 
     private void hideProgressControls() {
-        binding.iconActionDownload.setVisibility(VISIBLE);
-        binding.progressBar.setVisibility(INVISIBLE);
-        binding.close.setVisibility(INVISIBLE);
+        iconActionDownload.setVisibility(VISIBLE);
+        progressBar.setVisibility(INVISIBLE);
+        viewClose.setVisibility(INVISIBLE);
     }
 }
