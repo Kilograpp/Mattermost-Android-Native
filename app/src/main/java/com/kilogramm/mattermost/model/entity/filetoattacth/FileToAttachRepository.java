@@ -2,8 +2,10 @@ package com.kilogramm.mattermost.model.entity.filetoattacth;
 
 import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.UploadState;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -15,14 +17,6 @@ import io.realm.RealmResults;
 public class FileToAttachRepository implements Repository<FileToAttach>{
 
     private static FileToAttachRepository instance;
-/*
-    public static void saveAttachedFile(Context context, Uri uri){
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        FileToAttach fileToAttach = realm.createObject(FileToAttach.class);
-        fileToAttach.setFilePath(FileUtils.getPath(context, uri));
-        realm.commitTransaction();
-    }*/
 
     public static FileToAttachRepository getInstance(){
         if(instance == null){
@@ -35,7 +29,17 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
     public void add(FileToAttach item) {
         final Realm realm = Realm.getDefaultInstance();
 
-        realm.executeTransaction(realm1 -> realm.copyToRealm(item));
+        realm.executeTransaction(realm1 -> {
+            Number id = realm.where(FileToAttach.class).max("id");
+            AtomicLong primaryKeyValue;
+            if(id != null) {
+                primaryKeyValue = new AtomicLong(id.longValue());
+            } else {
+                primaryKeyValue = new AtomicLong(0);
+            }
+            item.setId(primaryKeyValue.incrementAndGet());
+            realm.copyToRealm(item);
+        });
         realm.close();
     }
 
@@ -43,13 +47,18 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm1.createObject(FileToAttach.class);
-            fileToAttach.setFileName(fileName);
-            fileToAttach.setFilePath(filePath);
+            Number id = realm.where(FileToAttach.class).max("id");
+            AtomicLong primaryKeyValue;
+            if(id != null) {
+                primaryKeyValue = new AtomicLong(id.longValue());
+            } else {
+                primaryKeyValue = new AtomicLong(0);
+            }
+            FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, filePath);
+            realm.copyToRealm(fileToAttach);
         });
         realm.close();
     }
-
 
     @Override
     public void add(Collection<FileToAttach> items) {
@@ -76,7 +85,7 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         realm.close();
     }
 
-    public void updateUploadStatus(String fileName, boolean status){
+    public void updateUploadStatus(String fileName, UploadState status){
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
@@ -84,7 +93,22 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
                     .equalTo("fileName", fileName)
                     .findFirst();
             if(fileToAttach != null) {
-                fileToAttach.setUploaded(status);
+                fileToAttach.setUploadState(status);
+            }
+        });
+
+        realm.close();
+    }
+
+    public void updateUploadStatus(long id, UploadState status){
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("id", id)
+                    .findFirst();
+            if(fileToAttach != null) {
+                fileToAttach.setUploadState(status);
             }
         });
 
@@ -106,15 +130,19 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         realm.close();
     }
 
-    public void updateProgress(Realm realm, String fileName, int progress){
+    public void updateProgress(long id, int progress){
+        final Realm realm = Realm.getDefaultInstance();
+
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
+                    .equalTo("id", id)
                     .findFirst();
             if(fileToAttach != null && fileToAttach.isValid()) {
                 fileToAttach.setProgress(progress);
             }
         });
+
+        realm.close();
     }
 
     @Override
@@ -159,7 +187,8 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
 
         RealmResults<FileToAttach> fileToAttachRealmResults =  realm.where(FileToAttach.class).findAll();
         for (FileToAttach fileToAttachRealmResult : fileToAttachRealmResults) {
-            if(!fileToAttachRealmResult.isUploaded()){
+            if(fileToAttachRealmResult.getUploadState() == UploadState.WAITING ||
+                    fileToAttachRealmResult.getUploadState() == UploadState.UPLOADING){
                 realm.commitTransaction();
                 realm.close();
                 return true;
@@ -167,6 +196,22 @@ public class FileToAttachRepository implements Repository<FileToAttach>{
         }
         realm.commitTransaction();
         realm.close();
+        return false;
+    }
+
+    public FileToAttach getUnloadedFile(){
+        final Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.WAITING.name())
+                .or()
+                .equalTo("uploadState", UploadState.UPLOADING.name())
+                .findFirst();
+    }
+
+    public boolean haveUploadingFile(){
+        final Realm realm = Realm.getDefaultInstance();
+        FileToAttach fileToAttach = realm.where(FileToAttach.class).equalTo("uploadState", UploadState.UPLOADING.name()).findFirst();
+        if(fileToAttach != null && fileToAttach.isValid()) return true;
         return false;
     }
 }

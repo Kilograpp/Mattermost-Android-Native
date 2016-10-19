@@ -1,17 +1,24 @@
 package com.kilogramm.mattermost.presenter;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.service.websocket.NetworkStateReceiver;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
@@ -39,16 +46,19 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     @State
     String channelId;
     @State
-    String uri;
-    @State
     String fileName;
+    FileToAttach fileToAttach;
 
     private RequestBody channel_Id;
     private RequestBody clientId;
 
     FileUtil fileUtil;
 
-
+    public void requestUploadFileToServer(String teamId, String channelId) {
+        this.teamId = teamId;
+        this.channelId = channelId;
+        startRequest();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -58,19 +68,19 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         initRequests();
     }
 
-    private void initRequests(){
-        restartableFirst(REQUEST_UPLOAD_TO_SERVER,() -> {
-            String filePath = fileUtil.getPath(Uri.parse(uri));
+    private void initRequests() {
+        restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
+            String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
             String mimeType = fileUtil.getMimeType(filePath);
 
             File file;
-            if(filePath != null) {
+            if (filePath != null) {
                 file = new File(filePath);
             } else {
-                file = new File(uri);
+                file = new File(fileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
-            FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
+            FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
             channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
@@ -82,18 +92,17 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         }, (attachedFilesLayout, fileUploadResponse) -> {
             Log.d(TAG, fileUploadResponse.toString());
             FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
-            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), true);
+            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
+            startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, "Error");
         });
     }
 
-    public void requestUploadFileToServer(String teamId, String channelId, String uri){
-        this.teamId = teamId;
-        this.channelId = channelId;
-        this.uri = uri;
+    private void startRequest() {
+        fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
+        if (fileToAttach == null) return;
         start(REQUEST_UPLOAD_TO_SERVER);
     }
-
 }

@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +43,8 @@ import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -61,10 +62,8 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import icepick.State;
@@ -159,7 +158,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
-        binding.attachedFilesLayout.setEmptyListListener(this);
+        setAttachedFilesLayout();
         brReceiverTyping = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -186,6 +185,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+    }
+
+    private void setAttachedFilesLayout(){
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().query();
+        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+            binding.attachedFilesLayout.setVisibility(View.VISIBLE);
+        } else {
+            binding.attachedFilesLayout.setVisibility(View.GONE);
+        }
+        binding.attachedFilesLayout.setEmptyListListener(this);
     }
 
     private void setDropDownUserList() {
@@ -302,7 +311,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        setMessage("");
         if (post.getMessage().length() != 0) {
             getPresenter().requestSendToServer(post);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -583,7 +591,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-        binding.attachedFilesLayout.addItem(uriList, teamId, channelId);
+        binding.attachedFilesLayout.addItems(uriList, teamId, channelId);
     }
 
     private void showErrorSendMenu(View view, Post post) {

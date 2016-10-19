@@ -8,7 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -182,7 +186,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     public void showErrorText(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
