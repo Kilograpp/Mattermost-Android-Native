@@ -6,10 +6,12 @@
 
     <color name="white">#FFF</color>
     <color name="black">#000</color>
+    <color name="dark_grey">#606060</color>
     <color name="grey">#999999</color>
     <color name="light_grey">#c9c9c9</color>
     <color name="very_light_grey">#d7dee3</color>
     <color name="very_much_light_grey">#e7eef3</color>
+    <color name="background_activity_grey">#efeff4</color>
     <color name="transparent">#00000000</color>
 
     <color name="green_send_massage">#00bf30</color>

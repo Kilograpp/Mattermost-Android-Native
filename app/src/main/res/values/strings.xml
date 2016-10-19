@@ -73,4 +73,33 @@
     <!--Right MENU-->
 
 
+           <!--Notification-->
+    <string name="notification">Notification</string>
+    <string name="notification_mob_push">Mobile push notifications</string>
+    <string name="notification_mob_push_description">For mentions and direct messages when online, away or offline</string>
+    <string name="notification_words_trigger">Words that trigger mentions</string>
+    <string name="notification_words_channel_mention">\"@channel\",\"@all\"</string>
+                    <!--Desktop-->
+    <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
+    <string name="mob_push_all">For all activity</string>
+    <string name="mob_push_mentions_direct">For mentions and direct messages</string>
+    <string name="mob_push_never">Never</string>
+    <string name="mob_push_description_send">Notification alerts are pushed to your mobile device when there is activity in Mattermost.</string>
+
+
+    <string name="mob_push_title_trigger">TRIGGER PUSH NOTIFICATIONS WHEN</string>
+    <string name="mob_push_on_away_off">Online, away or offline</string>
+    <string name="mob_push_away_off">Away or offline</string>
+    <string name="mob_push_off">Offline</string>
+    <string name="mob_push_description_trigger">Notification alerts are only pushed to your mobile device when your online status matches the selection above.</string>
+
+                     <!--Triggers-->
+    <string name="triggers_first_name">Your case sensitive first name </string>
+    <string name="triggers_username">Your non-case sensitive username </string>
+    <string name="triggers_user_mention">Your username mentioned </string>
+    <string name="triggers_channel_mention">Channel-wide mentions \"@channel\", \"@all\"</string>
+    <string name="triggers_other_mention">OTHER NON-CASE SENSITIVE WORDS</string>
+    <string name="triggers_other_mention_hint">Type words</string>
+    <string name="triggers_other_separate">Separate by commas</string>
+
 </resources>

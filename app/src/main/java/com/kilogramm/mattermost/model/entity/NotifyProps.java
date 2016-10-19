@@ -28,6 +28,9 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @SerializedName("desktop_sound")
     @Expose
     private String desktopSound;
+    @SerializedName("desktop_duration")
+    @Expose
+    private String desktopDuration;
     @SerializedName("email")
     @Expose
     private String email;
@@ -37,7 +40,36 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @SerializedName("mention_keys")
     @Expose
     private String mentionKeys;
+    @SerializedName("push")
+    @Expose
+    private String push;
+    @SerializedName("push_status")
+    @Expose
+    private String pushStatus;
 
+    public String getPushStatus() {
+        return pushStatus;
+    }
+
+    public void setPushStatus(String pushStatus) {
+        this.pushStatus = pushStatus;
+    }
+
+    public String getPush() {
+        return push;
+    }
+
+    public void setPush(String push) {
+        this.push = push;
+    }
+
+    public String getDesktopDuration() {
+        return desktopDuration;
+    }
+
+    public void setDesktopDuration(String desktopDuration) {
+        this.desktopDuration = desktopDuration;
+    }
     /**
      *
      * @return

@@ -9,11 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -28,6 +25,7 @@ import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import nucleus.factory.RequiresPresenter;
 
@@ -68,6 +66,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
+                    startActivity(new Intent(this, NotificationActivity.class));
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.invite_new_member:

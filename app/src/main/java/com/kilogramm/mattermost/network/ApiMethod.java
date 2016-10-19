@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
+import com.kilogramm.mattermost.model.entity.NotifyProps;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
@@ -210,4 +211,11 @@ public interface ApiMethod {
     Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
                                      @Path("firstMessageId") String firstMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/update_notify")
+    Observable<User> updateNotify(@Body NotifyProps notifyProps);
 }
