@@ -29,7 +29,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
     private Subscription mSubscription;
     private ApiMethod service;
 
-    private PostRepository postRepository;
     private boolean isSearchEmpty;
 
     @Override
@@ -37,7 +36,6 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-        postRepository = new PostRepository();
     }
 
     @Override
@@ -94,7 +92,7 @@ public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
                             realm.commitTransaction();
                             realm.close();
 
-                            postRepository.add(searchResult.getPosts().values());
+                            PostRepository.add(searchResult.getPosts().values());
                         }
                     }
                 });

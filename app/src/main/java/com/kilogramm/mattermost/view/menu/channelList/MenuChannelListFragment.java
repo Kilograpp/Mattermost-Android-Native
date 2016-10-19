@@ -12,11 +12,11 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -31,11 +31,12 @@ public class MenuChannelListFragment extends Fragment {
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuChannelList adapter;
 
-    private ChannelRepository channelRepository;
+    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -46,14 +47,13 @@ public class MenuChannelListFragment extends Fragment {
         View view = binding.getRoot();
         viewModel = new FrMenuChannelViewModel(getContext());
         binding.setViewModel(viewModel);
-        channelRepository = new ChannelRepository();
         setupListView();
         return view;
     }
 
 
     private void setupListView() {
-        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
+        RealmResults<Channel> results = new ChannelRepository.ChannelByTypeSpecification("O").toRealmResults(realm);
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
                 (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
@@ -96,6 +96,14 @@ public class MenuChannelListFragment extends Fragment {
                 return;
             }
             i++;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(realm!=null && !realm.isClosed()){
+            realm.close();
         }
     }
 }

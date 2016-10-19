@@ -12,6 +12,7 @@ import io.realm.RealmResults;
  * Created by kepar on 7.10.16.
  */
 
+//TODO for kerap refactor class (remove implements Repository)
 public class FileToAttachRepository implements Repository<FileToAttach>{
 
     private static FileToAttachRepository instance;

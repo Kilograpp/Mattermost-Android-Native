@@ -42,13 +42,11 @@ public class ManagerBroadcast {
 
     public Context mContext;
 
-    private UserRepository userRepository;
 
     private Gson gson;
 
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
-        this.userRepository = new UserRepository();
         gson = new GsonBuilder()
                 .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
 
@@ -146,7 +144,7 @@ public class ManagerBroadcast {
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
-                userRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
+                UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()

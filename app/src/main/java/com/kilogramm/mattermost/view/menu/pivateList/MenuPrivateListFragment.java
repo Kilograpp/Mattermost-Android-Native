@@ -12,11 +12,11 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuPrivateViewModel;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -30,12 +30,12 @@ public class MenuPrivateListFragment extends Fragment {
     private OnPrivateItemClickListener privateItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuPrivateList adapter;
-
-    private ChannelRepository channelRepository;
+    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -46,14 +46,13 @@ public class MenuPrivateListFragment extends Fragment {
         View view = binding.getRoot();
         viewModel = new FrMenuPrivateViewModel(getContext());
         binding.setViewModel(viewModel);
-        channelRepository = new ChannelRepository();
         setupListView();
         return view;
     }
 
 
     private void setupListView() {
-        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("P"));
+        RealmResults<Channel> results = new ChannelRepository.ChannelByTypeSpecification("P").toRealmResults(realm);
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuPrivateList(getContext(), results, binding.recView,
                 (itemId, name, type) ->  privateItemClickListener.onPrivatelClick(itemId, name, type));
@@ -98,5 +97,12 @@ public class MenuPrivateListFragment extends Fragment {
         adapter.setSelecteditem(-1);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(realm!=null && !realm.isClosed()){
+            realm.close();
+        }
+    }
 }
 

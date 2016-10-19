@@ -12,33 +12,33 @@ import io.realm.RealmResults;
 /**
  * Created by Evgeny on 29.09.2016.
  */
-public class UserStatusRepository implements Repository<UserStatus> {
+public class UserStatusRepository {
     public static final String TAG = "UserRepository";
 
-    @Override
-    public void add(UserStatus item) {
+
+    public static void add(UserStatus item) {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
         realm.close();
     }
 
-    @Override
-    public void add(Collection<UserStatus> items) {
+
+    public static void add(Collection<UserStatus> items) {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
         realm.close();
     }
 
-    @Override
-    public void update(UserStatus item) {
+
+    public static void update(UserStatus item) {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
         realm.close();
     }
 
-    @Override
-    public void remove(UserStatus item) {
+
+    public static void remove(UserStatus item) {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
@@ -48,8 +48,8 @@ public class UserStatusRepository implements Repository<UserStatus> {
         realm.close();
     }
 
-    @Override
-    public void remove(Specification specification) {
+
+    public static void remove(Specification specification) {
         final RealmSpecification realmSpecification = (RealmSpecification) specification;
         final  Realm realm = Realm.getDefaultInstance();
         final RealmResults<UserStatus> realmResults = realmSpecification.toRealmResults(realm);
@@ -58,8 +58,8 @@ public class UserStatusRepository implements Repository<UserStatus> {
         realm.close();
     }
 
-    @Override
-    public RealmResults<UserStatus> query(Specification specification) {
+
+    public static RealmResults<UserStatus> query(Specification specification) {
         final RealmSpecification realmSpecification = (RealmSpecification) specification;
         final Realm realm = Realm.getDefaultInstance();
         final RealmResults<UserStatus> realmResults = realmSpecification.toRealmResults(realm);
@@ -68,4 +68,12 @@ public class UserStatusRepository implements Repository<UserStatus> {
 
         return realmResults;
     }
+
+    public static class UserStatusAllSpecification implements RealmSpecification {
+        @Override
+        public RealmResults<UserStatus> toRealmResults(Realm realm) {
+            return realm.where(UserStatus.class).findAll();
+        }
+    }
+
 }

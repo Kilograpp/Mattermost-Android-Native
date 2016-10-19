@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -70,7 +69,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    SettingsRxActivity.start(this);
                     break;
                 case R.id.invite_new_member:
                     InviteUserRxActivity.start(this);

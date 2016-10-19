@@ -49,7 +49,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -120,8 +119,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
-    private PostRepository postRepository;
-    private UserRepository userRepository;
 
     private BroadcastReceiver brReceiverTyping;
 
@@ -132,8 +129,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.realm = Realm.getDefaultInstance();
         this.teamId = realm.where(Team.class).findFirst().getId();
-        this.postRepository = new PostRepository();
-        this.userRepository = new UserRepository();
         getPresenter().initPresenter(teamId, channelId);
     }
 
@@ -206,7 +201,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void setupListChat(String channelId) {
-        RealmResults<Post> results = postRepository.query(new PostByChannelId(channelId));
+        RealmResults<Post> results = PostRepository.query(new PostByChannelId(channelId));
         results.addChangeListener(element -> {
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
@@ -294,7 +289,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
-        //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
@@ -588,7 +582,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     getPresenter().requestSendToServerError(p);
                     break;
                 case R.id.delete:
-                    postRepository.remove(post);
+                    PostRepository.remove(post);
                     break;
             }
             return true;
