@@ -21,7 +21,6 @@ import rx.schedulers.Schedulers;
  */
 
 public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingChannelsActivity> {
-    private static final String TAG = "AddExistingChannelsPresenter";
 
     private static final int REQUEST_CHANNELS_MORE = 1;
 
@@ -36,14 +35,11 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
         realm = Realm.getDefaultInstance();
         teamId = realm.where(Team.class).findFirst().getId();
-
         moreChannels = new RealmList<>();
-
         initRequest();
     }
 
@@ -59,38 +55,15 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     .observeOn(AndroidSchedulers.mainThread());
 
         }, (addExistingChannelsActivity, channelsWithMembers) -> {
+            for (Channel channel : channelsWithMembers.getChannels()) {
+                moreChannels.add(new ChannelsDontBelong(channel));
+            }
             realm.executeTransaction(realm1 -> {
-//                RealmList<ChannelsDontBelong> moreChannels = new RealmList<>();
-//                moreChannels.addAll(channelsWithMembers.getChannels());
-
-                //TODO может быть сделать ChannelsDontBelong базовым, а Channel наследовать от него
-                for (Channel channel : channelsWithMembers.getChannels()){
-                    ChannelsDontBelong mChannel = new ChannelsDontBelong();
-                    mChannel.setId(channel.getId());
-                    mChannel.setCreateAt(channel.getCreateAt());
-                    mChannel.setUpdateAt(channel.getUpdateAt());
-                    mChannel.setDeleteAt(channel.getDeleteAt());
-                    mChannel.setTeamId(channel.getTeamId());
-                    mChannel.setType(channel.getType());
-                    mChannel.setDisplayName(channel.getDisplayName());
-                    mChannel.setName(channel.getName());
-                    mChannel.setHeader(channel.getHeader());
-                    mChannel.setPurpose(channel.getPurpose());
-                    mChannel.setLastPostAt(channel.getLastPostAt());
-                    mChannel.setTotalMsgCount(channel.getTotalMsgCount());
-                    mChannel.setExtraUpdateAt(channel.getExtraUpdateAt());
-                    mChannel.setCreatorId(channel.getCreatorId());
-
-                    moreChannels.add(mChannel);
-                }
-
                 realm1.insertOrUpdate(moreChannels);
                 realm1.close();
             });
 
-        }, (addExistingChannelsActivity, throwable) -> {
-            throwable.printStackTrace();
-        });
+        }, (addExistingChannelsActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestChannelsMore() {

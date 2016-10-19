@@ -57,7 +57,6 @@ public class MenuChannelListFragment extends Fragment {
         return view;
     }
 
-
     private void setupListView() {
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -106,9 +105,8 @@ public class MenuChannelListFragment extends Fragment {
     }
 
     public void goToAddChannelsActivity() {
-        getActivity().startActivityForResult(new Intent(
-                getActivity().getApplicationContext(),
-                AddExistingChannelsActivity.class),
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),
                 REQUEST_JOIN_CHANNEL);
     }
 }

@@ -228,20 +228,20 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     this.setFragmentChat(channels.get(0).getId(), channels.get(0).getUsername(), "D");
                 }
             }
-        }
-        if (requestCode == ChatRxFragment.SEARCH_CODE) {
-            if (data != null) {
-                // TODO messageId будет нужен, когда будет осуществляться переход на середину диалога
-                String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+            if (requestCode == ChatRxFragment.SEARCH_CODE) {
+                if (data != null) {
+                    // TODO messageId будет нужен, когда будет осуществляться переход на середину диалога
+                    String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
 
-                this.setFragmentChat(
-                        data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                        data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                        data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+                    this.setFragmentChat(
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
+                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+                }
             }
-        }
-        if (requestCode == MenuChannelListFragment.REQUEST_JOIN_CHANNEL) {
-            getPresenter().requestAddChat(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID));
+            if (requestCode == MenuChannelListFragment.REQUEST_JOIN_CHANNEL) {
+                getPresenter().requestAddChat(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID));
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ public class AddExistingChannelsAdapter extends
                 channelClickListener.onChannelItemClick(
                         getData().get(position).getId(),
                         getData().get(position).getName(),
-                        holder.typeChannel);
+                        holder.getTypeChannel());
             }
         });
     }

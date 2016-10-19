@@ -56,6 +56,26 @@ public class ChannelsDontBelong extends RealmObject {
     @Expose
     private String creatorId;
 
+    public ChannelsDontBelong() {
+    }
+
+    public ChannelsDontBelong(Channel channel) {
+        this.setId(channel.getId());
+        this.setCreateAt(channel.getCreateAt());
+        this.setUpdateAt(channel.getUpdateAt());
+        this.setDeleteAt(channel.getDeleteAt());
+        this.setTeamId(channel.getTeamId());
+        this.setType(channel.getType());
+        this.setDisplayName(channel.getDisplayName());
+        this.setName(channel.getName());
+        this.setHeader(channel.getHeader());
+        this.setPurpose(channel.getPurpose());
+        this.setLastPostAt(channel.getLastPostAt());
+        this.setTotalMsgCount(channel.getTotalMsgCount());
+        this.setExtraUpdateAt(channel.getExtraUpdateAt());
+        this.setCreatorId(channel.getCreatorId());
+    }
+
     public String getId() {
         return id;
     }
