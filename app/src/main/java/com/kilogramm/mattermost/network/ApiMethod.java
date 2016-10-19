@@ -219,4 +219,20 @@ public interface ApiMethod {
     @POST ("api/v3/teams/{team_id}/channels/create_direct")
     Observable<Channel> createDirect(@Path ("team_id") String teamId,
                                      @Body LogoutData user);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/more")
+    Observable<ChannelsWithMembers> channelsMore(@Path("team_id") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/channels/{channel_id}/join")
+    Observable<Channel> joinChannel(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId);
 }

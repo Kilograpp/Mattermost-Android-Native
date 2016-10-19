@@ -1,10 +1,13 @@
 package com.kilogramm.mattermost.viewmodel.menu;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
+import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
 
 /**
@@ -18,9 +21,9 @@ public class FrMenuChannelViewModel implements ViewModel {
         this.context = context;
     }
 
-    public void onMoreClick(View v){
-        Toast.makeText(context, "click more", Toast.LENGTH_SHORT).show();
-    }
+//    public void onMoreClick(View v){
+//        Toast.makeText(context, "click more", Toast.LENGTH_SHORT).show();
+//    }
 
     @Override
     public void destroy() {

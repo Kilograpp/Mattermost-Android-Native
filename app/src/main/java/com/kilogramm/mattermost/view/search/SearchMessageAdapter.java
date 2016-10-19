@@ -37,11 +37,13 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
 
     private OnJumpClickListener jumpClickListener;
-    private static String terms;
+    private String terms;
     private Context context;
 
-    public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
-                                boolean autoUpdate, OnJumpClickListener listener,
+    public SearchMessageAdapter(@NonNull Context context,
+                                @Nullable OrderedRealmCollection<Post> data,
+                                boolean autoUpdate,
+                                OnJumpClickListener listener,
                                 String terms) {
         super(context, data, autoUpdate);
         this.jumpClickListener = listener;
@@ -56,7 +58,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.bindTo(getData().get(position), context);
+        holder.bindTo(getData().get(position), context, terms);
 
         String messageId = getData().get(position).getId();
         String channelId = getData().get(position).getChannelId();
@@ -88,7 +90,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.item_search_result, parent, false));
         }
 
-        void bindTo(Post post, Context context) {
+        void bindTo(Post post, Context context, String terms) {
             RealmResults<User> user = realm.where(User.class).equalTo("id", post.getUserId()).findAll();
             RealmResults<Channel> channel = realm.where(Channel.class).equalTo("id", post.getChannelId()).findAll();
 
