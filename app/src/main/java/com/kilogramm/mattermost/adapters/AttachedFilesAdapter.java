@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,8 +86,9 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         }
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            AttachedFileLayoutBinding binding = AttachedFileLayoutBinding.inflate(inflater, parent, false);
-            return new MyViewHolder(binding);
+//            AttachedFileLayoutBinding binding = AttachedFileLayoutBinding.inflate(inflater, parent, false);
+//            return new MyViewHolder(binding);
+            return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.attached_file_layout, parent, false));
         }
     }
 
