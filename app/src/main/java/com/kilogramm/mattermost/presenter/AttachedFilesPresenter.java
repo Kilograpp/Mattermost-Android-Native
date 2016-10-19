@@ -65,10 +65,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         super.onCreate(savedState);
         service = MattermostApp.getSingleton().getMattermostRetrofitService();
         fileUtil = FileUtil.getInstance();
-
-
-
-
         initRequests();
     }
 
