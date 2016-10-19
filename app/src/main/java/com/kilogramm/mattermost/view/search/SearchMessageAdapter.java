@@ -2,11 +2,9 @@ package com.kilogramm.mattermost.view.search;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
@@ -39,11 +37,13 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListAdapter.getIma
 public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchMessageAdapter.MyViewHolder> {
 
     private OnJumpClickListener jumpClickListener;
-    private static String terms;
+    private String terms;
     private Context context;
 
-    public SearchMessageAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Post> data,
-                                boolean autoUpdate, OnJumpClickListener listener,
+    public SearchMessageAdapter(@NonNull Context context,
+                                @Nullable OrderedRealmCollection<Post> data,
+                                boolean autoUpdate,
+                                OnJumpClickListener listener,
                                 String terms) {
         super(context, data, autoUpdate);
         this.jumpClickListener = listener;
@@ -58,7 +58,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.bindTo(getData().get(position), context);
+        holder.bindTo(getData().get(position), context, terms);
 
         String messageId = getData().get(position).getId();
         String channelId = getData().get(position).getChannelId();
@@ -69,7 +69,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                         messageId,
                         channelId,
                         holder.getmBinding().chatName.getText().toString(),
-                        holder.isChannel());
+                        holder.getTypeChannel());
             }
         });
     }
@@ -78,7 +78,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         private ItemSearchResultBinding binding;
         private Realm realm;
-        private boolean isChannel;
+        private String typeChannel;
 
         private MyViewHolder(ItemSearchResultBinding binding) {
             super(binding.getRoot());
@@ -90,7 +90,7 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.item_search_result, parent, false));
         }
 
-        void bindTo(Post post, Context context) {
+        void bindTo(Post post, Context context, String terms) {
             RealmResults<User> user = realm.where(User.class).equalTo("id", post.getUserId()).findAll();
             RealmResults<Channel> channel = realm.where(Channel.class).equalTo("id", post.getChannelId()).findAll();
 
@@ -100,10 +100,10 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
             if (Pattern.matches(".+\\w[_].+\\w", chName)) {
                 binding.chatName.setText(this.getChatName(chName));
-                isChannel = false;
+                typeChannel = channel.first().getType();
             } else {
                 binding.chatName.setText(chName);
-                isChannel = true;
+                typeChannel = channel.first().getType();
             }
 
             binding.userName.setText(user.first().getUsername());
@@ -121,8 +121,8 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
                     .into(binding.avatarDirect);
         }
 
-        public boolean isChannel() {
-            return isChannel;
+        public String getTypeChannel() {
+            return typeChannel;
         }
 
         public ItemSearchResultBinding getmBinding() {
@@ -166,6 +166,6 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     }
 
     public interface OnJumpClickListener {
-        void onJumpClick(String messageId, String channelId, String channelName, boolean isChannel);
+        void onJumpClick(String messageId, String channelId, String channelName, String type);
     }
 }

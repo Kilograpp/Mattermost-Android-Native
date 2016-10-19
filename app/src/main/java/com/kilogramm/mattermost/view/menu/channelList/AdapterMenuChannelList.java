@@ -24,7 +24,7 @@ import io.realm.RealmRecyclerViewAdapter;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, AdapterMenuChannelList.MyViewHolder> {
+public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, MenuChannelListHolder> {
 
     private static final String TAG = "AdapterMenuDirectList";
 
@@ -57,8 +57,8 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        MyViewHolder holder = MyViewHolder.create(inflater, parent);
+    public MenuChannelListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MenuChannelListHolder holder = MenuChannelListHolder.create(inflater, parent);
         holder.getmBinding().addOnRebindCallback(new OnRebindCallback() {
             public boolean onPreBind(ViewDataBinding binding) {
                 return mRecyclerView != null && mRecyclerView.isComputingLayout();
@@ -77,13 +77,13 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(MenuChannelListHolder holder, int position) {
         Channel channel = getData().get(position);
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(channelItemClickListener!=null){
-                        channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName());
+                        channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
@@ -97,8 +97,9 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
         holder.bindTo(channel, context);
     }
 
+
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
+    public void onBindViewHolder(MenuChannelListHolder holder, int position, List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
         if(isForDataBinding(payloads)){
             holder.getmBinding().executePendingBindings();
@@ -125,41 +126,5 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Ad
 
     public void setSelectedItemChangeListener(MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
         this.selectedItemChangeListener = selectedItemChangeListener;
-    }
-
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-
-        private ItemChannelBinding mBinding;
-
-        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            ItemChannelBinding binding = ItemChannelBinding
-                    .inflate(inflater, parent, false);
-            return new MyViewHolder(binding);
-        }
-
-        private MyViewHolder(ItemChannelBinding binding) {
-            super(binding.getRoot());
-            mBinding = binding;
-        }
-
-        public void bindTo(Channel channel, Context context) {
-            if(mBinding.getViewModel() == null){
-                mBinding.setViewModel(new ItemChannelViewModel(channel));
-            } else {
-                mBinding.getViewModel().setChannel(channel);
-            }
-            if(mBinding.linearLayout.isChecked()){
-                mBinding.channelName.setTextColor(context.getResources().getColor(R.color.black));
-                mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.black));
-            } else {
-                mBinding.channelName.setTextColor(context.getResources().getColor(R.color.white));
-                mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.white));
-            }
-            mBinding.executePendingBindings();
-        }
-
-        public ItemChannelBinding getmBinding() {
-            return mBinding;
-        }
     }
 }

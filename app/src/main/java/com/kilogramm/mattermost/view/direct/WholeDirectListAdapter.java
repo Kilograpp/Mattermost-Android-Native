@@ -30,7 +30,9 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     private ArrayList<String> mUsersIds;
     private RealmResults<UserStatus> userStatuses;
 
-    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
+    public WholeDirectListAdapter(Context context,
+                                  RealmResults<User> realmResults,
+                                  ArrayList<String> usersIds,
                                   WholeDirectListAdapter.OnDirectItemClickListener listener,
                                   RealmResults<UserStatus> statusRealmResults) {
         super(context, realmResults, true);

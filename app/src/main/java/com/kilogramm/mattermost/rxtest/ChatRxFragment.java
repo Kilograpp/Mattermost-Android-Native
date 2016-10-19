@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +43,8 @@ import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -52,6 +53,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -60,10 +62,8 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import icepick.State;
@@ -76,7 +76,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener  {
+        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -98,7 +98,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int PICK_FROM_GALLERY = 8;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
-    private static final int SEARCH_CODE = 4;
+    public static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
 
@@ -158,13 +158,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
-        binding.attachedFilesLayout.setEmptyListListener(this);
+        setAttachedFilesLayout();
         brReceiverTyping = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
+                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
                     getActivity().runOnUiThread(() -> invalidateAdapter());
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
@@ -185,6 +185,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+    }
+
+    private void setAttachedFilesLayout(){
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().query();
+        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+            binding.attachedFilesLayout.setVisibility(View.VISIBLE);
+        } else {
+            binding.attachedFilesLayout.setVisibility(View.GONE);
+        }
+        binding.attachedFilesLayout.setEmptyListListener(this);
     }
 
     private void setDropDownUserList() {
@@ -218,7 +228,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
-        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
@@ -299,10 +308,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        setMessage("");
         if (post.getMessage().length() != 0) {
             getPresenter().requestSendToServer(post);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -333,13 +341,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private Long getTimePost() {
-        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
         Long currentTime = Calendar.getInstance().getTimeInMillis();
+
+        if (adapter.getLastItem() == null) {
+            return currentTime;
+        }
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+
         if ((currentTime / 10000 * 10000) < lastTime)
             return currentTime;
         else
             return lastTime + 1;
     }
+
     private void setupRefreshListener() {
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -357,8 +371,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.swipeRefreshLayout
                             .setEnabled(false);
                 }
-
-
             }
 
             @Override
@@ -372,8 +384,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-
-            postRepository.remove(new PostByChannelId(channelId));
             getPresenter().requestLoadPosts();
         });
     }
@@ -564,7 +574,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             // Create the File where the photo should go
             File photoFile = null;
             try {
-                photoFile = createTempImageFile();
+                photoFile = FileUtil.getInstance().createTempImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
@@ -577,26 +587,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public File createTempImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
-        }
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
-    }
+
 
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-        binding.attachedFilesLayout.addItem(uriList, teamId, channelId);
+        binding.attachedFilesLayout.addItems(uriList, teamId, channelId);
     }
 
     private void showErrorSendMenu(View view, Post post) {
@@ -702,7 +697,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void searchMessage() {
-        SearchMessageActivity.startForResult(getActivity(),teamId,SEARCH_CODE);
+        SearchMessageActivity.startForResult(getActivity(), teamId, SEARCH_CODE);
     }
 
     @Override
@@ -728,13 +723,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setCanPaginationTop(Boolean aBoolean) {
-        disableShowLoadMoreTop();
         binding.rev.setCanPaginationTop(aBoolean);
+        disableShowLoadMoreTop();
     }
 
     public void setCanPaginationBot(Boolean aBoolean) {
-        disableShowLoadMoreBot();
         binding.rev.setCanPaginationBot(aBoolean);
+        disableShowLoadMoreBot();
     }
 
     @Override

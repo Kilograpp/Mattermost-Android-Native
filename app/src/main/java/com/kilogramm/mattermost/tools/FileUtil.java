@@ -8,7 +8,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Evgeny on 13.10.2016.
@@ -23,21 +29,21 @@ public class FileUtil {
         return ourInstance;
     }
 
-    public static void createInstance(Context context){
-        ourInstance  = new FileUtil(context);
+    public static void createInstance(Context context) {
+        ourInstance = new FileUtil(context);
     }
 
     private FileUtil(Context context) {
         this.mContext = context;
     }
 
-    public String getFileType(String uri){
+    public String getFileType(String uri) {
         String filenameArray[] = uri.split("\\.");
-        String extension = filenameArray[filenameArray.length-1];
+        String extension = filenameArray[filenameArray.length - 1];
         return extension;
     }
 
-    public String getPath(final Uri uri){
+    public String getPath(final Uri uri) {
 
         //check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -80,7 +86,7 @@ public class FileUtil {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -100,6 +106,7 @@ public class FileUtil {
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
+//        return getRealPathFromURI(mContext, uri);
 
         return null;
     }
@@ -127,20 +134,47 @@ public class FileUtil {
         return null;
     }
 
-    private static boolean isExternalStorageDocument(Uri uri) {
+    private boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isDownloadsDocument(Uri uri) {
+    private boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isMediaDocument(Uri uri) {
+    private boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
     private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    private String getRealPathFromURI(Context context, Uri contentURI) {
+        String result = null;
+        try {
+            Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
+            if (cursor == null) { // Source is Dropbox or other similar local file path
+                result = contentURI.getPath();
+            } else {
+                cursor.moveToFirst();
+//                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                if (idx >= 0) {
+                    result = cursor.getString(idx);
+                }
+                cursor.close();
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public String getFileNameByUri(Uri uri) {
+        Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToNext();
+        return cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
     }
 
     public String getMimeType(String url) {
@@ -150,5 +184,39 @@ public class FileUtil {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return type;
+    }
+
+    public File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES + "/Mattermost");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",                          /* suffix */
+                storageDir                       /* directory */
+        );
+    }
+
+    public File createTempFile(String fileName) throws IOException {
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/Mattermost");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException();
+            }
+        }
+        // File file = new File();
+        // file.createNewFile();
+
+        return File.createTempFile(
+                fileName,  /* prefix */
+                null,                          /* suffix */
+                storageDir                       /* directory */
+        );
     }
 }

@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.menu.channelList;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,8 +15,10 @@ import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
+import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 
 /**
@@ -23,6 +26,7 @@ import io.realm.RealmResults;
  */
 
 public class MenuChannelListFragment extends Fragment {
+    public static final int REQUEST_JOIN_CHANNEL = 98;
 
     private FragmentMenuChannelListBinding binding;
     private FrMenuChannelViewModel viewModel;
@@ -46,17 +50,19 @@ public class MenuChannelListFragment extends Fragment {
         viewModel = new FrMenuChannelViewModel(getContext());
         binding.setViewModel(viewModel);
         channelRepository = new ChannelRepository();
+
+        binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
+
         setupListView();
         return view;
     }
-
 
     private void setupListView() {
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
-                (itemId, name) -> channelItemClickListener.onChannelClick(itemId, name));
-        if(selectedItemChangeListener!=null){
+                (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
+        if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }
         binding.recView.setAdapter(adapter);
@@ -74,16 +80,34 @@ public class MenuChannelListFragment extends Fragment {
         this.selectedItemChangeListener = selectedItemChangeListener;
     }
 
-    public interface OnChannelItemClickListener{
-        void onChannelClick(String itemId, String name);
+    public interface OnChannelItemClickListener {
+        void onChannelClick(String itemId, String name, String type);
     }
-    public interface OnSelectedItemChangeListener{
+
+    public interface OnSelectedItemChangeListener {
         void onChangeSelected(int position);
     }
 
-    public void resetSelectItem(){
+    public void resetSelectItem() {
         adapter.setSelecteditem(-1);
     }
 
+    public void selectItem(String id) {
+        OrderedRealmCollection<Channel> channels = adapter.getData();
+        int i = 0;
+        for (Channel channel : channels) {
+            if (channel.getId().equals(id)) {
+                adapter.setSelecteditem(i);
+                return;
+            }
+            i++;
+        }
+    }
+
+    public void goToAddChannelsActivity() {
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),
+                REQUEST_JOIN_CHANNEL);
+    }
 }
 
