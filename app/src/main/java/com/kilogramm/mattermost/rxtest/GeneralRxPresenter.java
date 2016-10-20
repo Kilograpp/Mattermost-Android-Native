@@ -127,9 +127,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                     MattermostPreference.getInstance().getMyUserId());
             requestUserTeam();
-        }, (generalRxActivity1, throwable) -> {
-            sendShowError(throwable.toString());
-        });
+        }, (generalRxActivity1, throwable) -> sendShowError(throwable.toString()));
 
         restartableFirst(REQUEST_USER_TEAM, () -> {
             return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
@@ -139,7 +137,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             UserRepository.add(stringUserMap.values());
             if (MattermostPreference.getInstance().getLastChannelId() == null) {
                 Log.d(TAG, "lastChannel == null");
-                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("0")).first();
+                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
                 sendSetSelectChannel(channel.getId(), channel.getType());
                 Log.d(TAG, "sendSetSelectChannel");
                 if (channel != null) {
@@ -147,9 +145,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, "setSelectedMenu");
                 }
             }
-        }, (generalRxActivity1, throwable) -> {
-            throwable.printStackTrace();
-        });
+        }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
 
         restartableFirst(REQUEST_LOGOUT, () -> {
             return service.logout(new Object())
