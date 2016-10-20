@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.DownloadFile;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
@@ -78,7 +79,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().query());
+        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().getFilesForAttach());
         recyclerView.setAdapter(attachedFilesAdapter);
 
         broadcastReceiver = new BroadcastReceiver() {
@@ -131,7 +132,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     private void uploadFileToServer(Uri uri, String filePath, String teamId, String channelId) {
         final File file = new File(filePath);
         if (file.exists()) {
-            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString()));
+            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD));
             if (!FileToAttachRepository.getInstance().haveUploadingFile()) {
                 getPresenter().requestUploadFileToServer(teamId, channelId);
             }

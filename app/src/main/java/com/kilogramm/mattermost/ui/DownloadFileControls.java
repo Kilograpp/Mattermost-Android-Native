@@ -1,37 +1,26 @@
 package com.kilogramm.mattermost.ui;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.presenter.DownLoadFilePresenter;
-
-import nucleus.factory.RequiresPresenter;
-import nucleus.view.NucleusLayout;
 
 /**
  * Created by kepar on 29.9.16.
  */
-@RequiresPresenter(DownLoadFilePresenter.class)
-public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
+//@RequiresPresenter(DownLoadFilePresenter.class)
+public class DownloadFileControls extends FrameLayout {
 
     public static final String TAG = "AttachedFilesLayout";
-
-    private BroadcastReceiver broadcastReceiver;
-
-    private String fileId;
 
     private View iconActionDownload;
     private ProgressBar progressBar;
     private View viewClose;
+
+    private ControlsClickListener controlsClickListener;
 
     public DownloadFileControls(Context context) {
         super(context);
@@ -55,7 +44,6 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
 
     @Override
     protected void onDetachedFromWindow() {
-        getContext().unregisterReceiver(broadcastReceiver);
         super.onDetachedFromWindow();
     }
 
@@ -66,39 +54,19 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         viewClose = findViewById(R.id.close);
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                if (intent.getExtras() != null) {
-                    final ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-
-                    if (ni != null && ni.isConnectedOrConnecting()) {
-                        Log.i(TAG, "Network " + ni.getTypeName() + " connected");
-                    } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                        Log.d(TAG, "There's no network connectivity");
-                    }
-                }
-            }
-        };
-        getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-
         iconActionDownload.setOnClickListener(v -> {
             showProgressControls();
-            if(fileId != null) {
-                getPresenter().downloadFile(fileId);
-            }
+            if(controlsClickListener != null) controlsClickListener.onClickDownload();
         });
 
         viewClose.setOnClickListener(v -> {
             hideProgressControls();
-            getPresenter().stopDownload();
+            if(controlsClickListener != null) controlsClickListener.onClickCancel();
         });
     }
 
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+    public void setControlsClickListener(ControlsClickListener controlsClickListener) {
+        this.controlsClickListener = controlsClickListener;
     }
 
     private void showProgressControls() {
@@ -111,5 +79,11 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
         iconActionDownload.setVisibility(VISIBLE);
         progressBar.setVisibility(INVISIBLE);
         viewClose.setVisibility(INVISIBLE);
+    }
+
+    public interface ControlsClickListener {
+        void onClickDownload();
+
+        void onClickCancel();
     }
 }

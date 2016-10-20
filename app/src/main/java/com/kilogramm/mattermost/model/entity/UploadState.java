@@ -5,5 +5,5 @@ package com.kilogramm.mattermost.model.entity;
  */
 
 public enum UploadState {
-    WAITING, UPLOADING, UPLOADED
+    WAITING_FOR_UPLOAD, WAITING_FOR_DOWNLOAD, UPLOADING, UPLOADED, DOWNLOADING, DOWNLOADED
 }

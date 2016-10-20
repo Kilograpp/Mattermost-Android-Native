@@ -185,10 +185,23 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+        checkNeededPermissions();
+    }
+
+    private void checkNeededPermissions(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+            }
+        }
     }
 
     private void setAttachedFilesLayout(){
-        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().query();
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
         if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
             binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
@@ -793,13 +806,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
+/*            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openFilePicker();
                 }
-                break;
+                break;*/
             case PICK_FROM_GALLERY:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
