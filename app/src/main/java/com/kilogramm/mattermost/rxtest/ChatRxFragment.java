@@ -143,6 +143,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return view;
     }
 
+
     private void initView() {
         setupListChat(channelId);
         setupRefreshListener();
@@ -174,7 +175,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onResume() {
         super.onResume();
-        getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
     }
@@ -202,7 +202,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void setupListChat(String channelId) {
         RealmResults<Post> results = PostRepository.query(new PostByChannelId(channelId));
-        results.addChangeListener(element -> {
+         results.addChangeListener(element -> {
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
@@ -541,6 +541,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 break;
             case R.id.controlMenu:
                 showPopupMenu(view, item);
+                break;
+            case R.id.avatar:
+                ProfileRxActivity.start(getActivity(),item.getUserId());
                 break;
         }
     }

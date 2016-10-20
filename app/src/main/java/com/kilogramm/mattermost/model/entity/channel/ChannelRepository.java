@@ -125,6 +125,14 @@ public class ChannelRepository {
         }
     }
 
+    public static class ChannelAllSpecification implements RealmSpecification{
+
+        @Override
+        public RealmResults toRealmResults(Realm realm) {
+            return realm.where(Channel.class).findAllSorted("username",Sort.ASCENDING);
+        }
+    }
+
     //endregion
 }
 

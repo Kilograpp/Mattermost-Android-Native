@@ -107,19 +107,17 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initExtraInfo() {
-        restartableLatestCache(REQUEST_EXTRA_INFO, () ->
+        restartableFirst(REQUEST_EXTRA_INFO, () ->
                 service.getExtraInfoChannel(this.teamId, this.channelId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
-
                 (chatRxFragment, extraInfo) -> {
-                    UserRepository.add(extraInfo.getMembers());
+                   // UserRepository.add(extraInfo.getMembers());
                     requestLoadPosts();
             }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
     }
 
     private void initLoadPosts() {
-
         restartableFirst(REQUEST_LOAD_POSTS, () -> service.getPosts(teamId, channelId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
@@ -174,13 +172,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
-                    post.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId())).first());
-                    post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
-                            .forceExtentedProfile()
-                            .build()));
                     PostRepository.removeTempPost(post.getPendingPostId());
-                    PostRepository.add(post);
-
+                    PostRepository.prepareAndAddPost(post);
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendHideFileAttachLayout();
@@ -225,9 +218,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
-                    post1.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(post1.getUserId())).first());
-                    post1.setMessage(Processor.process(post1.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-                    PostRepository.update(post1);
+                    PostRepository.prepareAndAddPost(post1);
                     sendIvalidateAdapter();
                 }, (chatRxFragment1, throwable) -> {
                     Post post = new Post(PostRepository.query(new PostByIdSpecification(forEditPost.getId())).first());
@@ -255,7 +246,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     sendShowList();
                     sendDisableShowLoadMoreTop();
-                    Log.d(TAG, "Complete load next post");
+                    Log.d(TAG, "Complete load before post");
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
@@ -276,7 +267,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendCanPaginationBot(false);
                         return;
                     }
-                    RealmList<Post> realmList = new RealmList<>();
+                    PostRepository.prepareAndAdd(posts);
+                    /*RealmList<Post> realmList = new RealmList<>();
                     for (Post post : posts.getPosts().values()) {
                         User user = UserRepository.queryList(new UserRepository.UserByIdSpecification(post.getUserId())).get(0);
                         post.setUser(user);
@@ -284,7 +276,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
                     }
                     realmList.addAll(posts.getPosts().values());
-                    PostRepository.add(realmList);
+                    PostRepository.add(realmList);*/
                     sendShowList();
                     sendDisableShowLoadMoreBot();
                     Log.d(TAG, "Complete load next post");
@@ -298,8 +290,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initGetUsers(){
         restartableFirst(REQUEST_DB_GETUSERS,
-                () ->
-                        UserRepository.query((new UserByNameSearchSpecification(search))).asObservable(),
+                () -> UserRepository.query((new UserByNameSearchSpecification(search))).asObservable(),
                 (chatRxFragment, o) -> sendDropDown(o));
     }
 

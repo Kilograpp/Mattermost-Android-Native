@@ -86,6 +86,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         if(isTopLoading){
             count++;
         }
+        //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
     }
 
@@ -95,14 +96,11 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             isTopLoading = enabled;
             getItemCount();
             if(enabled){
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemInserted(0);
-                handler.post(r);
+                notifyItemInserted(0);
             } else {
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemRemoved(0);
-                handler.post(r);
+                notifyItemRemoved(0);
             }
+
         }
     }
 
@@ -112,14 +110,11 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             isBottomLoading = enabled;
             getItemCount();
             if(enabled){
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemInserted(getItemCount());
-                handler.post(r);
+                notifyItemInserted(getItemCount());
             } else {
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemRemoved(getItemCount());
-                handler.post(r);
+                notifyItemRemoved(getItemCount());
             }
+
         }
     }
 
@@ -214,6 +209,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 if (listener != null) {
                     Post post1 = new Post(post);
                     listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post1);
+                }
+            });
+            ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
+                if (listener != null) {
+                    Post post1 = new Post(post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post1);
                 }
             });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);

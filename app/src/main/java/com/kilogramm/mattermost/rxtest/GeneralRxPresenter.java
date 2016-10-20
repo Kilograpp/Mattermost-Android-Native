@@ -54,11 +54,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
-
         MattermostApp application = MattermostApp.getSingleton();
         service = application.getMattermostRetrofitService();
         initRequest();
-
+        requestDirectProfile();
     }
 
     @Override
@@ -69,6 +68,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     //TODO review evgenysuetin
     public void setSelectedLast(String id) {
+        Log.d(TAG, "setSelectedLast");
         Channel channel;
         if (id != null) {
             try {
@@ -92,11 +92,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         } else {
             RealmResults<Channel> channels = new ChannelRepository.ChannelByTypeSpecification("D").toRealmResults(realm);
             if (channels.size() != 0) {
-                setSelectedMenu(channels.first().getId(), channels.first().getName(), channels.first().getType());
+                setSelectedMenu(channels.first().getId(), channels.first().getUsername(), channels.first().getType());
             } else {
                 channels.addChangeListener(element -> {
                     if (element.size() != 0)
-                        setSelectedMenu(element.first().getId(), element.first().getName(), channels.first().getType());
+                        setSelectedMenu(element.first().getId(), element.first().getUsername(), channels.first().getType());
                 });
             }
         }
@@ -138,10 +138,13 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         }, (generalRxActivity, stringUserMap) -> {
             UserRepository.add(stringUserMap.values());
             if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                Channel channel = new ChannelRepository.ChannelByTypeSpecification("O").toRealmResults(realm).first();
+                Log.d(TAG, "lastChannel == null");
+                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("0")).first();
                 sendSetSelectChannel(channel.getId(), channel.getType());
+                Log.d(TAG, "sendSetSelectChannel");
                 if (channel != null) {
                     setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
+                    Log.d(TAG, "setSelectedMenu");
                 }
             }
         }, (generalRxActivity1, throwable) -> {
@@ -231,7 +234,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
-        requestDirectProfile();
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
