@@ -43,6 +43,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_USER_TEAM = 3;
     private static final int REQUEST_LOGOUT = 4;
     private static final int REQUEST_SAVE = 5;
+    private static final int REQUEST_ADD_CHAT = 6;
 
     Realm realm;
     private UserRepository userRepository;
@@ -54,8 +55,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     String teamId;
     @State
     ListSaveData mSaveData = new ListSaveData();
-
-    LogoutData user = new LogoutData();
+    LogoutData user;
+    String channelId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -64,6 +65,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         teamId = realm.where(Team.class).findFirst().getId();
         userRepository = new UserRepository();
         channelRepository = new ChannelRepository();
+        user = new LogoutData();
         MattermostApp application = MattermostApp.getSingleton();
         service = application.getMattermostRetrofitService();
         initRequest();
@@ -110,7 +112,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void initRequest() {
-
         restartableFirst(REQUEST_DIRECT_PROFILE, () -> {
             return service.getDirectProfile()
                     .subscribeOn(Schedulers.computation())
@@ -170,6 +171,20 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         });
 
         initSaveRequest();
+
+        restartableFirst(REQUEST_ADD_CHAT, () -> {
+            return service.joinChannel(teamId, channelId)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread());
+
+        }, (generalRxActivity, channel) -> {
+            channelRepository.add(channel);
+            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+
+        }, (generalRxActivity, throwable) -> {
+            throwable.printStackTrace();
+            Log.d(TAG, throwable.getMessage());
+        });
     }
 
     private void initSaveRequest() {
@@ -204,10 +219,13 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         }, (generalRxActivity, channel) -> {
             mSaveData.getmSaveData().clear();
             channelRepository.add(channel);
-            sendSetFragmentChat(channel.getId(), channel.getUsername(), "D");
-        }, (generalRxActivity, throwable) -> {
-            throwable.printStackTrace();
-        });
+            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+    }
+
+    public void requestAddChat(String joinChannelId) {
+        channelId = joinChannelId;
+        start(REQUEST_ADD_CHAT);
     }
 
     public void requestSaveData(SaveData data, String userId) {
@@ -250,7 +268,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
-
     private void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);
         MattermostPreference.getInstance().setLastChannelId(null);
@@ -273,9 +290,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         realm.close();
     }
 
-
     //to view methods
-
     private void sendShowError(String error) {
         Observable.just(error)
                 .subscribeOn(Schedulers.io())

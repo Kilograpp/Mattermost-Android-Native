@@ -49,6 +49,7 @@
     <string name="is_message">s message:</string>
 
     <string name="title_direct_list">Direct list</string>
+    <string name="title_existing_channels">More channels</string>
 
     <!--Search posts-->
     <string name="search_hint">Search</string>

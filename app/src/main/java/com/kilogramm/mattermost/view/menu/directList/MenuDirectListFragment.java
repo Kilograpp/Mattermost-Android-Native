@@ -72,7 +72,9 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     }
 
     public void goToDirectListActivity() {
-        getActivity().startActivityForResult(new Intent(getActivity().getApplicationContext(), WholeDirectListActivity.class), REQUEST_CODE);
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), WholeDirectListActivity.class),
+                REQUEST_CODE);
     }
 
     private void setupRecyclerViewDirection() {

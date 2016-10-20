@@ -98,7 +98,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int PICK_FROM_GALLERY = 8;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
-    private static final int SEARCH_CODE = 4;
+    public static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
 

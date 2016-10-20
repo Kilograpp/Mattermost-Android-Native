@@ -356,8 +356,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         postRepository.add(forSavePost);
     }
 
-
-
     public void requestSendToServerError(Post post){
         forSendPost = post;
         post.setId(null);
@@ -465,8 +463,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         Toast.makeText(chatRxFragment.getActivity(),s,Toast.LENGTH_SHORT).show()));
     }
     //endregion
-
-
 
     public void getUsers(String search) {
         RealmResults<User> users;
