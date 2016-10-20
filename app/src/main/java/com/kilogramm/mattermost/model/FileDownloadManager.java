@@ -14,9 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,8 +97,6 @@ public class FileDownloadManager {
                             Pattern pattern = Pattern.compile("\\/\\w*\\.\\w*");
                             Matcher matcher = pattern.matcher(fileId);
                             if (matcher.find()) {
-
-
                                 output = new FileOutputStream(dir.getAbsolutePath() + matcher.group());
                                 byte data[] = new byte[4096];
                                 long total = 0;
