@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
@@ -42,8 +43,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     private ApiMethod service;
 
     @State
-    String teamId;
-    @State
     String channelId;
     @State
     String fileName;
@@ -54,8 +53,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     FileUtil fileUtil;
 
-    public void requestUploadFileToServer(String teamId, String channelId) {
-        this.teamId = teamId;
+    public void requestUploadFileToServer(String channelId) {
         this.channelId = channelId;
         startRequest();
     }
@@ -86,7 +84,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
-            return service.uploadFile(teamId, filePart, channel_Id, clientId)
+            return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(Schedulers.io());
         }, (attachedFilesLayout, fileUploadResponse) -> {
@@ -102,7 +100,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void startRequest() {
         fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
-        if (fileToAttach == null) return;
+        if (fileToAttach == null || clientId == null) return;
         start(REQUEST_UPLOAD_TO_SERVER);
     }
 }

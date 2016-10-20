@@ -91,7 +91,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
                     final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
 
                     if (ni != null && ni.isConnectedOrConnecting()) {
-                        getPresenter().requestUploadFileToServer(teamId, channelId);
+                        getPresenter().requestUploadFileToServer(channelId);
                         Log.i(TAG, "Network " + ni.getTypeName() + " connected");
                     } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
                         Log.d(TAG, "There's no network connectivity");
@@ -131,10 +131,15 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     private void uploadFileToServer(Uri uri, String filePath, String teamId, String channelId) {
         final File file = new File(filePath);
+        if(file.length() > 1024 * 1024 * 50){
+            Log.d(TAG, "file too big");
+            Toast.makeText(getContext(), getContext().getString(R.string.file_too_big), Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (file.exists()) {
             FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD));
             if (!FileToAttachRepository.getInstance().haveUploadingFile()) {
-                getPresenter().requestUploadFileToServer(teamId, channelId);
+                getPresenter().requestUploadFileToServer(channelId);
             }
         } else {
             Log.d(TAG, "file doesn't exists");
