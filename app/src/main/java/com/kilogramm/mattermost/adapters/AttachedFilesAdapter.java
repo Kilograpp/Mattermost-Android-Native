@@ -58,22 +58,24 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(View.VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
+            holder.binding.progressWait.setVisibility(View.GONE);
         } else {
+            holder.binding.progressWait.setVisibility(View.GONE);
             holder.binding.progressBar.setVisibility(View.GONE);
-            if(fileToAttach.getUploadState() == UploadState.UPLOADING){
+            if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
                 holder.binding.progressWait.setVisibility(View.VISIBLE);
-            } else if(fileToAttach.getUploadState() == UploadState.UPLOADED){
+            } else if (fileToAttach.getUploadState() == UploadState.UPLOADED) {
                 holder.binding.progressWait.setVisibility(View.GONE);
             }
         }
-            holder.binding.close.setOnClickListener(v -> {
-                if (fileToAttach.isValid()) {
-                    FileToAttachRepository.getInstance().remove(fileToAttach);
-                    if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
-                        emptyListListener.onEmptyList();
-                    }
+        holder.binding.close.setOnClickListener(v -> {
+            if (fileToAttach.isValid()) {
+                FileToAttachRepository.getInstance().remove(fileToAttach);
+                if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                    emptyListListener.onEmptyList();
                 }
-            });
+            }
+        });
     }
 
     public static class MyViewHolder extends RealmViewHolder {

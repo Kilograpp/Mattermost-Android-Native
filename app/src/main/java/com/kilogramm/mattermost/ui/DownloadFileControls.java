@@ -69,13 +69,13 @@ public class DownloadFileControls extends FrameLayout {
         this.controlsClickListener = controlsClickListener;
     }
 
-    private void showProgressControls() {
+    public void showProgressControls() {
         iconActionDownload.setVisibility(INVISIBLE);
         progressBar.setVisibility(VISIBLE);
         viewClose.setVisibility(VISIBLE);
     }
 
-    private void hideProgressControls() {
+    public void hideProgressControls() {
         iconActionDownload.setVisibility(VISIBLE);
         progressBar.setVisibility(INVISIBLE);
         viewClose.setVisibility(INVISIBLE);

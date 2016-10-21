@@ -210,6 +210,7 @@ public class FileUtil {
                 throw new IOException();
             }
         }
+        // Can use:
         // File file = new File();
         // file.createNewFile();
 

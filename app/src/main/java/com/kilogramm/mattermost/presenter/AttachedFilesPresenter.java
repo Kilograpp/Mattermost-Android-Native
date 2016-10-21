@@ -92,12 +92,14 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
             FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
             FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
-            FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+            if(fileToAttach != null && fileToAttach.isTemporary()) {
+                FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+            }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-
             Log.d(TAG, "Error");
+            startRequest();
         });
     }
 

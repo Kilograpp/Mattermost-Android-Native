@@ -15,6 +15,9 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 
@@ -75,6 +78,14 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String s : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(s);
+                if(fileToAttach != null) {
+                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING) {
+                        binding.downloadFileControls.showProgressControls();
+                    } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                        binding.downloadFileControls.setVisibility(GONE);
+                    }
+                }
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
