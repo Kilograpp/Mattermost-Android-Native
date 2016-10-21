@@ -142,4 +142,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public interface OnDirectItemClickListener {
         void onDirectClick(String userTalkToId, String name);
     }
+
+
 }
