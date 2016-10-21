@@ -34,7 +34,6 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -114,6 +113,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
+        MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
         mRealm.commitTransaction();
         return teams;
     }

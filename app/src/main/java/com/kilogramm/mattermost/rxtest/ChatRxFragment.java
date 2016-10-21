@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +43,8 @@ import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -61,10 +62,8 @@ import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import icepick.State;
@@ -77,7 +76,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener  {
+        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -99,7 +98,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int PICK_FROM_GALLERY = 8;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
-    private static final int SEARCH_CODE = 4;
+    public static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
 
@@ -159,13 +158,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
-        binding.attachedFilesLayout.setEmptyListListener(this);
+        setAttachedFilesLayout();
         brReceiverTyping = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
+                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
                     getActivity().runOnUiThread(() -> invalidateAdapter());
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
@@ -186,6 +185,29 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+        checkNeededPermissions();
+    }
+
+    private void checkNeededPermissions(){
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    private void setAttachedFilesLayout(){
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
+        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+            binding.attachedFilesLayout.setVisibility(View.VISIBLE);
+        } else {
+            binding.attachedFilesLayout.setVisibility(View.GONE);
+        }
+        binding.attachedFilesLayout.setEmptyListListener(this);
     }
 
     private void setDropDownUserList() {
@@ -285,8 +307,87 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-    //==========================MVP methods==================================================
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<Uri> pickedFiles = new ArrayList<>();
+
+        if (resultCode != Activity.RESULT_CANCELED) {
+            if (requestCode == CAMERA_PIC_REQUEST) {
+                pickedFiles.add(fileFromCamera);
+            }
+            if (requestCode == FILE_CODE) {
+                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        ClipData clip = data.getClipData();
+                        if (clip != null) {
+                            for (int i = 0; i < clip.getItemCount(); i++) {
+                                pickedFiles.add(clip.getItemAt(i).getUri());
+                            }
+                        }
+                    } else {
+                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
+                        if (paths != null) {
+                            for (String path : paths) {
+                                pickedFiles.add(Uri.parse(path));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
+            if (data != null) {
+                if (data.getData() != null) {
+                    Uri uri = data.getData();
+                    List<Uri> uriList = new ArrayList<>();
+                    uriList.add(uri);
+                    attachFiles(uriList);
+                } else if (data.getClipData() != null) {
+                    ClipData clipData = data.getClipData();
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        List<Uri> uriList = new ArrayList<>();
+                        uriList.add(clipData.getItemAt(i).getUri());
+                        attachFiles(uriList);
+                    }
+                }
+            }
+        }
+        if (pickedFiles.size() > 0) {
+            attachFiles(pickedFiles);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+/*            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openFilePicker();
+                }
+                break;*/
+            case PICK_FROM_GALLERY:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openGallery();
+                }
+                break;
+            case CAMERA_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    dispatchTakePictureIntent();
+                }
+                break;
+        }
+    }
+
+    //==========================MVP methods==================================================
 
     private void sendMessage() {
         Post post = new Post();
@@ -299,10 +400,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        setMessage("");
         if (post.getMessage().length() != 0) {
             getPresenter().requestSendToServer(post);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -333,13 +433,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private Long getTimePost() {
-        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
         Long currentTime = Calendar.getInstance().getTimeInMillis();
+
+        if (adapter.getLastItem() == null) {
+            return currentTime;
+        }
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+
         if ((currentTime / 10000 * 10000) < lastTime)
             return currentTime;
         else
             return lastTime + 1;
     }
+
     private void setupRefreshListener() {
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -357,8 +463,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.swipeRefreshLayout
                             .setEnabled(false);
                 }
-
-
             }
 
             @Override
@@ -575,11 +679,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-
-
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-        binding.attachedFilesLayout.addItem(uriList, teamId, channelId);
+        binding.attachedFilesLayout.addItems(uriList, teamId, channelId);
     }
 
     private void showErrorSendMenu(View view, Post post) {
@@ -685,7 +787,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void searchMessage() {
-        SearchMessageActivity.startForResult(getActivity(),teamId,SEARCH_CODE);
+        SearchMessageActivity.startForResult(getActivity(), teamId, SEARCH_CODE);
     }
 
     @Override
@@ -718,91 +820,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void setCanPaginationBot(Boolean aBoolean) {
         binding.rev.setCanPaginationBot(aBoolean);
         disableShowLoadMoreBot();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ArrayList<Uri> pickedFiles = new ArrayList<>();
-        Uri pickedImage;
-
-        if (resultCode != Activity.RESULT_CANCELED) {
-            if (requestCode == CAMERA_PIC_REQUEST) {
-                pickedFiles.add(fileFromCamera);
-            }
-            if (requestCode == FILE_CODE) {
-                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        ClipData clip = data.getClipData();
-                        if (clip != null) {
-                            for (int i = 0; i < clip.getItemCount(); i++) {
-//                                Uri uri = clip.getItemAt(i).getUri();
-                                pickedFiles.add(clip.getItemAt(i).getUri());
-                            }
-                        }
-                    } else {
-                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
-                        if (paths != null) {
-                            for (String path : paths) {
-//                                Uri uri = Uri.parse(path);
-                                pickedFiles.add(Uri.parse(path));
-                            }
-                        }
-                    }
-                } else {
-                    pickedImage = data.getData();
-                }
-            }
-        }
-        if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
-            if (data != null) {
-                if (data.getData() != null) {
-                    Uri uri = data.getData();
-                    List<Uri> uriList = new ArrayList<>();
-                    uriList.add(uri);
-                    attachFiles(uriList);
-                } else if (data.getClipData() != null) {
-                    ClipData clipData = data.getClipData();
-                    for (int i = 0; i < clipData.getItemCount(); i++) {
-                        List<Uri> uriList = new ArrayList<>();
-                        uriList.add(clipData.getItemAt(i).getUri());
-                        attachFiles(uriList);
-                    }
-                }
-            }
-        }
-        if (pickedFiles.size() > 0) {
-            attachFiles(pickedFiles);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openFilePicker();
-                }
-                break;
-            case PICK_FROM_GALLERY:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openGallery();
-                }
-                break;
-            case CAMERA_PERMISSION_REQUEST_CODE:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
-                }
-                break;
-        }
     }
 
     public void hideAttachedFilesLayout() {

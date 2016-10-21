@@ -72,8 +72,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
     }
 
-
-
     @Override
     public int getItemCount() {
 
@@ -187,12 +185,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
 
         public static MyViewHolder createLoadingTop(LayoutInflater inflater, ViewGroup parent) {
-            LoadMoreLayoutBinding binding = LoadMoreLayoutBinding.inflate(inflater,parent,false);
+            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding.inflate(inflater,parent,false);
             return new MyViewHolder(binding);
         }
 
         public static MyViewHolder createLoadingBottom(LayoutInflater inflater, ViewGroup parent) {
-            LoadMoreLayoutBinding binding = LoadMoreLayoutBinding
+            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding
                     .inflate(inflater, parent, false);
             return new MyViewHolder(binding);
         }
@@ -261,7 +259,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
                 ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
-                ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, ((ChatListItemBinding) mBinding).getRoot().getContext())).toString().trim());
+                ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, (mBinding).getRoot().getContext())).toString().trim());
             }
         }
 

@@ -63,6 +63,10 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".view.addchat.AddExistingChannelsActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name="com.nononsenseapps.filepicker.FilePickerActivity"
             android:label="@string/app_name"
             android:theme="@style/FilePickerTheme">
@@ -81,6 +85,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="1373df4a388cbef38f2feb69c126b74abc82a69e" />
+
     </application>
 
 </manifest>

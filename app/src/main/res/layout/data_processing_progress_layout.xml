@@ -6,6 +6,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/processing_data"/>
+        android:text="@string/processing_data"
+        style="@style/TitleBlackTextStyle"/>
 
 </LinearLayout>

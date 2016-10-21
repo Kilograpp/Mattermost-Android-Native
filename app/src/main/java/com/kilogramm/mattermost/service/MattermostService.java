@@ -114,7 +114,5 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
             mContext.startService(intent);
             return this;
         }
-
-
     }
 }

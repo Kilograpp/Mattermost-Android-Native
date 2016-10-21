@@ -30,6 +30,5 @@ public class MenuDirectListPresenter extends Presenter<MenuDirectListFragment> {
 
     public void onMoreClick() {
         getView().goToDirectListActivity();
-
     }
 }

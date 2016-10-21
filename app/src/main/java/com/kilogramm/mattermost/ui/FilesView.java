@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
+import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
@@ -53,6 +55,7 @@ public class FilesView extends GridLayout {
         init(context, attrs);
     }
 
+    @TargetApi(21)
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
@@ -61,7 +64,6 @@ public class FilesView extends GridLayout {
     private void init(Context context, AttributeSet attrs) {
         inflate(context, R.layout.file_view_layout, this);
     }
-
 
     public void setBackgroundColorComment() {
         backgroundColorId = getResources().getDrawable(R.drawable.files_item_background_comment);
@@ -73,6 +75,27 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String s : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
+                binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
+                    @Override
+                    public void onClickDownload() {
+                        FileDownloadManager.getInstance().addItem(s, new FileDownloadManager.FileDownloadListener() {
+                            @Override
+                            public void onComplete(String fileId) {
+                                binding.downloadFileControls.post(() -> binding.downloadFileControls.setVisibility(GONE));
+                            }
+
+                            @Override
+                            public void onError(String fileId) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onClickCancel() {
+
+                    }
+                });
                 switch (FileUtil.getInstance().getFileType(s)) {
                     case PNG:
                         initAndAddItem(binding, getImageUrl(s));
@@ -100,7 +123,6 @@ public class FilesView extends GridLayout {
                         break;
                 }
             }
-            ;
         } else {
             clearView();
         }
@@ -150,5 +172,4 @@ public class FilesView extends GridLayout {
             return "";
         }
     }
-
 }

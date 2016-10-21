@@ -1,7 +1,13 @@
 package com.kilogramm.mattermost.ui;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,6 +21,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.DownloadFile;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
@@ -42,9 +49,13 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     private String teamId;
     private String channelId;
+    private List<Uri> uriList;
+
     private ProgressDialog progressDialog;
 
     AttachedFilesAdapter attachedFilesAdapter;
+
+    BroadcastReceiver broadcastReceiver;
 
     public AttachedFilesLayout(Context context) {
         super(context);
@@ -61,12 +72,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         init(context);
     }
 
-    /*@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public AttachedFilesLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
-    }*/
-
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -74,6 +79,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     @Override
     protected void onDetachedFromWindow() {
+        getContext().unregisterReceiver(broadcastReceiver);
         super.onDetachedFromWindow();
     }
 
@@ -82,32 +88,68 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().query());
+        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().getFilesForAttach());
         recyclerView.setAdapter(attachedFilesAdapter);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getExtras() != null) {
+                    final ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+                    if (ni != null && ni.isConnectedOrConnecting()) {
+                        getPresenter().requestUploadFileToServer(channelId);
+                        Log.i(TAG, "Network " + ni.getTypeName() + " connected");
+                    } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
+                        Log.d(TAG, "There's no network connectivity");
+                    }
+                }
+            }
+        };
+        getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
-    public void addItem(List<Uri> uriList, String teamId, String channelId){
+    public void addItems(List<Uri> uriList, String teamId, String channelId) {
         this.teamId = teamId;
         this.channelId = channelId;
-        for (Uri uri : uriList) {
-            String filePath = FileUtil.getInstance().getPath(uri);
-            if(filePath == null){
-                /*Toast.makeText(getContext(), getContext().getString(R.string.cannot_open_file_to_attach), Toast.LENGTH_SHORT).show();
-                return;*/
-                new DownloadFile(getContext(), this).execute(uri);
-                progressDialog = new ProgressDialog(getContext());
-                progressDialog.setView(inflate(getContext(), R.layout.data_processing_progress_layout, null));
-                progressDialog.show();
-            } else {
-                uploadFileToServer(uri, filePath, teamId, channelId);
-            }
+        if (this.uriList == null) this.uriList = new ArrayList<>();
+        this.uriList.addAll(uriList);
+        uploadNext();
+    }
+
+    private void uploadNext() {
+        if (uriList.size() > 0) {
+            addItem(uriList.get(0));
+            uriList.remove(uriList.get(0));
         }
     }
 
-    private void uploadFileToServer(Uri uri, String filePath, String teamId, String channelId){
+    private void addItem(Uri uri) {
+        String filePath = FileUtil.getInstance().getPath(uri);
+        if (filePath == null) {
+            new DownloadFile(getContext(), this).execute(uri);
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setView(inflate(getContext(), R.layout.data_processing_progress_layout, null));
+            progressDialog.show();
+        } else {
+            uploadFileToServer(uri, filePath, teamId, channelId);
+        }
+    }
+
+    private void uploadFileToServer(Uri uri, String filePath, String teamId, String channelId) {
         final File file = new File(filePath);
+        if(file.length() > 1024 * 1024 * 50){
+            Log.d(TAG, "file too big");
+            Toast.makeText(getContext(), getContext().getString(R.string.file_too_big), Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (file.exists()) {
-            getPresenter().requestUploadFileToServer(teamId, channelId, uri.toString());
+            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD));
+            if (!FileToAttachRepository.getInstance().haveUploadingFile()) {
+                getPresenter().requestUploadFileToServer(channelId);
+            }
         } else {
             Log.d(TAG, "file doesn't exists");
             Toast.makeText(getContext(), getContext().getString(R.string.cannot_open_file_to_attach), Toast.LENGTH_SHORT).show();
@@ -115,7 +157,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         }
     }
 
-    public List<String> getAttachedFiles(){
+    public List<String> getAttachedFiles() {
         // lambda requires min API level 24, so use old method
         List<String> fileNames = new ArrayList<>();
         for (FileToAttach fileToAttach : attachedFilesAdapter.getData()) {
@@ -130,7 +172,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     @Override
     public void onDownloadedFile(String filePath) {
-        if(progressDialog != null) progressDialog.cancel();
+        if (progressDialog != null) progressDialog.cancel();
         uploadFileToServer(Uri.parse(filePath), filePath, teamId, channelId);
     }
 }
