@@ -231,8 +231,6 @@ public interface ApiMethod {
     @GET("api/v3/teams/{team_id}/files/get/{file_id}")
     Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
                                           @Path("file_id") String file_id);
-    @GET("api/v3/files/{file_id}/get")
-    Observable<Posts> downloadFile(@Path("file_id") String file_id);
 
 
     @Headers({
@@ -249,8 +247,6 @@ public interface ApiMethod {
     @POST ("api/v3/teams/{team_id}/channels/{channel_id}/join")
     Observable<Channel> joinChannel(@Path("team_id") String teamId,
                                     @Path("channel_id") String channelId);
-                                     @Path("channelId") String channelId,
-                                     @Path("firstMessageId") String firstMessageId);
 
     @Headers({
             "Accept: application/json",

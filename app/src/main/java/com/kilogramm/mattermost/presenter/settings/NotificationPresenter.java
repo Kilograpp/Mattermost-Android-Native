@@ -87,10 +87,16 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             String[] mentions = notifyProps.getMentionKeys().split(",");
             for (String s : mentions) {
                 if (s.equals(getUserName()) || s.equals(getUserNameMentioned()))
-                    result = result + "\"," + s + "\"";
+                    if (result.length() != 0)
+                        result = result + ",\"" + s + "\"";
+                    else
+                        result = "\"" + s + "\"";
             }
             if (notifyProps.getChannel().equals("true"))
-                result = result + channelMentions;
+                if (result.length() != 0)
+                    result = result + ","  +channelMentions;
+                else
+                    result = channelMentions;
 
             for (String s : mentions) {
                 if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()))
