@@ -69,7 +69,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.close.setOnClickListener(v -> {
                 if (fileToAttach.isValid()) {
                     FileToAttachRepository.getInstance().remove(fileToAttach);
-                    if (emptyListListener != null && Realm.getDefaultInstance().where(FileToAttach.class).findAll().isEmpty()) {
+                    if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                         emptyListListener.onEmptyList();
                     }
                 }
