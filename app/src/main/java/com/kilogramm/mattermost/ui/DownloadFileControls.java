@@ -55,7 +55,7 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
 
     @Override
     protected void onDetachedFromWindow() {
-        getContext().unregisterReceiver(broadcastReceiver);
+//        getContext().unregisterReceiver(broadcastReceiver);
         super.onDetachedFromWindow();
     }
 
@@ -82,7 +82,7 @@ public class DownloadFileControls extends NucleusLayout<DownLoadFilePresenter> {
                 }
             }
         };
-        getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+        //getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
         iconActionDownload.setOnClickListener(v -> {
             showProgressControls();

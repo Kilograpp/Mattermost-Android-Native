@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -44,6 +46,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     MenuPrivateListFragment privateListFragment;
     MenuDirectListFragment directListFragment;
     private String currentChannel = "";
+    private String searchMessageId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,7 +89,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             }
             return false;
         });
-        //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -136,7 +138,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
+        Log.d(TAG, "setFragmentChat = " + channelName);
         replaceFragment(channelId, channelName);
+
         switch (type) {
             case "O":
                 directListFragment.resetSelectItem();
@@ -156,7 +160,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private void replaceFragment(String channelId, String channelName) {
         if (!channelId.equals(currentChannel)) {
-            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
+            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
@@ -224,14 +228,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 if (channels.size() == 0) {
                     getPresenter().requestSaveData(saveData, userTalkToId);
                 } else {
-                    this.setFragmentChat(channels.get(0).getId(), channels.get(0).getUsername(), "D");
+                    this.setFragmentChat(
+                            channels.get(0).getId(),
+                            channels.get(0).getUsername(),
+                            channels.get(0).getType());
                 }
             }
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
-                    // TODO messageId будет нужен, когда будет осуществляться переход на середину диалога
-                    String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
-
+                    searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
                     this.setFragmentChat(
                             data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
