@@ -156,7 +156,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendHideFileAttachLayout();
-                    FileToAttachRepository.getInstance().clearData();
+                    FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
@@ -177,7 +177,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendHideFileAttachLayout();
-                    FileToAttachRepository.getInstance().clearData();
+                    FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
@@ -268,15 +268,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         return;
                     }
                     PostRepository.prepareAndAdd(posts);
-                    /*RealmList<Post> realmList = new RealmList<>();
-                    for (Post post : posts.getPosts().values()) {
-                        User user = UserRepository.queryList(new UserRepository.UserByIdSpecification(post.getUserId())).get(0);
-                        post.setUser(user);
-                        post.setViewed(true);
-                        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-                    }
-                    realmList.addAll(posts.getPosts().values());
-                    PostRepository.add(realmList);*/
                     sendShowList();
                     sendDisableShowLoadMoreBot();
                     Log.d(TAG, "Complete load next post");
@@ -307,6 +298,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
 
     public void requestSendToServer(Post post) {
+        if(FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
@@ -318,10 +310,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
                 .first());
         forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        sendEmptyMessage();
         PostRepository.add(forSavePost);
+
+
     }
-
-
 
     public void requestSendToServerError(Post post){
         forSendPost = post;
@@ -412,18 +405,24 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         createTemplateObservable(users).subscribe(split(
                 ChatRxFragment::setDropDown));
     }
+
     private void sendHideFileAttachLayout(){
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                         chatRxFragment.hideAttachedFilesLayout()));
+    }
 
+    private void sendEmptyMessage(){
+        Observable.just(new Object())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(deliverFirst())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
     private void sendError(String error){
         createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
                         Toast.makeText(chatRxFragment.getActivity(),s,Toast.LENGTH_SHORT).show()));
     }
     //endregion
-
-
 
     public void getUsers(String search) {
         RealmResults<User> users;

@@ -21,7 +21,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.rxtest.GetRootPost;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -72,8 +71,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             return ITEM;
         }
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -183,12 +180,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
 
         public static MyViewHolder createLoadingTop(LayoutInflater inflater, ViewGroup parent) {
-            LoadMoreLayoutBinding binding = LoadMoreLayoutBinding.inflate(inflater,parent,false);
+            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding.inflate(inflater,parent,false);
             return new MyViewHolder(binding);
         }
 
         public static MyViewHolder createLoadingBottom(LayoutInflater inflater, ViewGroup parent) {
-            LoadMoreLayoutBinding binding = LoadMoreLayoutBinding
+            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding
                     .inflate(inflater, parent, false);
             return new MyViewHolder(binding);
         }
@@ -258,10 +255,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
         private void setRootMassage( Post root) {
             if (root != null) {
+                ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
+                ((ChatListItemBinding) mBinding).filesViewRoot.setItems(root.getFilenames());
                 ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
                 ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
-                ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, ((ChatListItemBinding) mBinding).getRoot().getContext())).toString().trim());
+                ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, (mBinding).getRoot().getContext())).toString().trim());
             }
         }
 

@@ -15,6 +15,8 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuDirectListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.MenuDirectListPresenter;
@@ -22,8 +24,8 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
-import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
+import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -64,7 +66,9 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     }
 
     public void goToDirectListActivity() {
-        getActivity().startActivityForResult(new Intent(getActivity().getApplicationContext(), WholeDirectListActivity.class), REQUEST_CODE);
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), WholeDirectListActivity.class),
+                REQUEST_CODE);
     }
 
     @Override

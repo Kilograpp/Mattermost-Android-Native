@@ -36,7 +36,10 @@ public class UserRepository {
     public static void update(User item) {
         Realm realm = Realm.getDefaultInstance();
 
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
+        realm.executeTransaction(realm1 -> {
+            realm.insertOrUpdate(item);
+            realm.insertOrUpdate(item.getNotifyProps());
+        });
         realm.close();
     }
 
@@ -44,7 +47,7 @@ public class UserRepository {
         Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            final User user = realm.where(User.class).equalTo("id",item.getId()).findFirst();
+            final User user = realm.where(User.class).equalTo("id", item.getId()).findFirst();
             user.deleteFromRealm();
         });
         realm.close();
@@ -74,9 +77,9 @@ public class UserRepository {
 
         realm.executeTransaction(realm1 ->
                 realm.where(Post.class)
-                .equalTo("id", postId)
-                .findFirst()
-                .setMessage(message));
+                        .equalTo("id", postId)
+                        .findFirst()
+                        .setMessage(message));
         realm.close();
     }
 

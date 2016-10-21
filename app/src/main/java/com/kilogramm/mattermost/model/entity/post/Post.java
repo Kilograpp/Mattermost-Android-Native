@@ -338,8 +338,6 @@ public class Post extends RealmObject implements Parcelable {
     public Post() {
     }
 
-
-
     public Post(Post post){
         this.id=post.getId();
         this.createAt=post.getCreateAt();

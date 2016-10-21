@@ -3,19 +3,18 @@ package com.kilogramm.mattermost.model.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
  * Created by melkshake on 22.09.16.
  */
 public class SaveData implements Parcelable {
 
-    private String category = "direct_channel_show";
+    private String category;
     private String name;
     private String user_id;
     private String value;
 
-    public SaveData(String name, String user_id, Boolean value) {
+    public SaveData(String name, String user_id, Boolean value, String category) {
+        this.category = category;
         this.name = name;
         this.user_id = user_id;
         this.value = value.toString();
