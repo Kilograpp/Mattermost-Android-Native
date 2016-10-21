@@ -68,6 +68,15 @@ public class ChannelRepository {
         realm.close();
     }
 
+    public static void prepareDirectChannelAndAdd(Channel channel, String userId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            if(channel.getType().equals(Channel.DIRECT)){
+                channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
+                channel.setUsername(channel.getUser().getUsername());
+            }
+        });
+    }
 
 
     public static void remove(Specification specification) {
@@ -90,6 +99,8 @@ public class ChannelRepository {
 
         return realmResults;
     }
+
+
 
     // region Specification
 

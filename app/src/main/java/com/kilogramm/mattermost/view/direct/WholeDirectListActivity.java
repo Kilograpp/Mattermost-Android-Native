@@ -60,8 +60,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 .isNotNull("email")
                 .notEqualTo("id", myId)
                 .findAllSorted("username");
-        RealmResults<UserStatus> statusRealmResults = userStatusRepository.query(new UserStatusAllSpecification());
-        RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         ArrayList<String> usersIds = new ArrayList<>();
         for (User user : users) {

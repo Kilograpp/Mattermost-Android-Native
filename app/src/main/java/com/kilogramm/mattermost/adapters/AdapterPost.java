@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.databinding.ViewDataBinding;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
-import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;

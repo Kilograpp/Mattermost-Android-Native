@@ -412,10 +412,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void sendEmptyMessage(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new Object())
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
     private void sendError(String error){
