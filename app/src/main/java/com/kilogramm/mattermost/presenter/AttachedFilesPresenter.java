@@ -100,7 +100,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void startRequest() {
         fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
-        if (fileToAttach == null || clientId == null) return;
+        if (fileToAttach == null || channelId == null) return;
         start(REQUEST_UPLOAD_TO_SERVER);
     }
 }

@@ -18,6 +18,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByIdSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -266,6 +267,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     public void setSelectedMenu(String channelId, String name, String type) {
         sendSetFragmentChat(channelId, name, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
+        // For clearing attached files on channel change
+        FileToAttachRepository.getInstance().deleteUploadedFiles();
     }
 
     private void clearPreference() {

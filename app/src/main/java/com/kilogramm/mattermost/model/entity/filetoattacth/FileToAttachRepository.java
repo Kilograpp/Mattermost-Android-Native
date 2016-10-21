@@ -275,6 +275,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
+                    .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.toString())
+                    .or()
+                    .equalTo("uploadState", UploadState.UPLOADING.toString())
+                    .or()
                     .equalTo("uploadState", UploadState.UPLOADED.toString())
                     .findAll();
             fileToAttachList.deleteAllFromRealm();
