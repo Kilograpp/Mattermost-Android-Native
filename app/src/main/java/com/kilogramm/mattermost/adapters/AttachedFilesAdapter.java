@@ -60,7 +60,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         } else {
             holder.binding.progressBar.setVisibility(View.GONE);
         }
-        if (!holder.binding.close.hasOnClickListeners()) {
+//        if (!holder.binding.close.hasOnClickListeners()) {
             Log.d(TAG, "hasOnClickListeners = fasle");
             holder.binding.close.setOnClickListener(v -> {
                 Log.d(TAG, "setOnClickListener");
@@ -72,7 +72,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                     }
                 }
             });
-        }
+//        }
     }
 
     public static class MyViewHolder extends RealmViewHolder {

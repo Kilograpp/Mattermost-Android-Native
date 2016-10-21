@@ -146,7 +146,7 @@ public class FileUtil {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    private boolean isGooglePhotosUri(Uri uri) {
+    private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
@@ -210,6 +210,9 @@ public class FileUtil {
                 throw new IOException();
             }
         }
+        // File file = new File();
+        // file.createNewFile();
+
         return File.createTempFile(
                 fileName,  /* prefix */
                 null,                          /* suffix */

@@ -32,11 +32,13 @@
             tools:listitem="@layout/item_channel"/>
 
         <TextView
+            android:id="@+id/btnMoreChannel"
             android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{viewModel.onMoreClick}"
             android:text="@string/more"/>
+        <!--android:onClick="@{viewModel.onMoreClick}"-->
+
 
     </LinearLayout>
 </layout>

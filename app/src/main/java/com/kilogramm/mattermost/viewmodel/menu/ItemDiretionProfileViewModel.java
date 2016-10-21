@@ -26,7 +26,8 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
     }
 
     public String getChannelName(){
-        return channel.getUser().getUsername();}
+        return channel.getUser().getUsername();
+    }
 
     /*public Drawable getStatusIconDrawable() {
         switch (channel.getUser().getStatus()){
@@ -61,12 +62,10 @@ public class ItemDiretionProfileViewModel extends BaseObservable implements View
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-
     }
 
     public void setChannel(Channel channel) {

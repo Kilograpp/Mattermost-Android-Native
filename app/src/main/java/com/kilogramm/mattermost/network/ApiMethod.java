@@ -5,6 +5,7 @@ import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -31,6 +33,8 @@ import rx.Observable;
 /**
  * Created by Evgeny on 25.07.2016.
  */
+// TODO некоторые методы не используются, почистить (by Kepar)
+    // TODO пока подожди до конца недели (by melkshake)
 public interface ApiMethod {
 
     @Headers({
@@ -208,6 +212,40 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
     Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
-                                     @Path("channelId") String channelId,
-                                     @Path("firstMessageId") String firstMessageId);
+                                    @Path("channelId") String channelId,
+                                    @Path("firstMessageId") String firstMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/channels/create_direct")
+    Observable<Channel> createDirect(@Path ("team_id") String teamId,
+                                     @Body LogoutData user);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{team_id}/files/get/{file_id}")
+    Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
+                                          @Path("file_id") String file_id);
+    @GET("api/v3/files/{file_id}/get")
+    Observable<Posts> downloadFile(@Path("file_id") String file_id);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET ("api/v3/teams/{team_id}/channels/more")
+    Observable<ChannelsWithMembers> channelsMore(@Path("team_id") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST ("api/v3/teams/{team_id}/channels/{channel_id}/join")
+    Observable<Channel> joinChannel(@Path("team_id") String teamId,
+                                    @Path("channel_id") String channelId);
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.kilogramm.mattermost.ui.CheckableLinearLayout
+        android:id="@+id/checkableLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_item_channel_backgroung"
+        android:orientation="vertical"
+        android:padding="@dimen/standart_margin">
+
+        <TextView
+            android:id="@+id/tvChannelName"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textColor="@color/black"
+            tools:text="channel_test" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="@dimen/search_margin"
+            android:layout_weight="1"
+            android:background="@color/very_light_grey" />
+
+    </com.kilogramm.mattermost.ui.CheckableLinearLayout>
+
+</layout>

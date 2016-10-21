@@ -27,7 +27,7 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_rx_login);
         binding.setLoginPresenter(getPresenter());
-        setupToolbar("SignIn", true);
+        setupToolbar("Sign In", true);
     }
 
 

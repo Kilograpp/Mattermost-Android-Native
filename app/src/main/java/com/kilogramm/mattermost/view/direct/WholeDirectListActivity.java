@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -37,6 +38,8 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     private UserStatusRepository userStatusRepository;
 
+    private String myId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +47,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         userStatusRepository = new UserStatusRepository();
+        myId = MattermostPreference.getInstance().getMyUserId();
         init();
         setRecycleView();
     }
@@ -55,7 +59,11 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     }
 
     public void setRecycleView() {
-        RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
+        RealmResults<User> users = realm.where(User.class)
+                .isNotNull("id")
+                .isNotNull("email")
+                .notEqualTo("id", myId)
+                .findAllSorted("username");
         RealmResults<UserStatus> statusRealmResults = userStatusRepository.query(new UserStatusAllSpecification());
         ArrayList<String> usersIds = new ArrayList<>();
         for (User user : users) {
@@ -63,7 +71,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
 
         adapter = new WholeDirectListAdapter(this, users, usersIds, this, statusRealmResults);
-//        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
@@ -75,17 +82,12 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         return super.onOptionsItemSelected(item);
     }
 
-    public void finishActivity() {
-        finish();
-    }
-
     @Override
-    public void onDirectClick(String itemId, String name) {
+    public void onDirectClick(String userTalkToId, String name) {
         Intent intent = new Intent(this, WholeDirectListActivity.class)
-                .putExtra(USER_ID, "")
-                .putExtra(NAME, itemId);
+                .putExtra(USER_ID, userTalkToId)
+                .putExtra(NAME, name);
         setResult(Activity.RESULT_OK, intent);
-        //finishActivity();
         finish();
     }
 }

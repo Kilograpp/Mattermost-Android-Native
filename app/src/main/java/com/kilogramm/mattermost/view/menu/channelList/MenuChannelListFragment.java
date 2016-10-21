@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.menu.channelList;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
 import io.realm.OrderedRealmCollection;
@@ -24,6 +26,7 @@ import io.realm.RealmResults;
  */
 
 public class MenuChannelListFragment extends Fragment {
+    public static final int REQUEST_JOIN_CHANNEL = 98;
 
     private FragmentMenuChannelListBinding binding;
     private FrMenuChannelViewModel viewModel;
@@ -47,10 +50,12 @@ public class MenuChannelListFragment extends Fragment {
         viewModel = new FrMenuChannelViewModel(getContext());
         binding.setViewModel(viewModel);
         channelRepository = new ChannelRepository();
+
+        binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
+
         setupListView();
         return view;
     }
-
 
     private void setupListView() {
         RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("O"));
@@ -97,6 +102,12 @@ public class MenuChannelListFragment extends Fragment {
             }
             i++;
         }
+    }
+
+    public void goToAddChannelsActivity() {
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),
+                REQUEST_JOIN_CHANNEL);
     }
 }
 
