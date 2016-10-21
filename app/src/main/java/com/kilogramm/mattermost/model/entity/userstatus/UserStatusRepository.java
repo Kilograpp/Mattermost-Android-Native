@@ -17,56 +17,42 @@ public class UserStatusRepository {
 
 
     public static void add(UserStatus item) {
-        final Realm realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
 
 
     public static void add(Collection<UserStatus> items) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
-        realm.close();
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(items));
     }
 
 
     public static void update(UserStatus item) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
 
 
     public static void remove(UserStatus item) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            final UserStatus userStatus = realm.where(UserStatus.class).equalTo("id",item.getId()).findFirst();
+            UserStatus userStatus = realm1.where(UserStatus.class).equalTo("id",item.getId()).findFirst();
             userStatus.deleteFromRealm();
         });
-        realm.close();
     }
 
 
     public static void remove(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final  Realm realm = Realm.getDefaultInstance();
-        final RealmResults<UserStatus> realmResults = realmSpecification.toRealmResults(realm);
-
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-        realm.close();
     }
 
 
     public static RealmResults<UserStatus> query(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final Realm realm = Realm.getDefaultInstance();
-        final RealmResults<UserStatus> realmResults = realmSpecification.toRealmResults(realm);
-
-        realm.close();
-
-        return realmResults;
+        Realm realm = Realm.getDefaultInstance();
+        return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
     public static class UserStatusAllSpecification implements RealmSpecification {

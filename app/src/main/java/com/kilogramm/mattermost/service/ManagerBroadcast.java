@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 
@@ -30,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 
 /**
@@ -181,11 +181,7 @@ public class ManagerBroadcast {
 
 
     public static void savePost(Post post){
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.insertOrUpdate(post);
-        realm.commitTransaction();
-        realm.close();
+        PostRepository.add(post);
     }
 
     public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {

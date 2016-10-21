@@ -21,19 +21,16 @@ public class PostRepository {
     public static void add(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
     }
 
     public static void add(Collection<Post> items) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
-        realm.close();
     }
 
     public static void update(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
     }
 
     public static void remove(Post item) {
@@ -44,37 +41,26 @@ public class PostRepository {
                 post.deleteFromRealm();
             }
         });
-        realm.close();
     }
 
     public static void remove(Specification specification) {
-        RealmSpecification realmSpecification = (RealmSpecification) specification;
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> realmResults = realmSpecification.toRealmResults(realm);
-
+        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
 
-
-        realm.close();
     }
 
     public static RealmResults<Post> query(Specification specification) {
-        RealmSpecification realmSpecification = (RealmSpecification) specification;
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> realmResults = realmSpecification.toRealmResults(realm);
-
-        realm.close();
-
-        return realmResults;
+        return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
     public static void removeTempPost(String sendedPostId) {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             final Post post = realm.where(Post.class).equalTo("pendingPostId", sendedPostId).findFirst();
             post.deleteFromRealm();
         });
-        realm.close();
     }
 
     public static void prepareAndAddPost(Post post) {
@@ -83,7 +69,6 @@ public class PostRepository {
         post.setViewed(true);
         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         add(post);
-        realm.close();
     }
 
     public static void prepareAndAdd(Posts posts) {
@@ -94,8 +79,5 @@ public class PostRepository {
             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         }
         add(posts.getPosts().values());
-
-        realm.close();
-
     }
 }

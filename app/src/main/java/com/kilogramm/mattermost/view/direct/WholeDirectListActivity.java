@@ -35,15 +35,12 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private WholeDirectListAdapter adapter;
     private Realm realm;
 
-    private String myId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
-        myId = MattermostPreference.getInstance().getMyUserId();
         init();
         setRecycleView();
     }
@@ -58,7 +55,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         RealmResults<User> users = realm.where(User.class)
                 .isNotNull("id")
                 .isNotNull("email")
-                .notEqualTo("id", myId)
+                .notEqualTo("id", MattermostPreference.getInstance().getMyUserId())
                 .findAllSorted("username");
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         ArrayList<String> usersIds = new ArrayList<>();
@@ -85,13 +82,5 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 .putExtra(NAME, name);
         setResult(Activity.RESULT_OK, intent);
         finish();
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        if(realm!=null && !realm.isClosed()){
-            realm.close();
-        }
     }
 }

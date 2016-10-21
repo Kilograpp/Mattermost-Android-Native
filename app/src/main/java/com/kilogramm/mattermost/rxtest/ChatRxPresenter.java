@@ -23,10 +23,8 @@ import com.kilogramm.mattermost.network.ApiMethod;
 
 import icepick.State;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -432,7 +430,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
             users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
         }
         sendSetDropDown(users);
-        realm.close();
     }
 
     private void getLastMessageId() {

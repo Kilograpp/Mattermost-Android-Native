@@ -127,7 +127,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.realm = Realm.getDefaultInstance();
-        this.teamId = realm.where(Team.class).findFirst().getId();
+        this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
 
@@ -240,7 +240,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.realm.close();
         Log.d(TAG, "onDestroy()");
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);

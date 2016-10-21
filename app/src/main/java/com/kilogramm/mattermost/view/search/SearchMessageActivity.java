@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivitySearchBinding;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
@@ -41,9 +42,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
-    private Realm realm;
-
-    private String teamId;
 
     String terms;
 
@@ -54,23 +52,21 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     public void init() {
-        teamId = getIntent().getStringExtra(TEAM_ID);
-        realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search);
 
         binding.searchText.setOnEditorActionListener(this);
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnClear.setOnClickListener(v -> {
             binding.searchText.setText("");
-            DefaultMessageVisibility(true);
-            SearchResultVisibility(false);
-            DefaultVisibility(false);
+            defaultMessageVisibility(true);
+            searchResultVisibility(false);
+            defaultVisibility(false);
         });
     }
 
     public void setRecycleView(String terms) {
-        RealmQuery<Post> query = realm.where(Post.class);
-        RealmResults<FoundMessagesIds> foundMessageId = realm.where(FoundMessagesIds.class).findAll();
+        RealmQuery<Post> query = Realm.getDefaultInstance().where(Post.class);
+        RealmResults<FoundMessagesIds> foundMessageId = Realm.getDefaultInstance().where(FoundMessagesIds.class).findAll();
         if (foundMessageId.size() != 0) {
             for (int i = 0; i < foundMessageId.size(); i++) {
                 if (foundMessageId.size() > 1) {
@@ -94,23 +90,23 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         if (terms.equals("")) {
             Toast.makeText(this, this.getResources().getString(R.string.empty_search), Toast.LENGTH_SHORT).show();
         } else {
-            getPresenter().search(teamId, terms);
+            getPresenter().search(terms);
         }
     }
 
-    public void ProgressBarVisibility(boolean isShow) {
+    public void progressBarVisibility(boolean isShow) {
         binding.progressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-    public void DefaultVisibility(boolean isShow) {
+    public void defaultVisibility(boolean isShow) {
         binding.defaultContainer.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-    public void SearchResultVisibility(boolean isShow) {
+    public void searchResultVisibility(boolean isShow) {
         binding.recViewSearchResultList.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-    public void DefaultMessageVisibility(boolean isShow) {
+    public void defaultMessageVisibility(boolean isShow) {
         binding.defaultMessage.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 

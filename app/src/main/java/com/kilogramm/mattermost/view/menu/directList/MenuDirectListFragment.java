@@ -15,8 +15,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuDirectListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.MenuDirectListPresenter;
@@ -24,7 +22,6 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
-import io.realm.Realm;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
@@ -43,12 +40,10 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     AdapterMenuDirectList adapter;
     private int mSelectedItem;
 
-    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -71,17 +66,10 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
                 REQUEST_CODE);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(realm!=null && !realm.isClosed()){
-            realm.close();
-        }
-    }
 
     private void setupRecyclerViewDirection() {
-        RealmResults<UserStatus> statusRealmResults = new UserStatusRepository.UserStatusAllSpecification().toRealmResults(realm);
-        RealmResults<Channel> results = new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT).toRealmResults(realm);
+        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
+        RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT));
         binding.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new AdapterMenuDirectList(getActivity(), results, binding.recView,
                 (itemId, name, type) -> directItemClickListener.onDirectClick(itemId, name, type),

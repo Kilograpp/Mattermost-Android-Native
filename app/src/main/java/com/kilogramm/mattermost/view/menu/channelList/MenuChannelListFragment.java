@@ -34,12 +34,9 @@ public class MenuChannelListFragment extends Fragment {
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuChannelList adapter;
 
-    private Realm realm;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -56,7 +53,7 @@ public class MenuChannelListFragment extends Fragment {
     }
 
     private void setupListView() {
-        RealmResults<Channel> results = new ChannelRepository.ChannelByTypeSpecification("O").toRealmResults(realm);
+        RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
                 (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
@@ -102,13 +99,6 @@ public class MenuChannelListFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(realm!=null && !realm.isClosed()){
-            realm.close();
-        }
-    }
 
     public void goToAddChannelsActivity() {
         getActivity().startActivityForResult(

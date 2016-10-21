@@ -19,36 +19,29 @@ public class ChannelRepository {
 
     public static void add(Channel channel){
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            realm1.insertOrUpdate(channel);
-        });
-        realm.close();
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(channel));
     }
 
     public static void add(Collection<Channel> items) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
-        realm.close();
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(items));
     }
 
     public static void update(Channel item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
     }
 
     public static void remove(Channel item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            final Channel post = realm1.where(Channel.class).equalTo("id",item.getId()).findFirst();
+            Channel post = realm1.where(Channel.class).equalTo("id",item.getId()).findFirst();
             post.deleteFromRealm();
         });
-        realm.close();
     }
 
 
-    public static void prepareChannelAndAdd(Collection<Channel> items,
-                                     String myId){
+    public static void prepareChannelAndAdd(Collection<Channel> items, String myId){
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             for (Channel channel : items) {
@@ -65,7 +58,6 @@ public class ChannelRepository {
             }
             realm1.copyToRealmOrUpdate(items);
         });
-        realm.close();
     }
 
     public static void prepareDirectChannelAndAdd(Channel channel, String userId) {
@@ -80,23 +72,16 @@ public class ChannelRepository {
 
 
     public static void remove(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final  Realm realm = Realm.getDefaultInstance();
-        final  RealmResults<Channel> realmResults = realmSpecification.toRealmResults(realm);
-
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
 
 
-        realm.close();
     }
 
     public static RealmResults<Channel> query(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final Realm realm = Realm.getDefaultInstance();
-        final RealmResults<Channel> realmResults = realmSpecification.toRealmResults(realm);
-
-        realm.close();
-
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         return realmResults;
     }
 
@@ -129,10 +114,9 @@ public class ChannelRepository {
 
         @Override
         public RealmResults<Channel> toRealmResults(Realm realm) {
-            RealmResults<Channel> channels = realm.where(Channel.class)
+            return realm.where(Channel.class)
                     .equalTo("type", type)
                     .findAllSorted("username", Sort.ASCENDING);
-            return channels;
         }
     }
 

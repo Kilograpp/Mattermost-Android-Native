@@ -30,12 +30,10 @@ public class MenuPrivateListFragment extends Fragment {
     private OnPrivateItemClickListener privateItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuPrivateList adapter;
-    private Realm realm;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
     }
 
     @Nullable
@@ -52,7 +50,7 @@ public class MenuPrivateListFragment extends Fragment {
 
 
     private void setupListView() {
-        RealmResults<Channel> results = new ChannelRepository.ChannelByTypeSpecification("P").toRealmResults(realm);
+        RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuPrivateList(getContext(), results, binding.recView,
                 (itemId, name, type) ->  privateItemClickListener.onPrivatelClick(itemId, name, type));
@@ -95,14 +93,6 @@ public class MenuPrivateListFragment extends Fragment {
 
     public void resetSelectItem(){
         adapter.setSelecteditem(-1);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(realm!=null && !realm.isClosed()){
-            realm.close();
-        }
     }
 }
 

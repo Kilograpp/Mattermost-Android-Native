@@ -7,7 +7,6 @@ import android.util.Patterns;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -18,8 +17,6 @@ import java.util.regex.Pattern;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -34,8 +31,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     //TODO pattern url null fix
     private static Pattern mPatternUrl = Patterns.WEB_URL;
 
-    private Realm mRealm;
-
     private MattermostApp mMattermostApp;
 
     @State
@@ -46,22 +41,18 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
-        mRealm = Realm.getDefaultInstance();
 
         restartableFirst(REQUEST_CHECK, () -> {
             ApiMethod service = mMattermostApp.getMattermostRetrofitService();
             sendVisibleProgress(true);
             return service.initLoad()
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
         }, (mainActivity, initObject) -> {
-            mRealm.executeTransaction(realm -> {
+            Realm.getDefaultInstance().executeTransaction(realm -> {
                 RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
                 results.deleteAllFromRealm();
-            });
-            mRealm.executeTransaction(realm1 -> {
-                ClientCfg cfg = realm1.copyToRealm(initObject.getClientCfg());
-                realm1.copyToRealm(cfg);
+                realm.copyToRealmOrUpdate(initObject.getClientCfg());
             });
 
             sendVisibleProgress(false);
@@ -74,8 +65,8 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     }
 
     @Override
-    protected void onTakeView(MainRxAcivity mainRxAcivityActivity) {
-        super.onTakeView(mainRxAcivityActivity);
+    protected void onTakeView(MainRxAcivity mainRxAcivity) {
+        super.onTakeView(mainRxAcivity);
 
         //TODO FIX logic check login
         if (MattermostPreference.getInstance().getAuthToken() != null &&
@@ -128,42 +119,27 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     // to view methods
 
     private void sendVisibleProgress(Boolean visibility){
-        Observable.just(visibility)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(visibility)
                 .subscribe(split(MainRxAcivity::setShowProgress));
     }
 
     private void sendShowLoginActivity(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new Object())
                 .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showLoginActivity()));
     }
 
     private void sendShowError(String error){
-        Observable.just(error)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(error)
                 .subscribe(split(MainRxAcivity::showErrorText));
     }
 
     private void sendShowErrorEditText(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new Object())
                 .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showEditTextErrorMessage()));
     }
 
     private void sendShowChatActivity(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new Object())
                 .subscribe(split((mainRxAcivity,o) -> mainRxAcivity.showChatActivity()));
 
     }

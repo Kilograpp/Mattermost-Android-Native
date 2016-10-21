@@ -7,13 +7,11 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.MenuItem;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivitySettingsBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.network.PicassoService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.squareup.picasso.Picasso;
 
@@ -30,13 +28,11 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
     private ActivitySettingsBinding mBinding;
 
     private String userId;
-    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
-        realm = Realm.getDefaultInstance();
         userId = getIntent().getStringExtra(USER_ID);
 
         initView();
@@ -47,16 +43,8 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(realm!=null && !realm.isClosed()){
-            realm.close();
-        }
-    }
-
     private void initView() {
-        User user = new UserRepository.UserByIdSpecification(userId).toRealmResults(realm).first();
+        User user = UserRepository.query(new UserRepository.UserByIdSpecification(userId)).first();
         mBinding.headerUsername.setText(user.getUsername());
         mBinding.headerName.setText(String.format("%s %s",
                 (user.getFirstName()!=null)?user.getFirstName():"",
