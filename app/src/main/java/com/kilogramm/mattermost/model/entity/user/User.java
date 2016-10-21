@@ -491,6 +491,7 @@ public class User extends RealmObject implements Parcelable {
         this.locale = locale;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
