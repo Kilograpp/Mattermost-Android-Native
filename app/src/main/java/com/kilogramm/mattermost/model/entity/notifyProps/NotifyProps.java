@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.notifyProps;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -49,6 +49,10 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @SerializedName("push_status")
     @Expose
     private String pushStatus;
+
+    public long getId() {
+        return id;
+    }
 
     public String getPushStatus() {
         return pushStatus;

@@ -9,7 +9,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.ListSaveData;
-import com.kilogramm.mattermost.model.entity.NotifyProps;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Team;

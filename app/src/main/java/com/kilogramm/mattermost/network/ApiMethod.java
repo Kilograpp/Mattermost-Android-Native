@@ -2,7 +2,7 @@ package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;

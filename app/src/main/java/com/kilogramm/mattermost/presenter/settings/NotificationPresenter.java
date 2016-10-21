@@ -6,16 +6,18 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.NotifyProps;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifySpecification;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import icepick.State;
-import io.realm.Realm;
 import nucleus.presenter.delivery.Delivery;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -39,17 +41,18 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     private ApiMethod service;
     private UserRepository userRepository;
+    private NotifyRepository notifyRepository;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        Realm realm = Realm.getDefaultInstance();
-        this.notifyProps = new NotifyProps(realm.where(NotifyProps.class).findFirst());
-        this.user = realm.where(User.class).equalTo("id", MattermostPreference.getInstance().getMyUserId()).findFirst();
-        realm.close();
-        service = mMattermostApp.getMattermostRetrofitService();
         userRepository = new UserRepository();
+        notifyRepository = new NotifyRepository();
+        this.user = userRepository.query(new UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.notifyProps = new NotifyProps(notifyRepository.query(new NotifySpecification()).first());
+
+        service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
 
@@ -94,7 +97,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             }
             if (notifyProps.getChannel().equals("true"))
                 if (result.length() != 0)
-                    result = result + ","  +channelMentions;
+                    result = result + "," + channelMentions;
                 else
                     result = channelMentions;
 
