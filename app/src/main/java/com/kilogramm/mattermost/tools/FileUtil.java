@@ -219,4 +219,11 @@ public class FileUtil {
                 storageDir                       /* directory */
         );
     }
+
+    public void removeFile(String path) {
+        File file = new File(path);
+        if(file.exists()){
+            file.delete();
+        }
+    }
 }

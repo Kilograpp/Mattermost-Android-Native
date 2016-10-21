@@ -183,6 +183,20 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
         return null;
     }
 
+    public FileToAttach get(long id){
+        final Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("id", id)
+                .findFirst();
+    }
+
+    public FileToAttach get(String fileName){
+        final Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("fileName", fileName)
+                .findFirst();
+    }
+
     public RealmResults<FileToAttach> getFilesForAttach() {
         final Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class)
