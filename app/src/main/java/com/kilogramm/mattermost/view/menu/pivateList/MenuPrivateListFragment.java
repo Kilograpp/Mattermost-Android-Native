@@ -12,11 +12,11 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.viewmodel.menu.FrMenuPrivateViewModel;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -31,8 +31,6 @@ public class MenuPrivateListFragment extends Fragment {
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuPrivateList adapter;
 
-    private ChannelRepository channelRepository;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,14 +44,13 @@ public class MenuPrivateListFragment extends Fragment {
         View view = binding.getRoot();
         viewModel = new FrMenuPrivateViewModel(getContext());
         binding.setViewModel(viewModel);
-        channelRepository = new ChannelRepository();
         setupListView();
         return view;
     }
 
 
     private void setupListView() {
-        RealmResults<Channel> results = channelRepository.query(new ChannelByTypeSpecification("P"));
+        RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdapterMenuPrivateList(getContext(), results, binding.recView,
                 (itemId, name, type) ->  privateItemClickListener.onPrivatelClick(itemId, name, type));
@@ -97,6 +94,5 @@ public class MenuPrivateListFragment extends Fragment {
     public void resetSelectItem(){
         adapter.setSelecteditem(-1);
     }
-
 }
 

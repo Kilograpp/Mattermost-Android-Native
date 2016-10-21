@@ -44,8 +44,6 @@ public class WebSocketManager {
 
     private UpdateStatusUser mUpdateStatusUser;
 
-    private ChannelRepository channelRepository;
-
 
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;

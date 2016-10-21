@@ -5,6 +5,7 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -38,7 +39,7 @@ import io.realm.RealmModel;
  */
 public class FilesView extends GridLayout {
 
-    private static final String TAG = "FilesView";
+    private static final String TAG = "FileDownloadManager";
 
     private static final String PNG = "png";
     private static final String JPG = "jpg";
@@ -111,12 +112,17 @@ public class FilesView extends GridLayout {
                     }
                 });
 
-                if(fileToAttach != null) {
+                if (fileToAttach != null) {
                     fileToAttach.addChangeListener(element -> {
-                        binding.downloadFileControls.post(() ->
-                                binding.downloadFileControls.setProgress(
-                                        FileToAttachRepository.getInstance().get(fileName).getProgress()
-                                ));
+                        Log.d(TAG, "change real progress");
+                        binding.downloadFileControls.post(() -> {
+                            Log.d(TAG, "post progress");
+                            binding.downloadFileControls.setProgress(
+                                    FileToAttachRepository.getInstance().get(fileName).getProgress()
+                            );
+
+
+                        });
                     });
                     if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
                             fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
@@ -125,7 +131,6 @@ public class FilesView extends GridLayout {
                         binding.downloadFileControls.setVisibility(GONE);
                     }*/
                 }
-
 
 
                 switch (FileUtil.getInstance().getFileType(fileName)) {
@@ -182,24 +187,23 @@ public class FilesView extends GridLayout {
         }
         Picasso.with(getContext())
                 .load(url)
-                .resize(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .resize(150, 150).centerCrop()
+                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);
         /*Glide.with(getContext())
+        Picasso.with(getContext())
                 .load(url)
-                .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
-                .thumbnail(0.1f)
+                .resize(150,150).centerCrop()
+                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);*/
         this.addView(binding.getRoot());
     }
 
     private String getImageUrl(String id) {
         Realm realm = Realm.getDefaultInstance();
-        String s = new String(realm.where(Team.class).findFirst().getId());
-        realm.close();
+        String s = realm.where(Team.class).findFirst().getId();
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()

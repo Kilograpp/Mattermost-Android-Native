@@ -62,6 +62,12 @@
             android:name=".view.search.SearchMessageActivity"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".rxtest.InviteUserRxActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".rxtest.ProfileRxActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
             android:screenOrientation="portrait" />

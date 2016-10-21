@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
-import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -50,8 +48,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         Glide.with(context)
                 .load(fileToAttach.getFilePath())
                 .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .centerCrop()
                 .into(holder.binding.imageView);

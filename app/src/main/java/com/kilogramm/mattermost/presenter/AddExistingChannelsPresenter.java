@@ -4,16 +4,18 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmList;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -28,18 +30,16 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     private ApiMethod service;
 
     private String teamId;
-    private Realm realm;
 
-    private RealmList<ChannelsDontBelong> moreChannels;
+    private List<ChannelsDontBelong> moreChannels;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-        realm = Realm.getDefaultInstance();
-        teamId = realm.where(Team.class).findFirst().getId();
-        moreChannels = new RealmList<>();
+        teamId = MattermostPreference.getInstance().getTeamId();
+        moreChannels = new ArrayList<>();
         initRequest();
     }
 
@@ -49,21 +49,18 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     }
 
     private void initRequest() {
-        restartableFirst(REQUEST_CHANNELS_MORE, () -> {
-            return service.channelsMore(teamId)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
-
-        }, (addExistingChannelsActivity, channelsWithMembers) -> {
-            for (Channel channel : channelsWithMembers.getChannels()) {
-                moreChannels.add(new ChannelsDontBelong(channel));
-            }
-            realm.executeTransaction(realm1 -> {
-                realm1.insertOrUpdate(moreChannels);
-                realm1.close();
-            });
-
-        }, (addExistingChannelsActivity, throwable) -> throwable.printStackTrace());
+        restartableFirst(REQUEST_CHANNELS_MORE,
+                () -> service.channelsMore(teamId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (addExistingChannelsActivity, channelsWithMembers) -> {
+                    for (Channel channel : channelsWithMembers.getChannels()) {
+                        moreChannels.add(new ChannelsDontBelong(channel));
+                    }
+                    Realm.getDefaultInstance()
+                            .executeTransaction(realm1 -> realm1.insertOrUpdate(moreChannels));
+                },
+                (addExistingChannelsActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestChannelsMore() {

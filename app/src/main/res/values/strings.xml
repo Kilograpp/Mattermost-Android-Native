@@ -65,6 +65,9 @@
     <string name="too_much_files">Too much files. Attach less then</string>
     <string name="file_too_big">File must be less than 50 Mb</string>
     <string name="processing_data">Processing data…</string>
+
+    <!--Right MENU-->
+
     <string name="switch_team">Switch Team</string>
     <string name="files">Files</string>
     <string name="settings">Settings</string>
@@ -72,8 +75,13 @@
     <string name="help">Help</string>
     <string name="report_a_problem">Report a Problem</string>
     <string name="about_mattermost">About Mattermost</string>
+    <string name="email">EMAIL</string>
+    <string name="first_name">FIRST NAME</string>
+    <string name="last_name">LAST NAME</string>
+    <string name="add_another">Add another</string>
 
-    <!--Right MENU-->
+    <!---->
+
 
 
            <!--Notification-->

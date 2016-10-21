@@ -15,8 +15,6 @@ import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByIdSpecification;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -25,9 +23,11 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import icepick.State;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -47,13 +47,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_ADD_CHAT = 6;
 
     private Realm realm;
-    private UserRepository userRepository;
-    private ChannelRepository channelRepository;
 
     private ApiMethod service;
 
-    @State
-    String teamId;
+    /*@State
+    String teamId;*/
     @State
     ListSaveData mSaveData = new ListSaveData();
     private LogoutData user;
@@ -63,13 +61,12 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
-        teamId = realm.where(Team.class).findFirst().getId();
-        userRepository = new UserRepository();
-        channelRepository = new ChannelRepository();
+
         user = new LogoutData();
         MattermostApp application = MattermostApp.getSingleton();
         service = application.getMattermostRetrofitService();
         initRequest();
+        requestDirectProfile();
     }
 
     @Override
@@ -78,11 +75,13 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         setSelectedLast(MattermostPreference.getInstance().getLastChannelId());
     }
 
+    //TODO review evgenysuetin
     public void setSelectedLast(String id) {
+        Log.d(TAG, "setSelectedLast");
         Channel channel;
         if (id != null) {
             try {
-                channel = channelRepository.query(new ChannelByIdSpecification(id)).first();
+                channel = new ChannelRepository.ChannelByIdSpecification(id).toRealmResults(realm).first();
                 if (channel != null)
                     switch (channel.getType()) {
                         case "O":
@@ -100,7 +99,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 e.printStackTrace();
             }
         } else {
-            RealmResults<Channel> channels = channelRepository.query(new ChannelByTypeSpecification("O"));
+            RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
             if (channels.size() != 0) {
                 setSelectedMenu(channels.first().getId(), channels.first().getName(), channels.first().getType());
             } else {
@@ -113,50 +112,50 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void initRequest() {
-        restartableFirst(REQUEST_DIRECT_PROFILE, () -> service.getDirectProfile()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread()), (generalRxActivity, stringUserMap) -> {
-            RealmList<User> users = new RealmList<>();
-            users.addAll(stringUserMap.values());
-            users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
-            users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
-            userRepository.add(users);
-            requestLoadChannels();
-        }, (generalRxActivity1, throwable) -> {
-            sendShowError(throwable.toString());
-        });
+        restartableFirst(REQUEST_DIRECT_PROFILE,
+                () -> service.getDirectProfile()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, stringUserMap) -> {
+                    List<User> users = new ArrayList<User>();
+                    users.addAll(stringUserMap.values());
+                    users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                    users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
+                    UserRepository.add(users);
+                    requestLoadChannels();
+                }, (generalRxActivity1, throwable) -> {
+                    sendShowError(throwable.toString());
+                });
 
-        restartableFirst(REQUEST_LOAD_CHANNELS, () -> service.getChannelsTeam(teamId)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread()), (generalRxActivity, channelsWithMembers) -> {
-            channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                    MattermostPreference.getInstance().getMyUserId(), userRepository);
+        restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
+            return service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
+        }, (generalRxActivity, channelsWithMembers) -> {
+            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                    MattermostPreference.getInstance().getMyUserId());
             requestUserTeam();
-        }, (generalRxActivity1, throwable) -> {
-            sendShowError(throwable.toString());
-        });
+        }, (generalRxActivity1, throwable) -> sendShowError(throwable.toString()));
 
         restartableFirst(REQUEST_USER_TEAM, () -> {
-            return service.getTeamUsers(teamId)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
+            return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
         }, (generalRxActivity, stringUserMap) -> {
-            userRepository.add(stringUserMap.values());
+            UserRepository.add(stringUserMap.values());
             if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                Channel channel = channelRepository.query(new ChannelByTypeSpecification("O")).first();
+                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
                 sendSetSelectChannel(channel.getId(), channel.getType());
                 if (channel != null) {
                     setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
                 }
             }
-        }, (generalRxActivity1, throwable) -> {
-            throwable.printStackTrace();
-        });
+        }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
 
         restartableFirst(REQUEST_LOGOUT, () -> {
             return service.logout(new Object())
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
         }, (generalRxActivity, logoutData) -> {
             Log.d(TAG, "Complete logout");
             clearDataBaseAfterLogout();
@@ -170,14 +169,15 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         initSaveRequest();
 
         restartableFirst(REQUEST_ADD_CHAT, () -> {
-            return service.joinChannel(teamId, channelId)
+            return service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread());
 
         }, (generalRxActivity, channel) -> {
-            channelRepository.add(channel);
+            List<Channel> channelList = new ArrayList<>();
+            channelList.add(channel);
+            ChannelRepository.prepareChannelAndAdd(channelList,MattermostPreference.getInstance().getMyUserId());
             sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
-
         }, (generalRxActivity, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, throwable.getMessage());
@@ -185,37 +185,24 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void initSaveRequest() {
-        restartableFirst(REQUEST_SAVE, () -> {
-            return Observable.defer(
-                    () -> Observable.zip(
+        restartableFirst(REQUEST_SAVE, () -> Observable.defer(
+                () -> Observable.zip(
+                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
 
-                            service.createDirect(teamId, user)
-                                    .subscribeOn(Schedulers.computation())
-                                    .observeOn(AndroidSchedulers.mainThread()),
+                        service.save(mSaveData.getmSaveData())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
 
-                            service.save(mSaveData.getmSaveData())
-                                    .subscribeOn(Schedulers.newThread())
-                                    .observeOn(AndroidSchedulers.mainThread()),
-
-                            (channel, aBoolean) -> {
-                                if (aBoolean == Boolean.FALSE) {
-                                    Log.d(TAG, "aBoolean == null");
-                                    return null;
-                                }
-
-                                Realm realm = Realm.getDefaultInstance();
-                                User directUser = realm.where(User.class).equalTo("id", user.getUserId()).findFirst();
-                                channel.setUser(directUser);
-                                channel.setUsername(directUser.getUsername());
-
-                                channelRepository.add(channel);
-
-                                return channel;
-                            }));
-
-        }, (generalRxActivity, channel) -> {
+                        (channel, aBoolean) -> {
+                            if (aBoolean == Boolean.FALSE) {
+                                return null;
+                            }
+                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
+                            return channel;
+                        })), (generalRxActivity, channel) -> {
             mSaveData.getmSaveData().clear();
-            channelRepository.add(channel);
             sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
@@ -248,15 +235,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
-        requestDirectProfile();
         //loadChannels(realm.where(Team.class).findFirst().getId());
     }
 
@@ -276,54 +258,41 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void clearDataBaseAfterLogout() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            realm.delete(Post.class);
-            realm.delete(Channel.class);
-            realm.delete(InitObject.class);
-            realm.delete(LicenseCfg.class);
-            realm.delete(NotifyProps.class);
-            realm.delete(RealmString.class);
-            realm.delete(Team.class);
-            realm.delete(InitObject.class);
-            realm.delete(ThemeProps.class);
-            realm.delete(User.class);
+            realm1.delete(Post.class);
+            realm1.delete(Channel.class);
+            realm1.delete(InitObject.class);
+            realm1.delete(LicenseCfg.class);
+            realm1.delete(NotifyProps.class);
+            realm1.delete(RealmString.class);
+            realm1.delete(Team.class);
+            realm1.delete(InitObject.class);
+            realm1.delete(ThemeProps.class);
+            realm1.delete(User.class);
         });
-        realm.close();
     }
 
     //to view methods
     private void sendShowError(String error) {
-        Observable.just(error)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(error)
                 .subscribe(split(GeneralRxActivity::showErrorText));
     }
 
     private void sendShowMainRxActivity() {
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new Object())
                 .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showMainRxActivity()));
 
     }
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
-        Observable.just(new OpenChatObject(channelId, name, type))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new OpenChatObject(channelId,name, type))
                 .subscribe(split((generalRxActivity1, openChatObject)
                         -> generalRxActivity1.setFragmentChat(openChatObject.getChannelId(), name, type)));
     }
 
     private void sendSetSelectChannel(String channelId, String type) {
-        Observable.just(new OpenChatObject(channelId, type))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
+        createTemplateObservable(new OpenChatObject(channelId, type))
                 .subscribe(split((generalRxActivity1, openChatObject)
                         -> generalRxActivity1.setSelectItemMenu(openChatObject.getChannelId(), type)));
     }

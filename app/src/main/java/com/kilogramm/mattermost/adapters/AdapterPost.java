@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.databinding.ViewDataBinding;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
-import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.HrSpannable;
 import com.kilogramm.mattermost.tools.MattermostTagHandler;
@@ -83,6 +81,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         if(isTopLoading){
             count++;
         }
+        //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
     }
 
@@ -92,14 +91,11 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             isTopLoading = enabled;
             getItemCount();
             if(enabled){
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemInserted(0);
-                handler.post(r);
+                notifyItemInserted(0);
             } else {
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemRemoved(0);
-                handler.post(r);
+                notifyItemRemoved(0);
             }
+
         }
     }
 
@@ -109,14 +105,11 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             isBottomLoading = enabled;
             getItemCount();
             if(enabled){
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemInserted(getItemCount());
-                handler.post(r);
+                notifyItemInserted(getItemCount());
             } else {
-                Handler handler = new Handler();
-                Runnable r = () -> notifyItemRemoved(getItemCount());
-                handler.post(r);
+                notifyItemRemoved(getItemCount());
             }
+
         }
     }
 
@@ -211,6 +204,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                 if (listener != null) {
                     Post post1 = new Post(post);
                     listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post1);
+                }
+            });
+            ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
+                if (listener != null) {
+                    Post post1 = new Post(post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post1);
                 }
             });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
