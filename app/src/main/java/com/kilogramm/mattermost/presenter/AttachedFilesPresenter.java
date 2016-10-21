@@ -94,6 +94,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
+
             Log.d(TAG, "Error");
         });
     }
