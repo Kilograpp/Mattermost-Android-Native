@@ -191,7 +191,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 .equalTo("uploadState", UploadState.UPLOADING.name())
                 .or()
                 .equalTo("uploadState", UploadState.UPLOADED.name())
-                .findAll();
+                .findAllSorted("id");
     }
 
     public FileToAttach getUnloadedFile() {
