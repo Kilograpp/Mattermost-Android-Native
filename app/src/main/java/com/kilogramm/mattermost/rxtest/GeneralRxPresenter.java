@@ -262,8 +262,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void setSelectedMenu(String channelId, String name, String type) {
-        if(MattermostPreference.getInstance().getLastChannelId() != null
-                &&!MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
+        if(MattermostPreference.getInstance().getLastChannelId() != null &&
+                !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
             // For clearing attached files on channel change
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
