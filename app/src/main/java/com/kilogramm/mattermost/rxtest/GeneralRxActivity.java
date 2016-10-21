@@ -67,7 +67,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     break;
                 case R.id.settings:
                     startActivity(new Intent(this, NotificationActivity.class));
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.invite_new_member:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();

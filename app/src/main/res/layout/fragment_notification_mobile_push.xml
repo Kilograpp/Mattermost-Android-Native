@@ -33,10 +33,11 @@
                 android:text="@string/mob_push_title_send" />
 
             <android.support.v7.widget.CardView
-                android:id="@+id/allActivity"
+                android:id="@+id/all"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="all push"
                 android:layout_marginTop="@dimen/activity_vertical_text_margin">
 
                 <TextView
@@ -52,15 +53,17 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/mentionsDirect"
+                android:id="@+id/mention"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="mention push"
                 android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                 <TextView
@@ -76,15 +79,17 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/never"
+                android:id="@+id/none"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="none push"
                 android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                 <TextView
@@ -100,6 +105,7 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>
@@ -122,10 +128,11 @@
                 android:text="@string/mob_push_title_trigger" />
 
             <android.support.v7.widget.CardView
-                android:id="@+id/allTrigger"
+                android:id="@+id/online"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="online push_status"
                 android:layout_marginTop="@dimen/activity_vertical_text_margin">
 
                 <TextView
@@ -141,15 +148,17 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/awayAndOff"
+                android:id="@+id/away"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="away push_status"
                 android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                 <TextView
@@ -165,15 +174,17 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/off"
+                android:id="@+id/offline"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="offline push_status"
                 android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                 <TextView
@@ -189,6 +200,7 @@
                     android:layout_height="@dimen/bottom_toolbar_icon_size"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:visibility="invisible"
                     app:srcCompat="@drawable/ic_check_24dp"/>
 
             </android.support.v7.widget.CardView>

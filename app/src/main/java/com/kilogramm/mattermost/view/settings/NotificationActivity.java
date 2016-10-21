@@ -19,6 +19,9 @@ import nucleus.factory.RequiresPresenter;
 public class NotificationActivity extends BaseActivity<NotificationPresenter> {
     private ActivityNotificationBinding binding;
 
+    private NotificationFragment notificationFragment;
+    private NotificationPushFragment notificationPushFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,9 +44,12 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
 
     public void openMobilePushNotification() {
         setupToolbar(getString(R.string.notification_mob_push), true);
+        if (notificationPushFragment == null)
+            notificationPushFragment = new NotificationPushFragment();
         getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), new NotificationMobilePusheFragment())
+                .replace(binding.fragmentNotification.getId(), notificationPushFragment)
                 .commit();
+        binding.fragmentNotification.setTag("NotificationPushFragment");
     }
 
     public void openWordsTriggerMentions() {
@@ -51,27 +57,47 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentNotification.getId(), new WordsTriggerMentionsFragment())
                 .commit();
+        binding.fragmentNotification.setTag("WordsTriggerMentionsFragment");
     }
 
     public void openNotification() {
         setToolbar();
+        if (notificationFragment == null)
+            notificationFragment = new NotificationFragment();
         getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), new NotificationFragment())
+                .replace(binding.fragmentNotification.getId(), notificationFragment)
                 .commit();
+        binding.fragmentNotification.setTag("NotificationFragment");
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        switch (binding.fragmentNotification.getTag().toString()) {
+            case "NotificationFragment":
+                super.onBackPressed();
+                break;
+            case "NotificationPushFragment":
+                openNotification();
+                break;
+            case "WordsTriggerMentionsFragment":
+                ((WordsTriggerMentionsFragment) getFragmentManager().findFragmentById(R.id.fragmentNotification)).setMentionsKeys();
+                openNotification();
+                break;
+            default:
+                super.onBackPressed();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                openNotification();
+                BaseActivity.hideKeyboard(this);
+                onBackPressed();
                 return true;
             case R.id.action_save:
+                updateNotification();
+                BaseActivity.hideKeyboard(this);
                 break;
             default:
                 super.onOptionsItemSelected(item);

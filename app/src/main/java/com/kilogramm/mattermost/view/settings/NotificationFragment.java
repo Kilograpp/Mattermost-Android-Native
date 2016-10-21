@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,12 +13,9 @@ import com.kilogramm.mattermost.databinding.FragmentNotificationBinding;
 import com.kilogramm.mattermost.presenter.settings.NotificationPresenter;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
-import nucleus.factory.RequiresPresenter;
-
 /**
  * Created by Evgeny on 24.08.2016.
  */
-@RequiresPresenter(NotificationPresenter.class)
 public class NotificationFragment extends BaseFragment<NotificationPresenter> {
 
     private FragmentNotificationBinding binding;
@@ -42,12 +40,26 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
         binding.wordTrigger.setOnClickListener(view1 ->
                 ((NotificationActivity) getActivity()).openWordsTriggerMentions());
 
-        binding.descriptionWordsTrigger.setText(getPresenter().getMentions());
+        binding.descriptionWordsTrigger.setText(getPresenter().getMentionsAll());
 
         return view;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().onBackPressed();
+                return true;
+            default:
+                super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
 
-
+    @Override
+    public NotificationPresenter getPresenter() {
+        return ((NotificationActivity) getActivity()).getPresenter();
+    }
 }
 

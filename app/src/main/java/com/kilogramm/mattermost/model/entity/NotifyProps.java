@@ -22,6 +22,9 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @SerializedName("channel")
     @Expose
     private String channel;
+    @SerializedName("comments")
+    @Expose
+    private String comments;
     @SerializedName("desktop")
     @Expose
     private String desktop;
@@ -196,6 +199,41 @@ public class NotifyProps extends RealmObject implements Parcelable {
         this.mentionKeys = mentionKeys;
     }
 
+    /**
+     *
+     * @return
+     * The comments
+     */
+    public String getComments() {
+        return comments;
+    }
+
+    /**
+     *
+     * @param comments
+     * The comments
+     */
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public NotifyProps(NotifyProps props) {
+        this.all = props.getAll();
+        this.channel = props.getChannel();
+        this.desktop = props.getDesktop();
+        this.desktopSound = props.getDesktopSound();
+        this.desktopDuration = props.getDesktopDuration();
+        this.email = props.getEmail();
+        this.firstName = props.getFirstName();
+        this.mentionKeys = props.getMentionKeys();
+        this.comments = props.getComments();
+        this.push = props.getPush();
+        this.pushStatus = props.getPushStatus();
+    }
+
+    public NotifyProps() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -203,29 +241,36 @@ public class NotifyProps extends RealmObject implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
         dest.writeString(this.all);
         dest.writeString(this.channel);
+        dest.writeString(this.comments);
         dest.writeString(this.desktop);
         dest.writeString(this.desktopSound);
+        dest.writeString(this.desktopDuration);
         dest.writeString(this.email);
         dest.writeString(this.firstName);
         dest.writeString(this.mentionKeys);
-    }
-
-    public NotifyProps() {
+        dest.writeString(this.push);
+        dest.writeString(this.pushStatus);
     }
 
     protected NotifyProps(Parcel in) {
+        this.id = in.readLong();
         this.all = in.readString();
         this.channel = in.readString();
+        this.comments = in.readString();
         this.desktop = in.readString();
         this.desktopSound = in.readString();
+        this.desktopDuration = in.readString();
         this.email = in.readString();
         this.firstName = in.readString();
         this.mentionKeys = in.readString();
+        this.push = in.readString();
+        this.pushStatus = in.readString();
     }
 
-    public static final Parcelable.Creator<NotifyProps> CREATOR = new Parcelable.Creator<NotifyProps>() {
+    public static final Creator<NotifyProps> CREATOR = new Creator<NotifyProps>() {
         @Override
         public NotifyProps createFromParcel(Parcel source) {
             return new NotifyProps(source);

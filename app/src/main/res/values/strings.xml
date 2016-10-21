@@ -79,6 +79,10 @@
     <string name="notification_mob_push_description">For mentions and direct messages when online, away or offline</string>
     <string name="notification_words_trigger">Words that trigger mentions</string>
     <string name="notification_words_channel_mention">\"@channel\",\"@all\"</string>
+
+    <string name="tag_notificationFragment">notificationFragment</string>
+    <string name="tag_notificationPushFragment">notificationPushFragment</string>
+    <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
                     <!--Desktop-->
     <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
     <string name="mob_push_all">For all activity</string>
