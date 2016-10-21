@@ -264,7 +264,19 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
-                    .equalTo("fileName", item.getFileName())
+                    .equalTo("id", item.getId())
+                    .findAll();
+            fileToAttachList.deleteFirstFromRealm();
+        });
+        realm.close();
+    }
+
+    public void remove(String fileName) {
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });

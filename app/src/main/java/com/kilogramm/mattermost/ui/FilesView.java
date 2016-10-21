@@ -20,6 +20,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
+import com.squareup.picasso.Picasso;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -29,6 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
 
 /**
  * Created by Evgeny on 01.09.2016.
@@ -76,23 +79,23 @@ public class FilesView extends GridLayout {
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
-            for (String s : items) {
+            for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
-                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(s);
-                if(fileToAttach != null) {
-                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING) {
-                        binding.downloadFileControls.showProgressControls();
-                    } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
-                        binding.downloadFileControls.setVisibility(GONE);
-                    }
-                }
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+
+
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-                        FileDownloadManager.getInstance().addItem(s, new FileDownloadManager.FileDownloadListener() {
+                        FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
                             @Override
                             public void onComplete(String fileId) {
                                 binding.downloadFileControls.post(() -> binding.downloadFileControls.setVisibility(GONE));
+                            }
+
+                            @Override
+                            public void onProgress(int percantage) {
+
                             }
 
                             @Override
@@ -104,33 +107,51 @@ public class FilesView extends GridLayout {
 
                     @Override
                     public void onClickCancel() {
-
+                        FileToAttachRepository.getInstance().remove(fileName);
                     }
                 });
-                switch (FileUtil.getInstance().getFileType(s)) {
+
+                if(fileToAttach != null) {
+                    fileToAttach.addChangeListener(element -> {
+                        binding.downloadFileControls.post(() ->
+                                binding.downloadFileControls.setProgress(
+                                        FileToAttachRepository.getInstance().get(fileName).getProgress()
+                                ));
+                    });
+                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                        binding.downloadFileControls.showProgressControls();
+                    } /*else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                        binding.downloadFileControls.setVisibility(GONE);
+                    }*/
+                }
+
+
+
+                switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
                             Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
-                                    getImageUrl(s));
+                                    getImageUrl(fileName));
 
                         });
                         break;
                     case JPG:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
-                                    getImageUrl(s));
+                                    getImageUrl(fileName));
 
                         });
                         break;
                     default:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         break;
                 }
             }
@@ -159,13 +180,19 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
-        Glide.with(getContext())
+        Picasso.with(getContext())
+                .load(url)
+                .resize(150, 150)
+                .placeholder(R.drawable.ic_attachment_grey_24dp)
+                .error(R.drawable.ic_attachment_grey_24dp)
+                .into(binding.image);
+        /*Glide.with(getContext())
                 .load(url)
                 .override(150, 150)
                 .placeholder(R.drawable.ic_attachment_grey_24dp)
                 .error(R.drawable.ic_attachment_grey_24dp)
                 .thumbnail(0.1f)
-                .into(binding.image);
+                .into(binding.image);*/
         this.addView(binding.getRoot());
     }
 

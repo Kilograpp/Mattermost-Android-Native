@@ -85,7 +85,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
             return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io());
         }, (attachedFilesLayout, fileUploadResponse) -> {
             Log.d(TAG, fileUploadResponse.toString());

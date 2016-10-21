@@ -81,6 +81,10 @@ public class DownloadFileControls extends FrameLayout {
         viewClose.setVisibility(INVISIBLE);
     }
 
+    public void setProgress(int percantage){
+        progressBar.setProgress(percantage);
+    }
+
     public interface ControlsClickListener {
         void onClickDownload();
 

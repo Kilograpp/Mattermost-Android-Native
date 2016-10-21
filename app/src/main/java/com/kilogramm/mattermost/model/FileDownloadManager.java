@@ -61,13 +61,13 @@ public class FileDownloadManager {
     private void dowloadFile(String fileId) {
 
         service.downloadFile(MattermostPreference.getInstance().getTeamId(), fileId)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
                     public void onCompleted() {
                         FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
-                        if(fileDownloadListener != null) {
+                        if (fileDownloadListener != null) {
                             fileDownloadListener.onComplete(fileId);
                         }
                         fileDownloadListeners.remove(fileId);
@@ -85,7 +85,7 @@ public class FileDownloadManager {
                         OutputStream output = null;
                         try {
 
-//                int fileLength = connection.getContentLength();
+                            long fileLength = responseBody.contentLength();
 
                             // download the file
                             input = responseBody.byteStream();
@@ -104,8 +104,13 @@ public class FileDownloadManager {
                                 while ((count = input.read(data)) != -1) {
                                     total += count;
                                     // publishing the progress....
-                    /*if (fileLength > 0) // only if total length is known
-                        publishProgress((int) (total * 100 / fileLength));*/
+                                    if (fileLength > 0) // only if total length is known
+                                            FileToAttachRepository.getInstance().
+                                                    updateProgress(fileId,
+                                                            (int) (total * 100 / fileLength));
+                                        /*if(fileDownloadListeners.get(fileId) != null) {
+                                            fileDownloadListeners.get(fileId).onProgress((int) (total * 100 / fileLength));
+                                        }*/
                                     output.write(data, 0, count);
                                 }
                             }
@@ -130,8 +135,10 @@ public class FileDownloadManager {
                 });
     }
 
-    public interface FileDownloadListener{
+    public interface FileDownloadListener {
         void onComplete(String fileId);
+
+        void onProgress(int percantage);
 
         void onError(String fileId);
     }
