@@ -62,6 +62,7 @@
     <string name="default_message">Your search results will be here</string>
 
     <string name="cannot_open_file_to_attach">Cannot open file to attach</string>
+    <string name="too_much_files">Too much files. Attach less then</string>
     <string name="file_too_big">File must be less than 50 Mb</string>
     <string name="processing_data">Processing data…</string>
     <string name="switch_team">Switch Team</string>

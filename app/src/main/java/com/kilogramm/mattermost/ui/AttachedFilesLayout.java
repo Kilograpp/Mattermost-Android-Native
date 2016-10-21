@@ -45,7 +45,9 @@ import nucleus.view.NucleusLayout;
 @RequiresPresenter(AttachedFilesPresenter.class)
 public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> implements DownloadFile.DownloadFileListener {
 
-    public static final String TAG = "AttachedFilesLayout";
+    private static final int FILE_TO_ATTACH_MAX = 5;
+
+    private static final String TAG = "AttachedFilesLayout";
 
     private String teamId;
     private String channelId;
@@ -127,6 +129,10 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void addItem(Uri uri) {
+        if(FileToAttachRepository.getInstance().getFilesForAttach().size() == FILE_TO_ATTACH_MAX){
+            Toast.makeText(getContext(), String.format("%s %d", getContext().getString(R.string.too_much_files), FILE_TO_ATTACH_MAX + 1), Toast.LENGTH_SHORT).show();
+            return;
+        }
         String filePath = FileUtil.getInstance().getPath(uri);
         if (filePath == null) {
             new DownloadFile(getContext(), this).execute(uri);
