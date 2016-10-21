@@ -14,7 +14,6 @@ import com.kilogramm.mattermost.databinding.ItemMoreChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;

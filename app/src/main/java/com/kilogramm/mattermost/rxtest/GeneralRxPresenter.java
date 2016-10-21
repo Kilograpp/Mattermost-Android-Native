@@ -19,6 +19,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByIdSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByTypeSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -50,19 +51,19 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_ADD_CHAT = 6;
 
-    Realm realm;
+    private Realm realm;
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
 
-    ApiMethod service;
+    private ApiMethod service;
 
     @State
     String teamId;
     @State
     ListSaveData mSaveData = new ListSaveData();
 
-    LogoutData user;
-    String channelId;
+    private LogoutData user;
+    private String channelId;
 
     String postId;
     String offset;
@@ -192,37 +193,39 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
 
         }, (generalRxActivity, throwable) -> {
-            sendShowError(throwable.toString());
+            throwable.printStackTrace();
             Log.d(TAG, throwable.getMessage());
         });
     }
 
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> {
-            return Observable.defer(() -> Observable.zip(
-                    service.createDirect(teamId, user)
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(AndroidSchedulers.mainThread()),
+            return Observable.defer(
+                    () -> Observable.zip(
 
-                    service.save(mSaveData.getmSaveData())
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread()),
+                            service.createDirect(teamId, user)
+                                    .subscribeOn(Schedulers.computation())
+                                    .observeOn(AndroidSchedulers.mainThread()),
 
-                    (channel, aBoolean) -> {
-                        if (aBoolean == Boolean.FALSE) {
-                            Log.d(TAG, "aBoolean == null");
-                            return null;
-                        }
+                            service.save(mSaveData.getmSaveData())
+                                    .subscribeOn(Schedulers.newThread())
+                                    .observeOn(AndroidSchedulers.mainThread()),
 
-                        Realm realm = Realm.getDefaultInstance();
-                        User directUser = realm.where(User.class).equalTo("id", user.getUserId()).findFirst();
-                        channel.setUser(directUser);
-                        channel.setUsername(directUser.getUsername());
+                            (channel, aBoolean) -> {
+                                if (aBoolean == Boolean.FALSE) {
+                                    Log.d(TAG, "aBoolean == null");
+                                    return null;
+                                }
 
-                        channelRepository.add(channel);
+                                Realm realm = Realm.getDefaultInstance();
+                                User directUser = realm.where(User.class).equalTo("id", user.getUserId()).findFirst();
+                                channel.setUser(directUser);
+                                channel.setUsername(directUser.getUsername());
 
-                        return channel;
-                    }));
+                                channelRepository.add(channel);
+
+                                return channel;
+                            }));
 
         }, (generalRxActivity, channel) -> {
             mSaveData.getmSaveData().clear();
@@ -273,6 +276,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void setSelectedMenu(String channelId, String name, String type) {
+        if(MattermostPreference.getInstance().getLastChannelId() != null &&
+                !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
+            // For clearing attached files on channel change
+            FileToAttachRepository.getInstance().deleteUploadedFiles();
+        }
         sendSetFragmentChat(channelId, name, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }

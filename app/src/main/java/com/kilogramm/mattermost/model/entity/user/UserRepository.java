@@ -39,11 +39,14 @@ public class UserRepository implements Repository<User> {
     public void update(User item) {
         final Realm realm = Realm.getDefaultInstance();
 
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
+        realm.executeTransaction(realm1 -> {
+            realm.insertOrUpdate(item);
+            realm.insertOrUpdate(item.getNotifyProps());
+        });
         realm.close();
     }
 
-    public void updateUserStatus(String id, String new_status){
+    public void updateUserStatus(String id, String new_status) {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
@@ -61,7 +64,7 @@ public class UserRepository implements Repository<User> {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            final User user = realm.where(User.class).equalTo("id",item.getId()).findFirst();
+            final User user = realm.where(User.class).equalTo("id", item.getId()).findFirst();
             user.deleteFromRealm();
         });
         realm.close();
@@ -70,7 +73,7 @@ public class UserRepository implements Repository<User> {
     @Override
     public void remove(Specification specification) {
         final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final  Realm realm = Realm.getDefaultInstance();
+        final Realm realm = Realm.getDefaultInstance();
         final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
 
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
@@ -93,13 +96,13 @@ public class UserRepository implements Repository<User> {
 
         realm.executeTransaction(realm1 ->
                 realm.where(Post.class)
-                .equalTo("id", postId)
-                .findFirst()
-                .setMessage(message));
+                        .equalTo("id", postId)
+                        .findFirst()
+                        .setMessage(message));
         realm.close();
     }
 
-    public List<User> queryList(Specification specification){
+    public List<User> queryList(Specification specification) {
         final RealmSpecification realmSpecification = (RealmSpecification) specification;
         final Realm realm = Realm.getDefaultInstance();
         final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);

@@ -4,6 +4,10 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.module.GlideModule;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.kilogramm.mattermost.network.ApiMethod;

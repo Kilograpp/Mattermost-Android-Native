@@ -33,7 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MattermostRetrofitService {
 
 
-    public static final int TIMEOUT = 15;
+    public static final int TIMEOUT = 40;
 
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -43,7 +43,7 @@ public class MattermostRetrofitService {
         OkHttpClient client = new OkHttpClient.Builder()
                 // Caused twice writeTo() method call for uploading file
                 //TODO release version comment this line
-                .addInterceptor(logging)
+//                .addInterceptor(logging)
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token;

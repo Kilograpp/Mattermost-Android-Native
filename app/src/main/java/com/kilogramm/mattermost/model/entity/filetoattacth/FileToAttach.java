@@ -19,7 +19,7 @@ public class FileToAttach extends RealmObject {
 //    private boolean isUploaded;
 
     public FileToAttach(String filePath) {
-        this(UploadState.WAITING);
+        this(UploadState.WAITING_FOR_UPLOAD);
         this.filePath = filePath;
     }
 
@@ -27,24 +27,24 @@ public class FileToAttach extends RealmObject {
         this.uploadState = uploadState.toString();
     }
 
-    public FileToAttach(String filePath, String fileName) {
-        this(UploadState.WAITING);
-        this.filePath = filePath;
-        this.fileName = fileName;
-    }
-
-    public FileToAttach(String fileName, String filePath, String uriAsString) {
-        this(UploadState.WAITING);
+    public FileToAttach(String fileName, String filePath, String uriAsString, UploadState uploadState) {
+        this.uploadState = uploadState.toString();
         this.fileName = fileName;
         this.filePath = filePath;
         this.uriAsString = uriAsString;
     }
 
-    public FileToAttach(long id, String fileName, String filePath) {
-        this(UploadState.WAITING);
+    public FileToAttach(long id, String fileName, String filePath, UploadState uploadState) {
+        this.uploadState = uploadState.toString();
         this.id = id;
         this.fileName = fileName;
         this.filePath = filePath;
+    }
+
+    public FileToAttach(long id, String fileName, UploadState uploadState) {
+        this.uploadState = uploadState.toString();
+        this.id = id;
+        this.fileName = fileName;
     }
 
     public FileToAttach() {

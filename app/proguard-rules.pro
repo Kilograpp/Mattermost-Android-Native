@@ -30,6 +30,7 @@
 -keepattributes InnerClasses
 -keep class android.support.v4.** { *; }
 -dontnote android.support.v4.**
+-keepnames class com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule
 
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }

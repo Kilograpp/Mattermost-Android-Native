@@ -27,6 +27,7 @@ import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -69,7 +70,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, NotificationActivity.class));
                     break;
                 case R.id.invite_new_member:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
@@ -89,6 +90,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             }
             return false;
         });
+        //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -138,9 +140,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        Log.d(TAG, "setFragmentChat = " + channelName);
         replaceFragment(channelId, channelName);
-
         switch (type) {
             case "O":
                 directListFragment.resetSelectItem();

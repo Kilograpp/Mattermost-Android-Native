@@ -47,7 +47,7 @@ android {
     buildToolsVersion "24.0.2"
 
     defaultConfig {
-        applicationId "com.kilograpp.mattermost"
+        applicationId "com.kilogramm.mattermost"
         minSdkVersion 19
         targetSdkVersion 24
         versionCode getMyVersionCode()
