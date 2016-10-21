@@ -85,9 +85,9 @@
     </style>
 
     <style name="ChatBottomToolbar">
-        <item name="android:layout_width">@dimen/bottom_toolbar_icon_size</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/bottom_toolbar_icon_size</item>
-        <item name="android:layout_margin">@dimen/bottom_toolbar_margin</item>
+        <item name="android:padding">@dimen/bottom_toolbar_margin</item>
         <item name="android:layout_weight">1</item>
     </style>
 </resources>

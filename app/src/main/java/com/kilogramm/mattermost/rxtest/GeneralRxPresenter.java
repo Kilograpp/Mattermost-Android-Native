@@ -46,18 +46,18 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_ADD_CHAT = 6;
 
-    Realm realm;
+    private Realm realm;
     private UserRepository userRepository;
     private ChannelRepository channelRepository;
 
-    ApiMethod service;
+    private ApiMethod service;
 
     @State
     String teamId;
     @State
     ListSaveData mSaveData = new ListSaveData();
-    LogoutData user;
-    String channelId;
+    private LogoutData user;
+    private String channelId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -113,11 +113,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void initRequest() {
-        restartableFirst(REQUEST_DIRECT_PROFILE, () -> {
-            return service.getDirectProfile()
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
-        }, (generalRxActivity, stringUserMap) -> {
+        restartableFirst(REQUEST_DIRECT_PROFILE, () -> service.getDirectProfile()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread()), (generalRxActivity, stringUserMap) -> {
             RealmList<User> users = new RealmList<>();
             users.addAll(stringUserMap.values());
             users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
@@ -128,11 +126,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             sendShowError(throwable.toString());
         });
 
-        restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
-            return service.getChannelsTeam(teamId)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
-        }, (generalRxActivity, channelsWithMembers) -> {
+        restartableFirst(REQUEST_LOAD_CHANNELS, () -> service.getChannelsTeam(teamId)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread()), (generalRxActivity, channelsWithMembers) -> {
             channelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                     MattermostPreference.getInstance().getMyUserId(), userRepository);
             requestUserTeam();
@@ -265,10 +261,12 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void setSelectedMenu(String channelId, String name, String type) {
+        if(!MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
+            // For clearing attached files on channel change
+            FileToAttachRepository.getInstance().deleteUploadedFiles();
+        }
         sendSetFragmentChat(channelId, name, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
-        // For clearing attached files on channel change
-        FileToAttachRepository.getInstance().deleteUploadedFiles();
     }
 
     private void clearPreference() {
