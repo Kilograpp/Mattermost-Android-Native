@@ -7,14 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ItemChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
-import com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel;
 
 import java.util.List;
 
@@ -24,7 +20,8 @@ import io.realm.RealmRecyclerViewAdapter;
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, MenuChannelListHolder> {
+public class
+AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, MenuChannelListHolder> {
 
     private static final String TAG = "AdapterMenuDirectList";
 
