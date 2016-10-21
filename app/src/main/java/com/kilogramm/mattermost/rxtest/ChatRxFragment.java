@@ -188,7 +188,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         checkNeededPermissions();
     }
 
-    private void checkNeededPermissions(){
+    private void checkNeededPermissions() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -200,9 +200,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    private void setAttachedFilesLayout(){
+    private void setAttachedFilesLayout() {
         RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
-        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+        if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
             binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
             binding.attachedFilesLayout.setVisibility(View.GONE);
@@ -434,14 +434,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
-
+        Log.d(TAG, "getTimePost: currentTime: " + currentTime);
         if (adapter.getLastItem() == null) {
             return currentTime;
         }
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
-
-        if ((currentTime / 10000 * 10000) < lastTime)
-            return currentTime;
+        Log.d(TAG, "getTimePost: lastTime: " + lastTime);
+        if (currentTime > lastTime)
+            return currentTime / 10000 * 10000 ;
         else
             return lastTime + 1;
     }
