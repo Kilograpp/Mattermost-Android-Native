@@ -8,10 +8,8 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
-import com.kilogramm.mattermost.model.entity.notifyProps.NotifySpecification;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserByIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -49,8 +47,8 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
         userRepository = new UserRepository();
         notifyRepository = new NotifyRepository();
-        this.user = userRepository.query(new UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        this.notifyProps = new NotifyProps(notifyRepository.query(new NotifySpecification()).first());
+        this.user = userRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.notifyProps = new NotifyProps(notifyRepository.query().first());
         service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
@@ -70,13 +68,13 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                 },
                 (notificationActivity, throwable) -> {
                     createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
-                            sendError("Unable to save");
+                            sendError("Unable to save")));
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
 
-    private void sendError(Throwable throwable) {
-        createTemplateObservable(throwable.getMessage())
+    private void sendError(String error) {
+        createTemplateObservable(error)
                 .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 

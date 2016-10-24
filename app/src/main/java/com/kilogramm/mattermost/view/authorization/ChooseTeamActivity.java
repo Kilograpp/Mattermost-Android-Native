@@ -11,11 +11,11 @@ import android.view.MenuItem;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityChooseTeamBinding;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.team.TeamRepository;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -24,26 +24,24 @@ import io.realm.RealmResults;
 public class ChooseTeamActivity extends BaseActivity {
 
     private ActivityChooseTeamBinding binding;
-
+    private TeamRepository teamRepository;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_choose_team);
+        teamRepository = new TeamRepository();
         initView();
     }
 
     private void initView() {
-        setupToolbar(getString(R.string.title_forgot_password), true);
+        setupToolbar(getString(R.string.choose_team), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Team> teams = realm.where(Team.class).findAll();
-
+        RealmResults<Team> teams = teamRepository.query();
         TeamListAdapter teamListAdapter = new TeamListAdapter(this, teams, id -> showChatActivity(id));
-
         binding.timeList.setAdapter(teamListAdapter);
         binding.timeList.setLayoutManager(new LinearLayoutManager(this));
-        realm.close();
+
     }
 
     public void showChatActivity(String id) {

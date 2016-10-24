@@ -15,7 +15,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 /**
  * Created by Evgeny on 24.08.2016.
  */
-public class NotificationPushFragment extends BaseFragment<NotificationPresenter> implements View.OnClickListener {
+public class NotificationPushFragment extends BaseFragment implements View.OnClickListener {
 
     private FragmentNotificationMobilePushBinding binding;
 

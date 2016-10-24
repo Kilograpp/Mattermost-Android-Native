@@ -21,37 +21,31 @@ public class NotifyRepository implements Repository<NotifyProps> {
     @Override
     public void add(NotifyProps item) {
         final Realm realm = Realm.getDefaultInstance();
-
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
     }
 
     @Override
     public void add(Collection<NotifyProps> items) {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.copyToRealmOrUpdate(items));
-        realm.close();
     }
 
     @Override
     public void update(NotifyProps item) {
         final Realm realm = Realm.getDefaultInstance();
-
         realm.executeTransaction(realm1 -> {
             realm.insertOrUpdate(item);
         });
-        realm.close();
     }
 
     @Override
     public void remove(NotifyProps item) {
         final Realm realm = Realm.getDefaultInstance();
-
         realm.executeTransaction(realm1 -> {
             final NotifyProps notifyProps = realm.where(NotifyProps.class).equalTo("id", item.getId()).findFirst();
             notifyProps.deleteFromRealm();
         });
-        realm.close();
+
     }
 
     @Override
@@ -59,9 +53,8 @@ public class NotifyRepository implements Repository<NotifyProps> {
         final RealmSpecification realmSpecification = (RealmSpecification) specification;
         final Realm realm = Realm.getDefaultInstance();
         final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
-
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-        realm.close();
+
     }
 
     @Override
@@ -70,9 +63,17 @@ public class NotifyRepository implements Repository<NotifyProps> {
         final Realm realm = Realm.getDefaultInstance();
         final RealmResults<NotifyProps> realmResults = realmSpecification.toRealmResults(realm);
 
-        realm.close();
 
         return realmResults;
     }
+
+    public RealmResults<NotifyProps> query() {
+        final Realm realm = Realm.getDefaultInstance();
+        final RealmResults<NotifyProps> realmResults = realm.where(NotifyProps.class)
+                .findAll();
+
+        return realmResults;
+    }
+
 
 }

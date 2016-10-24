@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.team;
 
 import com.google.gson.annotations.SerializedName;
 
