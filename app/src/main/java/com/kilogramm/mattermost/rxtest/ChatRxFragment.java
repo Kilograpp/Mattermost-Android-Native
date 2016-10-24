@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -42,7 +41,7 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -179,7 +178,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         checkNeededPermissions();
     }
 
-    private void checkNeededPermissions(){
+    private void checkNeededPermissions() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -191,9 +190,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    private void setAttachedFilesLayout(){
+    private void setAttachedFilesLayout() {
         RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
-        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+        if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
             binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
             binding.attachedFilesLayout.setVisibility(View.GONE);
@@ -425,13 +424,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
-
         if (adapter.getLastItem() == null) {
             return currentTime;
         }
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
-
-        if ((currentTime / 10000 * 10000) < lastTime)
+        if (currentTime > lastTime)
             return currentTime;
         else
             return lastTime + 1;

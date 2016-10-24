@@ -27,6 +27,7 @@
     <string name="typing">typing…</string>
 
     <string name="title_forgot_password">Password recovery</string>
+    <string name="choose_team">Choose your team</string>
     <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>

@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.notifyProps;
 
 import android.os.Parcel;
 import android.os.Parcelable;
