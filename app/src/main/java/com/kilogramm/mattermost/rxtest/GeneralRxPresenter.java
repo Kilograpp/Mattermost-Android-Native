@@ -9,10 +9,10 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.ListSaveData;
-import com.kilogramm.mattermost.model.entity.NotifyProps;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.SaveData;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -233,6 +233,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
+    public void requestSwitchTeam() {
+        clearPreferenceTeam();
+        clearDataBaseAfterSwichTeam();
+    }
+
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
@@ -254,6 +259,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostPreference.getInstance().setLastChannelId(null);
     }
 
+    private void clearPreferenceTeam() {
+        MattermostPreference.getInstance().setTeamId(null);
+        MattermostPreference.getInstance().setLastChannelId(null);
+    }
+
     private void clearDataBaseAfterLogout() {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -267,6 +277,15 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             realm1.delete(InitObject.class);
             realm1.delete(ThemeProps.class);
             realm1.delete(User.class);
+        });
+    }
+
+    private void clearDataBaseAfterSwichTeam() {
+        final Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            realm1.delete(Post.class);
+            realm1.delete(Channel.class);
+            realm1.delete(RealmString.class);
         });
     }
 

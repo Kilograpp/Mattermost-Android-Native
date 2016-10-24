@@ -5,16 +5,19 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 import com.squareup.picasso.Picasso;
@@ -33,7 +36,7 @@ import io.realm.Realm;
  */
 public class FilesView extends GridLayout {
 
-    private static final String TAG = "FilesView";
+    private static final String TAG = "FileDownloadManager";
 
     private static final String PNG = "png";
     private static final String JPG = "jpg";
@@ -43,26 +46,26 @@ public class FilesView extends GridLayout {
 
     public FilesView(Context context) {
         super(context);
-        init(context, null);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context);
     }
 
     @TargetApi(21)
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs);
+        init(context);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
     }
 
@@ -74,15 +77,23 @@ public class FilesView extends GridLayout {
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
-            for (String s : items) {
+            for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
+                FileToAttachRepository.getInstance().addForDownload(fileName);
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-                        FileDownloadManager.getInstance().addItem(s, new FileDownloadManager.FileDownloadListener() {
+                        FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
                             @Override
                             public void onComplete(String fileId) {
                                 binding.downloadFileControls.post(() -> binding.downloadFileControls.setVisibility(GONE));
+                            }
+
+                            @Override
+                            public void onProgress(int percantage) {
+
                             }
 
                             @Override
@@ -94,33 +105,55 @@ public class FilesView extends GridLayout {
 
                     @Override
                     public void onClickCancel() {
-
+                        FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
                     }
                 });
-                switch (FileUtil.getInstance().getFileType(s)) {
+
+                if (fileToAttach != null) {
+                    fileToAttach.addChangeListener(element -> {
+                        Log.d(TAG, "change real progress");
+                        binding.downloadFileControls.post(() -> {
+                            Log.d(TAG, "post progress");
+                            binding.downloadFileControls.setProgress(
+                                    FileToAttachRepository.getInstance().get(fileName).getProgress()
+                            );
+
+
+                        });
+                    });
+                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                        binding.downloadFileControls.showProgressControls();
+                    } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                        binding.downloadFileControls.setVisibility(GONE);
+                    }
+                }
+
+
+                switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
                             Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
-                                    getImageUrl(s));
+                                    getImageUrl(fileName));
 
                         });
                         break;
                     case JPG:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
-                                    getImageUrl(s));
+                                    getImageUrl(fileName));
 
                         });
                         break;
                     default:
-                        initAndAddItem(binding, getImageUrl(s));
+                        initAndAddItem(binding, getImageUrl(fileName));
                         break;
                 }
             }
@@ -151,10 +184,17 @@ public class FilesView extends GridLayout {
         }
         Picasso.with(getContext())
                 .load(url)
-                .resize(150,150).centerCrop()
+                .resize(150, 150).centerCrop()
                 .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);
+        /*Glide.with(getContext())
+        Picasso.with(getContext())
+                .load(url)
+                .resize(150,150).centerCrop()
+                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .into(binding.image);*/
         this.addView(binding.getRoot());
     }
 

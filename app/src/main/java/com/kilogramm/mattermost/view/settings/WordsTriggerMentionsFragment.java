@@ -17,7 +17,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 /**
  * Created by Evgeny on 24.08.2016.
  */
-public class WordsTriggerMentionsFragment extends BaseFragment<NotificationPresenter> {
+public class WordsTriggerMentionsFragment extends BaseFragment {
 
     private FragmentNotificationTriggerBinding binding;
 

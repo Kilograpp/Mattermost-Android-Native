@@ -2,7 +2,8 @@ package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
@@ -30,6 +31,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Streaming;
 import rx.Observable;
 
 /**
@@ -217,9 +219,10 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/files/get/{file_id}")
+    @GET("api/v3/teams/{team_id}/files/get{file_id}")
+    @Streaming
     Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
-                                          @Path("file_id") String file_id);
+                                    @Path("file_id") String file_id);
 
 
     @Headers({
@@ -243,4 +246,11 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/users/update_notify")
     Observable<User> updateNotify(@Body NotifyUpdate notifyUpdate);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/all")
+    Observable<List<Team>> getAllTeams();
 }

@@ -210,6 +210,7 @@ public class FileUtil {
                 throw new IOException();
             }
         }
+        // Can use:
         // File file = new File();
         // file.createNewFile();
 
@@ -218,5 +219,12 @@ public class FileUtil {
                 null,                          /* suffix */
                 storageDir                       /* directory */
         );
+    }
+
+    public void removeFile(String path) {
+        File file = new File(path);
+        if(file.exists()){
+            file.delete();
+        }
     }
 }

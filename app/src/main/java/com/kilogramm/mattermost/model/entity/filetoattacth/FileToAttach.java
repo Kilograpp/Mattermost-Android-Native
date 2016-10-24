@@ -16,7 +16,7 @@ public class FileToAttach extends RealmObject {
     private String uriAsString;
     private int progress;
     private String uploadState;
-//    private boolean isUploaded;
+    private boolean isTemporary;
 
     public FileToAttach(String filePath) {
         this(UploadState.WAITING_FOR_UPLOAD);
@@ -32,6 +32,14 @@ public class FileToAttach extends RealmObject {
         this.fileName = fileName;
         this.filePath = filePath;
         this.uriAsString = uriAsString;
+    }
+
+    public FileToAttach(String fileName, String filePath, String uriAsString, UploadState uploadState, boolean isTemporary) {
+        this.uploadState = uploadState.toString();
+        this.fileName = fileName;
+        this.filePath = filePath;
+        this.uriAsString = uriAsString;
+        this.isTemporary = isTemporary;
     }
 
     public FileToAttach(long id, String fileName, String filePath, UploadState uploadState) {
@@ -96,5 +104,13 @@ public class FileToAttach extends RealmObject {
 
     public long getId() {
         return id;
+    }
+
+    public boolean isTemporary() {
+        return isTemporary;
+    }
+
+    public void setTemporary(boolean temporary) {
+        isTemporary = temporary;
     }
 }
