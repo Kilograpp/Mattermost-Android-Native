@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
@@ -28,31 +29,7 @@ public class PicassoService {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
         headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    String token;
-                    if((token = MattermostPreference.getInstance().getAuthToken())!=null){
-                        Request request = original.newBuilder()
-                                .addHeader("Authorization","Bearer " + token)
-                                .build();
-                        return chain.proceed(request);
-                    } else {
-                        return chain.proceed(original);
-                    }
-                })
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        MattermostPreference.getInstance().saveCookies(cookies);
-                    }
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
-                        return cookies != null ? cookies : new ArrayList<>();
-                    }
-                })
-                .build();
+        OkHttpClient client = NetworkUtil.createOkHttpClient();
 
         Picasso.setSingletonInstance(new Picasso.Builder(context)
                 .listener((picasso, uri, exception) -> {

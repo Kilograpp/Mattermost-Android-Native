@@ -140,29 +140,11 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @param updateAt
-     * The update_at
-     */
-    public void setUpdateAt(Long updateAt) {
-        this.updateAt = updateAt;
-    }
-
-    /**
-     *
      * @return
      * The deleteAt
      */
     public Long getDeleteAt() {
         return deleteAt;
-    }
-
-    /**
-     *
-     * @param deleteAt
-     * The delete_at
-     */
-    public void setDeleteAt(Long deleteAt) {
-        this.deleteAt = deleteAt;
     }
 
     /**
@@ -212,15 +194,6 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @param displayName
-     * The display_name
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     *
      * @return
      * The name
      */
@@ -248,29 +221,11 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @param header
-     * The header
-     */
-    public void setHeader(String header) {
-        this.header = header;
-    }
-
-    /**
-     *
      * @return
      * The purpose
      */
     public String getPurpose() {
         return purpose;
-    }
-
-    /**
-     *
-     * @param purpose
-     * The purpose
-     */
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
     }
 
     /**
@@ -282,14 +237,6 @@ public class Channel extends RealmObject {
         return lastPostAt;
     }
 
-    /**
-     *
-     * @param lastPostAt
-     * The last_post_at
-     */
-    public void setLastPostAt(Long lastPostAt) {
-        this.lastPostAt = lastPostAt;
-    }
 
     /**
      *
@@ -300,14 +247,7 @@ public class Channel extends RealmObject {
         return totalMsgCount;
     }
 
-    /**
-     *
-     * @param totalMsgCount
-     * The total_msg_count
-     */
-    public void setTotalMsgCount(Integer totalMsgCount) {
-        this.totalMsgCount = totalMsgCount;
-    }
+
 
     /**
      *
@@ -318,14 +258,6 @@ public class Channel extends RealmObject {
         return extraUpdateAt;
     }
 
-    /**
-     *
-     * @param extraUpdateAt
-     * The extra_update_at
-     */
-    public void setExtraUpdateAt(Long extraUpdateAt) {
-        this.extraUpdateAt = extraUpdateAt;
-    }
 
     /**
      *
@@ -336,14 +268,6 @@ public class Channel extends RealmObject {
         return creatorId;
     }
 
-    /**
-     *
-     * @param creatorId
-     * The creator_id
-     */
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
 
 
 }
