@@ -18,6 +18,7 @@ public class DownloadFileControls extends FrameLayout {
 
     private View iconActionDownload;
     private ProgressBar progressBar;
+    private View progressWait;
     private View viewClose;
 
     private ControlsClickListener controlsClickListener;
@@ -52,6 +53,7 @@ public class DownloadFileControls extends FrameLayout {
 
         iconActionDownload = findViewById(R.id.iconActionDownload);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressWait = findViewById(R.id.progressWait);
         viewClose = findViewById(R.id.close);
 
         iconActionDownload.setOnClickListener(v -> {
@@ -71,7 +73,7 @@ public class DownloadFileControls extends FrameLayout {
 
     public void showProgressControls() {
         iconActionDownload.setVisibility(INVISIBLE);
-        progressBar.setVisibility(VISIBLE);
+        progressWait.setVisibility(VISIBLE);
         viewClose.setVisibility(VISIBLE);
     }
 
@@ -81,7 +83,13 @@ public class DownloadFileControls extends FrameLayout {
         viewClose.setVisibility(INVISIBLE);
     }
 
+    private void showProgress(){
+        progressBar.setVisibility(VISIBLE);
+        progressWait.setVisibility(INVISIBLE);
+    }
+
     public void setProgress(int percantage){
+        showProgress();
         progressBar.setProgress(percantage);
     }
 

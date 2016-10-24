@@ -82,12 +82,14 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
-                FileToAttachRepository.getInstance().addForDownload(fileName);
-                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+//                FileToAttachRepository.getInstance().addForDownload(fileName);
+
 
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
+
+
                         FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
                             @Override
                             public void onComplete(String fileId) {
@@ -96,7 +98,7 @@ public class FilesView extends GridLayout {
 
                             @Override
                             public void onProgress(int percantage) {
-
+                                binding.downloadFileControls.post(() -> binding.downloadFileControls.setProgress(percantage));
                             }
 
                             @Override
@@ -104,6 +106,27 @@ public class FilesView extends GridLayout {
 
                             }
                         });
+
+
+                        FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+                        if (fileToAttach != null) {
+                            /*fileToAttach.addChangeListener(element -> {
+                                Log.d(TAG, "change real progress");
+                                binding.downloadFileControls.post(() -> {
+                                    Log.d(TAG, "post progress");
+                                    binding.downloadFileControls.setProgress(
+                                            FileToAttachRepository.getInstance().get(fileName).getProgress()
+                                    );
+                                });
+                            });*/
+                            if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                                    fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                                binding.downloadFileControls.showProgressControls();
+                            } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                                binding.downloadFileControls.setVisibility(GONE);
+                            }
+                        }
+
                     }
 
                     @Override
@@ -112,18 +135,18 @@ public class FilesView extends GridLayout {
                     }
                 });
 
+
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                 if (fileToAttach != null) {
-                    fileToAttach.addChangeListener(element -> {
-                        Log.d(TAG, "change real progress");
-                        binding.downloadFileControls.post(() -> {
-                            Log.d(TAG, "post progress");
-                            binding.downloadFileControls.setProgress(
-                                    FileToAttachRepository.getInstance().get(fileName).getProgress()
-                            );
-
-
-                        });
-                    });
+                            /*fileToAttach.addChangeListener(element -> {
+                                Log.d(TAG, "change real progress");
+                                binding.downloadFileControls.post(() -> {
+                                    Log.d(TAG, "post progress");
+                                    binding.downloadFileControls.setProgress(
+                                            FileToAttachRepository.getInstance().get(fileName).getProgress()
+                                    );
+                                });
+                            });*/
                     if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
                             fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
                         binding.downloadFileControls.showProgressControls();
@@ -131,7 +154,6 @@ public class FilesView extends GridLayout {
                         binding.downloadFileControls.setVisibility(GONE);
                     }
                 }
-
 
                 switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:

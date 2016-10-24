@@ -94,6 +94,10 @@
     <string name="tag_notificationFragment">notificationFragment</string>
     <string name="tag_notificationPushFragment">notificationPushFragment</string>
     <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
+
+    <string name="downloading">Downloading…</string>
+    <string name="downloaded">Downloaded</string>
+
                     <!--Desktop-->
     <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
     <string name="mob_push_all">For all activity</string>
