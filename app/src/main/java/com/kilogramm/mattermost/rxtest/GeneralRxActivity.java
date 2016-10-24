@@ -193,15 +193,17 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             currentChannel = channelId;getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             if(searchMessageId != null){
                 ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
                 currentChannel = channelId;getFragmentManager().beginTransaction()
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
             }
         }
-        binding.drawerLayout.closeDrawer(GravityCompat.START);
+//        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     public static void start(Context context, Integer flags) {

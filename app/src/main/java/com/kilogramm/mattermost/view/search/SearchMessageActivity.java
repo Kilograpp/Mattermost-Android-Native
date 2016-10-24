@@ -11,7 +11,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivitySearchBinding;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
