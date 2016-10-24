@@ -10,6 +10,7 @@ import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
@@ -25,6 +26,7 @@ import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -105,14 +107,23 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initExtraInfo() {
-        restartableFirst(REQUEST_EXTRA_INFO, () ->
-                service.getExtraInfoChannel(this.teamId, this.channelId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io()),
-                (chatRxFragment, extraInfo) -> {
-                   // UserRepository.add(extraInfo.getMembers());
+        restartableFirst(REQUEST_EXTRA_INFO,
+                () -> Observable.defer(() -> Observable.zip(
+                        service.getChannelsTeam(this.teamId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        service.getExtraInfoChannel(this.teamId, this.channelId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        (channelsWithMembers, extraInfo) -> {
+                            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                                    MattermostPreference.getInstance().getMyUserId());
+                            return extraInfo;
+                        }))
+                , (chatRxFragment, extraInfo) -> {
+                    // UserRepository.add(extraInfo.getMembers());
                     requestLoadPosts();
-            }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
+                }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
     }
 
     private void initLoadPosts() {

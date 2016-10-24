@@ -304,4 +304,14 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             return ret;
         }
     }
+
+    public int getPositionById(String id){
+        int count = super.getPositionById(id);
+
+        if(isTopLoading){
+            count++;
+        }
+        //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
+        return count;
+    }
 }
