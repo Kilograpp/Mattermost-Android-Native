@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.squareup.picasso.Picasso;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -45,14 +46,23 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileToAttach fileToAttach = getData().get(position);
 
-        Glide.with(context)
+        /*Glide.with(context)
                 .load(fileToAttach.getFilePath())
                 .override(150, 150)
                 .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .centerCrop()
+                .into(holder.binding.imageView);*/
+
+        Picasso.with(context)
+                .load(fileToAttach.getFilePath())
+                .resize(150, 150)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .centerCrop()
                 .into(holder.binding.imageView);
+
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(View.VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());

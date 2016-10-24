@@ -49,26 +49,26 @@ public class FilesView extends GridLayout {
 
     public FilesView(Context context) {
         super(context);
-        init(context, null);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context);
     }
 
     @TargetApi(21)
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs);
+        init(context);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
     }
 
@@ -82,8 +82,8 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
+                FileToAttachRepository.getInstance().addForDownload(fileName);
                 FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
-
 
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
@@ -108,7 +108,7 @@ public class FilesView extends GridLayout {
 
                     @Override
                     public void onClickCancel() {
-                        FileToAttachRepository.getInstance().remove(fileName);
+                        FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
                     }
                 });
 
@@ -127,9 +127,9 @@ public class FilesView extends GridLayout {
                     if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
                             fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
                         binding.downloadFileControls.showProgressControls();
-                    } /*else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                    } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
                         binding.downloadFileControls.setVisibility(GONE);
-                    }*/
+                    }
                 }
 
 

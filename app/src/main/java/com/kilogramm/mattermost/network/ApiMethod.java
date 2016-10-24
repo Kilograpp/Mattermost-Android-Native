@@ -240,7 +240,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/files/get/{file_id}")
+    @GET("api/v3/teams/{team_id}/files/get{file_id}")
     @Streaming
     Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
                                     @Path("file_id") String file_id);

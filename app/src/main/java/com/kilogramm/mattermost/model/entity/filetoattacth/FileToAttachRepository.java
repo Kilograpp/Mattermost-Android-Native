@@ -4,6 +4,8 @@ import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.UploadState;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -71,7 +73,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
             } else {
                 primaryKeyValue = new AtomicLong(0);
             }
-            FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.WAITING_FOR_DOWNLOAD);
+            FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.IN_LIST);
             realm1.copyToRealm(fileToAttach);
         });
     }
@@ -288,4 +290,14 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     }
 
     // endregion
+
+/*
+    private void decodeFileName(String fileName){
+        try {
+            fileName = URLDecoder.decode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+    }*/
 }

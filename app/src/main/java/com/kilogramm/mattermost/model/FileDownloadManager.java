@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -55,18 +57,24 @@ public class FileDownloadManager {
 
     public void addItem(String fileId, FileDownloadListener fileDownloadListener) {
         fileDownloadListeners.put(fileId, fileDownloadListener);
-        FileToAttachRepository.getInstance().addForDownload(fileId);
+        FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.WAITING_FOR_DOWNLOAD);
         startDownload();
     }
 
     public void startDownload() {
         FileToAttach fileToAttach = FileToAttachRepository.getInstance().getUndownloadedFile();
         if (fileToAttach != null && fileToAttach.isValid()) {
-            dowloadFile(fileToAttach.getFileName());
+            String decodedName = null;
+            try {
+                decodedName = URLDecoder.decode(fileToAttach.getFileName(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            dowloadFile(fileToAttach.getFileName(), decodedName);
         }
     }
 
-    private void dowloadFile(String fileId) {
+    private void dowloadFile(String fileId, String decodedName) {
 
 
         /*Observable.create(new Observable.OnSubscribe<retrofit2.Call>() {
@@ -160,9 +168,7 @@ public class FileDownloadManager {
                     }
                 });*/
 
-
-
-        service.downloadFile(MattermostPreference.getInstance().getTeamId(), fileId)
+        service.downloadFile(MattermostPreference.getInstance().getTeamId(), decodedName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
@@ -183,6 +189,7 @@ public class FileDownloadManager {
 
                     @Override
                     public void onNext(ResponseBody responseBody) {
+                        FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADING);
                         Log.d(TAG, "onNext()");
                         InputStream input = null;
                         OutputStream output = null;
@@ -199,10 +206,11 @@ public class FileDownloadManager {
                                 dir.mkdirs();
                             }
                             Log.d(TAG, "create dir");
-                            Pattern pattern = Pattern.compile("\\/\\w*\\.\\w*");
+                            Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
                             Matcher matcher = pattern.matcher(fileId);
-                            if (matcher.find()) {
-                                output = new FileOutputStream(dir.getAbsolutePath() + matcher.group());
+                            if (matcher.matches()) {
+                                String fileName = matcher.group(1);
+                                output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
                                 Log.d(TAG, "create file");
                                 byte data[] = new byte[4096];
                                 long total = 0;

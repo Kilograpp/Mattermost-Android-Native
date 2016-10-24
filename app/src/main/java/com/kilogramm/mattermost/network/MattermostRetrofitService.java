@@ -33,7 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MattermostRetrofitService {
 
 
-    public static final int TIMEOUT = 400;
+    public static final int TIMEOUT = 40;
 
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
