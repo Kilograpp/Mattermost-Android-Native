@@ -2,7 +2,8 @@ package com.kilogramm.mattermost.network;
 
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.SearchParams;
@@ -30,13 +31,13 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Streaming;
 import rx.Observable;
 
 /**
  * Created by Evgeny on 25.07.2016.
  */
 // TODO некоторые методы не используются, почистить (by Kepar)
-    // TODO пока подожди до конца недели (by melkshake)
 public interface ApiMethod {
 
     @Headers({
@@ -92,32 +93,11 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/before/0/60")
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{lastMessageId}/before/0/{limit}")
     Observable<Posts> getPostsBefore(@Path("teamId") String teamId,
                                      @Path("channelId") String channelId,
-                                     @Path("lastMessageId") String lastMessageId);
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
-    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/after/{offset}/{limit}")
-    Observable<Posts> getPostsAfter(@Path("team_id") String teamId,
-                                    @Path("channel_id") String channelId,
-                                    @Path("post_id") String postId,
-                                    @Path("offset") String offset,
-                                    @Path("limit") String limit);
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
-    @GET ("api/v3/teams/{team_id}/channels/{channel_id}/posts/{post_id}/before/{offset}/{limit}")
-    Observable<Posts> getPostsBefore_search(@Path("team_id") String teamId,
-                                    @Path("channel_id") String channelId,
-                                    @Path("post_id") String postId,
-                                    @Path("offset") String offset,
-                                    @Path("limit") String limit);
+                                     @Path("lastMessageId") String lastMessageId,
+                                     @Path("limit") String limit);
 
     @Headers({
             "Accept: application/json",
@@ -212,10 +192,11 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/{limit}")
     Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
-                                     @Path("channelId") String channelId,
-                                     @Path("firstMessageId") String firstMessageId);
+                                    @Path("channelId") String channelId,
+                                    @Path("firstMessageId") String firstMessageId,
+                                    @Path("limit") String limit);
 
     @Headers({
             "Accept: application/json",
@@ -238,9 +219,10 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/files/get/{file_id}")
+    @GET("api/v3/teams/{team_id}/files/get{file_id}")
+    @Streaming
     Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
-                                          @Path("file_id") String file_id);
+                                    @Path("file_id") String file_id);
 
 
     @Headers({
@@ -264,4 +246,11 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/users/update_notify")
     Observable<User> updateNotify(@Body NotifyUpdate notifyUpdate);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/all")
+    Observable<List<Team>> getAllTeams();
 }

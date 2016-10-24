@@ -6,8 +6,9 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.NotifyProps;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -15,7 +16,6 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import icepick.State;
-import io.realm.Realm;
 import nucleus.presenter.delivery.Delivery;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -38,14 +38,17 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     User user;
 
     private ApiMethod service;
+    private UserRepository userRepository;
+    private NotifyRepository notifyRepository;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        Realm realm = Realm.getDefaultInstance();
-        this.notifyProps = new NotifyProps(realm.where(NotifyProps.class).findFirst());
-        this.user = realm.where(User.class).equalTo("id", MattermostPreference.getInstance().getMyUserId()).findFirst();
+        userRepository = new UserRepository();
+        notifyRepository = new NotifyRepository();
+        this.user = userRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.notifyProps = new NotifyProps(notifyRepository.query().first());
         service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
@@ -57,19 +60,21 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     private void initDeletePost() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (settingsActivity, user) -> {
-                    UserRepository.update(user);
-                    Toast.makeText(settingsActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
-                }, (settingsActivity, throwable) -> {
-                    sendError(throwable);
-                    Log.d(TAG, "Error update notification " + throwable.getMessage());
+                                .subscribeOn(Schedulers.newThread())
+                                .observeOn(AndroidSchedulers.mainThread()),
+                (notificationActivity, user) -> {
+                    userRepository.update(user);
+                    Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
+                },
+                (notificationActivity, throwable) -> {
+                    createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
+                            sendError("Unable to save")));
+                    Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
 
-    private void sendError(Throwable throwable) {
-        createTemplateObservable(throwable.getMessage())
+    private void sendError(String error) {
+        createTemplateObservable(error)
                 .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
@@ -94,7 +99,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             }
             if (notifyProps.getChannel().equals("true"))
                 if (result.length() != 0)
-                    result = result + ","  +channelMentions;
+                    result = result + "," + channelMentions;
                 else
                     result = channelMentions;
 

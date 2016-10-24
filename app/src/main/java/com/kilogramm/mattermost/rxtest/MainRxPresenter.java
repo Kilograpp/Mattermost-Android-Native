@@ -36,7 +36,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     @State
     String url;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);

@@ -45,7 +45,9 @@ import nucleus.view.NucleusLayout;
 @RequiresPresenter(AttachedFilesPresenter.class)
 public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> implements DownloadFile.DownloadFileListener {
 
-    public static final String TAG = "AttachedFilesLayout";
+    private static final int FILE_TO_ATTACH_MAX = 5;
+
+    private static final String TAG = "AttachedFilesLayout";
 
     private String teamId;
     private String channelId;
@@ -127,6 +129,10 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void addItem(Uri uri) {
+        if(FileToAttachRepository.getInstance().getFilesForAttach().size() == FILE_TO_ATTACH_MAX){
+            Toast.makeText(getContext(), String.format("%s %d", getContext().getString(R.string.too_much_files), FILE_TO_ATTACH_MAX + 1), Toast.LENGTH_SHORT).show();
+            return;
+        }
         String filePath = FileUtil.getInstance().getPath(uri);
         if (filePath == null) {
             new DownloadFile(getContext(), this).execute(uri);
@@ -134,11 +140,11 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
             progressDialog.setView(inflate(getContext(), R.layout.data_processing_progress_layout, null));
             progressDialog.show();
         } else {
-            uploadFileToServer(uri, filePath, teamId, channelId);
+            uploadFileToServer(uri, filePath, channelId, false);
         }
     }
 
-    private void uploadFileToServer(Uri uri, String filePath, String teamId, String channelId) {
+    private void uploadFileToServer(Uri uri, String filePath, String channelId, boolean isTemporaryFile) {
         final File file = new File(filePath);
         if(file.length() > 1024 * 1024 * 50){
             Log.d(TAG, "file too big");
@@ -146,7 +152,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
             return;
         }
         if (file.exists()) {
-            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD));
+            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD, isTemporaryFile));
             if (!FileToAttachRepository.getInstance().haveUploadingFile()) {
                 getPresenter().requestUploadFileToServer(channelId);
             }
@@ -173,6 +179,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     @Override
     public void onDownloadedFile(String filePath) {
         if (progressDialog != null) progressDialog.cancel();
-        uploadFileToServer(Uri.parse(filePath), filePath, teamId, channelId);
+        uploadFileToServer(Uri.parse(filePath), filePath, channelId, true);
     }
 }

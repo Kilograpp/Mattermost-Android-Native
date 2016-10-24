@@ -37,7 +37,8 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
         binding.buttonRecovery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getPresenter().sendEmail(getEmailText());
+//                getPresenter().sendEmail(getEmailText());
+                getPresenter().requestSendEmail(getEmailText());
             }
         });
     }
@@ -45,6 +46,7 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
     public String getEmailText(){
         return  binding.editEmail.getText().toString();
     }
+
     public void showProgress(boolean show){
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
