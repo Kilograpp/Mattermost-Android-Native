@@ -251,6 +251,12 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
+    public void requestSwitchTeam() {
+        clearPreferenceTeam();
+        clearDataBaseAfterSwichTeam();
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -273,6 +279,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostPreference.getInstance().setLastChannelId(null);
     }
 
+    private void clearPreferenceTeam() {
+        MattermostPreference.getInstance().setTeamId(null);
+        MattermostPreference.getInstance().setLastChannelId(null);
+    }
+
     private void clearDataBaseAfterLogout() {
         final Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -286,6 +297,16 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             realm.delete(InitObject.class);
             realm.delete(ThemeProps.class);
             realm.delete(User.class);
+        });
+        realm.close();
+    }
+
+    private void clearDataBaseAfterSwichTeam() {
+        final Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            realm.delete(Post.class);
+            realm.delete(Channel.class);
+            realm.delete(RealmString.class);
         });
         realm.close();
     }

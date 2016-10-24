@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityRxLoginBinding;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 
-import icepick.Icepick;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -42,6 +41,10 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         GeneralRxActivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    public void showTeamChoose() {
+        ChooseTeamActivity.start(this);
     }
 
 

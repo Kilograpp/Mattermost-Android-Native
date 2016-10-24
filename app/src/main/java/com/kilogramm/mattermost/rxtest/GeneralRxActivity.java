@@ -20,6 +20,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
+import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -61,13 +62,14 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
             switch (item.getItemId()) {
                 case R.id.switch_team:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    getPresenter().requestSwitchTeam();
+                    ChooseTeamActivity.start(this);
                     break;
                 case R.id.files:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
-                    startActivity(new Intent(this, NotificationActivity.class));
+                    NotificationActivity.start(this);
                     break;
                 case R.id.invite_new_member:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();

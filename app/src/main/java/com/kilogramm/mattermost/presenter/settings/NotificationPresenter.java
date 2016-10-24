@@ -65,14 +65,14 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
                                 .subscribeOn(Schedulers.newThread())
                                 .observeOn(AndroidSchedulers.mainThread()),
-                (settingsActivity, user) -> {
+                (notificationActivity, user) -> {
                     userRepository.update(user);
-                    Toast.makeText(settingsActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
                 },
-                (settingsActivity, throwable) -> {
+                (notificationActivity, throwable) -> {
                     createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
-                            Toast.makeText(settingsActivity, s, Toast.LENGTH_SHORT).show()));
-                    Log.d(TAG, "Error update notification " + throwable.getMessage());
+                            Toast.makeText(notificationActivity, "unable to save", Toast.LENGTH_SHORT).show()));
+                    Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
 

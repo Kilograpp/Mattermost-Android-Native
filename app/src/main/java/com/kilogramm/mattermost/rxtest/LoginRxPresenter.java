@@ -113,7 +113,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
-        MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
         mRealm.commitTransaction();
         return teams;
     }
@@ -237,8 +236,9 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             if (isOpenChatScreen) {
                 loginRxActivity.showChatActivity();
+                MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
             } else {
-                //TODO start team chose activity
+                loginRxActivity.showTeamChoose();
             }
         }, (loginRxActivity1, throwable) -> {
             isVisibleProgress.set(View.GONE);
