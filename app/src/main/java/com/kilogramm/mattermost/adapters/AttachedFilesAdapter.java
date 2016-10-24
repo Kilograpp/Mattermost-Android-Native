@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,10 +8,11 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.squareup.picasso.Picasso;
 
-import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -46,33 +46,44 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileToAttach fileToAttach = getData().get(position);
 
-        Glide.with(context)
+        /*Glide.with(context)
                 .load(fileToAttach.getFilePath())
                 .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .centerCrop()
+                .into(holder.binding.imageView);*/
+
+        Picasso.with(context)
+                .load(fileToAttach.getFilePath())
+                .resize(150, 150)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .centerCrop()
                 .into(holder.binding.imageView);
+
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(View.VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
+            holder.binding.progressWait.setVisibility(View.GONE);
         } else {
+            holder.binding.progressWait.setVisibility(View.GONE);
             holder.binding.progressBar.setVisibility(View.GONE);
+            if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
+                holder.binding.progressWait.setVisibility(View.VISIBLE);
+            } else if (fileToAttach.getUploadState() == UploadState.UPLOADED) {
+                holder.binding.progressWait.setVisibility(View.GONE);
+            }
         }
-//        if (!holder.binding.close.hasOnClickListeners()) {
-            Log.d(TAG, "hasOnClickListeners = fasle");
-            holder.binding.close.setOnClickListener(v -> {
-                Log.d(TAG, "setOnClickListener");
-                // TODO при удалении во время загрузки объект может стать невалидным и удалить его будет невозможно
-                if (fileToAttach.isValid()) {
-                    FileToAttachRepository.getInstance().remove(fileToAttach);
-                    if (emptyListListener != null && Realm.getDefaultInstance().where(FileToAttach.class).findAll().isEmpty()) {
-                        emptyListListener.onEmptyList();
-                    }
+        holder.binding.close.setOnClickListener(v -> {
+            if (fileToAttach.isValid()) {
+                FileToAttachRepository.getInstance().remove(fileToAttach);
+                if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                    emptyListListener.onEmptyList();
                 }
-            });
-//        }
+            }
+        });
     }
 
     public static class MyViewHolder extends RealmViewHolder {

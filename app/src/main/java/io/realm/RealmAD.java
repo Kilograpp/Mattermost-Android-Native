@@ -133,4 +133,7 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         return adapterData;
     }
 
+    public int getPositionById(String id){
+        return ids.indexOf(id);
+    }
 }

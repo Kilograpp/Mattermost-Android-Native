@@ -51,7 +51,6 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         notifyRepository = new NotifyRepository();
         this.user = userRepository.query(new UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
         this.notifyProps = new NotifyProps(notifyRepository.query(new NotifySpecification()).first());
-
         service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
@@ -71,9 +70,14 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                 },
                 (notificationActivity, throwable) -> {
                     createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
-                            Toast.makeText(notificationActivity, "unable to save", Toast.LENGTH_SHORT).show()));
+                            sendError("Unable to save");
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
+    }
+
+    private void sendError(Throwable throwable) {
+        createTemplateObservable(throwable.getMessage())
+                .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
     public void requestUpdateNotify() {

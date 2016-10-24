@@ -17,7 +17,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/search_image_margin_start"
-                android:src="@drawable/ic_back" />
+                app:srcCompat="@drawable/ic_back" />
             <EditText
                 android:id="@+id/searchText"
                 style="@style/DescriptionBlackTextStyle"
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="@dimen/search_image_margin_end"
-                android:src="@drawable/ic_clear" />
+                app:srcCompat="@drawable/ic_clear" />
         </LinearLayout>
 
         <View

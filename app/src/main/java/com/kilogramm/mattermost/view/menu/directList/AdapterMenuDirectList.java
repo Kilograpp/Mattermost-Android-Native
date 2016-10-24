@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
@@ -22,7 +21,6 @@ import com.kilogramm.mattermost.viewmodel.menu.ItemDiretionProfileViewModel;
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;

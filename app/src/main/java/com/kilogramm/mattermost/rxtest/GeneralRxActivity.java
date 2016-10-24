@@ -9,14 +9,21 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
+import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
@@ -27,6 +34,7 @@ import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
+import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -37,6 +45,9 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(GeneralRxPresenter.class)
 public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
     private static final String TAG = "GeneralRxActivity";
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
@@ -56,8 +67,30 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         MattermostService.Helper.create(this).startWebSocket();
     }
 
+    public String getAvatarUrl() {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + MattermostPreference.getInstance().getMyUserId()
+                + "/image";
+    }
+
     private void setupRightMenu() {
-        binding.rightMenu.setNavigationItemSelectedListener(item -> {
+        binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
+                MattermostPreference.getInstance().getMyUserId()));
+        binding.headerUsername.setText(
+                UserRepository
+                .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
+                .getMyUserId()))
+                .first()
+                .getUsername()
+        );
+        Picasso.with(this)
+                .load(getAvatarUrl())
+                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .into(binding.headerPicture);
+        binding.navView.setNavigationItemSelectedListener(item -> {
             binding.drawerLayout.closeDrawer(GravityCompat.END);
 
             switch (item.getItemId()) {
@@ -72,7 +105,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     NotificationActivity.start(this);
                     break;
                 case R.id.invite_new_member:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    InviteUserRxActivity.start(this);
                     break;
                 case R.id.help:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();

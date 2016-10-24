@@ -85,22 +85,27 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
             return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io());
         }, (attachedFilesLayout, fileUploadResponse) -> {
             Log.d(TAG, fileUploadResponse.toString());
             FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
             FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
+            FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
+            if(fileToAttach != null && fileToAttach.isTemporary()) {
+                FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+            }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, "Error");
+            startRequest();
         });
     }
 
     private void startRequest() {
         fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
-        if (fileToAttach == null || clientId == null) return;
+        if (fileToAttach == null || channelId == null) return;
         start(REQUEST_UPLOAD_TO_SERVER);
     }
 }

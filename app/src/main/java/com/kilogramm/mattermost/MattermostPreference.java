@@ -44,6 +44,7 @@ public class MattermostPreference {
     public String getTeamId(){
         return sharedPreferences.getString(TEAM_ID,null);
     }
+
     public void setTeamId(String teamId){
         sharedPreferences.edit().putString(TEAM_ID, teamId).apply();
     }

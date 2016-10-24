@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 
@@ -30,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 
 /**
@@ -42,13 +42,11 @@ public class ManagerBroadcast {
 
     public Context mContext;
 
-    private UserRepository userRepository;
 
     private Gson gson;
 
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
-        this.userRepository = new UserRepository();
         gson = new GsonBuilder()
                 .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
 
@@ -146,7 +144,7 @@ public class ManagerBroadcast {
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
                                 webSocketObj.getUserId())
                         .build();
-                userRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
+                UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()
@@ -183,11 +181,7 @@ public class ManagerBroadcast {
 
 
     public static void savePost(Post post){
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.insertOrUpdate(post);
-        realm.commitTransaction();
-        realm.close();
+        PostRepository.add(post);
     }
 
     public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {

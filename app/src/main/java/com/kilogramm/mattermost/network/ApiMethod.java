@@ -14,6 +14,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
+import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 
@@ -23,6 +24,7 @@ import java.util.Map;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -30,6 +32,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Streaming;
 import rx.Observable;
 
 /**
@@ -214,8 +217,17 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{firstMessageId}/after/0/60")
     Observable<Posts> getPostsAfter(@Path("teamId") String teamId,
-                                    @Path("channelId") String channelId,
-                                    @Path("firstMessageId") String firstMessageId);
+                                     @Path("channelId") String channelId,
+                                     @Path("firstMessageId") String firstMessageId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/invite_members")
+    Observable<ListInviteObj> invite(
+            @Path("teamId") String teamId,
+            @Body ListInviteObj listInviteObj);
 
     @Headers({
             "Accept: application/json",
@@ -229,9 +241,10 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/files/get/{file_id}")
+    @GET("api/v3/teams/{team_id}/files/get{file_id}")
+    @Streaming
     Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
-                                          @Path("file_id") String file_id);
+                                    @Path("file_id") String file_id);
 
 
     @Headers({
