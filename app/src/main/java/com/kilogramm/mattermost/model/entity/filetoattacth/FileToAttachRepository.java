@@ -14,6 +14,7 @@ import io.realm.RealmResults;
  * Created by kepar on 7.10.16.
  */
 
+//TODO for kerap refactor class (remove implements Repository)
 public class FileToAttachRepository implements Repository<FileToAttach> {
 
     private static FileToAttachRepository instance;
@@ -29,10 +30,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
     @Override
     public void add(FileToAttach item) {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            Number id = realm.where(FileToAttach.class).max("id");
+            Number id = realm1.where(FileToAttach.class).max("id");
             AtomicLong primaryKeyValue;
             if (id != null) {
                 primaryKeyValue = new AtomicLong(id.longValue());
@@ -40,16 +41,14 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 primaryKeyValue = new AtomicLong(0);
             }
             item.setId(primaryKeyValue.incrementAndGet());
-            realm.copyToRealm(item);
+            realm1.copyToRealm(item);
         });
-        realm.close();
     }
 
     public void addForUpload(String fileName, String filePath) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            Number id = realm.where(FileToAttach.class).max("id");
+            Number id = realm1.where(FileToAttach.class).max("id");
             AtomicLong primaryKeyValue;
             if (id != null) {
                 primaryKeyValue = new AtomicLong(id.longValue());
@@ -57,17 +56,15 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 primaryKeyValue = new AtomicLong(0);
             }
             FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, filePath, UploadState.WAITING_FOR_UPLOAD);
-            realm.copyToRealm(fileToAttach);
+            realm1.copyToRealm(fileToAttach);
         });
-        realm.close();
     }
 
 
     public void addForDownload(String fileName) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            Number id = realm.where(FileToAttach.class).max("id");
+            Number id = realm1.where(FileToAttach.class).max("id");
             AtomicLong primaryKeyValue;
             if (id != null) {
                 primaryKeyValue = new AtomicLong(id.longValue());
@@ -75,9 +72,8 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 primaryKeyValue = new AtomicLong(0);
             }
             FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.WAITING_FOR_DOWNLOAD);
-            realm.copyToRealm(fileToAttach);
+            realm1.copyToRealm(fileToAttach);
         });
-        realm.close();
     }
 
     @Override
@@ -95,8 +91,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     }
 
     public void updateName(String oldName, String fileName) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", oldName)
@@ -105,13 +100,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 fileToAttach.setFileName(fileName);
             }
         });
-
-        realm.close();
     }
 
     public void updateUploadStatus(String fileName, UploadState status) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", fileName)
@@ -120,13 +112,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 fileToAttach.setUploadState(status);
             }
         });
-
-        realm.close();
     }
 
     public void updateUploadStatus(long id, UploadState status) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("id", id)
@@ -135,13 +124,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 fileToAttach.setUploadState(status);
             }
         });
-
-        realm.close();
     }
 
     public void updateProgress(String fileName, int progress) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", fileName)
@@ -150,13 +136,10 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 fileToAttach.setProgress(progress);
             }
         });
-
-        realm.close();
     }
 
     public void updateProgress(long id, int progress) {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("id", id)
@@ -165,8 +148,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                 fileToAttach.setProgress(progress);
             }
         });
-
-        realm.close();
     }
 
     // endregion
@@ -184,18 +165,18 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     }
 
     public RealmResults<FileToAttach> getFilesForAttach() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class)
                 .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.name())
                 .or()
                 .equalTo("uploadState", UploadState.UPLOADING.name())
                 .or()
                 .equalTo("uploadState", UploadState.UPLOADED.name())
-                .findAll();
+                .findAllSorted("id");
     }
 
     public FileToAttach getUnloadedFile() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class)
                 .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.name())
                 .or()
@@ -204,7 +185,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     }
 
     public FileToAttach getUndownloadedFile() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class)
                 .equalTo("uploadState", UploadState.WAITING_FOR_DOWNLOAD.name())
                 .or()
@@ -216,16 +197,15 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     // region Check methods
 
     public boolean haveUploadingFile() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         FileToAttach fileToAttach = realm.where(FileToAttach.class).equalTo("uploadState", UploadState.UPLOADING.name()).findFirst();
         if (fileToAttach != null && fileToAttach.isValid()) return true;
         return false;
     }
 
     public boolean haveUnloadedFiles() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-
         RealmResults<FileToAttach> fileToAttachRealmResults = realm.where(FileToAttach.class).findAll();
         for (FileToAttach fileToAttachRealmResult : fileToAttachRealmResults) {
             if (fileToAttachRealmResult.getUploadState() == UploadState.WAITING_FOR_UPLOAD ||
@@ -236,7 +216,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
             }
         }
         realm.commitTransaction();
-        realm.close();
         return false;
     }
 
@@ -246,7 +225,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
     @Override
     public void remove(FileToAttach item) {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
@@ -254,7 +233,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-        realm.close();
     }
 
     @Override
@@ -263,16 +241,14 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     }
 
     public void clearData() {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm.delete(FileToAttach.class);
         realm.commitTransaction();
-        realm.close();
     }
 
     public void deleteUploadedFiles() {
-        final Realm realm = Realm.getDefaultInstance();
-
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
                     .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.toString())
@@ -283,7 +259,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                     .findAll();
             fileToAttachList.deleteAllFromRealm();
         });
-        realm.close();
     }
 
     // endregion

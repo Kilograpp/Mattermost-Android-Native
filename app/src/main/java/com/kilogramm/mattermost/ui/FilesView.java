@@ -17,6 +17,7 @@ import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
+import com.squareup.picasso.Picasso;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -148,20 +149,18 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
-        Glide.with(getContext())
+        Picasso.with(getContext())
                 .load(url)
-                .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
-                .thumbnail(0.1f)
+                .resize(150,150).centerCrop()
+                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);
         this.addView(binding.getRoot());
     }
 
     private String getImageUrl(String id) {
         Realm realm = Realm.getDefaultInstance();
-        String s = new String(realm.where(Team.class).findFirst().getId());
-        realm.close();
+        String s = realm.where(Team.class).findFirst().getId();
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()

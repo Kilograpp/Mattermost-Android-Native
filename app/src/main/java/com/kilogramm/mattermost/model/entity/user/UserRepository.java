@@ -2,13 +2,10 @@ package com.kilogramm.mattermost.model.entity.user;
 
 
 import com.kilogramm.mattermost.model.RealmSpecification;
-import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -16,105 +13,72 @@ import io.realm.RealmResults;
 /**
  * Created by Evgeny on 19.09.2016.
  */
-public class UserRepository implements Repository<User> {
+public class UserRepository {
 
     public static final String TAG = "UserRepository";
 
-    @Override
-    public void add(User item) {
-        final Realm realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-        realm.close();
+    public static void add(User item) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransactionAsync(realm1 -> realm1.insertOrUpdate(item));
     }
 
-    @Override
-    public void add(Collection<User> items) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.copyToRealmOrUpdate(items));
-        realm.close();
+    public static void add(Collection<User> items) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.insertOrUpdate(items);
+        realm.commitTransaction();
     }
 
-    @Override
-    public void update(User item) {
-        final Realm realm = Realm.getDefaultInstance();
-
+    public static void update(User item) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            realm.insertOrUpdate(item);
-            realm.insertOrUpdate(item.getNotifyProps());
+            realm1.insertOrUpdate(item);
+            realm1.insertOrUpdate(item.getNotifyProps());
         });
-        realm.close();
     }
 
-    public void updateUserStatus(String id, String new_status) {
-        final Realm realm = Realm.getDefaultInstance();
-
+    public static void remove(User item) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            User user = realm.where(User.class)
-                    .equalTo("id", id)
-                    .findFirst();
-            user.setStatus(new_status);
-        });
-
-        realm.close();
-    }
-
-    @Override
-    public void remove(User item) {
-        final Realm realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(realm1 -> {
-            final User user = realm.where(User.class).equalTo("id", item.getId()).findFirst();
+            final User user = realm1.where(User.class).equalTo("id", item.getId()).findFirst();
             user.deleteFromRealm();
         });
-        realm.close();
     }
 
-    @Override
-    public void remove(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final Realm realm = Realm.getDefaultInstance();
-        final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
-
+    public static void remove(Specification specification) {
+        RealmSpecification realmSpecification = (RealmSpecification) specification;
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-        realm.close();
     }
 
-    @Override
-    public RealmResults<User> query(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final Realm realm = Realm.getDefaultInstance();
-        final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
-
-        realm.close();
-
-        return realmResults;
+    public static RealmResults<User> query(Specification specification) {
+        Realm realm = Realm.getDefaultInstance();
+        return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
-    public void updateUserMessage(String postId, String message) {
-        final Realm realm = Realm.getDefaultInstance();
-
+    public static void updateUserMessage(String postId, String message) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 ->
                 realm.where(Post.class)
                         .equalTo("id", postId)
                         .findFirst()
                         .setMessage(message));
-        realm.close();
     }
 
-    public List<User> queryList(Specification specification) {
-        final RealmSpecification realmSpecification = (RealmSpecification) specification;
-        final Realm realm = Realm.getDefaultInstance();
-        final RealmResults<User> realmResults = realmSpecification.toRealmResults(realm);
+    public static class UserByIdSpecification implements RealmSpecification {
 
-        final List<User> users = new ArrayList<>();
+        private final String id;
 
-        for (User user : realmResults) {
-            users.add(user);
+        public UserByIdSpecification(String id) {
+            this.id = id;
         }
 
-        realm.close();
-
-        return users;
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            return realm.where(User.class)
+                    .equalTo("id", id)
+                    .findAll();
+        }
     }
 }

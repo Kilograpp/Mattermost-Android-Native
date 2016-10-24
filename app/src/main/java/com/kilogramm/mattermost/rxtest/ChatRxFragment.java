@@ -50,7 +50,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -77,10 +76,6 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
         OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
-
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
@@ -125,8 +120,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
-    private PostRepository postRepository;
-    private UserRepository userRepository;
 
     private BroadcastReceiver brReceiverTyping;
 
@@ -137,9 +130,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
         this.realm = Realm.getDefaultInstance();
-        this.teamId = realm.where(Team.class).findFirst().getId();
-        this.postRepository = new PostRepository();
-        this.userRepository = new UserRepository();
+        this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
 
@@ -153,6 +144,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         initView();
         return view;
     }
+
 
     private void initView() {
         setupListChat(channelId);
@@ -190,7 +182,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onResume() {
         super.onResume();
-//        getPresenter().initPresenter(teamId, channelId);
         setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
                 "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
         checkNeededPermissions();
@@ -241,8 +232,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void setupListChat(String channelId) {
-        RealmResults<Post> results = postRepository.query(new PostByChannelId(channelId));
-        results.addChangeListener(element -> {
+        RealmResults<Post> results = PostRepository.query(new PostByChannelId(channelId));
+         results.addChangeListener(element -> {
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
@@ -258,7 +249,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.realm.close();
         Log.d(TAG, "onDestroy()");
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);
@@ -407,6 +397,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
+       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
@@ -663,6 +654,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             case R.id.controlMenu:
                 showPopupMenu(view, item);
                 break;
+            case R.id.avatar:
+                ProfileRxActivity.start(getActivity(),item.getUserId());
+                break;
         }
     }
 
@@ -701,7 +695,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     getPresenter().requestSendToServerError(p);
                     break;
                 case R.id.delete:
-                    postRepository.remove(post);
+                    PostRepository.remove(post);
                     break;
             }
             return true;

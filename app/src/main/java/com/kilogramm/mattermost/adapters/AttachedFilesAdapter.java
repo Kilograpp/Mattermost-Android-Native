@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
-import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
@@ -50,8 +48,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         Glide.with(context)
                 .load(fileToAttach.getFilePath())
                 .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
+                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .thumbnail(0.1f)
                 .centerCrop()
                 .into(holder.binding.imageView);
@@ -69,7 +67,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.close.setOnClickListener(v -> {
                 if (fileToAttach.isValid()) {
                     FileToAttachRepository.getInstance().remove(fileToAttach);
-                    if (emptyListListener != null && Realm.getDefaultInstance().where(FileToAttach.class).findAll().isEmpty()) {
+                    if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                         emptyListListener.onEmptyList();
                     }
                 }
@@ -86,9 +84,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         }
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-//            AttachedFileLayoutBinding binding = AttachedFileLayoutBinding.inflate(inflater, parent, false);
-//            return new MyViewHolder(binding);
-            return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.attached_file_layout, parent, false));
+            AttachedFileLayoutBinding binding = AttachedFileLayoutBinding.inflate(inflater, parent, false);
+            return new MyViewHolder(binding);
         }
     }
 

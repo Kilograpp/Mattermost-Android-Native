@@ -344,4 +344,6 @@ public class Channel extends RealmObject {
     public void setCreatorId(String creatorId) {
         this.creatorId = creatorId;
     }
+
+
 }

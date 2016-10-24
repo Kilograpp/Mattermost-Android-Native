@@ -38,7 +38,6 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     User user;
 
     private ApiMethod service;
-    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -47,9 +46,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         Realm realm = Realm.getDefaultInstance();
         this.notifyProps = new NotifyProps(realm.where(NotifyProps.class).findFirst());
         this.user = realm.where(User.class).equalTo("id", MattermostPreference.getInstance().getMyUserId()).findFirst();
-        realm.close();
         service = mMattermostApp.getMattermostRetrofitService();
-        userRepository = new UserRepository();
         initRequests();
     }
 
@@ -60,17 +57,20 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     private void initDeletePost() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
-                                .subscribeOn(Schedulers.newThread())
-                                .observeOn(AndroidSchedulers.mainThread()),
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
                 (settingsActivity, user) -> {
-                    userRepository.update(user);
+                    UserRepository.update(user);
                     Toast.makeText(settingsActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
-                },
-                (settingsActivity, throwable) -> {
-                    createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
-                            Toast.makeText(settingsActivity, s, Toast.LENGTH_SHORT).show()));
+                }, (settingsActivity, throwable) -> {
+                    sendError(throwable);
                     Log.d(TAG, "Error update notification " + throwable.getMessage());
                 });
+    }
+
+    private void sendError(Throwable throwable) {
+        createTemplateObservable(throwable.getMessage())
+                .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
     public void requestUpdateNotify() {

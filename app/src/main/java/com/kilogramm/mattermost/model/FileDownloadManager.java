@@ -61,7 +61,7 @@ public class FileDownloadManager {
     private void dowloadFile(String fileId) {
 
         service.downloadFile(MattermostPreference.getInstance().getTeamId(), fileId)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override

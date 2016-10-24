@@ -1,16 +1,11 @@
 package com.kilogramm.mattermost.model.fromnet;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;

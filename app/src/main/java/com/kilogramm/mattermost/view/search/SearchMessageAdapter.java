@@ -10,11 +10,14 @@ import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemSearchResultBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -77,13 +80,11 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
     public static class MyViewHolder extends RealmViewHolder {
 
         private ItemSearchResultBinding binding;
-        private Realm realm;
         private String typeChannel;
 
         private MyViewHolder(ItemSearchResultBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.realm = Realm.getDefaultInstance();
         }
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
@@ -91,8 +92,8 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
         }
 
         void bindTo(Post post, Context context, String terms) {
-            RealmResults<User> user = realm.where(User.class).equalTo("id", post.getUserId()).findAll();
-            RealmResults<Channel> channel = realm.where(Channel.class).equalTo("id", post.getChannelId()).findAll();
+            RealmResults<User> user = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()));
+            RealmResults<Channel> channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(post.getChannelId()));
 
             binding.postedDate.setText(DateOrTimeConvert(post.getCreateAt(), false));
 
@@ -131,11 +132,11 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         public String getChatName(String rawName) {
             String[] channelNameParsed = rawName.split("__");
-            String myId = realm.where(User.class).findFirst().getId();
+            String myId = MattermostPreference.getInstance().getMyUserId();
             if (channelNameParsed[0] == myId) {
-                return realm.where(User.class).equalTo("id", channelNameParsed[1]).findFirst().getUsername();
+                return UserRepository.query(new UserRepository.UserByIdSpecification(channelNameParsed[1])).get(0).getUsername();
             } else {
-                return realm.where(User.class).equalTo("id", channelNameParsed[0]).findFirst().getUsername();
+                return UserRepository.query(new UserRepository.UserByIdSpecification(channelNameParsed[0])).get(0).getUsername();
             }
         }
 

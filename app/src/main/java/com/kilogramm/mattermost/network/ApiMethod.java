@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
+import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 
@@ -194,6 +195,15 @@ public interface ApiMethod {
                                     @Path("channelId") String channelId,
                                     @Path("firstMessageId") String firstMessageId,
                                     @Path("limit") String limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/invite_members")
+    Observable<ListInviteObj> invite(
+            @Path("teamId") String teamId,
+            @Body ListInviteObj listInviteObj);
 
     @Headers({
             "Accept: application/json",
