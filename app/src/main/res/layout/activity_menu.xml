@@ -24,36 +24,43 @@
         </LinearLayout>
 
         <!-- The navigation drawer -->
-        <ScrollView
+        <FrameLayout
             android:layout_width="240dp"
             android:layout_height="match_parent"
-            android:layout_gravity="start">
+            android:layout_gravity="start"
+            android:background="@color/colorPrimary">
 
-            <LinearLayout
-                android:layout_width="240dp"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:orientation="vertical">
+            <android.support.v4.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <FrameLayout
-                    android:id="@+id/fragmentChannelList"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="240dp"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_menu_channel_list"></FrameLayout>
+                    android:background="@color/colorPrimary"
+                    android:orientation="vertical">
 
-                <FrameLayout
-                    android:id="@+id/fragmentPrivateList"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_menu_private_list"></FrameLayout>
 
-                <FrameLayout
-                    android:id="@+id/fragmentDirectList"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_menu_direct_list"></FrameLayout>
-            </LinearLayout>
-        </ScrollView>
+                    <FrameLayout
+                        android:id="@+id/fragmentChannelList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:layout="@layout/fragment_menu_channel_list" />
+
+                    <FrameLayout
+                        android:id="@+id/fragmentPrivateList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:layout="@layout/fragment_menu_private_list" />
+
+                    <FrameLayout
+                        android:id="@+id/fragmentDirectList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:layout="@layout/fragment_menu_direct_list" />
+                </LinearLayout>
+            </android.support.v4.widget.NestedScrollView>
+        </FrameLayout>
 
         <FrameLayout
             android:layout_gravity="end"
