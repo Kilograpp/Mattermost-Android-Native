@@ -53,6 +53,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private String currentChannel = "";
     private String searchMessageId;
+    private SaveData saveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -187,11 +188,16 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private void replaceFragment(String channelId, String channelName) {
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-            currentChannel = channelId;
-            getFragmentManager().beginTransaction()
+            currentChannel = channelId;getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
-//            binding.drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            if(searchMessageId != null){
+                ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+                currentChannel = channelId;getFragmentManager().beginTransaction()
+                        .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
+                        .commit();
+            }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
     }

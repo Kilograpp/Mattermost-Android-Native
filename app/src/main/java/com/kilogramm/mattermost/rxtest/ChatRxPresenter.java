@@ -310,12 +310,16 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         service.getPostsBefore(teamId, channelId, searchMessageId, limit)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
+                        service.getPost(teamId, channelId, searchMessageId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
                         service.getPostsAfter(teamId, channelId, searchMessageId, limit)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
-                        (extraInfo, postsBef, postsAft) -> {
+                        (extraInfo, postsBef, foundPosts, postsAft) -> {
                             ArrayList<Posts> allPosts = new ArrayList<>();
                             allPosts.add(postsAft);
+                            allPosts.add(foundPosts);
                             allPosts.add(postsBef);
                             return allPosts;
                         }))
@@ -325,7 +329,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendCanPaginationBot(false);
                         return;
                     }
-//                    PostRepository.prepareAndAdd(postsAll);
 
                     for (Posts posts : postsAll) {
                         PostRepository.prepareAndAdd(posts);
@@ -334,6 +337,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendRefreshing(false);
                     sendShowList();
                     sendDisableShowLoadMoreBot();
+
+                    sendSlideDialogToFoundMessage();
+
                     Log.d(TAG, "Complete load post before and after");
                 }, (chatRxFragment, throwable) -> {
                     Log.d(TAG, "Error initLoadBeforeAndAfter");
@@ -488,6 +494,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void sendError(String error) {
         createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
                 Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_SHORT).show()));
+    }
+
+    private void sendSlideDialogToFoundMessage() {
+        createTemplateObservable(new Object())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.slideToMessageById()));
     }
     //endregion
 

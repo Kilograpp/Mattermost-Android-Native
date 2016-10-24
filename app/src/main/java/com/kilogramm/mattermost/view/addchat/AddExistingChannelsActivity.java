@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityAllChatsBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.presenter.AddExistingChannelsPresenter;
+import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.Realm;

@@ -41,7 +41,7 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
         restartableFirst(REQUEST_INVITE, () -> {
             return service.invite(MattermostPreference.getInstance().getTeamId(), listInvite)
                     .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
+                    .observeOn(AndroidSchedulers.mainThread());
         }, (inviteUserRxActivity, o) -> sendInviteOk()
          , (inviteUserRxActivity1, throwable) -> sendError(throwable.getMessage()));
     }

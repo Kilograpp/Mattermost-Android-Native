@@ -50,8 +50,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private ApiMethod service;
 
-    /*@State
-    String teamId;*/
     @State
     ListSaveData mSaveData = new ListSaveData();
 
