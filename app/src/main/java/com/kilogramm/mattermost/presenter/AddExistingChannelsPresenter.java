@@ -58,7 +58,10 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                         moreChannels.add(new ChannelsDontBelong(channel));
                     }
                     Realm.getDefaultInstance()
-                            .executeTransaction(realm1 -> realm1.insertOrUpdate(moreChannels));
+                            .executeTransaction(realm1 -> {
+                                realm1.insertOrUpdate(moreChannels);
+                                realm1.close();
+                            });
                 },
                 (addExistingChannelsActivity, throwable) -> throwable.printStackTrace());
     }

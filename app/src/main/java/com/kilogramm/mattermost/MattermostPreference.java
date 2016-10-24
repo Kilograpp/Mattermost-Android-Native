@@ -42,7 +42,7 @@ public class MattermostPreference {
     }
 
     public String getTeamId(){
-        return sharedPreferences.getString(TEAM_ID,null);
+        return sharedPreferences.getString(TEAM_ID, null);
     }
 
     public void setTeamId(String teamId){

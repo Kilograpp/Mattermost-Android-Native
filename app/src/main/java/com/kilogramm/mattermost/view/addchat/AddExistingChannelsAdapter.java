@@ -29,8 +29,6 @@ public class AddExistingChannelsAdapter extends
     private OnChannelItemClickListener channelClickListener;
 
     private ColorGenerator colorGenerator;
-    private int backgroundColor;
-
     private ArrayList<Integer> backgroundColors;
 
     public AddExistingChannelsAdapter(@NonNull Context context,
@@ -53,7 +51,6 @@ public class AddExistingChannelsAdapter extends
         for (int i = 0; i < getData().size(); i++) {
             backgroundColors.add(colorGenerator.getRandomColor());
         }
-//        backgroundColor = colorGenerator.getRandomColor();
 
         holder.bindTo(getData().get(position), backgroundColors.get(position));
 

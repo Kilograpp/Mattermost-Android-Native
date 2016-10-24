@@ -10,19 +10,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
-import com.kilogramm.mattermost.model.entity.Team;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.service.MattermostService;
@@ -56,6 +50,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     MenuChannelListFragment channelListFragment;
     MenuPrivateListFragment privateListFragment;
     MenuDirectListFragment directListFragment;
+
     private String currentChannel = "";
     private String searchMessageId;
 
@@ -122,7 +117,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             }
             return false;
         });
-        //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -197,7 +191,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
+//            binding.drawerLayout.closeDrawer(GravityCompat.START);
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
@@ -256,6 +250,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         .or()
                         .equalTo("name", userTalkToId + "__" + myId)
                         .findAll();
+                realm.close();
 
                 if (channels.size() == 0) {
                     getPresenter().requestSaveData(saveData, userTalkToId);

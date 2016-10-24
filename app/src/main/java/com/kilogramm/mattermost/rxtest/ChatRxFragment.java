@@ -794,13 +794,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onTopLoadMore() {
         Log.d(TAG, "onTopLoadMore()");
-        getPresenter().requestLoadBefore("60");
+        getPresenter().requestLoadBefore();
     }
 
     @Override
     public void onBotLoadMore() {
         Log.d(TAG, "onBotLoadMore()");
-        getPresenter().requestLoadAfter("60");
+        getPresenter().requestLoadAfter();
     }
 
     public void disableShowLoadMoreTop() {

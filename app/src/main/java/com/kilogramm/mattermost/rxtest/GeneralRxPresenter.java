@@ -58,11 +58,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private LogoutData user;
     private String channelId;
 
-    //TODO checkk using this variable
-    String postId;
-    String offset;
-    String limit;
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
@@ -182,7 +177,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         }, (generalRxActivity, channel) -> {
             List<Channel> channelList = new ArrayList<>();
             channelList.add(channel);
-            ChannelRepository.prepareChannelAndAdd(channelList,MattermostPreference.getInstance().getMyUserId());
+            ChannelRepository.prepareChannelAndAdd(channelList, MattermostPreference.getInstance().getMyUserId());
             sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
         }, (generalRxActivity, throwable) -> {
             throwable.printStackTrace();
@@ -196,21 +191,20 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-
                         service.save(mSaveData.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-
                         (channel, aBoolean) -> {
                             if (aBoolean == Boolean.FALSE) {
                                 return null;
                             }
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
-                        })), (generalRxActivity, channel) -> {
-            mSaveData.getmSaveData().clear();
-            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+                        })),
+                (generalRxActivity, channel) -> {
+                    mSaveData.getmSaveData().clear();
+                    sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestAddChat(String joinChannelId) {
@@ -241,7 +235,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
-
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
@@ -249,7 +242,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void setSelectedMenu(String channelId, String name, String type) {
-        if(MattermostPreference.getInstance().getLastChannelId() != null &&
+        if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
             // For clearing attached files on channel change
             FileToAttachRepository.getInstance().deleteUploadedFiles();
@@ -292,7 +285,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
-        createTemplateObservable(new OpenChatObject(channelId,name, type))
+        createTemplateObservable(new OpenChatObject(channelId, name, type))
                 .subscribe(split((generalRxActivity1, openChatObject)
                         -> generalRxActivity1.setFragmentChat(openChatObject.getChannelId(), name, type)));
     }

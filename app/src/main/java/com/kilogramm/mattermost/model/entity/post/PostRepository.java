@@ -17,7 +17,6 @@ import io.realm.RealmResults;
  */
 public class PostRepository {
 
-
     public static void add(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
@@ -47,7 +46,6 @@ public class PostRepository {
         Realm realm = Realm.getDefaultInstance();
         RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-
     }
 
     public static RealmResults<Post> query(Specification specification) {

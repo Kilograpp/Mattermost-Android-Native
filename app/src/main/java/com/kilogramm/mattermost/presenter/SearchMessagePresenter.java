@@ -16,7 +16,6 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmList;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -44,14 +43,15 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         restartableFirst(REQUEST_SEARCH,
                 () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, true))
                         .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()),
+                        .observeOn(Schedulers.io()),
                 (searchMessageActivity, posts) -> {
                     if (posts.getPosts() == null) {
                         sendShowDefaultVisibility(true);
+                        sendShowProgressBarVisibility(false);
                         isSearchEmpty = true;
                     } else {
-                        Realm realm = Realm.getDefaultInstance();
                         RealmList<FoundMessagesIds> list = new RealmList<>();
+                        Realm realm = Realm.getDefaultInstance();
                         realm.beginTransaction();
                         for (String s : posts.getPosts().keySet()) {
                             list.add(new FoundMessagesIds(s));
@@ -59,6 +59,8 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
                         realm.where(FoundMessagesIds.class).findAll().deleteAllFromRealm();
                         realm.insertOrUpdate(list);
                         realm.commitTransaction();
+                        realm.close();
+
                         PostRepository.add(posts.getPosts().values());
                     }
 

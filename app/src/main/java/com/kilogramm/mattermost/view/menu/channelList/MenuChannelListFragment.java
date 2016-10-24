@@ -32,7 +32,7 @@ public class MenuChannelListFragment extends Fragment {
     private FrMenuChannelViewModel viewModel;
     private OnChannelItemClickListener channelItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
-    private AdapterMenuChannelList adapter;
+    private MenuChannelRxAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class MenuChannelListFragment extends Fragment {
     private void setupListView() {
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new AdapterMenuChannelList(getContext(), results, binding.recView,
+        adapter = new MenuChannelRxAdapter(getContext(), results,
                 (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
         if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
