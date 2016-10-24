@@ -80,4 +80,15 @@ public class PostRepository {
         }
         add(posts.getPosts().values());
     }
+
+    public static void updateUpdateAt(String postId, long update) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            RealmResults<Post> posts = realm1.where(Post.class).equalTo("id",postId).findAll();
+            if(posts.size()!=0){
+                Post post = posts.first();
+                post.setUpdateAt(update);
+            }
+        });
+    }
 }
