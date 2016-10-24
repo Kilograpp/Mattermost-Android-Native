@@ -434,14 +434,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
-        Log.d(TAG, "getTimePost: currentTime: " + currentTime);
         if (adapter.getLastItem() == null) {
             return currentTime;
         }
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
-        Log.d(TAG, "getTimePost: lastTime: " + lastTime);
         if (currentTime > lastTime)
-            return currentTime / 10000 * 10000 ;
+            return currentTime;
         else
             return lastTime + 1;
     }
