@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostByRootIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -225,7 +226,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         restartableFirst(REQUEST_DELETE_POST, () -> service.deletePost(teamId, channelId, forDeletePost.getId(), new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
-                (chatRxFragment, post1) -> PostRepository.remove(post1),
+                (chatRxFragment, post1) -> {
+                    PostRepository.remove(new PostByRootIdSpecification(post1.getId()));
+                    PostRepository.remove(post1);
+                },
                 (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
