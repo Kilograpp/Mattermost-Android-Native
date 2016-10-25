@@ -70,6 +70,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     private void setupRecyclerViewDirection() {
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT));
+
         binding.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new AdapterMenuDirectList(getActivity(), results, binding.recView,
                 (itemId, name, type) -> directItemClickListener.onDirectClick(itemId, name, type),

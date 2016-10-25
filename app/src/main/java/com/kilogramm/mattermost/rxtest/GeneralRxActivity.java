@@ -222,7 +222,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
-
     public void showTeemChoose() {
         ChooseTeamActivity.start(this);
     }

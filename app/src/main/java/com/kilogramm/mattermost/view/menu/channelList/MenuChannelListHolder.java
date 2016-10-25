@@ -18,8 +18,7 @@ public class MenuChannelListHolder extends RecyclerView.ViewHolder {
     private ItemChannelBinding mBinding;
 
     public static MenuChannelListHolder create(LayoutInflater inflater, ViewGroup parent) {
-        ItemChannelBinding binding = ItemChannelBinding
-                .inflate(inflater, parent, false);
+        ItemChannelBinding binding = ItemChannelBinding.inflate(inflater, parent, false);
         return new MenuChannelListHolder(binding);
     }
 

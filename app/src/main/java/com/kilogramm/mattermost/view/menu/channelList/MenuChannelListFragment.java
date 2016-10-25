@@ -99,7 +99,6 @@ public class MenuChannelListFragment extends Fragment {
         }
     }
 
-
     public void goToAddChannelsActivity() {
         getActivity().startActivityForResult(
                 new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),

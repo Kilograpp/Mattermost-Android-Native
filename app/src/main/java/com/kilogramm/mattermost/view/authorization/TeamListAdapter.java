@@ -46,7 +46,7 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
         if (team.getDisplayName().length() != 0) {
             holder.binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
             holder.binding.timeIcon.getBackground()
-                    .setColorFilter(ColorGenerator.instance.getRandomColor(), PorterDuff.Mode.MULTIPLY);
+                    .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
             holder.binding.timeName.setText(team.getDisplayName());
         }
         holder.binding.getRoot().setOnClickListener(view ->
