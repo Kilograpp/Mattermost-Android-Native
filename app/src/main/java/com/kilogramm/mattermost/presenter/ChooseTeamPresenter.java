@@ -33,7 +33,6 @@ public class ChooseTeamPresenter extends BaseRxPresenter<ChooseTeamActivity> {
     }
 
     private void clearPreferenceTeam() {
-        MattermostPreference.getInstance().setTeamId(null);
         MattermostPreference.getInstance().setLastChannelId(null);
     }
 

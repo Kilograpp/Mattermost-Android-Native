@@ -12,7 +12,9 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
-        android:padding="@dimen/left_padding"
+        android:paddingTop="@dimen/left_padding"
+        android:paddingLeft="@dimen/left_padding"
+        android:paddingRight="@dimen/left_padding"
         android:layout_width="240dp"
         android:layout_height="match_parent">
 
@@ -30,13 +32,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:listitem="@layout/item_private_list"/>
-
-        <TextView
-            android:textColor="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="@{viewModel.onMoreClick}"
-            android:text="@string/more"/>
 
     </LinearLayout>
 </layout>
