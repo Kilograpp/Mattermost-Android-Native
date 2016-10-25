@@ -16,7 +16,7 @@ import io.realm.Realm;
 public class ChooseTeamPresenter extends BaseRxPresenter<ChooseTeamActivity> {
 
 
-    public void choisTeam(String id) {
+    public void chooseTeam(String id) {
         MattermostPreference.getInstance().setTeamId(id);
         clearDataBaseAfterSwichTeam();
         clearPreferenceTeam();

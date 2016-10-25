@@ -13,8 +13,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemTeamBinding;
 import com.kilogramm.mattermost.model.entity.team.Team;
-
-import java.util.Random;
+import com.kilogramm.mattermost.utils.ColorGenerator;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
@@ -25,6 +24,7 @@ import io.realm.RealmRecyclerViewAdapter;
 
 public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdapter.ViewHolder> {
 
+    private static final float SHADE_FACTOR = 0.9f;
     private OnItemClickListener onItemClickListener;
 
     public TeamListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Team> data, OnItemClickListener onItemClickListener) {
@@ -48,17 +48,17 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
         if (team.getDisplayName().length() != 0) {
             holder.binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
             holder.binding.timeIcon.getBackground()
-                    .setColorFilter(getRandomColor(), PorterDuff.Mode.MULTIPLY);
+                    .setColorFilter(getRandomColor(ColorGenerator.instance.getRandomColor()), PorterDuff.Mode.MULTIPLY);
             holder.binding.timeName.setText(team.getDisplayName());
         }
         holder.binding.getRoot().setOnClickListener(view ->
                 onItemClickListener.onItemClick(team.getId()));
     }
 
-    int getRandomColor() {
-        Random rnd = new Random();
-        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-        return color;
+    int getRandomColor(int color) {
+        return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
+                (int)(SHADE_FACTOR * Color.green(color)),
+                (int)(SHADE_FACTOR * Color.blue(color)));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
