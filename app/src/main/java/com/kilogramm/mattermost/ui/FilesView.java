@@ -111,9 +111,9 @@ public class FilesView extends GridLayout {
 
                 if (fileToAttach != null) {
                     fileToAttach.addChangeListener(element -> {
-                        Log.d(TAG, "change real progress");
+                        //Log.d(TAG, "change real progress");
                         binding.downloadFileControls.post(() -> {
-                            Log.d(TAG, "post progress");
+                           // Log.d(TAG, "post progress");
                             binding.downloadFileControls.setProgress(
                                     FileToAttachRepository.getInstance().get(fileName).getProgress()
                             );

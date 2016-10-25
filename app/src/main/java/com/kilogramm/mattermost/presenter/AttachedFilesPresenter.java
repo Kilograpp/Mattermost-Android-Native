@@ -1,11 +1,6 @@
 package com.kilogramm.mattermost.presenter;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,7 +14,6 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.service.websocket.NetworkStateReceiver;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
@@ -85,8 +79,8 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
             return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
             Log.d(TAG, fileUploadResponse.toString());
             FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
