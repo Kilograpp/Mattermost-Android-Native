@@ -29,6 +29,7 @@ public class MattermostPreference {
     private static final String AUTH_TOKEN = "auth_token";
     private static final String LAST_CHANNEL_ID = "last_channel_id";
     private static final String TEAM_ID = "team_id";
+    private static final String SITE_NAME = "site_name";
 
     public MattermostPreference(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
@@ -39,6 +40,14 @@ public class MattermostPreference {
             instance = new MattermostPreference(context);
 
         return instance;
+    }
+
+    public String getSiteName(){
+        return sharedPreferences.getString(SITE_NAME,null);
+    }
+
+    public void setSiteName(String teamId){
+        sharedPreferences.edit().putString(SITE_NAME, teamId).apply();
     }
 
     public String getTeamId(){

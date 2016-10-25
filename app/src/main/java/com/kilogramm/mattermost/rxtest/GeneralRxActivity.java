@@ -10,14 +10,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
@@ -48,6 +43,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     private static final String TAG = "GeneralRxActivity";
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
@@ -80,10 +76,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 MattermostPreference.getInstance().getMyUserId()));
         binding.headerUsername.setText(
                 UserRepository
-                .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
-                .getMyUserId()))
-                .first()
-                .getUsername()
+                        .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
+                                .getMyUserId()))
+                        .first()
+                        .getUsername()
         );
         Picasso.with(this)
                 .load(getAvatarUrl())
@@ -96,7 +92,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             switch (item.getItemId()) {
                 case R.id.switch_team:
                     getPresenter().requestSwitchTeam();
-                    ChooseTeamActivity.start(this);
                     break;
                 case R.id.files:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
@@ -214,6 +209,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         MainRxAcivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+
+    public void showTeemChoose() {
+        ChooseTeamActivity.start(this);
     }
 
     public void showErrorText(String text) {
