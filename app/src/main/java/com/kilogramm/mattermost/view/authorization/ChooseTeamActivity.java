@@ -55,7 +55,7 @@ public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> {
     }
 
     void setTeam(String id){
-        getPresenter().choisTeam(id);
+        getPresenter().chooseTeam(id);
     }
 
     public void showChatActivity() {
