@@ -58,7 +58,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
             sendShowLoginActivity();
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
-            mainActivity.showErrorText(throwable.getMessage());
+            sendShowError(getError(throwable));
         });
 
     }

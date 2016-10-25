@@ -35,7 +35,7 @@ public class PostRepository {
     public static void remove(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            if(realm.where(Post.class).equalTo("id", item.getId()).findAll().size()!=0) {
+            if (realm.where(Post.class).equalTo("id", item.getId()).findAll().size() != 0) {
                 Post post = realm.where(Post.class).equalTo("id", item.getId()).findFirst();
                 post.deleteFromRealm();
             }
@@ -72,10 +72,24 @@ public class PostRepository {
     public static void prepareAndAdd(Posts posts) {
         Realm realm = Realm.getDefaultInstance();
         for (Post post : posts.getPosts().values()) {
-            post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+            if (post.isSystemMessage())
+                post.setUser(new User("System", "System", "System"));
+            else
+                post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
             post.setViewed(true);
             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         }
         add(posts.getPosts().values());
+    }
+
+    public static void updateUpdateAt(String postId, long update) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            RealmResults<Post> posts = realm1.where(Post.class).equalTo("id",postId).findAll();
+            if(posts.size()!=0){
+                Post post = posts.first();
+                post.setUpdateAt(update);
+            }
+        });
     }
 }

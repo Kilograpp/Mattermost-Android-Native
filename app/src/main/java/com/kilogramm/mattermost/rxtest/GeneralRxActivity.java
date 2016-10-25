@@ -31,6 +31,8 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 import com.squareup.picasso.Picasso;
 
+import java.util.Enumeration;
+
 import io.realm.Realm;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
@@ -43,6 +45,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     private static final String TAG = "GeneralRxActivity";
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
@@ -78,10 +81,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 MattermostPreference.getInstance().getMyUserId()));
         binding.headerUsername.setText(
                 UserRepository
-                .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
-                .getMyUserId()))
-                .first()
-                .getUsername()
+                        .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
+                                .getMyUserId()))
+                        .first()
+                        .getUsername()
         );
         Picasso.with(this)
                 .load(getAvatarUrl())
@@ -94,7 +97,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             switch (item.getItemId()) {
                 case R.id.switch_team:
                     getPresenter().requestSwitchTeam();
-                    ChooseTeamActivity.start(this);
                     break;
                 case R.id.files:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
@@ -218,6 +220,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         MainRxAcivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+
+    public void showTeemChoose() {
+        ChooseTeamActivity.start(this);
     }
 
     public void showErrorText(String text) {

@@ -132,7 +132,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 , (chatRxFragment, extraInfo) -> {
                     // UserRepository.add(extraInfo.getMembers());
                     requestLoadPosts();
-                }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
+                }, (chatRxFragment1, throwable) -> {
+                    sendError(getError(throwable));
+                    sendShowList();
+                });
     }
 
     private void initLoadPosts() {
@@ -154,7 +157,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Log.d(TAG, "Complete load post");
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
-                    sendError(throwable.getMessage());
+                    sendShowList();
+                    sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
     }
@@ -197,7 +201,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
-                    sendError(throwable.getMessage());
+                    sendError(getError(throwable));
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
@@ -532,10 +536,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void setErrorPost(String sendedPostId) {
-        Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
+        PostRepository.updateUpdateAt(sendedPostId,Post.NO_UPDATE);
+        /*Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
-        PostRepository.update(post);
+        PostRepository.update(post);*/
         sendIvalidateAdapter();
     }
 }
