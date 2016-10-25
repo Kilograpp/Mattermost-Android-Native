@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.utils;
 
+import android.graphics.Color;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +15,7 @@ public class ColorGenerator {
     public static ColorGenerator instance;
     private final List<Integer> mColors;
     private final Random mRandom;
+    private static final float SHADE_FACTOR = 0.9f;
 
 
     static {
@@ -46,6 +49,10 @@ public class ColorGenerator {
     }
 
     public int getRandomColor() {
-        return mColors.get(mRandom.nextInt(mColors.size()));
+        int color = mColors.get(mRandom.nextInt(mColors.size()));
+        return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
+                (int)(SHADE_FACTOR * Color.green(color)),
+                (int)(SHADE_FACTOR * Color.blue(color)));
     }
+
 }

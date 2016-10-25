@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.view.authorization;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,7 +23,6 @@ import io.realm.RealmRecyclerViewAdapter;
 
 public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdapter.ViewHolder> {
 
-    private static final float SHADE_FACTOR = 0.9f;
     private OnItemClickListener onItemClickListener;
 
     public TeamListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Team> data, OnItemClickListener onItemClickListener) {
@@ -48,18 +46,13 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
         if (team.getDisplayName().length() != 0) {
             holder.binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
             holder.binding.timeIcon.getBackground()
-                    .setColorFilter(getRandomColor(ColorGenerator.instance.getRandomColor()), PorterDuff.Mode.MULTIPLY);
+                    .setColorFilter(ColorGenerator.instance.getRandomColor(), PorterDuff.Mode.MULTIPLY);
             holder.binding.timeName.setText(team.getDisplayName());
         }
         holder.binding.getRoot().setOnClickListener(view ->
                 onItemClickListener.onItemClick(team.getId()));
     }
 
-    int getRandomColor(int color) {
-        return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
-                (int)(SHADE_FACTOR * Color.green(color)),
-                (int)(SHADE_FACTOR * Color.blue(color)));
-    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private ItemTeamBinding binding;
