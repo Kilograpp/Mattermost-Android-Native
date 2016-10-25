@@ -60,7 +60,6 @@ public interface ApiMethod {
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
 
-
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",

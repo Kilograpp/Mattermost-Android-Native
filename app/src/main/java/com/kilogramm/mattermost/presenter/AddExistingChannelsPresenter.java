@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -57,6 +58,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     for (Channel channel : channelsWithMembers.getChannels()) {
                         moreChannels.add(new ChannelsDontBelong(channel));
                     }
+
                     Realm.getDefaultInstance()
                             .executeTransaction(realm1 -> {
                                 realm1.insertOrUpdate(moreChannels);
