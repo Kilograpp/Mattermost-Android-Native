@@ -7,24 +7,29 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityChooseTeamBinding;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.team.TeamRepository;
+import com.kilogramm.mattermost.presenter.ChooseTeamPresenter;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.RealmResults;
+import nucleus.factory.RequiresPresenter;
 
 /**
  * Created by Jeniks on 27.07.2016.
  */
-public class ChooseTeamActivity extends BaseActivity {
+@RequiresPresenter(ChooseTeamPresenter.class)
+public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> {
 
     private ActivityChooseTeamBinding binding;
     private TeamRepository teamRepository;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,14 +43,22 @@ public class ChooseTeamActivity extends BaseActivity {
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
         RealmResults<Team> teams = teamRepository.query();
-        TeamListAdapter teamListAdapter = new TeamListAdapter(this, teams, id -> showChatActivity(id));
+        TeamListAdapter teamListAdapter = new TeamListAdapter(this, teams, id -> setTeam(id));
+        String siteName = MattermostPreference.getInstance().getSiteName();
+        if (siteName != null && siteName.length() > 0)
+            binding.siteName.setText(siteName);
+        else
+            binding.siteName.setVisibility(View.GONE);
         binding.timeList.setAdapter(teamListAdapter);
         binding.timeList.setLayoutManager(new LinearLayoutManager(this));
 
     }
 
-    public void showChatActivity(String id) {
-        MattermostPreference.getInstance().setTeamId(id);
+    void setTeam(String id){
+        getPresenter().choisTeam(id);
+    }
+
+    public void showChatActivity() {
         GeneralRxActivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);

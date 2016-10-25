@@ -109,6 +109,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
         results.deleteAllFromRealm();
         mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
+        MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
         RealmList<User> directionProfiles = new RealmList<>();
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
