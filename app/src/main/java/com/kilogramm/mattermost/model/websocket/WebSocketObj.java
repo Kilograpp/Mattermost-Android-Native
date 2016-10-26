@@ -7,7 +7,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Map;
 
@@ -212,11 +211,7 @@ public class WebSocketObj implements Parcelable {
             return this;
         }
 
-        public BuilderData setPost(Post post, String userId) {
-            User user = new User();
-            user.setId(userId);
-            user.setUsername(senderName);
-            post.setUser(user);
+        public BuilderData setPost(Post post) {
             this.post = post;
             return this;
         }

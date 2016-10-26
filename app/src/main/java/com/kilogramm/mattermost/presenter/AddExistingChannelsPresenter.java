@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
@@ -16,6 +18,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import rx.schedulers.Schedulers;
 
 /**
@@ -54,11 +57,21 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (addExistingChannelsActivity, channelsWithMembers) -> {
+//                    Realm.getDefaultInstance().executeTransaction(realm -> {
+//                        RealmResults<ChannelsWithMembers> channelsWithMemberses =
+//                                Realm.getDefaultInstance()
+//                                    .where(ChannelsWithMembers.class)
+//                                    .findAll().deleteFromRealm();
+//                    });
                     for (Channel channel : channelsWithMembers.getChannels()) {
                         moreChannels.add(new ChannelsDontBelong(channel));
                     }
+
                     Realm.getDefaultInstance()
-                            .executeTransaction(realm1 -> realm1.insertOrUpdate(moreChannels));
+                            .executeTransaction(realm1 -> {
+                                realm1.delete(ChannelsDontBelong.class);
+                                realm1.insertOrUpdate(moreChannels);
+                            });
                 },
                 (addExistingChannelsActivity, throwable) -> throwable.printStackTrace());
     }

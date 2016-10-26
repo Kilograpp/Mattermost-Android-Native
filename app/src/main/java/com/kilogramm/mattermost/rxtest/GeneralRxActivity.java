@@ -10,14 +10,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
@@ -27,6 +22,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
+import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -47,6 +43,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     private static final String TAG = "GeneralRxActivity";
 
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
@@ -55,7 +52,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     MenuChannelListFragment channelListFragment;
     MenuPrivateListFragment privateListFragment;
     MenuDirectListFragment directListFragment;
+
     private String currentChannel = "";
+    private String searchMessageId;
+    private SaveData saveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,10 +79,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 MattermostPreference.getInstance().getMyUserId()));
         binding.headerUsername.setText(
                 UserRepository
-                .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
-                .getMyUserId()))
-                .first()
-                .getUsername()
+                        .query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance()
+                                .getMyUserId()))
+                        .first()
+                        .getUsername()
         );
         Picasso.with(this)
                 .load(getAvatarUrl())
@@ -94,13 +94,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
             switch (item.getItemId()) {
                 case R.id.switch_team:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    getPresenter().requestSwitchTeam();
                     break;
                 case R.id.files:
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
-                    startActivity(new Intent(this, NotificationActivity.class));
+                    NotificationActivity.start(this);
                     break;
                 case R.id.invite_new_member:
                     InviteUserRxActivity.start(this);
@@ -120,7 +120,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             }
             return false;
         });
-        //  binding.logout.setOnClickListener(view -> getPresenter().requestLogout());
     }
 
     private void setupMenu() {
@@ -190,14 +189,21 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private void replaceFragment(String channelId, String channelName) {
         if (!channelId.equals(currentChannel)) {
-            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName);
-            currentChannel = channelId;
-            getFragmentManager().beginTransaction()
+            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+            currentChannel = channelId;getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             binding.drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            if(searchMessageId != null){
+                ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+                currentChannel = channelId;getFragmentManager().beginTransaction()
+                        .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
+                        .commit();
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+            }
         }
-        binding.drawerLayout.closeDrawer(GravityCompat.START);
+//        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     public static void start(Context context, Integer flags) {
@@ -212,6 +218,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         MainRxAcivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    public void showTeemChoose() {
+        ChooseTeamActivity.start(this);
     }
 
     public void showErrorText(String text) {
@@ -254,18 +264,20 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         .or()
                         .equalTo("name", userTalkToId + "__" + myId)
                         .findAll();
+                realm.close();
 
                 if (channels.size() == 0) {
                     getPresenter().requestSaveData(saveData, userTalkToId);
                 } else {
-                    this.setFragmentChat(channels.get(0).getId(), channels.get(0).getUsername(), "D");
+                    this.setFragmentChat(
+                            channels.get(0).getId(),
+                            channels.get(0).getUsername(),
+                            channels.get(0).getType());
                 }
             }
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
-                    // TODO messageId будет нужен, когда будет осуществляться переход на середину диалога
-                    String messageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
-
+                    searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
                     this.setFragmentChat(
                             data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),

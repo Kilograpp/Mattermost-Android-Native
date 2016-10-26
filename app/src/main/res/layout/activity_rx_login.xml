@@ -89,39 +89,72 @@
                     </android.support.design.widget.TextInputLayout>
 
                     <Button
-                        android:id="@+id/buttonForgot"
-                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:id="@+id/buttonNext"
                         android:stateListAnimator="@null"
                         android:background="@drawable/touch_selector"
-                        android:textColor="@color/colorAccent"
-                        android:text="@string/login_forgot_password"
+                        android:textColor="@drawable/selector_button_sign_in_color"
+                        android:text="@string/login_sign_in"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="@{loginPresenter.onForgotButtonClick}"/>
+                        android:layout_gravity="center_horizontal"
+                        android:enabled="@{loginPresenter.isEnabledSignInButton}"
+                        android:onClick="@{loginPresenter.onClickSignIn}"/>
+
+                    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                        android:visibility="@{loginPresenter.isVisibleProgress}"
+                        android:layout_margin="5dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:indeterminate="true"
+                        app:mpb_progressStyle="circular" />
+
+                    <!--<Button-->
+                        <!--android:id="@+id/buttonForgot"-->
+                        <!--android:layout_gravity="center_horizontal"-->
+                        <!--android:stateListAnimator="@null"-->
+                        <!--android:background="@drawable/touch_selector"-->
+                        <!--android:textColor="@color/error_color"-->
+                        <!--android:text="@string/login_forgot_password"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:onClick="@{loginPresenter.onForgotButtonClick}"/>-->
 
                 </LinearLayout>
 
-                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                    android:visibility="@{loginPresenter.isVisibleProgress}"
-                    android:layout_margin="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    app:mpb_progressStyle="circular" />
-
                 <Button
-                    android:layout_weight="1"
-                    android:id="@+id/buttonNext"
+                    android:id="@+id/buttonForgot"
+                    android:layout_gravity="center_horizontal"
                     android:stateListAnimator="@null"
                     android:background="@drawable/touch_selector"
-                    android:textColor="@drawable/selector_button_sign_in_color"
-                    android:text="@string/login_sign_in"
+                    android:textColor="@color/error_color"
+                    android:text="@string/login_forgot_password"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:enabled="@{loginPresenter.isEnabledSignInButton}"
-                    android:onClick="@{loginPresenter.onClickSignIn}"/>
+                    android:onClick="@{loginPresenter.onForgotButtonClick}"/>
+
+                <!--<me.zhanghai.android.materialprogressbar.MaterialProgressBar-->
+                    <!--android:visibility="@{loginPresenter.isVisibleProgress}"-->
+                    <!--android:layout_margin="5dp"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:indeterminate="true"-->
+                    <!--app:mpb_progressStyle="circular" />-->
+
+                <!--<Button-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:id="@+id/buttonNext"-->
+                    <!--android:stateListAnimator="@null"-->
+                    <!--android:background="@drawable/touch_selector"-->
+                    <!--android:textColor="@drawable/selector_button_sign_in_color"-->
+                    <!--android:text="@string/login_sign_in"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:enabled="@{loginPresenter.isEnabledSignInButton}"-->
+                    <!--android:onClick="@{loginPresenter.onClickSignIn}"/>-->
 
             </LinearLayout>
         </ScrollView>

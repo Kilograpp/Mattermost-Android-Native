@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.view.settings;
 
+import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.Menu;
@@ -115,4 +117,10 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
     public void updateNotification() {
         getPresenter().requestUpdateNotify();
     }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, NotificationActivity.class);
+        context.startActivity(starter);
+    }
+
 }

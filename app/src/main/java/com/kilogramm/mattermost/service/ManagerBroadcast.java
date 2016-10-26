@@ -6,32 +6,25 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
-import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.tools.NetworkUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import io.realm.RealmList;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -47,31 +40,7 @@ public class ManagerBroadcast {
 
     public ManagerBroadcast(Context mContext) {
         this.mContext = mContext;
-        gson = new GsonBuilder()
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
-
-                    @Override
-                    public void write(JsonWriter out, RealmList<RealmString> value) throws IOException {
-                        out.beginArray();
-                        for (RealmString realmString : value) {
-                            out.value(realmString.getString());
-                        }
-                        out.endArray();
-                    }
-
-                    @Override
-                    public RealmList<RealmString> read(JsonReader in) throws IOException {
-                        RealmList<RealmString> list = new RealmList<>();
-                        in.beginArray();
-                        while (in.hasNext()) {
-                            list.add(new RealmString(in.nextString()));
-                        }
-                        in.endArray();
-                        return list;
-                    }
-                })
-                .setLenient()
-                .create();
+        gson = NetworkUtil.createGson();
     }
 
     public WebSocketObj praseMessage(String message){
@@ -123,8 +92,7 @@ public class ManagerBroadcast {
                                         :"")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
                         .setTeamId(dataJSON.getString(WebSocketObj.TEAM_ID))
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
 
                 savePost(data.getPost());
@@ -141,15 +109,13 @@ public class ManagerBroadcast {
                 break;
             case WebSocketObj.EVENT_POST_EDITED:
                 data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
                 UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
                 break;
             case WebSocketObj.EVENT_STATUS_CHANGE:
@@ -181,7 +147,7 @@ public class ManagerBroadcast {
 
 
     public static void savePost(Post post){
-        PostRepository.add(post);
+        PostRepository.prepareAndAddPost(post);
     }
 
     public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {

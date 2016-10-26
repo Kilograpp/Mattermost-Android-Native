@@ -9,7 +9,9 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
-        android:padding="@dimen/left_padding"
+        android:paddingLeft="@dimen/left_padding"
+        android:paddingBottom="@dimen/left_padding"
+        android:paddingRight="@dimen/left_padding"
         android:layout_width="240dp"
         android:layout_height="wrap_content">
 

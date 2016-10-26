@@ -64,17 +64,11 @@
 
                     <com.kilogramm.mattermost.ui.MatterRecyclerView
                         android:id="@+id/rev"
+                        style="@style/scrollbar_shape_style"
                         android:layout_width="match_parent"
                         android:layout_height="400dp"
                         android:scrollbars="vertical"
                         android:visibility="gone"/>
-                   <!--<com.kilogramm.mattermost.ui.MRealmRecyclerView
-                        android:id="@+id/rev"
-                        android:layout_width="match_parent"
-                        android:layout_height="400dp"
-                        android:visibility="gone"
-                        app:rrvLayoutType="LinearLayout">
-                    </com.kilogramm.mattermost.ui.MRealmRecyclerView>-->
                 </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
 

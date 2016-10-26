@@ -2,20 +2,13 @@ package com.kilogramm.mattermost.network;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.tools.NetworkUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.realm.RealmList;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
@@ -43,7 +36,7 @@ public class MattermostRetrofitService {
         OkHttpClient client = new OkHttpClient.Builder()
                 // Caused twice writeTo() method call for uploading file
                 //TODO release version comment this line
-                .addInterceptor(logging)
+                //.addInterceptor(logging)
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token;
@@ -73,31 +66,7 @@ public class MattermostRetrofitService {
                 })
                 .build();
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
-
-                    @Override
-                    public void write(JsonWriter out, RealmList<RealmString> value) throws IOException {
-                        out.beginArray();
-                        for (RealmString realmString : value) {
-                            out.value(realmString.getString());
-                        }
-                        out.endArray();
-                    }
-
-                    @Override
-                    public RealmList<RealmString> read(JsonReader in) throws IOException {
-                        RealmList<RealmString> list = new RealmList<>();
-                        in.beginArray();
-                        while (in.hasNext()) {
-                            list.add(new RealmString(in.nextString()));
-                        }
-                        in.endArray();
-                        return list;
-                    }
-                })
-                .setLenient()
-                .create();
+        Gson gson = NetworkUtil.createGson();
 
         try {
             Retrofit retrofit = new Retrofit.Builder()

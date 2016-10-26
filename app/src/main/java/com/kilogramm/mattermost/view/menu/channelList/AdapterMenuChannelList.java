@@ -93,7 +93,6 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
         holder.bindTo(channel, context);
     }
 
-
     @Override
     public void onBindViewHolder(MenuChannelListHolder holder, int position, List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);

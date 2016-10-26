@@ -3,6 +3,7 @@
     <!--<color name="colorPrimary">#258ad7</color>-->
     <color name="colorPrimaryDark">#227dc2</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="error_color">#f1453d</color>
 
     <color name="white">#FFF</color>
     <color name="black">#000</color>

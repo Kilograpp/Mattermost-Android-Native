@@ -21,21 +21,15 @@ public class FrMenuChannelViewModel implements ViewModel {
         this.context = context;
     }
 
-//    public void onMoreClick(View v){
-//        Toast.makeText(context, "click more", Toast.LENGTH_SHORT).show();
-//    }
-
     @Override
     public void destroy() {
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-
     }
 }

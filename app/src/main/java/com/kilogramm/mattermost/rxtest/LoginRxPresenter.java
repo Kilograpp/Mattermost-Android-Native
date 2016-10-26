@@ -17,7 +17,7 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
@@ -109,11 +109,11 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
         results.deleteAllFromRealm();
         mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
+        MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
         RealmList<User> directionProfiles = new RealmList<>();
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
-        MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
         mRealm.commitTransaction();
         return teams;
     }
@@ -237,8 +237,9 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             if (isOpenChatScreen) {
                 loginRxActivity.showChatActivity();
+                MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
             } else {
-                //TODO start team chose activity
+                loginRxActivity.showTeamChoose();
             }
         }, (loginRxActivity1, throwable) -> {
             isVisibleProgress.set(View.GONE);

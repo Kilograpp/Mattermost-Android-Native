@@ -38,15 +38,12 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
     }
 
     private void initInviteRequest() {
-        restartableFirst(REQUEST_INVITE,()->{
-            return service.invite(MattermostPreference.getInstance().getTeamId(),listInvite)
+        restartableFirst(REQUEST_INVITE, () -> {
+            return service.invite(MattermostPreference.getInstance().getTeamId(), listInvite)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread());
-        },(inviteUserRxActivity, o) -> {
-            sendInviteOk();
-        },(inviteUserRxActivity1, throwable) -> {
-            sendError(throwable.getMessage());
-        });
+        }, (inviteUserRxActivity, o) -> sendInviteOk()
+         , (inviteUserRxActivity1, throwable) -> sendError(throwable.getMessage()));
     }
 
     public void requestInvite(ListInviteObj inviteObj){
@@ -63,6 +60,4 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
         createTemplateObservable(new Object())
                 .subscribe(split((inviteUserRxActivity, o) -> inviteUserRxActivity.onOkInvite()));
     }
-
-
 }

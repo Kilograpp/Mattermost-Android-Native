@@ -13,7 +13,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
@@ -82,8 +82,6 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-
-
                         FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
                             @Override
                             public void onComplete(String fileId) {
@@ -169,7 +167,6 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
-        //Log.d(TAG, url);
         if (backgroundColorId != null)
             binding.root.setBackground(backgroundColorId);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
@@ -189,13 +186,6 @@ public class FilesView extends GridLayout {
                 .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);
-        /*Glide.with(getContext())
-        Picasso.with(getContext())
-                .load(url)
-                .resize(150,150).centerCrop()
-                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
-                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
-                .into(binding.image);*/
         this.addView(binding.getRoot());
     }
 

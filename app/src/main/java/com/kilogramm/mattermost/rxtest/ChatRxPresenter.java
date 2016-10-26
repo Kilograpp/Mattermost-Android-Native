@@ -10,17 +10,21 @@ import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.post.PostByRootIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
+
+import java.util.ArrayList;
 
 import icepick.State;
 import io.realm.Realm;
@@ -50,6 +54,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_LOAD_BEFORE = 8;
     private static final int REQUEST_LOAD_AFTER = 9;
 
+    private static final int REQUEST_LOAD_FOUND_MESSAGE = 12;
 
     private ApiMethod service;
 
@@ -76,20 +81,24 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private Boolean isEmpty = false;
 
+    private String limit;
+
+    @State
+    String searchMessageId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
+        limit = "60";
         initRequests();
     }
 
-    public void initPresenter(String teamId, String channelId){
-        Log.d(TAG,"initPresenter");
+    public void initPresenter(String teamId, String channelId) {
+        Log.d(TAG, "initPresenter");
         this.teamId = teamId;
         this.channelId = channelId;
-
     }
 
     //region Init Requests
@@ -104,6 +113,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initLoadBefore();
         initGetUsers();
         initSendToServerError();
+        initLoadBeforeAndAfter();
     }
 
     private void initExtraInfo() {
@@ -123,7 +133,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 , (chatRxFragment, extraInfo) -> {
                     // UserRepository.add(extraInfo.getMembers());
                     requestLoadPosts();
-                }, (chatRxFragment1, throwable) -> sendError(throwable.getMessage()));
+                }, (chatRxFragment1, throwable) -> {
+                    sendError(getError(throwable));
+                    sendShowList();
+                });
     }
 
     private void initLoadPosts() {
@@ -145,12 +158,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Log.d(TAG, "Complete load post");
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
-                    sendError(throwable.getMessage());
+                    sendShowList();
+                    sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
     }
 
-    private void initSendToServerError(){
+    private void initSendToServerError() {
         restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
@@ -176,7 +190,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initSendToServer() {
-
         restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
@@ -189,7 +202,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
-                    sendError(throwable.getMessage());
+                    sendError(getError(throwable));
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
@@ -198,23 +211,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initUpdateLastViewedAt() {
         restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () -> service.updatelastViewedAt(teamId, channelId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io()),
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
 
                 (chatRxFragment, post) -> {
-
-        }, (chatRxFragment1, throwable) -> {
+                }, (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
-        });
+                });
     }
 
     private void initDeletePost() {
         restartableFirst(REQUEST_DELETE_POST, () -> service.deletePost(teamId, channelId, forDeletePost.getId(), new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
-                (chatRxFragment, post1) -> PostRepository.remove(post1),
+                (chatRxFragment, post1) -> {
+                    PostRepository.remove(new PostByRootIdSpecification(post1.getId()));
+                    PostRepository.remove(post1);
+                },
                 (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
@@ -239,13 +254,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void initLoadBefore(){
+    private void initLoadBefore() {
         restartableFirst(REQUEST_LOAD_BEFORE,
                 () -> {
                     Log.d(TAG, "initLoadBefore");
-                    return service.getPostsBefore(teamId, channelId, lastmessageId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io());
+                    return service.getPostsBefore(teamId, channelId, lastmessageId, limit)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io());
                 },
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
@@ -264,11 +279,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void initLoadAfter(){
+    private void initLoadAfter() {
         restartableFirst(REQUEST_LOAD_AFTER,
                 () -> {
                     Log.d(TAG, "initLoadAfter");
-                    return  service.getPostsAfter(teamId, channelId, firstmessageId)
+                    return service.getPostsAfter(teamId, channelId, firstmessageId, limit)
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.io());
                 }, (chatRxFragment, posts) -> {
@@ -288,12 +303,57 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void initGetUsers(){
+    private void initGetUsers() {
         restartableFirst(REQUEST_DB_GETUSERS,
                 () -> UserRepository.query((new UserByNameSearchSpecification(search))).asObservable(),
                 (chatRxFragment, o) -> sendDropDown(o));
     }
 
+    private void initLoadBeforeAndAfter() {
+        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () -> Observable.defer(
+                () -> Observable.zip(
+                        service.getExtraInfoChannel(teamId, channelId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        service.getPostsBefore(teamId, channelId, searchMessageId, limit)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        service.getPost(teamId, channelId, searchMessageId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        service.getPostsAfter(teamId, channelId, searchMessageId, limit)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                        (extraInfo, postsBef, foundPosts, postsAft) -> {
+                            ArrayList<Posts> allPosts = new ArrayList<>();
+                            allPosts.add(postsAft);
+                            allPosts.add(foundPosts);
+                            allPosts.add(postsBef);
+                            return allPosts;
+                        }))
+                , (chatRxFragment, postsAll) -> {
+                    PostRepository.remove(new PostByChannelId(channelId));
+                    if (postsAll == null) {
+                        sendCanPaginationBot(false);
+                        return;
+                    }
+
+                    for (Posts posts : postsAll) {
+                        PostRepository.prepareAndAdd(posts);
+                    }
+
+                    sendRefreshing(false);
+                    sendShowList();
+                    sendDisableShowLoadMoreBot();
+
+                    sendSlideDialogToFoundMessage();
+
+                    Log.d(TAG, "Complete load post before and after");
+                }, (chatRxFragment, throwable) -> {
+                    Log.d(TAG, "Error initLoadBeforeAndAfter");
+                    throwable.printStackTrace();
+                });
+    }
     //endregion
 
     //region Requests
@@ -305,9 +365,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_LOAD_POSTS);
     }
 
-
     public void requestSendToServer(Post post) {
-        if(FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
+        if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
@@ -321,11 +380,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
         PostRepository.add(forSavePost);
-
-
     }
 
-    public void requestSendToServerError(Post post){
+    public void requestSendToServerError(Post post) {
         forSendPost = post;
         post.setId(null);
         post.setUser(null);
@@ -351,82 +408,105 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_UPDATE_LAST_VIEWED_AT);
     }
 
-    public void requestLoadBefore(){
+    public void requestLoadBeforeAndAfter(String searchMessageId) {
+        this.limit = "10";
+        this.searchMessageId = searchMessageId;
+        start(REQUEST_LOAD_FOUND_MESSAGE);
+    }
+
+    public void requestLoadBefore() {
         getLastMessageId();
+        this.limit = "60";
         start(REQUEST_LOAD_BEFORE);
     }
 
-    public void requestLoadAfter(){
+    public void requestLoadAfter() {
         getFirstMessageId();
+        this.limit = "60";
         start(REQUEST_LOAD_AFTER);
     }
 
-    public void requestGetUsers(String search){
+    public void requestGetUsers(String search) {
         this.search = search;
         start(REQUEST_DB_GETUSERS);
     }
-
     //endregion
 
     // region To View
-    private void sendShowEmptyList(){
+    private void sendShowEmptyList() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.showEmptyList()));
 
     }
-    private void sendRefreshing(Boolean isShow){
+
+    private void sendRefreshing(Boolean isShow) {
         createTemplateObservable(isShow).subscribe(split(
                 ChatRxFragment::setRefreshing));
     }
-    private void sendShowList(){
+
+    private void sendShowList() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.showList()));
     }
-    private void sendOnItemAdded(){
+
+    private void sendOnItemAdded() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.onItemAdded()));
     }
-    private void sendIvalidateAdapter(){
+
+    private void sendIvalidateAdapter() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.invalidateAdapter()));
     }
-    private void sendSetDropDown(RealmResults<User> results){
+
+    private void sendSetDropDown(RealmResults<User> results) {
         createTemplateObservable(results).subscribe(split(
                 ChatRxFragment::setDropDown));
     }
-    private void sendDisableShowLoadMoreTop(){
+
+    private void sendDisableShowLoadMoreTop() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.disableShowLoadMoreTop()));
     }
-    private void sendDisableShowLoadMoreBot(){
+
+    private void sendDisableShowLoadMoreBot() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.disableShowLoadMoreBot()));
     }
-    private void sendCanPaginationTop(Boolean b){
+
+    private void sendCanPaginationTop(Boolean b) {
         createTemplateObservable(b).subscribe(split(
                 ChatRxFragment::setCanPaginationTop));
     }
-    private void sendCanPaginationBot(Boolean b){
+
+    private void sendCanPaginationBot(Boolean b) {
         createTemplateObservable(b).subscribe(split(
                 ChatRxFragment::setCanPaginationBot));
     }
-    private void sendDropDown(RealmResults<User> users){
+
+    private void sendDropDown(RealmResults<User> users) {
         createTemplateObservable(users).subscribe(split(
                 ChatRxFragment::setDropDown));
     }
 
-    private void sendHideFileAttachLayout(){
+    private void sendHideFileAttachLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
-                        chatRxFragment.hideAttachedFilesLayout()));
+                chatRxFragment.hideAttachedFilesLayout()));
     }
 
     private void sendEmptyMessage(){
         createTemplateObservable(new Object())
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
-    private void sendError(String error){
+
+    private void sendError(String error) {
         createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
-                        Toast.makeText(chatRxFragment.getActivity(),s,Toast.LENGTH_SHORT).show()));
+                Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG).show()));
+    }
+
+    private void sendSlideDialogToFoundMessage() {
+        createTemplateObservable(new Object())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.slideToMessageById()));
     }
     //endregion
 
@@ -460,10 +540,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void setErrorPost(String sendedPostId) {
-        Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
+        PostRepository.updateUpdateAt(sendedPostId,Post.NO_UPDATE);
+        /*Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
-        PostRepository.update(post);
+        PostRepository.update(post);*/
         sendIvalidateAdapter();
     }
 }

@@ -27,6 +27,7 @@
     <string name="typing">typing…</string>
 
     <string name="title_forgot_password">Password recovery</string>
+    <string name="choose_team">Choose your team</string>
     <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
@@ -34,7 +35,7 @@
     <string name="confirm_post_delete">Confirm Post Delete</string>
     <string name="cancel">Cancel</string>
     <string name="try_again">Try again</string>
-    <string name="reply">Replay</string>
+    <string name="reply">Reply</string>
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
     <string name="save">Save</string>

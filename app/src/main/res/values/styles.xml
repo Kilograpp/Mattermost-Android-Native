@@ -86,19 +86,36 @@
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="textNormalBlack" parent="@android:style/TextAppearance">
+    <!--BLACK-->
+
+    <style name="textBlack" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="textNormalBlack" parent="@style/textBlack">
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="textVeryBigBlack" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/black</item>
+    <style name="textVeryBigBlack" parent="@style/textBlack">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="textLargeBlack" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/black</item>
+    <style name="textLargeBlack" parent="@style/textBlack">
         <item name="android:textSize">19sp</item>
+    </style>
+
+    <!--White-->
+    <style name="textWhite" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="textNormalWhite" parent="@style/textWhite">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">

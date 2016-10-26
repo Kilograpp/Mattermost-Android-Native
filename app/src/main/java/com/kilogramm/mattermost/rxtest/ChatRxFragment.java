@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -42,7 +41,8 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -75,11 +75,12 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
+        OnItemClickListener<String>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
 
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
+    private static final String CHANNEL_IS_SEARCH = "isSearch";
 
     private static final String REPLY_MESSAGE = "reply_message";
     private static final String EDIT_MESSAGE = "edit_message";
@@ -107,6 +108,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     boolean isOpenedKeyboard = false;
     @State
     boolean isMessageTextOpen = false;
+    @State
+    String searchMessageId = null;
 
     private Uri fileFromCamera;
 
@@ -114,11 +117,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Realm realm;
 
-
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
-
-
+    
     private BroadcastReceiver brReceiverTyping;
 
     @Override
@@ -126,6 +127,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         super.onCreate(savedInstanceState);
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
+        this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
         this.realm = Realm.getDefaultInstance();
         this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
@@ -167,8 +169,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         };
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
-        getPresenter().requestExtraInfo();
+
+        if (searchMessageId != null) {
+            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
+        } else {
+            getPresenter().requestExtraInfo();
+        }
         binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    public void slideToMessageById() {
+        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
 
     @Override
@@ -179,7 +190,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         checkNeededPermissions();
     }
 
-    private void checkNeededPermissions(){
+    private void checkNeededPermissions() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -191,9 +202,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    private void setAttachedFilesLayout(){
+    private void setAttachedFilesLayout() {
         RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
-        if(fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0){
+        if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
             binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
             binding.attachedFilesLayout.setVisibility(View.GONE);
@@ -213,18 +224,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         dropDownListAdapter.updateData(realmResult);
     }
 
-    public static ChatRxFragment createFragment(String channelId, String channelName) {
+    public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
         ChatRxFragment chatFragment = new ChatRxFragment();
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
         bundle.putString(CHANNEL_NAME, channelName);
+        bundle.putString(CHANNEL_IS_SEARCH, searchMessageId);
         chatFragment.setArguments(bundle);
         return chatFragment;
     }
 
     private void setupListChat(String channelId) {
         RealmResults<Post> results = PostRepository.query(new PostByChannelId(channelId));
-         results.addChangeListener(element -> {
+        results.addChangeListener(element -> {
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
@@ -244,7 +256,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);
     }
-
 
     public String getChId() {
         return this.channelId;
@@ -297,7 +308,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -389,7 +399,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
-       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
@@ -425,13 +435,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
-
         if (adapter.getLastItem() == null) {
             return currentTime;
         }
         Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
-
-        if ((currentTime / 10000 * 10000) < lastTime)
+        if (currentTime > lastTime)
             return currentTime;
         else
             return lastTime + 1;
@@ -628,7 +636,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.writingMessage.setText(s);
     }
 
-
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getAdapter().getItemCount() - 1);
@@ -639,17 +646,20 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     @Override
-    public void OnItemClick(View view, Post item) {
-        switch (view.getId()) {
-            case R.id.sendStatusError:
-                showErrorSendMenu(view, item);
-                break;
-            case R.id.controlMenu:
-                showPopupMenu(view, item);
-                break;
-            case R.id.avatar:
-                ProfileRxActivity.start(getActivity(),item.getUserId());
-                break;
+    public void OnItemClick(View view, String item) {
+        if(PostRepository.query(new PostByIdSpecification(item)).size()!=0){
+            Post post = PostRepository.query(new PostByIdSpecification(item)).first();
+            switch (view.getId()) {
+                case R.id.sendStatusError:
+                    showErrorSendMenu(view, post);
+                    break;
+                case R.id.controlMenu:
+                    showPopupMenu(view, post);
+                    break;
+                case R.id.avatar:
+                    ProfileRxActivity.start(getActivity(), post.getUserId());
+                    break;
+            }
         }
     }
 

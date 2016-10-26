@@ -36,7 +36,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     @State
     String url;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
@@ -59,7 +58,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
             sendShowLoginActivity();
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
-            mainActivity.showErrorText(throwable.getMessage());
+            sendShowError(getError(throwable));
         });
 
     }

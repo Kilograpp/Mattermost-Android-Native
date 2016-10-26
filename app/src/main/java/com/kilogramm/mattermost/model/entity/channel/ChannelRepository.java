@@ -7,6 +7,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import java.util.Collection;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -40,7 +41,6 @@ public class ChannelRepository {
         });
     }
 
-
     public static void prepareChannelAndAdd(Collection<Channel> items, String myId){
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -70,13 +70,22 @@ public class ChannelRepository {
         });
     }
 
+    public static void prepareDirectChannelAndAdd(Collection<Channel> channels, String userId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            for (Channel channel : channels) {
+                if (channel.getType().equals(Channel.DIRECT)) {
+                    channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
+                    channel.setUsername(channel.getUser().getUsername());
+                }
+            }
+        });
+    }
 
     public static void remove(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
         RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-
-
     }
 
     public static RealmResults<Channel> query(Specification specification) {
@@ -85,10 +94,7 @@ public class ChannelRepository {
         return realmResults;
     }
 
-
-
     // region Specification
-
     public static class ChannelByIdSpecification implements RealmSpecification {
         private final String id;
 
@@ -114,20 +120,24 @@ public class ChannelRepository {
 
         @Override
         public RealmResults<Channel> toRealmResults(Realm realm) {
-            return realm.where(Channel.class)
-                    .equalTo("type", type)
-                    .findAllSorted("username", Sort.ASCENDING);
+            if (type == "O" || type == "P") {
+                return realm.where(Channel.class)
+                        .equalTo("type", type)
+                        .findAllSorted("name", Sort.ASCENDING);
+            } else {
+                return realm.where(Channel.class)
+                        .equalTo("type", type)
+                        .findAllSorted("username", Sort.ASCENDING);
+            }
         }
     }
 
     public static class ChannelAllSpecification implements RealmSpecification{
-
         @Override
         public RealmResults toRealmResults(Realm realm) {
             return realm.where(Channel.class).findAllSorted("username",Sort.ASCENDING);
         }
     }
-
     //endregion
 }
 

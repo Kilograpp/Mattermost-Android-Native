@@ -6,8 +6,9 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.NotifyProps;
-import com.kilogramm.mattermost.model.entity.NotifyUpdate;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
+import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -15,9 +16,6 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import icepick.State;
-import io.realm.Realm;
-import nucleus.presenter.delivery.Delivery;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -27,7 +25,7 @@ import rx.schedulers.Schedulers;
 
 public class NotificationPresenter extends BaseRxPresenter<NotificationActivity> {
 
-    private static final String channelMentions = "\"@channel\",\"@all\",";
+    private static final String channelMentions = "\"@channel\",\"@all\"";
 
     private static final String TAG = "NotificationPresenter";
     private static final int REQUEST_UPDATE_NOTIFY = 1;
@@ -43,11 +41,34 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        Realm realm = Realm.getDefaultInstance();
-        this.notifyProps = new NotifyProps(realm.where(NotifyProps.class).findFirst());
-        this.user = realm.where(User.class).equalTo("id", MattermostPreference.getInstance().getMyUserId()).findFirst();
+        this.user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.notifyProps = new NotifyProps(NotifyRepository.query().first());
         service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
+    }
+
+    @Override
+    public void destroy() {
+        Log.d(TAG, "destroy");
+        super.destroy();
+    }
+
+    @Override
+    public void save(Bundle state) {
+        Log.d(TAG, "save");
+        super.save(state);
+    }
+
+    @Override
+    public void takeView(NotificationActivity notificationActivity) {
+        Log.d(TAG, "takeView");
+        super.takeView(notificationActivity);
+    }
+
+    @Override
+    public void dropView() {
+        Log.d(TAG, "dropView");
+        super.dropView();
     }
 
     private void initRequests() {
@@ -57,19 +78,20 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     private void initDeletePost() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (settingsActivity, user) -> {
+                                .subscribeOn(Schedulers.newThread())
+                                .observeOn(AndroidSchedulers.mainThread()),
+                (notificationActivity, user) -> {
                     UserRepository.update(user);
-                    Toast.makeText(settingsActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
-                }, (settingsActivity, throwable) -> {
-                    sendError(throwable);
-                    Log.d(TAG, "Error update notification " + throwable.getMessage());
+                    Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
+                },
+                (notificationActivity, throwable) -> {
+                    sendError("Unable to save");
+                    Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
 
-    private void sendError(Throwable throwable) {
-        createTemplateObservable(throwable.getMessage())
+    private void sendError(String error) {
+        createTemplateObservable(error)
                 .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
@@ -94,14 +116,14 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             }
             if (notifyProps.getChannel().equals("true"))
                 if (result.length() != 0)
-                    result = result + ","  +channelMentions;
+                    result = result + "," + channelMentions;
                 else
                     result = channelMentions;
 
             for (String s : mentions) {
                 if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()))
                     if (result.length() != 0)
-                        result = result + "\"," + s + "\"";
+                        result = result + ",\"" + s + "\"";
                     else
                         result = "\"" + s + "\"";
             }
@@ -211,13 +233,5 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     public String getFirstName() {
         return user.getFirstName();
-    }
-
-
-    public <T> Observable<Delivery<NotificationActivity, T>> createTemplateObservable(T obj) {
-        return Observable.just(obj)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .compose(deliverFirst());
     }
 }

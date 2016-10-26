@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.model.entity;
+package com.kilogramm.mattermost.model.entity.notifyProps;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -50,6 +50,10 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @Expose
     private String pushStatus;
 
+    public long getId() {
+        return id;
+    }
+
     public String getPushStatus() {
         return pushStatus;
     }
@@ -59,7 +63,10 @@ public class NotifyProps extends RealmObject implements Parcelable {
     }
 
     public String getPush() {
-        return push;
+        if (push != null)
+            return push;
+        else
+            return "";
     }
 
     public void setPush(String push) {
@@ -73,145 +80,114 @@ public class NotifyProps extends RealmObject implements Parcelable {
     public void setDesktopDuration(String desktopDuration) {
         this.desktopDuration = desktopDuration;
     }
+
     /**
-     *
-     * @return
-     * The all
+     * @return The all
      */
     public String getAll() {
         return all;
     }
 
     /**
-     *
-     * @param all
-     * The all
+     * @param all The all
      */
     public void setAll(String all) {
         this.all = all;
     }
 
     /**
-     *
-     * @return
-     * The channel
+     * @return The channel
      */
     public String getChannel() {
         return channel;
     }
 
     /**
-     *
-     * @param channel
-     * The channel
+     * @param channel The channel
      */
     public void setChannel(String channel) {
         this.channel = channel;
     }
 
     /**
-     *
-     * @return
-     * The desktop
+     * @return The desktop
      */
     public String getDesktop() {
         return desktop;
     }
 
     /**
-     *
-     * @param desktop
-     * The desktop
+     * @param desktop The desktop
      */
     public void setDesktop(String desktop) {
         this.desktop = desktop;
     }
 
     /**
-     *
-     * @return
-     * The desktopSound
+     * @return The desktopSound
      */
     public String getDesktopSound() {
         return desktopSound;
     }
 
     /**
-     *
-     * @param desktopSound
-     * The desktop_sound
+     * @param desktopSound The desktop_sound
      */
     public void setDesktopSound(String desktopSound) {
         this.desktopSound = desktopSound;
     }
 
     /**
-     *
-     * @return
-     * The email
+     * @return The email
      */
     public String getEmail() {
         return email;
     }
 
     /**
-     *
-     * @param email
-     * The email
+     * @param email The email
      */
     public void setEmail(String email) {
         this.email = email;
     }
 
     /**
-     *
-     * @return
-     * The firstName
+     * @return The firstName
      */
     public String getFirstName() {
         return firstName;
     }
 
     /**
-     *
-     * @param firstName
-     * The first_name
+     * @param firstName The first_name
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
     /**
-     *
-     * @return
-     * The mentionKeys
+     * @return The mentionKeys
      */
     public String getMentionKeys() {
         return mentionKeys;
     }
 
     /**
-     *
-     * @param mentionKeys
-     * The mention_keys
+     * @param mentionKeys The mention_keys
      */
     public void setMentionKeys(String mentionKeys) {
         this.mentionKeys = mentionKeys;
     }
 
     /**
-     *
-     * @return
-     * The comments
+     * @return The comments
      */
     public String getComments() {
         return comments;
     }
 
     /**
-     *
-     * @param comments
-     * The comments
+     * @param comments The comments
      */
     public void setComments(String comments) {
         this.comments = comments;

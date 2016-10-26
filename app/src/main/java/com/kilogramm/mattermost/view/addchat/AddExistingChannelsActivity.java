@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
@@ -12,10 +13,12 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityAllChatsBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.presenter.AddExistingChannelsPresenter;
+import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -45,7 +48,9 @@ public class AddExistingChannelsActivity
     }
 
     private void setRecycleView() {
-        RealmResults<ChannelsDontBelong> moreChannels = realm.where(ChannelsDontBelong.class).findAll();
+        RealmResults<ChannelsDontBelong> moreChannels = realm.where(ChannelsDontBelong.class)
+                .findAll()
+                .sort("name", Sort.ASCENDING);
         adapter = new AddExistingChannelsAdapter(this, moreChannels, true, this);
         binding.recViewMoreChannels.setAdapter(adapter);
 
@@ -61,7 +66,10 @@ public class AddExistingChannelsActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        }
         return super.onOptionsItemSelected(item);
     }
 

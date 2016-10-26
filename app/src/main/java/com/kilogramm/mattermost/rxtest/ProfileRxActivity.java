@@ -29,6 +29,9 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
     private String userId;
 
+    public ProfileRxActivity() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +81,7 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
         inflater.inflate(R.menu.menu_profile, menu);
         return true;
     }*/
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
