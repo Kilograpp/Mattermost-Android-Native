@@ -146,8 +146,18 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
             Matcher findWord = mTerm.matcher(message.toLowerCase());
 
             while (findWord.find()) {
+                //TODO проверить и доделать на длинных строках поиска
+//                if (findWord.groupCount() > 1) {
+//                    for (int i = 0; i < findWord.groupCount(); i++) {
+//                        spannableText.setSpan(new BackgroundColorSpan(
+//                                        context.getResources().getColor(R.color.color_highlight)),
+//                                findWord.start(i),
+//                                findWord.end(i),
+//                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                    }
+//                }
                 spannableText.setSpan(new BackgroundColorSpan(
-                        context.getResources().getColor(R.color.color_highlight)),
+                                context.getResources().getColor(R.color.color_highlight)),
                         findWord.start(0),
                         findWord.end(0),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
