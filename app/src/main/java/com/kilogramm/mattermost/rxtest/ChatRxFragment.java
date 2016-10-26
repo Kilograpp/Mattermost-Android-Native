@@ -41,6 +41,7 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
@@ -74,7 +75,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
+        OnItemClickListener<String>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
 
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
@@ -646,17 +647,20 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     @Override
-    public void OnItemClick(View view, Post item) {
-        switch (view.getId()) {
-            case R.id.sendStatusError:
-                showErrorSendMenu(view, item);
-                break;
-            case R.id.controlMenu:
-                showPopupMenu(view, item);
-                break;
-            case R.id.avatar:
-                ProfileRxActivity.start(getActivity(), item.getUserId());
-                break;
+    public void OnItemClick(View view, String item) {
+        if(PostRepository.query(new PostByIdSpecification(item)).size()!=0){
+            Post post = PostRepository.query(new PostByIdSpecification(item)).first();
+            switch (view.getId()) {
+                case R.id.sendStatusError:
+                    showErrorSendMenu(view, post);
+                    break;
+                case R.id.controlMenu:
+                    showPopupMenu(view, post);
+                    break;
+                case R.id.avatar:
+                    ProfileRxActivity.start(getActivity(), post.getUserId());
+                    break;
+            }
         }
     }
 

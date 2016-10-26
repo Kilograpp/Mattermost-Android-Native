@@ -44,13 +44,13 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
     private LayoutInflater inflater;
     private Context context;
-    private OnItemClickListener<Post> listener;
+    private OnItemClickListener<String> listener;
 
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
 
-    public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<Post> listener) {
+    public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
         this.inflater = LayoutInflater.from(context);
         this.context = context;
@@ -198,17 +198,17 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
                 ((ChatListItemBinding) mBinding).sendStatusError.setOnClickListener(view -> {
                     if (listener != null)
-                        listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, post);
+                        listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, post.getId());
                 });
             }
             ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
                 if (listener != null) {
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post.getId());
                 }
             });
             ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
                 if (listener != null) {
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
                 }
             });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
