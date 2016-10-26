@@ -95,7 +95,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             } else {
                 notifyItemRemoved(0);
             }
-
         }
     }
 
@@ -109,7 +108,6 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             } else {
                 notifyItemRemoved(getItemCount());
             }
-
         }
     }
 
@@ -152,6 +150,9 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                         && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
                     root = getData().where().equalTo("id", post.getRootId()).findFirst();
                 }
+            }
+            if(pos-1==-1){
+                isTitle = true;
             }
             holder.bindToItem(post, context, isTitle, root, listener);
         } else {
@@ -202,15 +203,13 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             }
             ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
                 if (listener != null) {
-                    Post post1 = new Post(post);
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post1);
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post);
                 }
             });
             if (!post.isSystemMessage())
                 ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
                     if (listener != null) {
-                        Post post1 = new Post(post);
-                        listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post1);
+                        listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post);
                     }
                 });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);

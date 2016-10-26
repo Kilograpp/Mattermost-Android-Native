@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -70,6 +71,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
                     }
                 }, (searchMessageActivity1, throwable) -> {
                     sendShowProgressBarVisibility(false);
+                    sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
     }
@@ -102,6 +104,11 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     private void sendSetRecyclerView(String terms) {
         createTemplateObservable(terms)
                 .subscribe(split(SearchMessageActivity::setRecycleView));
+    }
+
+    private void sendError(String error) {
+        createTemplateObservable(error).subscribe(split((messageActivity, s) ->
+                Toast.makeText(messageActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
     public void search(String terms) {
