@@ -31,8 +31,6 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 import com.squareup.picasso.Picasso;
 
-import java.util.Enumeration;
-
 import io.realm.Realm;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
