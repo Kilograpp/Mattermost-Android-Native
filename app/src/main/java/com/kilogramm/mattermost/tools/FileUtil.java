@@ -198,27 +198,13 @@ public class FileUtil {
                 throw new IOException();
             }
         }
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
-    }
 
-    public File createTempFile(String fileName) throws IOException {
-        File storageDir = new File(Environment.getExternalStorageDirectory() + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
-        }
         // Can use:
         // File file = new File();
         // file.createNewFile();
-
         return File.createTempFile(
-                fileName,  /* prefix */
-                null,                          /* suffix */
+                imageFileName,  /* prefix */
+                ".jpg",                          /* suffix */
                 storageDir                       /* directory */
         );
     }
@@ -232,7 +218,7 @@ public class FileUtil {
 
     public String getDownloadedFilesDir(){
         return  Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost"  + File.separator;
+                Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost";
     }
 
     public String getFileNameFromId(String fileId){
