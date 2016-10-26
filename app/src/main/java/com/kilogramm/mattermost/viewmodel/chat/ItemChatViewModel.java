@@ -145,7 +145,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        if (imageUrl != null && imageUrl != "") {
+        if (imageUrl != null && !imageUrl.equals("")) {
             view.setRotation(0);
             Picasso.with(view.getContext())
                     .load(imageUrl)
