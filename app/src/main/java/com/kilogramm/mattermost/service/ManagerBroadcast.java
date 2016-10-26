@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import io.realm.RealmList;
-
 /**
  * Created by Evgeny on 31.08.2016.
  */
@@ -94,8 +92,7 @@ public class ManagerBroadcast {
                                         :"")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
                         .setTeamId(dataJSON.getString(WebSocketObj.TEAM_ID))
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
 
                 savePost(data.getPost());
@@ -112,15 +109,13 @@ public class ManagerBroadcast {
                 break;
             case WebSocketObj.EVENT_POST_EDITED:
                 data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
                 UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class),
-                                webSocketObj.getUserId())
+                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
                 break;
             case WebSocketObj.EVENT_STATUS_CHANGE:
@@ -152,7 +147,7 @@ public class ManagerBroadcast {
 
 
     public static void savePost(Post post){
-        PostRepository.add(post);
+        PostRepository.prepareAndAddPost(post);
     }
 
     public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {

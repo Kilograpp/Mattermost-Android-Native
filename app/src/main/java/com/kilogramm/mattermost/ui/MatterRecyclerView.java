@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -76,7 +77,9 @@ public class MatterRecyclerView extends RecyclerView {
         if (isCanPagination()) {
             if (canPaginationTop) {
                 if (!showShowLoadMoreTop && !((AdapterPost) getAdapter()).getTopLoading()) {
-                    int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstVisibleItemPosition();
+                   // int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    //Log.d(TAG, "firstNoCompleteItem = " + firstNoCompleteItem + "\nfirstvisibleItem = " + firstvisibleItem);
                     if (firstvisibleItem < 1
                             && firstvisibleItem != -1) {
                         Log.d(TAG, "Log scrolling recyclerview: \n" +
