@@ -247,6 +247,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     public void requestAddChat(String joinChannelId) {
         channelId = joinChannelId;
+        user.setUserId("");
         start(REQUEST_ADD_CHAT);
     }
 
