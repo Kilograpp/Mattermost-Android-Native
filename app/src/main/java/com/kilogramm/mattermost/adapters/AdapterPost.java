@@ -59,11 +59,11 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0 && isTopLoading){
+        if (position == 0 && isTopLoading) {
             Log.d(TAG, "Loading_Top = " + position);
             return LOADING_TOP;
-        } else if (position == getItemCount()-1 && isBottomLoading){
-            Log.d(TAG, "Loading_Bottom = " + (getItemCount()-1));
+        } else if (position == getItemCount() - 1 && isBottomLoading) {
+            Log.d(TAG, "Loading_Bottom = " + (getItemCount() - 1));
             return LOADING_BOTTOM;
         } else {
             return ITEM;
@@ -75,22 +75,22 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
         int count = super.getItemCount();
 
-        if(isBottomLoading){
+        if (isBottomLoading) {
             count++;
         }
-        if(isTopLoading){
+        if (isTopLoading) {
             count++;
         }
         //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
     }
 
-    public void setLoadingTop(Boolean enabled){
-        Log.d(TAG, "setLoadingTop("+enabled+");");
-        if(isTopLoading != enabled){
+    public void setLoadingTop(Boolean enabled) {
+        Log.d(TAG, "setLoadingTop(" + enabled + ");");
+        if (isTopLoading != enabled) {
             isTopLoading = enabled;
             getItemCount();
-            if(enabled){
+            if (enabled) {
                 notifyItemInserted(0);
             } else {
                 notifyItemRemoved(0);
@@ -98,12 +98,12 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
     }
 
-    public void setLoadingBottom(Boolean enabled){
-        Log.d(TAG, "setLoadingBottom("+enabled+");");
-        if(isBottomLoading != enabled){
+    public void setLoadingBottom(Boolean enabled) {
+        Log.d(TAG, "setLoadingBottom(" + enabled + ");");
+        if (isBottomLoading != enabled) {
             isBottomLoading = enabled;
             getItemCount();
-            if(enabled){
+            if (enabled) {
                 notifyItemInserted(getItemCount());
             } else {
                 notifyItemRemoved(getItemCount());
@@ -113,7 +113,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        switch (viewType){
+        switch (viewType) {
             case ITEM:
                 Log.d(TAG, "bindItem ");
                 return MyViewHolder.createItem(inflater, parent);
@@ -130,25 +130,25 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(AdapterPost.MyViewHolder holder, int position) {
-        if(getItemViewType(position) == ITEM){
-            int pos = isTopLoading?position-1:position;
-            Post post = getData().get(isTopLoading?position-1:position);
+        if (getItemViewType(position) == ITEM) {
+            int pos = isTopLoading ? position - 1 : position;
+            Post post = getData().get(isTopLoading ? position - 1 : position);
             Calendar curDate = Calendar.getInstance();
             Calendar preDate = Calendar.getInstance();
             Post prePost;
             Boolean isTitle = false;
             Post root = null;
-            if(pos-1 >= 0){
-                prePost = getData().get(pos-1);
+            if (pos - 1 >= 0) {
+                prePost = getData().get(pos - 1);
                 curDate.setTime(new Date(post.getCreateAt()));
                 preDate.setTime(new Date(prePost.getCreateAt()));
-                if(curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)){
+                if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
                     isTitle = true;
                 }
                 if (post.getRootId() != null
                         && post.getRootId().length() > 0
-                        && getData().where().equalTo("id", post.getRootId()).findAll().size()!=0) {
-                        root = getData().where().equalTo("id", post.getRootId()).findFirst();
+                        && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
+                    root = getData().where().equalTo("id", post.getRootId()).findFirst();
                 }
             }
             if(pos-1==-1){
@@ -179,7 +179,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
 
         public static MyViewHolder createLoadingTop(LayoutInflater inflater, ViewGroup parent) {
-            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding.inflate(inflater,parent,false);
+            com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding binding = com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding.inflate(inflater, parent, false);
             return new MyViewHolder(binding);
         }
 
@@ -206,27 +206,28 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                     listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post.getId());
                 }
             });
-            ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
-                if (listener != null) {
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
-                }
-            });
+            if (!post.isSystemMessage())
+                ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
+                    if (listener != null) {
+                        listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
+                    }
+                });
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
             ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
-            if(((ChatListItemBinding) mBinding).getViewModel() == null){
+            if (((ChatListItemBinding) mBinding).getViewModel() == null) {
                 ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(post));
             } else {
                 ((ChatListItemBinding) mBinding).getViewModel().setPost(post);
 
             }
-            if (root!=null)
+            if (root != null)
                 setRootMassage(root);
             else
                 ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.GONE);
 
-            if(isTitle){
+            if (isTitle) {
                 ((ChatListItemBinding) mBinding).getViewModel().setTitleVisibility(View.VISIBLE);
             } else {
                 ((ChatListItemBinding) mBinding).getViewModel().setTitleVisibility(View.GONE);
@@ -242,15 +243,15 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             mBinding.executePendingBindings();
         }
 
-        public void bindToLoadingTop(){
+        public void bindToLoadingTop() {
 
         }
 
-        public void bindToLoadingBottom(){
+        public void bindToLoadingBottom() {
 
         }
 
-        private void setRootMassage( Post root) {
+        private void setRootMassage(Post root) {
             if (root != null) {
                 ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
                 ((ChatListItemBinding) mBinding).filesViewRoot.setItems(root.getFilenames());
@@ -265,29 +266,29 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         private static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
             Spanned spanned;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()),Html.FROM_HTML_MODE_LEGACY,null, new MattermostTagHandler());
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
             } else {
-                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null,new MattermostTagHandler());
+                spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null, new MattermostTagHandler());
             }
             SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
             Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
             Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-                ssb.setSpan(new ForegroundColorSpan(context.getResources ().getColor(R.color.colorPrimary)),
-                        start,end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 return true;
             }, null);
 
             Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
                 String s = charSequence.toString();
                 StringBuilder builder = new StringBuilder();
-                for (int k = i; k < i1; k++){
+                for (int k = i; k < i1; k++) {
                     builder.append(' ');
                 }
-                ssb.replace(i,i1,builder.toString());
+                ssb.replace(i, i1, builder.toString());
                 ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 return true;
-            },null);
+            }, null);
             return ssb;
         }
 
@@ -295,7 +296,7 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
             Object[] spans = stext.getSpans(0, stext.length(), Object.class);
             Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
             if (spans != null && spans.length > 0) {
-                for(int i = spans.length - 1; i >= 0; --i) {
+                for (int i = spans.length - 1; i >= 0; --i) {
                     ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
                 }
             }
@@ -304,10 +305,10 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
         }
     }
 
-    public int getPositionById(String id){
+    public int getPositionById(String id) {
         int count = super.getPositionById(id);
 
-        if(isTopLoading){
+        if (isTopLoading) {
             count++;
         }
         //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);

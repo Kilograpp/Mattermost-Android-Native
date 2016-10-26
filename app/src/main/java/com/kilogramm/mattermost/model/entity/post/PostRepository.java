@@ -63,7 +63,10 @@ public class PostRepository {
 
     public static void prepareAndAddPost(Post post) {
         Realm realm = Realm.getDefaultInstance();
-        post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+        if (!post.isSystemMessage())
+            post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+        else
+            post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         add(post);
@@ -85,8 +88,8 @@ public class PostRepository {
     public static void updateUpdateAt(String postId, long update) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            RealmResults<Post> posts = realm1.where(Post.class).equalTo("id",postId).findAll();
-            if(posts.size()!=0){
+            RealmResults<Post> posts = realm1.where(Post.class).equalTo("id", postId).findAll();
+            if (posts.size() != 0) {
                 Post post = posts.first();
                 post.setUpdateAt(update);
             }
