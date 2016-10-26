@@ -249,7 +249,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     post.setUpdateAt(updateAt);
                     PostRepository.update(post);
                     sendIvalidateAdapter();
-                    throwable.printStackTrace();
+                    sendError(throwable.getMessage());
                     Log.d(TAG, "Error edit post " + throwable.getMessage());
                 });
     }
@@ -347,11 +347,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendDisableShowLoadMoreBot();
 
                     sendSlideDialogToFoundMessage();
-
-                    Log.d(TAG, "Complete load post before and after");
                 }, (chatRxFragment, throwable) -> {
-                    Log.d(TAG, "Error initLoadBeforeAndAfter");
                     throwable.printStackTrace();
+                    sendError(throwable.getMessage());
                 });
     }
     //endregion

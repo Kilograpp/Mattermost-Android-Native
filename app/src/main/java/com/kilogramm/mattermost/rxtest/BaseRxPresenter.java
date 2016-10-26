@@ -45,7 +45,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                 HttpError error = new Gson().fromJson(((HttpException) e).response()
                         .errorBody()
                         .string(), HttpError.class);
-                return (error != null) ? error.getError() : e.getMessage();
+                return (error == null) ? error.getError() : error.getMessage();
             } catch (IOException e1) {
                 return e.getMessage();
             }
