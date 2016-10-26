@@ -40,13 +40,15 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
 
     public String getError(Throwable e){
         if(e instanceof HttpException){
-            try {
-                return new Gson().fromJson(((HttpException) e).response()
-                        .errorBody()
-                        .string(),HttpError.class).getError();
-            } catch (IOException e1) {
-                return e.getMessage();
-            }
+//            try {
+//                return new Gson().fromJson(((HttpException) e).response()
+//                        .errorBody()
+//                        .string(),HttpError.class).getError();
+//            }
+//            catch (IOException e1) {
+//                return e.getMessage();
+//            }
+            return ((HttpException) e).message();
         } else {
             return e.getMessage();
         }

@@ -84,7 +84,7 @@ public class AddExistingChannelsAdapter extends
                     .setColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY);
 
             typeChannel = channelDontBelong.getType();
-            moreBinding.tvChannelName.setText(channelDontBelong.getName().toUpperCase());
+            moreBinding.tvChannelName.setText(channelDontBelong.getDisplayName().toUpperCase());
         }
 
         public String getTypeChannel() {

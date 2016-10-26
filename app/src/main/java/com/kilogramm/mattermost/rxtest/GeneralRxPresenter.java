@@ -131,9 +131,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
                     UserRepository.add(users);
                     requestLoadChannels();
-                }, (generalRxActivity1, throwable) -> {
-                    sendShowError(throwable.toString());
-                });
+                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
             return service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
@@ -143,7 +141,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                     MattermostPreference.getInstance().getMyUserId());
             requestUserTeam();
-        }, (generalRxActivity1, throwable) -> sendShowError(throwable.toString()));
+        }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM, () -> {
             return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
@@ -191,11 +189,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
                             return channel;
         })), (generalRxActivity, channel) -> {
-            // пока не удалять (melkshake)
-//            List<Channel> channelList = new ArrayList<>();
-//            channelList.add(channel);
-//            ChannelRepository.prepareChannelAndAdd(channelList, MattermostPreference.getInstance().getMyUserId());
-            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+            String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+            sendSetFragmentChat(channel.getId(), channelName, channel.getType());
         }, (generalRxActivity, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, throwable.getMessage());

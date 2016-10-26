@@ -501,7 +501,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void sendError(String error) {
         createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
-                Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_SHORT).show()));
+                Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG).show()));
     }
 
     private void sendSlideDialogToFoundMessage() {
