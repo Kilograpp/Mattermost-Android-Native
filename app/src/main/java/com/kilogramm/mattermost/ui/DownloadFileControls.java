@@ -80,6 +80,7 @@ public class DownloadFileControls extends FrameLayout {
     public void hideProgressControls() {
         iconActionDownload.setVisibility(VISIBLE);
         progressBar.setVisibility(INVISIBLE);
+        progressWait.setVisibility(INVISIBLE);
         viewClose.setVisibility(INVISIBLE);
     }
 

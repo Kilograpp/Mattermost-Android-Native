@@ -5,12 +5,10 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
@@ -31,8 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmModel;
 
 /**
  * Created by Evgeny on 01.09.2016.
@@ -82,8 +78,6 @@ public class FilesView extends GridLayout {
             fileList = items;
             for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
-//                FileToAttachRepository.getInstance().addForDownload(fileName);
-
 
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
@@ -93,16 +87,21 @@ public class FilesView extends GridLayout {
                         FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
                             @Override
                             public void onComplete(String fileId) {
-                                binding.downloadFileControls.post(() -> binding.downloadFileControls.setVisibility(GONE));
+                                binding.downloadFileControls.post(() ->
+                                        binding.downloadFileControls.setVisibility(GONE));
                             }
 
                             @Override
                             public void onProgress(int percantage) {
-                                binding.downloadFileControls.post(() -> binding.downloadFileControls.setProgress(percantage));
+                                binding.downloadFileControls.post(() ->
+                                        binding.downloadFileControls.setProgress(percantage));
                             }
 
                             @Override
                             public void onError(String fileId) {
+                                Toast.makeText(getContext(),
+                                        getContext().getString(R.string.error_during_file_download),
+                                        Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -110,48 +109,25 @@ public class FilesView extends GridLayout {
 
                         FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                         if (fileToAttach != null) {
-                            /*fileToAttach.addChangeListener(element -> {
-                                Log.d(TAG, "change real progress");
-                                binding.downloadFileControls.post(() -> {
-                                    Log.d(TAG, "post progress");
-                                    binding.downloadFileControls.setProgress(
-                                            FileToAttachRepository.getInstance().get(fileName).getProgress()
-                                    );
-                                });
-                            });*/
                             if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
                                     fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
                                 binding.downloadFileControls.showProgressControls();
-                            } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
-                                binding.downloadFileControls.setVisibility(GONE);
                             }
                         }
-
                     }
 
                     @Override
                     public void onClickCancel() {
                         FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
+                        FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
                     }
                 });
 
-
                 FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                 if (fileToAttach != null) {
-                            /*fileToAttach.addChangeListener(element -> {
-                                Log.d(TAG, "change real progress");
-                                binding.downloadFileControls.post(() -> {
-                                    Log.d(TAG, "post progress");
-                                    binding.downloadFileControls.setProgress(
-                                            FileToAttachRepository.getInstance().get(fileName).getProgress()
-                                    );
-                                });
-                            });*/
                     if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
                             fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
                         binding.downloadFileControls.showProgressControls();
-                    } else if (fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
-                        binding.downloadFileControls.setVisibility(GONE);
                     }
                 }
 

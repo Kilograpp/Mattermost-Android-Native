@@ -82,8 +82,6 @@
 
     <!---->
 
-
-
            <!--Notification-->
     <string name="notification">Notification</string>
     <string name="notification_mob_push">Mobile push notifications</string>
@@ -97,6 +95,7 @@
 
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
+    <string name="error_during_file_download">Error during file downdload</string>
 
                     <!--Desktop-->
     <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
