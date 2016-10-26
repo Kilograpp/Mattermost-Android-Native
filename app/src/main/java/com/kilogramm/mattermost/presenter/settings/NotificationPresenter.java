@@ -27,7 +27,7 @@ import rx.schedulers.Schedulers;
 
 public class NotificationPresenter extends BaseRxPresenter<NotificationActivity> {
 
-    private static final String channelMentions = "\"@channel\",\"@all\",";
+    private static final String channelMentions = "\"@channel\",\"@all\"";
 
     private static final String TAG = "NotificationPresenter";
     private static final int REQUEST_UPDATE_NOTIFY = 1;
@@ -106,7 +106,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             for (String s : mentions) {
                 if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()))
                     if (result.length() != 0)
-                        result = result + "\"," + s + "\"";
+                        result = result + ",\"" + s + "\"";
                     else
                         result = "\"" + s + "\"";
             }
