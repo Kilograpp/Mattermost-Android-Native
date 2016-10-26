@@ -1,13 +1,7 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
-import com.kilogramm.mattermost.model.Repository;
-import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.UploadState;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.realm.Realm;
@@ -16,9 +10,7 @@ import io.realm.RealmResults;
 /**
  * Created by kepar on 7.10.16.
  */
-
-//TODO for kerap refactor class (remove implements Repository)
-public class FileToAttachRepository implements Repository<FileToAttach> {
+public class FileToAttachRepository {
 
     private static FileToAttachRepository instance;
 
@@ -31,7 +23,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
     //region Add methods
 
-    @Override
     public void add(FileToAttach item) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -45,21 +36,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
             }
             item.setId(primaryKeyValue.incrementAndGet());
             realm1.copyToRealm(item);
-        });
-    }
-
-    public void addForUpload(String fileName, String filePath) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            Number id = realm1.where(FileToAttach.class).max("id");
-            AtomicLong primaryKeyValue;
-            if (id != null) {
-                primaryKeyValue = new AtomicLong(id.longValue());
-            } else {
-                primaryKeyValue = new AtomicLong(0);
-            }
-            FileToAttach fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, filePath, UploadState.WAITING_FOR_UPLOAD);
-            realm1.copyToRealm(fileToAttach);
         });
     }
 
@@ -84,19 +60,9 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
         });
     }
 
-    @Override
-    public void add(Collection<FileToAttach> items) {
-
-    }
-
     //endregion
 
     // region Update methods
-
-    @Override
-    public void update(FileToAttach item) {
-
-    }
 
     public void updateName(String oldName, String fileName) {
         Realm realm = Realm.getDefaultInstance();
@@ -146,18 +112,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
         });
     }
 
-    public void updateProgress(long id, int progress) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("id", id)
-                    .findFirst();
-            if (fileToAttach != null && fileToAttach.isValid()) {
-                fileToAttach.setProgress(progress);
-            }
-        });
-    }
-
     // endregion
 
     //region Get methods
@@ -165,11 +119,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     public RealmResults<FileToAttach> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class).findAll();
-    }
-
-    @Override
-    public RealmResults<FileToAttach> query(Specification specification) {
-        return null;
     }
 
     public FileToAttach get(long id) {
@@ -219,8 +168,7 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
     public boolean haveUploadingFile() {
         Realm realm = Realm.getDefaultInstance();
         FileToAttach fileToAttach = realm.where(FileToAttach.class).equalTo("uploadState", UploadState.UPLOADING.name()).findFirst();
-        if (fileToAttach != null && fileToAttach.isValid()) return true;
-        return false;
+        return fileToAttach != null && fileToAttach.isValid();
     }
 
     public boolean haveUnloadedFiles() {
@@ -251,7 +199,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
 
     // region Delete methods
 
-    @Override
     public void remove(FileToAttach item) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -273,11 +220,6 @@ public class FileToAttachRepository implements Repository<FileToAttach> {
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-    }
-
-    @Override
-    public void remove(Specification specification) {
-
     }
 
     public void clearData() {
