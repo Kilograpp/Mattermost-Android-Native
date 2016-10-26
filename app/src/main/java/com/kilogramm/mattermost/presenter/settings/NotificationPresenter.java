@@ -16,8 +16,6 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import icepick.State;
-import nucleus.presenter.delivery.Delivery;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -38,19 +36,39 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     User user;
 
     private ApiMethod service;
-    private UserRepository userRepository;
-    private NotifyRepository notifyRepository;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        userRepository = new UserRepository();
-        notifyRepository = new NotifyRepository();
-        this.user = userRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        this.notifyProps = new NotifyProps(notifyRepository.query().first());
+        this.user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.notifyProps = new NotifyProps(NotifyRepository.query().first());
         service = mMattermostApp.getMattermostRetrofitService();
         initRequests();
+    }
+
+    @Override
+    public void destroy() {
+        Log.d(TAG, "destroy");
+        super.destroy();
+    }
+
+    @Override
+    public void save(Bundle state) {
+        Log.d(TAG, "save");
+        super.save(state);
+    }
+
+    @Override
+    public void takeView(NotificationActivity notificationActivity) {
+        Log.d(TAG, "takeView");
+        super.takeView(notificationActivity);
+    }
+
+    @Override
+    public void dropView() {
+        Log.d(TAG, "dropView");
+        super.dropView();
     }
 
     private void initRequests() {
@@ -63,12 +81,11 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                                 .subscribeOn(Schedulers.newThread())
                                 .observeOn(AndroidSchedulers.mainThread()),
                 (notificationActivity, user) -> {
-                    userRepository.update(user);
+                    UserRepository.update(user);
                     Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
                 },
                 (notificationActivity, throwable) -> {
-                    createTemplateObservable(throwable.getMessage()).subscribe(split((chatRxFragment, s) ->
-                            sendError("Unable to save")));
+                    sendError("Unable to save");
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
@@ -216,13 +233,5 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     public String getFirstName() {
         return user.getFirstName();
-    }
-
-
-    public <T> Observable<Delivery<NotificationActivity, T>> createTemplateObservable(T obj) {
-        return Observable.just(obj)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .compose(deliverFirst());
     }
 }
