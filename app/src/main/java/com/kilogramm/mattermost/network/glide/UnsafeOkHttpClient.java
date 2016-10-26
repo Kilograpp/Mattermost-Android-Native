@@ -23,8 +23,7 @@ public class UnsafeOkHttpClient {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
         headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = NetworkUtil.createOkHttpClient();
-        return client;
+        return NetworkUtil.createOkHttpClient();
     }
 
 }

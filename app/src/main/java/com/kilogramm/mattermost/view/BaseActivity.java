@@ -92,7 +92,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         channel_name.setText(channelName);
         channel_name.setOnClickListener(listenerChannelName);
 
-        // TODO критует на некоторых устройства (Самсунг и Huawei)
         ImageView search_message = (ImageView) toolbar.findViewById(R.id.search_message);
         search_message.setOnClickListener(listenerSearch);
 

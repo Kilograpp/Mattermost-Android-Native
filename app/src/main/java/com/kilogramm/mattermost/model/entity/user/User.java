@@ -16,7 +16,7 @@ import io.realm.annotations.PrimaryKey;
  */
 public class User extends RealmObject implements Parcelable {
 
-    public static final Long SYSTEM_AT_DATA = 0l;
+    public static final Long SYSTEM_AT_DATA = 0L;
 
     public static final String ONLINE = "online";
     public static final String OFFLINE = "offline";

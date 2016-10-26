@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Evgeny on 13.10.2016.
@@ -226,5 +228,19 @@ public class FileUtil {
         if(file.exists()){
             file.delete();
         }
+    }
+
+    public String getDownloadedFilesDir(){
+        return  Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost"  + File.separator;
+    }
+
+    public String getFileNameFromId(String fileId){
+        Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
+        Matcher matcher = pattern.matcher(fileId);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 }
