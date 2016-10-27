@@ -12,7 +12,6 @@
             android:background="@color/background_activity_grey"
             android:orientation="vertical">
 
-
             <TextView
                 style="@style/textBigGrey"
                 android:layout_width="wrap_content"

@@ -11,7 +11,10 @@ import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.squareup.picasso.Picasso;
+
+import java.io.UnsupportedEncodingException;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -45,16 +48,11 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileToAttach fileToAttach = getData().get(position);
-
-        /*Glide.with(context)
-                .load(fileToAttach.getFilePath())
-                .override(150, 150)
-                .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
-                .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
-                .thumbnail(0.1f)
-                .centerCrop()
-                .into(holder.binding.imageView);*/
-
+        try {
+            holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         Picasso.with(context)
                 .load(fileToAttach.getFilePath())
                 .resize(150, 150)
@@ -62,7 +60,6 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                 .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .centerCrop()
                 .into(holder.binding.imageView);
-
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(View.VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());

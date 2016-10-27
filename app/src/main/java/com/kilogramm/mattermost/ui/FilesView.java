@@ -1,8 +1,11 @@
 package com.kilogramm.mattermost.ui;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.databinding.tool.Binding;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -21,6 +24,7 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -82,28 +86,20 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-                        FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
-                            @Override
-                            public void onComplete(String fileId) {
-                                binding.downloadFileControls.post(() ->
-                                        binding.downloadFileControls.setVisibility(GONE));
+                        /*try {
+                            File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                                    + File.separator
+                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                            if (file.exists()) {
+                                createDialog(fileName, binding);
+                            } else {
+                                downloadFile(fileName, binding);
                             }
-
-                            @Override
-                            public void onProgress(int percantage) {
-                                binding.downloadFileControls.post(() ->
-                                        binding.downloadFileControls.setProgress(percantage));
-                            }
-
-                            @Override
-                            public void onError(String fileId) {
-                                Toast.makeText(getContext(),
-                                        getContext().getString(R.string.error_during_file_download),
-                                        Toast.LENGTH_SHORT).show();
-
-                            }
-                        });
-
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            downloadFile(fileName, binding);
+                        }*/
+                        downloadFile(fileName, binding);
 
                         FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                         if (fileToAttach != null) {
@@ -159,6 +155,43 @@ public class FilesView extends GridLayout {
         } else {
             clearView();
         }
+    }
+
+    private void downloadFile(String fileName, FilesItemLayoutBinding binding){
+        FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
+            @Override
+            public void onComplete(String fileId) {
+                binding.downloadFileControls.post(() ->
+                        binding.downloadFileControls.setVisibility(GONE));
+            }
+
+            @Override
+            public void onProgress(int percantage) {
+                binding.downloadFileControls.post(() ->
+                        binding.downloadFileControls.setProgress(percantage));
+            }
+
+            @Override
+            public void onError(String fileId) {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.error_during_file_download),
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void createDialog(String fileName, FilesItemLayoutBinding binding){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(getContext().getString(R.string.file_exists));
+        builder.setNegativeButton(R.string.cancel, (dialog, which) ->
+                dialog.dismiss());
+        builder.setNegativeButton(R.string.replace, (dialog, which) ->
+                downloadFile(fileName, binding));
+        builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
+
+        });
+        builder.create();
     }
 
     private void clearView() {

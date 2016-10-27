@@ -35,7 +35,6 @@
                             android:textAllCaps="true"
                             android:text="@string/notification_mob_push" />
 
-
                         <TextView
                             style="@style/textVeryBigDarkGrey"
                             android:layout_width="wrap_content"

@@ -31,6 +31,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     private ApiMethod service;
 
     private boolean isSearchEmpty;
+    private boolean isOrSearch = true; //was by default
 
     @State
     String terms;
@@ -38,11 +39,12 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
+
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
 
         restartableFirst(REQUEST_SEARCH,
-                () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, true))
+                () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (searchMessageActivity, posts) -> {
@@ -113,7 +115,11 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
 
     public void search(String terms) {
         this.terms = terms;
+        if (terms.contains(" ")) {
+            isOrSearch = false;
+        }
         this.isSearchEmpty = false;
+
         sendHideKeyboard();
         sendShowProgressBarVisibility(true);
         sendShowSearchResultVisibility(false);
