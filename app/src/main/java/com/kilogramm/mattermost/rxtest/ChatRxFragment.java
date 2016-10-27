@@ -613,6 +613,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Log.d(TAG, "showList()");
         binding.progressBar.setVisibility(View.GONE);
         binding.rev.setVisibility(View.VISIBLE);
+        binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
 

@@ -178,6 +178,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
+                    sendShowList();
                     sendHideFileAttachLayout();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
@@ -198,6 +199,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAddPost(post);
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
+                    sendShowList();
                     sendHideFileAttachLayout();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
@@ -216,7 +218,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                 (chatRxFragment, post) -> {
                 }, (chatRxFragment1, throwable) -> {
-                    sendError(throwable.getMessage());
+                    sendError(getError(throwable));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
                 });
