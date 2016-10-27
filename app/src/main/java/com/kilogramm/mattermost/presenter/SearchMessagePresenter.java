@@ -40,8 +40,6 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
 
-//        isOrSearch = true;
-
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
 
