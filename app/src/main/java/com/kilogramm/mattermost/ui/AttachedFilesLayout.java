@@ -2,19 +2,14 @@ package com.kilogramm.mattermost.ui;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.OpenableColumns;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,10 +24,6 @@ import com.kilogramm.mattermost.presenter.AttachedFilesPresenter;
 import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,5 +171,9 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     public void onDownloadedFile(String filePath) {
         if (progressDialog != null) progressDialog.cancel();
         uploadFileToServer(Uri.parse(filePath), filePath, channelId, true);
+    }
+
+    public void showToast(String s) {
+        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
     }
 }
