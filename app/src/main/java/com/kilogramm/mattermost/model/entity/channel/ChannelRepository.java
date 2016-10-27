@@ -73,7 +73,7 @@ public class ChannelRepository {
 
     public static void remove(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
+        final RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
         realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
 
 
