@@ -270,7 +270,7 @@ public class FileDownloadManager {
                                 builder.setContentTitle(fileName).setSmallIcon(R.drawable.attach_img_icon);
                                 builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
 
-                                output = new FileOutputStream(dir.getAbsolutePath() + fileName);
+                                output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
                                 byte data[] = new byte[4096];
                                 long total = 0;
                                 int count;
@@ -337,7 +337,8 @@ public class FileDownloadManager {
         if (currentFileId != null && fileId.equals(currentFileId)) {
             isWorkingForCurrentFile = false;
         }
-        FileUtil.getInstance().removeFile(FileUtil.getInstance().getFileNameFromId(fileId));
+        FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
+                + File.separator + FileUtil.getInstance().getFileNameFromId(fileId));
     }
 
     public interface FileDownloadListener {
