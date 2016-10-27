@@ -46,16 +46,16 @@ public class NotifyUpdate implements Parcelable {
 
 
     public NotifyUpdate(NotifyProps props, String user_id) {
-        this.channel = props.getChannel();
-        this.desktop = props.getDesktop();
-        this.desktop_sound = props.getDesktopSound();
-        this.desktop_duration = props.getDesktopDuration();
-        this.email = props.getEmail();
-        this.first_name = props.getFirstName();
+        this.channel = props.getChannel()!=null? props.getChannel() : "true";
+        this.desktop = props.getDesktop()!=null? props.getDesktop() : "mention";
+        this.desktop_sound = props.getDesktopSound()!=null ? props.getDesktopSound() : "false";
+        this.desktop_duration = props.getDesktopDuration()!=null ? props.getDesktopDuration() : "5";
+        this.email = props.getEmail()!=null ? props.getEmail() : "true";
+        this.first_name = props.getFirstName()!=null ? props.getFirstName() : "false";
         this.mention_keys = props.getMentionKeys();
-        this.push = props.getPush();
-        this.push_status = props.getPushStatus();
-        this.comments = props.getComments();
+        this.push = props.getPush()!=null ? props.getMentionKeys() : "mention";
+        this.push_status = props.getPushStatus() != null ? props.getPushStatus() : "away";
+        this.comments = props.getComments() != null ? props.getComments() : "never";
         this.user_id = user_id;
     }
 

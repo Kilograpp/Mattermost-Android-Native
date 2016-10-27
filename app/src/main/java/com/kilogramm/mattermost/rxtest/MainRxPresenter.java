@@ -27,7 +27,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     private static final String TAG = "MainRxPresenter";
 
     private static final int REQUEST_CHECK = 1;
-    private static final int REQUEST_ACTIVITY = 2;
     //TODO pattern url null fix
     private static Pattern mPatternUrl = Patterns.WEB_URL;
 

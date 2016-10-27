@@ -35,7 +35,7 @@
     <string name="confirm_post_delete">Confirm Post Delete</string>
     <string name="cancel">Cancel</string>
     <string name="try_again">Try again</string>
-    <string name="reply">Replay</string>
+    <string name="reply">Reply</string>
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
     <string name="save">Save</string>
@@ -83,8 +83,6 @@
 
     <!---->
 
-
-
            <!--Notification-->
     <string name="notification">Notification</string>
     <string name="notification_mob_push">Mobile push notifications</string>
@@ -95,6 +93,11 @@
     <string name="tag_notificationFragment">notificationFragment</string>
     <string name="tag_notificationPushFragment">notificationPushFragment</string>
     <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
+
+    <string name="downloading">Downloading…</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="error_during_file_download">Error during file downdload</string>
+
                     <!--Desktop-->
     <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
     <string name="mob_push_all">For all activity</string>

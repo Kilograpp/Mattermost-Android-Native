@@ -14,7 +14,7 @@ import io.realm.RealmResults;
 /**
  * Created by Evgeny on 24.10.2016.
  */
-public class MenuChannelRxAdapter extends RealmAD<Channel,MenuChannelListHolder> {
+public class MenuChannelRxAdapter extends RealmAD<Channel, MenuChannelListHolder> {
 
     private static final String TAG = "MenuChannelRxAdapter";
 
@@ -24,7 +24,6 @@ public class MenuChannelRxAdapter extends RealmAD<Channel,MenuChannelListHolder>
     private MenuChannelListFragment.OnChannelItemClickListener channelItemClickListener;
     private MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
-
 
     public MenuChannelRxAdapter(Context context, RealmResults<Channel> adapterData,
                                 MenuChannelListFragment.OnChannelItemClickListener listener) {
@@ -46,14 +45,15 @@ public class MenuChannelRxAdapter extends RealmAD<Channel,MenuChannelListHolder>
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
-                    if(channelItemClickListener!=null){
+                    if (channelItemClickListener != null) {
                         channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
                     }
                 });
-        if(holder.getAdapterPosition() == selecteditem){
+
+        if (holder.getAdapterPosition() == selecteditem) {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
@@ -72,7 +72,7 @@ public class MenuChannelRxAdapter extends RealmAD<Channel,MenuChannelListHolder>
     }
 
     private void onChangeSelected() {
-        if(selectedItemChangeListener!=null){
+        if (selectedItemChangeListener != null) {
             selectedItemChangeListener.onChangeSelected(selecteditem);
         }
     }

@@ -24,6 +24,7 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -130,9 +131,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
                     UserRepository.add(users);
                     requestLoadChannels();
-                }, (generalRxActivity1, throwable) -> {
-                    sendShowError(throwable.toString());
-                });
+                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
             return service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
@@ -142,7 +141,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                     MattermostPreference.getInstance().getMyUserId());
             requestUserTeam();
-        }, (generalRxActivity1, throwable) -> sendShowError(throwable.toString()));
+        }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM, () -> {
             return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
@@ -175,16 +174,23 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
         initSaveRequest();
 
-        restartableFirst(REQUEST_ADD_CHAT, () -> {
-            return service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread());
-
-        }, (generalRxActivity, channel) -> {
-            List<Channel> channelList = new ArrayList<>();
-            channelList.add(channel);
-            ChannelRepository.prepareChannelAndAdd(channelList, MattermostPreference.getInstance().getMyUserId());
-            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
+                () -> Observable.zip(
+                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        (channel, channelsWithMembers) -> {
+                            RealmList<Channel> channelsList = new RealmList<>();
+                            channelsList.addAll(channelsWithMembers.getChannels());
+                            ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
+                            ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
+                            return channel;
+        })), (generalRxActivity, channel) -> {
+            String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+            sendSetFragmentChat(channel.getId(), channelName, channel.getType());
         }, (generalRxActivity, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, throwable.getMessage());
@@ -221,20 +227,19 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
                 () -> Observable.zip(
-                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
                         service.save(mSaveData.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                        (channel, aBoolean) -> {
+                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        (aBoolean, channel) -> {
                             if (aBoolean == Boolean.FALSE) {
                                 return null;
                             }
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
-                        })),
-                (generalRxActivity, channel) -> {
+                })), (generalRxActivity, channel) -> {
                     mSaveData.getmSaveData().clear();
                     sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                 }, (generalRxActivity, throwable) -> throwable.printStackTrace());
@@ -242,6 +247,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     public void requestAddChat(String joinChannelId) {
         channelId = joinChannelId;
+        user.setUserId("");
         start(REQUEST_ADD_CHAT);
     }
 
@@ -292,8 +298,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostPreference.getInstance().setAuthToken(null);
         MattermostPreference.getInstance().setLastChannelId(null);
     }
-
-
 
     private void clearDataBaseAfterLogout() {
         Realm realm = Realm.getDefaultInstance();

@@ -98,7 +98,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
 //            mSubscription.unsubscribe();
 //        }
 //
-//        //TODO FIX logic
 //        ApiMethod service;
 //        try {
 //            service = mMattermostApp.getMattermostRetrofitService();

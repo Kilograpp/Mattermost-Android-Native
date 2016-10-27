@@ -11,7 +11,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivitySearchBinding;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
@@ -38,7 +37,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
     public static final String TYPE_CHANNEL = "type_channel";
-
 
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;

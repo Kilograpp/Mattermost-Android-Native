@@ -31,26 +31,26 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         Icepick.saveInstanceState(this, state);
     }
 
-    public <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj){
+    public <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj) {
         return Observable.just(obj)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .compose(deliverFirst());
     }
 
-    public String getError(Throwable e){
+    public String getError(Throwable e) {
 
-            if(e instanceof HttpException){
-                try {
-                    HttpError error = new Gson().fromJson(((HttpException) e).response()
-                            .errorBody()
-                            .string(),HttpError.class);
-                    return (error!=null)?error.getError():e.getMessage();
-                } catch (IOException e1) {
-                    return e.getMessage();
-                }
-            } else {
+        if (e instanceof HttpException) {
+            try {
+                HttpError error = new Gson().fromJson(((HttpException) e).response()
+                        .errorBody()
+                        .string(), HttpError.class);
+                return (error == null) ? error.getError() : error.getMessage();
+            } catch (IOException e1) {
                 return e.getMessage();
             }
+        } else {
+            return e.getMessage();
+        }
     }
 }

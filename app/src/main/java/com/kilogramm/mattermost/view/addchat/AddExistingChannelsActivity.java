@@ -18,6 +18,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -47,7 +48,9 @@ public class AddExistingChannelsActivity
     }
 
     private void setRecycleView() {
-        RealmResults<ChannelsDontBelong> moreChannels = realm.where(ChannelsDontBelong.class).findAll();
+        RealmResults<ChannelsDontBelong> moreChannels = realm.where(ChannelsDontBelong.class)
+                .findAll()
+                .sort("name", Sort.ASCENDING);
         adapter = new AddExistingChannelsAdapter(this, moreChannels, true, this);
         binding.recViewMoreChannels.setAdapter(adapter);
 
@@ -66,8 +69,6 @@ public class AddExistingChannelsActivity
         int id = item.getItemId();
         if (id == android.R.id.home) {
             finish();
-            // temporary here
-            // binding.drawerLayout.openDrawer(GravityCompat.START);
         }
         return super.onOptionsItemSelected(item);
     }

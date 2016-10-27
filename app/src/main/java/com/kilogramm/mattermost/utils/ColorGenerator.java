@@ -12,14 +12,14 @@ import java.util.Random;
 
 public class ColorGenerator {
 
-    public static ColorGenerator instance;
+    public static ColorGenerator MATERIAL;
+
     private final List<Integer> mColors;
     private final Random mRandom;
     private static final float SHADE_FACTOR = 0.9f;
 
-
     static {
-        instance = create(Arrays.asList(
+        MATERIAL = create(Arrays.asList(
                 0xffe57373,
                 0xfff06292,
                 0xffba68c8,
@@ -54,5 +54,9 @@ public class ColorGenerator {
                 (int)(SHADE_FACTOR * Color.green(color)),
                 (int)(SHADE_FACTOR * Color.blue(color)));
     }
+
+//    public int getRandomColor() {
+//        return mColors.get(mRandom.nextInt(mColors.size()));
+//    }
 
 }

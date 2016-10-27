@@ -64,6 +64,7 @@
 
                     <com.kilogramm.mattermost.ui.MatterRecyclerView
                         android:id="@+id/rev"
+                        style="@style/scrollbar_shape_style"
                         android:layout_width="match_parent"
                         android:layout_height="400dp"
                         android:scrollbars="vertical"

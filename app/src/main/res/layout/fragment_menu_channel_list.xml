@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:kilograpp="http://schemas.android.com/apk/res-auto">
+<layout xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
             name="theme"
@@ -37,8 +36,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/more"/>
-        <!--android:onClick="@{viewModel.onMoreClick}"-->
-
-
     </LinearLayout>
 </layout>

@@ -200,7 +200,6 @@ public class WebSocketManager {
         }
     }
     //TODO Review code
-    // TODO Kepar: сделал ревью, но логику не трогал
     public class UpdateStatusUser implements Runnable {
 
         @Override

@@ -119,8 +119,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
-
-
+    
     private BroadcastReceiver brReceiverTyping;
 
     @Override

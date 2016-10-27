@@ -2,16 +2,16 @@ package com.kilogramm.mattermost.view.addchat;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemMoreChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
+import com.kilogramm.mattermost.utils.ColorGenerator;
 
 import java.util.ArrayList;
 
@@ -79,11 +79,12 @@ public class AddExistingChannelsAdapter extends
 
         public void bindTo(ChannelsDontBelong channelDontBelong, int backgroundColor) {
             String firstLetter = String.valueOf(channelDontBelong.getName().charAt(0)).toUpperCase();
-            TextDrawable textDrawable = TextDrawable.builder().buildRound(firstLetter, backgroundColor);
-            moreBinding.avatarChannel.setImageDrawable(textDrawable);
+            moreBinding.avatarChannel.setText(firstLetter);
+            moreBinding.avatarChannel.getBackground()
+                    .setColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY);
 
             typeChannel = channelDontBelong.getType();
-            moreBinding.tvChannelName.setText(channelDontBelong.getName().toUpperCase());
+            moreBinding.tvChannelName.setText(channelDontBelong.getDisplayName().toUpperCase());
         }
 
         public String getTypeChannel() {

@@ -85,11 +85,11 @@ configurations.all {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:multidex:1.0.0'
-    compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.android.support:support-compat:24.2.0'
-    compile 'com.android.support:design:24.2.0'
-    compile 'com.android.support:cardview-v7:24.2.0'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:support-compat:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava:1.1.6'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0'
@@ -129,8 +129,6 @@ dependencies {
     apt 'frankiesardo:icepick-processor:3.2.0'
     // File-picker
     compile 'com.nononsenseapps:filepicker:3.0.0'
-
-    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
