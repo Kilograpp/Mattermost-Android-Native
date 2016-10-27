@@ -203,25 +203,13 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         siteName = new ObservableField<String>(mRealm.where(ClientCfg.class).findFirst().getSiteName());
         isVisibleProgress = new ObservableInt(View.GONE);
 
-        restartableFirst(REQUEST_LOGIN, () -> {
-            MattermostApp application = MattermostApp.getSingleton();
-            ApiMethod service = application.getMattermostRetrofitService();
+        initRequestLogin();
 
-            getView().hideKeyboard(getView());
-            isVisibleProgress.set(View.VISIBLE);
-            return service.login(new LoginData(mEditEmail, mEditPassword, "")).cache()
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread());
-        }, (loginRxActivity, user) -> {
-            MattermostPreference.getInstance().setMyUserId(user.getId());
-            mRealm.executeTransaction(realm -> realm.copyToRealmOrUpdate(user));
-            requestInitLoad();
+        initRequestInitLoad();
 
-        }, (loginRxActivity1, throwable) -> {
-            isVisibleProgress.set(View.GONE);
-            handleErrorLogin(throwable);
-        });
+    }
 
+    private void initRequestInitLoad() {
         restartableFirst(REQUEST_INITLOAD, () -> {
 
             MattermostApp application = MattermostApp.getSingleton();
@@ -245,7 +233,27 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             handleErrorLogin(throwable);
         });
+    }
 
+    private void initRequestLogin() {
+        restartableFirst(REQUEST_LOGIN, () -> {
+            MattermostApp application = MattermostApp.getSingleton();
+            ApiMethod service = application.getMattermostRetrofitService();
+
+            getView().hideKeyboard(getView());
+            isVisibleProgress.set(View.VISIBLE);
+            return service.login(new LoginData(mEditEmail, mEditPassword, "")).cache()
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread());
+        }, (loginRxActivity, user) -> {
+            MattermostPreference.getInstance().setMyUserId(user.getId());
+            mRealm.executeTransaction(realm -> realm.copyToRealmOrUpdate(user));
+            requestInitLoad();
+
+        }, (loginRxActivity1, throwable) -> {
+            isVisibleProgress.set(View.GONE);
+            handleErrorLogin(throwable);
+        });
     }
 
 }

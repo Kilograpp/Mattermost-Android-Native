@@ -5,13 +5,9 @@ import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -37,33 +33,12 @@ public class MattermostRetrofitService {
                 // Caused twice writeTo() method call for uploading file
                 //TODO release version comment this line
                 //.addInterceptor(logging)
-                .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    String token;
-                    if((token = MattermostPreference.getInstance().getAuthToken())!=null){
-                        Request request = original.newBuilder()
-                                .addHeader("Authorization","Bearer " + token)
-                                .build();
-                        return chain.proceed(request);
-                    } else {
-                        return chain.proceed(original);
-                    }
-                })
+                .addInterceptor(getAuthInterceptor())
 
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT,TimeUnit.SECONDS)
                 .addNetworkInterceptor(new StethoInterceptor())
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        MattermostPreference.getInstance().saveCookies(cookies);
-                    }
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
-                        return cookies != null ? cookies : new ArrayList<>();
-                    }
-                })
+                .cookieJar(NetworkUtil.getCookieJar())
                 .build();
 
         Gson gson = NetworkUtil.createGson();
@@ -85,4 +60,19 @@ public class MattermostRetrofitService {
         return create();
     }
 
+
+    public static Interceptor getAuthInterceptor(){
+        return chain -> {
+            Request original = chain.request();
+            String token;
+            if((token = MattermostPreference.getInstance().getAuthToken())!=null){
+                Request request = original.newBuilder()
+                        .addHeader("Authorization","Bearer " + token)
+                        .build();
+                return chain.proceed(request);
+            } else {
+                return chain.proceed(original);
+            }
+        };
+    }
 }
