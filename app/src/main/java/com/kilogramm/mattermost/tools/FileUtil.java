@@ -13,6 +13,8 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -226,6 +228,15 @@ public class FileUtil {
         Matcher matcher = pattern.matcher(fileId);
         if (matcher.matches()) {
             return matcher.group(1);
+        }
+        return null;
+    }
+
+    public String getFileNameFromIdDecoded(String fileId) throws UnsupportedEncodingException {
+        Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
+        Matcher matcher = pattern.matcher(fileId);
+        if (matcher.matches()) {
+            return URLDecoder.decode(matcher.group(1), "UTF-8");
         }
         return null;
     }
