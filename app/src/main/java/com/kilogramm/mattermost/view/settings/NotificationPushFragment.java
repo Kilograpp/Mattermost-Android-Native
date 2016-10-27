@@ -71,7 +71,7 @@ public class NotificationPushFragment extends BaseFragment implements View.OnCli
 
     private void initSettingPushStatus() {
         notifyPushStatusSetting();
-        switch (getPresenter().getPushStatusSetting()) {
+        switch (getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting()) {
             case "online":
                 binding.selectAllTriger.setVisibility(View.VISIBLE);
                 break;
@@ -80,6 +80,8 @@ public class NotificationPushFragment extends BaseFragment implements View.OnCli
                 break;
             case "offline":
                 binding.selectOff.setVisibility(View.VISIBLE);
+                break;
+            case "":
                 break;
         }
     }

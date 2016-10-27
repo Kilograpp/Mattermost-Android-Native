@@ -48,6 +48,7 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         setupToolbar(getString(R.string.notification_mob_push), true);
         if (notificationPushFragment == null)
             notificationPushFragment = new NotificationPushFragment();
+
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentNotification.getId(), notificationPushFragment)
                 .commit();

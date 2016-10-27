@@ -78,8 +78,8 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     private void initDeletePost() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
-                                .subscribeOn(Schedulers.newThread())
-                                .observeOn(AndroidSchedulers.mainThread()),
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
                 (notificationActivity, user) -> {
                     UserRepository.update(user);
                     Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
