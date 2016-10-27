@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -97,6 +98,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     getPresenter().requestSwitchTeam();
                     break;
                 case R.id.files:
+                    showFiles();
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:
@@ -120,6 +122,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             }
             return false;
         });
+    }
+
+    private void showFiles() {
+        Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        startActivity(intent);
     }
 
     private void setupMenu() {

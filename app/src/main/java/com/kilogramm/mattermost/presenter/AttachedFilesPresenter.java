@@ -62,6 +62,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
+            sendShowToast("Loading start");
             String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
             String mimeType = fileUtil.getMimeType(filePath);
 
@@ -82,19 +83,29 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
-            Log.d(TAG, fileUploadResponse.toString());
-            FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
-            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
-            FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
-            if(fileToAttach != null && fileToAttach.isTemporary()) {
-                FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+            if (fileUploadResponse.getFilenames()!=null
+                    && fileUploadResponse.getFilenames().size() != 0) {
+                sendShowToast("Loading complete");
+                Log.d(TAG, fileUploadResponse.toString());
+                FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
+                FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
+                if (fileToAttach != null && fileToAttach.isTemporary()) {
+                    FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+                }
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
+            sendShowToast("Error");
             Log.d(TAG, "Error");
             startRequest();
         });
+    }
+
+    public void sendShowToast(String log){
+        createTemplateObservable(log)
+                .subscribe(split((attachedFilesLayout, s) -> attachedFilesLayout.showToast(s)));
     }
 
     private void startRequest() {

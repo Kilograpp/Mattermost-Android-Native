@@ -38,7 +38,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String CHANNEL_NAME = "channel_name";
     public static final String TYPE_CHANNEL = "type_channel";
 
-
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
 
