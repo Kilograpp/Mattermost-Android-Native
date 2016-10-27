@@ -115,10 +115,11 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
 
     public void search(String terms) {
         this.terms = terms;
-        if (!terms.contains(" ")) {
+        if (terms.contains(" ")) {
             isOrSearch = false;
         }
         this.isSearchEmpty = false;
+
         sendHideKeyboard();
         sendShowProgressBarVisibility(true);
         sendShowSearchResultVisibility(false);
