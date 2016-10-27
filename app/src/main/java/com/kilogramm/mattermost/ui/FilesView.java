@@ -104,7 +104,6 @@ public class FilesView extends GridLayout {
                             }
                         });
 
-
                         FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                         if (fileToAttach != null) {
                             if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||

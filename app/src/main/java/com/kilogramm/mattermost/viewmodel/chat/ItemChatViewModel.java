@@ -4,7 +4,6 @@ import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -66,7 +65,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                     + post.getUser().getId()
                     + "/image";
         } else {
-            return "";
+            return null;
         }
     }
 
@@ -147,7 +146,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        if (imageUrl != null && !imageUrl.equals("")) {
+        if (imageUrl != null) {
             view.setRotation(0);
             Picasso.with(view.getContext())
                     .load(imageUrl)

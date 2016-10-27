@@ -206,12 +206,15 @@ public class AdapterPost extends RealmAD<Post, AdapterPost.MyViewHolder> {
                     listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post.getId());
                 }
             });
-            if (!post.isSystemMessage())
+            if (!post.isSystemMessage()) {
                 ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
                     if (listener != null) {
                         listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
                     }
                 });
+            } else {
+                ((ChatListItemBinding) mBinding).avatar.setOnClickListener(null);
+            }
             ((ChatListItemBinding) mBinding).avatar.setTag(post);
             SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
