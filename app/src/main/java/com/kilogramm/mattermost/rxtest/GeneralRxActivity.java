@@ -208,6 +208,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
+                this.searchMessageId = null;
             }
         }
 //        binding.drawerLayout.closeDrawer(GravityCompat.START);
