@@ -6,47 +6,60 @@
         android:layout_width="100dp"
         android:layout_height="100dp">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="15dp" />
+        <android.support.v7.widget.CardView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_margin="10dp"
+            android:elevation="3dp"
+            app:cardBackgroundColor="@color/colorPrimary"
+            app:cardCornerRadius="5dp">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:background="@drawable/circle_shape"
-            android:indeterminate="false"
-            android:max="100"
-            android:progressDrawable="@drawable/circular_progress_bar" />
+            <!--        <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="15dp" />-->
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_shape"
+                android:indeterminate="false"
+                android:max="100"
+                android:progressDrawable="@drawable/circular_white_progress_bar" />
+
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                android:id="@+id/progressWait"
+                android:layout_margin="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                app:mpb_progressStyle="circular"
+                app:theme="@style/ProgressWhite"/>
+
+            <TextView
+                android:id="@+id/fileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:ellipsize="middle"
+                android:gravity="center"
+                android:maxLines="3"
+                android:textColor="@color/white"/>
+        </android.support.v7.widget.CardView>
 
         <ImageView
             android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:elevation="3dp"
             app:srcCompat="@drawable/ic_close_grey_24dp" />
-
-        <ProgressBar
-            android:id="@+id/progressWait"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/fileName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:ellipsize="middle"
-            android:gravity="center"
-            android:maxLines="2"
-            android:singleLine="false"
-            android:textColor="@color/black" />
     </FrameLayout>
 </layout>

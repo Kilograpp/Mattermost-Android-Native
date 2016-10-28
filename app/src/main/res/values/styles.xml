@@ -132,4 +132,8 @@
         <item name="android:padding">@dimen/bottom_toolbar_margin</item>
         <item name="android:layout_weight">1</item>
     </style>
+
+    <style name="ProgressWhite" parent="AppTheme">
+        <item name="colorAccent">@color/white</item>
+    </style>
 </resources>

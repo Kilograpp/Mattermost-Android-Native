@@ -22,7 +22,7 @@
         android:background="@drawable/circle_shape"
         android:indeterminate="false"
         android:max="100"
-        android:progressDrawable="@drawable/circular_progress_bar"
+        android:progressDrawable="@drawable/circular_blue_progress_bar"
         android:visibility="invisible" />
 
     <ImageView
