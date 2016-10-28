@@ -8,12 +8,14 @@
         android:layout_height="?android:actionBarSize"
         android:background="@color/colorPrimary">
 
+        <!--TODO почему тут button? и вообще зачем?-->
         <Button
             android:id="@+id/channel_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_weight="1"
+            android:gravity="start|center_vertical"
             android:background="@drawable/touch_selector"
             android:stateListAnimator="@null"
             android:textColor="@color/white"
