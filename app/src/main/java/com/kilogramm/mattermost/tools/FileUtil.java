@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.tools;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -13,6 +14,8 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -228,5 +231,24 @@ public class FileUtil {
             return matcher.group(1);
         }
         return null;
+    }
+
+    public String getFileNameFromIdDecoded(String fileId) throws UnsupportedEncodingException {
+        Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
+        Matcher matcher = pattern.matcher(fileId);
+        if (matcher.matches()) {
+            return URLDecoder.decode(matcher.group(1), "UTF-8");
+        }
+        return null;
+    }
+
+    public Intent createOpenFileIntent(String path){
+        File file = new File(path);
+        String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
+                ? "*/*" : mimeType);
+        return intent;
     }
 }

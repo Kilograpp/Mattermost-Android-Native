@@ -3,6 +3,9 @@ package com.kilogramm.mattermost.model.fromnet;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +13,8 @@ import java.util.List;
  * Created by Evgeny on 18.10.2016.
  */
 public class ListInviteObj implements Parcelable {
-
+    @SerializedName("invites")
+    @Expose
     private List<InviteObject> invites = new ArrayList<>();
 
     public List<InviteObject> getInvites() {

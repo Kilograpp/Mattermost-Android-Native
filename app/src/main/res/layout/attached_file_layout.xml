@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <FrameLayout
         android:layout_width="100dp"
         android:layout_height="100dp">
@@ -9,31 +10,43 @@
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="15dp"/>
+            android:padding="15dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:indeterminate="false"
-            android:progressDrawable="@drawable/circular_progress_bar"
             android:background="@drawable/circle_shape"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"/>
+            android:indeterminate="false"
+            android:max="100"
+            android:progressDrawable="@drawable/circular_progress_bar" />
 
         <ImageView
             android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_close_grey_24dp"
-            android:layout_gravity="end" />
+            android:layout_gravity="end"
+            app:srcCompat="@drawable/ic_close_grey_24dp" />
 
         <ProgressBar
             android:id="@+id/progressWait"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/fileName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:ellipsize="middle"
+            android:gravity="center"
+            android:maxLines="2"
+            android:singleLine="false"
+            android:textColor="@color/black" />
     </FrameLayout>
 </layout>

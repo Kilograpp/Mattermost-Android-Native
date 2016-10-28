@@ -16,9 +16,6 @@ public class NotifyProps extends RealmObject implements Parcelable {
 
     @PrimaryKey
     private long id;
-    @SerializedName("all")
-    @Expose
-    private String all;
     @SerializedName("channel")
     @Expose
     private String channel;
@@ -79,20 +76,6 @@ public class NotifyProps extends RealmObject implements Parcelable {
 
     public void setDesktopDuration(String desktopDuration) {
         this.desktopDuration = desktopDuration;
-    }
-
-    /**
-     * @return The all
-     */
-    public String getAll() {
-        return all;
-    }
-
-    /**
-     * @param all The all
-     */
-    public void setAll(String all) {
-        this.all = all;
     }
 
     /**
@@ -194,7 +177,6 @@ public class NotifyProps extends RealmObject implements Parcelable {
     }
 
     public NotifyProps(NotifyProps props) {
-        this.all = props.getAll();
         this.channel = props.getChannel();
         this.desktop = props.getDesktop();
         this.desktopSound = props.getDesktopSound();
@@ -218,7 +200,6 @@ public class NotifyProps extends RealmObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
-        dest.writeString(this.all);
         dest.writeString(this.channel);
         dest.writeString(this.comments);
         dest.writeString(this.desktop);
@@ -233,7 +214,6 @@ public class NotifyProps extends RealmObject implements Parcelable {
 
     protected NotifyProps(Parcel in) {
         this.id = in.readLong();
-        this.all = in.readString();
         this.channel = in.readString();
         this.comments = in.readString();
         this.desktop = in.readString();

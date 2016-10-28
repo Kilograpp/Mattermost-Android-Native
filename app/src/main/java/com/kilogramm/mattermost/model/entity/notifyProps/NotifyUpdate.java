@@ -53,7 +53,7 @@ public class NotifyUpdate implements Parcelable {
         this.email = props.getEmail()!=null ? props.getEmail() : "true";
         this.first_name = props.getFirstName()!=null ? props.getFirstName() : "false";
         this.mention_keys = props.getMentionKeys();
-        this.push = props.getPush()!=null ? props.getMentionKeys() : "mention";
+        this.push = props.getPush()!=null ? props.getPush() : "mention";
         this.push_status = props.getPushStatus() != null ? props.getPushStatus() : "away";
         this.comments = props.getComments() != null ? props.getComments() : "never";
         this.user_id = user_id;

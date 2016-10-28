@@ -2,40 +2,38 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/timeIcon"
             style="@style/textNormalWhite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
             android:background="@drawable/circle_backgraund"
-            android:gravity="center"
-            android:layout_margin="@dimen/activity_horizontal_margin" />
+            android:gravity="center" />
 
-        <LinearLayout
+
+        <View
             android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/timeIcon"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/timeIcon"
+            android:background="@color/light_grey" />
+
+        <TextView
+            android:id="@+id/timeName"
+            style="@style/textVeryBigDarkGrey"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/timeIcon"
+            android:padding="2dp"
+            tools:text="YOUTRENM" />
 
-            <TextView
-                style="@style/textVeryBigDarkGrey"
-                android:id="@+id/timeName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-                tools:text="YOUTRENM" />
-
-            <View
-                android:layout_width="match_parent"
-                android:background="@color/grey"
-                android:layout_height="0.5dp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 </layout>

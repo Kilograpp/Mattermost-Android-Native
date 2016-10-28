@@ -4,20 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMainBinding;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import icepick.Icepick;
-import icepick.State;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -83,10 +79,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
 
     public void setShowNextButton(boolean show) {
         binding.buttonNext.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    public void showErrorText(String text) {
-        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 
     public void setTextUrl(String url) {

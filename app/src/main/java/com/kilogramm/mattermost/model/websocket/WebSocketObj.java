@@ -58,13 +58,11 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("event")
     @Expose
     private String event;
-    @SerializedName("data")
-    @Expose
-    private String dataJSON;
+    private transient String dataJSON;
     @Ignore
-    private Data data;
-
-    @SerializedName("seq_replay")
+    private transient Data data;
+    @SerializedName("seq_reply")
+    @Expose
     private Integer seqReplay;
 
 
@@ -86,12 +84,12 @@ public class WebSocketObj implements Parcelable {
     private String senderName;
 
 
-    public Integer getSeqReplay() {
-        return seqReplay;
+    public void setDataJSON(String dataJSON) {
+        this.dataJSON = dataJSON;
     }
 
-    public void setSeqReplay(Integer seqReplay) {
-        this.seqReplay = seqReplay;
+    public Integer getSeqReplay() {
+        return seqReplay;
     }
 
     public String getTeamId() {
@@ -114,10 +112,6 @@ public class WebSocketObj implements Parcelable {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public String getEvent() {
         return event;
     }
@@ -126,52 +120,12 @@ public class WebSocketObj implements Parcelable {
         this.event = event;
     }
 
-    public String getDataJSON() {
-        return dataJSON;
-    }
-
-    public void setDataJSON(String dataJSON) {
-        this.dataJSON = dataJSON;
-    }
-
-    public String getChannelDisplayName() {
-        return channelDisplayName;
-    }
-
-    public void setChannelDisplayName(String channelDisplayName) {
-        this.channelDisplayName = channelDisplayName;
-    }
-
-    public String getChannelType() {
-        return channelType;
-    }
-
-    public void setChannelType(String channelType) {
-        this.channelType = channelType;
-    }
-
-    public String getMentions() {
-        return mentions;
-    }
-
-    public void setMentions(String mentions) {
-        this.mentions = mentions;
-    }
-
     public Post getPost() {
         return post;
     }
 
     public void setPost(Post post) {
         this.post = post;
-    }
-
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
     }
 
     public Data getData() {

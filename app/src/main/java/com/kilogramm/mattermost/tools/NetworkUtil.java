@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.tools;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -65,17 +67,22 @@ public class NetworkUtil {
                         return chain.proceed(original);
                     }
                 })
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        MattermostPreference.getInstance().saveCookies(cookies);
-                    }
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
-                        return cookies != null ? cookies : new ArrayList<>();
-                    }
-                })
+                .cookieJar(getCookieJar())
                 .build();
+    }
+
+    @NonNull
+    public static CookieJar getCookieJar() {
+        return new CookieJar() {
+            @Override
+            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                MattermostPreference.getInstance().saveCookies(cookies);
+            }
+            @Override
+            public List<Cookie> loadForRequest(HttpUrl url) {
+                List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
+                return cookies != null ? cookies : new ArrayList<>();
+            }
+        };
     }
 }

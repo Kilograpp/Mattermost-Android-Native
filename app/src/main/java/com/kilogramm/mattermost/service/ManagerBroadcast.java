@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.service;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -57,21 +58,8 @@ public class ManagerBroadcast {
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        if(jsonObject.has(WebSocketObj.TEAM_ID)){
-            webSocketObj.setTeamId(jsonObject.getString(WebSocketObj.TEAM_ID));
-        }
-        if(jsonObject.has(WebSocketObj.USER_ID)){
-            webSocketObj.setUserId(jsonObject.getString(WebSocketObj.USER_ID));
-        }
-        if(jsonObject.has(WebSocketObj.CHANNEL_ID)){
-            webSocketObj.setChannelId(jsonObject.getString(WebSocketObj.CHANNEL_ID));
-        }
-        if(jsonObject.has(WebSocketObj.EVENT)){
-            webSocketObj.setEvent(jsonObject.getString(WebSocketObj.EVENT));
-        }
-        if(jsonObject.has(WebSocketObj.SEQ_REPLAY)){
-            webSocketObj.setSeqReplay(jsonObject.getInt(WebSocketObj.SEQ_REPLAY));
-        }
+        Log.d(TAG,jsonObject.toString());
+        webSocketObj = new Gson().fromJson(jsonObject.toString(),WebSocketObj.class);
         if(webSocketObj.getSeqReplay()!=null){
             webSocketObj.setEvent(WebSocketObj.ALL_USER_STATUS);
         }
@@ -108,36 +96,46 @@ public class ManagerBroadcast {
                         .build();
                 break;
             case WebSocketObj.EVENT_POST_EDITED:
-                data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
-                        .build();
+                data = getPost(dataJSON);
                 UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
-                data = new WebSocketObj.BuilderData()
-                        .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
-                        .build();
+                data = getPost(dataJSON);
                 break;
             case WebSocketObj.EVENT_STATUS_CHANGE:
-                data = new WebSocketObj.BuilderData()
-                        .setStatus(dataJSON.getString(WebSocketObj.STATUS))
-                        .build();
+                data = getStatus(dataJSON);
                 break;
             case WebSocketObj.ALL_USER_STATUS:
-                data = new WebSocketObj.BuilderData()
-                        .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(),  new TypeToken<HashMap<String, Object>>() {}.getType()))
-                        .build();
+                data = getMapStatus(dataJSON);
                 break;
         }
         webSocketObj.setData(data);
         return webSocketObj;
     }
 
+    private Data getMapStatus(JSONObject dataJSON) {
+        return new WebSocketObj.BuilderData()
+                .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(),  new TypeToken<HashMap<String, Object>>() {}.getType()))
+                .build();
+    }
+
+    private Data getStatus(JSONObject dataJSON) throws JSONException {
+        return new WebSocketObj.BuilderData()
+                .setStatus(dataJSON.getString(WebSocketObj.STATUS))
+                .build();
+    }
+
+    private Data getPost(JSONObject dataJSON) throws JSONException {
+        return new WebSocketObj.BuilderData()
+                .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
+                .build();
+    }
+
 
     private static void createNotification(Post post, Context context) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
-                .setContentText(post.getMessage())
+                .setContentText(Html.fromHtml(post.getMessage()))
                 .setSmallIcon(R.mipmap.icon);
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
@@ -145,18 +143,8 @@ public class ManagerBroadcast {
         manager.notify(1, notification);
     }
 
-
     public static void savePost(Post post){
         PostRepository.prepareAndAddPost(post);
-    }
-
-    public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
-        Map<String, Object> retMap = new HashMap<String, Object>();
-
-        if(json != JSONObject.NULL) {
-            retMap = toMap(json);
-        }
-        return retMap;
     }
 
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {

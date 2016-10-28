@@ -16,7 +16,6 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
 import icepick.State;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -72,17 +71,17 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     }
 
     private void initRequests() {
-        initDeletePost();
+        saveNotification();
     }
 
-    private void initDeletePost() {
+    private void saveNotification() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
                         service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (notificationActivity, user) -> {
                     UserRepository.update(user);
-                    Toast.makeText(notificationActivity, "Saved successfully", Toast.LENGTH_SHORT).show();
+                    sendToast("Saved successfully");
                 },
                 (notificationActivity, throwable) -> {
                     sendError("Unable to save");
@@ -92,6 +91,11 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     private void sendError(String error) {
         createTemplateObservable(error)
+                .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
+    }
+
+    private void sendToast(String message) {
+        createTemplateObservable(message)
                 .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
