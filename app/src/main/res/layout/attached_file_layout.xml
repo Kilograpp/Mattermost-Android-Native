@@ -31,12 +31,16 @@
                 android:max="100"
                 android:progressDrawable="@drawable/circular_white_progress_bar" />
 
-            <ProgressBar
+            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
                 android:id="@+id/progressWait"
+                android:layout_margin="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
                 android:layout_gravity="center"
-                android:visibility="gone" />
+                app:mpb_progressStyle="circular"
+                app:theme="@style/ProgressWhite"/>
 
             <TextView
                 android:id="@+id/fileName"
