@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -110,5 +111,13 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public void showErrorText(String text) {
+        Snackbar error = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
+        error.setActionTextColor(getResources().getColor(R.color.white));
+        error.show();
+        //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 }
