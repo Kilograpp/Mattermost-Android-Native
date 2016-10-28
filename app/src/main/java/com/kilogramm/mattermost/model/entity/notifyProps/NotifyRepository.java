@@ -29,11 +29,8 @@ public class NotifyRepository {
 
     public static void update(NotifyProps item) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            realm1.insertOrUpdate(item);
-        });
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
-
 
     public static void remove(NotifyProps item) {
         Realm realm = Realm.getDefaultInstance();
@@ -41,7 +38,6 @@ public class NotifyRepository {
             NotifyProps notifyProps = realm1.where(NotifyProps.class).equalTo("id", item.getId()).findFirst();
             notifyProps.deleteFromRealm();
         });
-
     }
 
     public static void remove(Specification specification) {
