@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.service;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -134,14 +135,13 @@ public class ManagerBroadcast {
     private static void createNotification(Post post, Context context) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
-                .setContentText(post.getMessage())
+                .setContentText(Html.fromHtml(post.getMessage()))
                 .setSmallIcon(R.mipmap.icon);
         Notification notification = builder.build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, notification);
     }
-
 
     public static void savePost(Post post){
         PostRepository.prepareAndAddPost(post);

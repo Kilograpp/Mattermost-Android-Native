@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.tools;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -239,5 +240,15 @@ public class FileUtil {
             return URLDecoder.decode(matcher.group(1), "UTF-8");
         }
         return null;
+    }
+
+    public Intent createOpenFileIntent(String path){
+        File file = new File(path);
+        String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
+                ? "*/*" : mimeType);
+        return intent;
     }
 }

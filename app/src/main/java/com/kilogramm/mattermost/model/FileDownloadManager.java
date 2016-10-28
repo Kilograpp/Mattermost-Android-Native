@@ -151,12 +151,7 @@ public class FileDownloadManager {
                             }
                             builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
 
-                            File file = new File(dir.getAbsolutePath() + File.separator + fileName);
-                            String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
-
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
-                                    ? "*/*" : mimeType);
+                            Intent intent = FileUtil.getInstance().createOpenFileIntent(dir.getAbsolutePath() + File.separator + fileName);
 
                             if (intent.resolveActivityInfo(MattermostApp.getSingleton()
                                     .getApplicationContext().getPackageManager(), 0) != null) {

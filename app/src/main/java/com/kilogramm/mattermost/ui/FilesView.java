@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.tool.Binding;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
@@ -86,20 +88,20 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-                        /*try {
+                        try {
                             File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                                     + File.separator
                                     + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
                             if (file.exists()) {
-                                createDialog(fileName, binding);
+                                binding.downloadFileControls.post(() -> createDialog(fileName, binding));
                             } else {
                                 downloadFile(fileName, binding);
                             }
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                             downloadFile(fileName, binding);
-                        }*/
-                        downloadFile(fileName, binding);
+                        }
+//                        downloadFile(fileName, binding);
 
                         FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                         if (fileToAttach != null) {
@@ -157,7 +159,7 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void downloadFile(String fileName, FilesItemLayoutBinding binding){
+    private void downloadFile(String fileName, FilesItemLayoutBinding binding) {
         FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
             @Override
             public void onComplete(String fileId) {
@@ -176,22 +178,41 @@ public class FilesView extends GridLayout {
                 Toast.makeText(getContext(),
                         getContext().getString(R.string.error_during_file_download),
                         Toast.LENGTH_SHORT).show();
-
             }
         });
     }
 
-    private void createDialog(String fileName, FilesItemLayoutBinding binding){
+    private void createDialog(String fileName, FilesItemLayoutBinding binding) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(getContext().getString(R.string.file_exists));
-        builder.setNegativeButton(R.string.cancel, (dialog, which) ->
-                dialog.dismiss());
-        builder.setNegativeButton(R.string.replace, (dialog, which) ->
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            binding.downloadFileControls.hideProgressControls();
+            dialog.dismiss();
+        });
+        builder.setPositiveButton(R.string.replace, (dialog, which) ->
                 downloadFile(fileName, binding));
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
-
+            Intent intent = null;
+            try {
+                intent = FileUtil.getInstance().
+                        createOpenFileIntent(
+                                FileUtil.getInstance().getDownloadedFilesDir()
+                                        + File.separator
+                                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                getContext().startActivity(intent);
+            } else {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+            binding.downloadFileControls.hideProgressControls();
         });
-        builder.create();
+        builder.show();
     }
 
     private void clearView() {
