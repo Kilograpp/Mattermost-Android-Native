@@ -3,12 +3,21 @@ package com.kilogramm.mattermost.model.fromnet;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Evgeny on 18.10.2016.
  */
 public class InviteObject implements Parcelable {
+    @SerializedName("email")
+    @Expose
     private String email;
+    @SerializedName("firstName")
+    @Expose
     private String firstName;
+    @SerializedName("lastName")
+    @Expose
     private String lastName;
 
 
