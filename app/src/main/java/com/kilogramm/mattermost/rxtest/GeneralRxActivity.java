@@ -98,7 +98,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     getPresenter().requestSwitchTeam();
                     break;
                 case R.id.files:
-                    showFiles();
+//                    showFiles();
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.settings:

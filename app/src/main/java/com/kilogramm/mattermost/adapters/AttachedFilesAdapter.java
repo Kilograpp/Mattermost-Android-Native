@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +26,9 @@ import io.realm.RealmViewHolder;
  * Created by kepar on 7.10.16.
  */
 public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach, AttachedFilesAdapter.MyViewHolder> {
-    private static final String TAG = "AttachedFilesAdapter";
-    private Context context;
 
     private EmptyListListener emptyListListener;
+    Context context;
 
     public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults) {
         super(context, realmResults, true);
@@ -36,8 +37,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
     public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) {
         super(context, realmResults, true);
-        this.context = context;
         this.emptyListListener = emptyListListener;
+        this.context = context;
     }
 
     @Override
@@ -53,13 +54,13 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        Picasso.with(context)
+/*        Picasso.with(context)
                 .load(fileToAttach.getFilePath())
                 .resize(150, 150)
                 .placeholder(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .error(context.getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .centerCrop()
-                .into(holder.binding.imageView);
+                .into(holder.binding.imageView);*/
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(View.VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
@@ -69,6 +70,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.progressBar.setVisibility(View.GONE);
             if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
                 holder.binding.progressWait.setVisibility(View.VISIBLE);
+//                holder.binding.progressWait.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
             } else if (fileToAttach.getUploadState() == UploadState.UPLOADED) {
                 holder.binding.progressWait.setVisibility(View.GONE);
             }
