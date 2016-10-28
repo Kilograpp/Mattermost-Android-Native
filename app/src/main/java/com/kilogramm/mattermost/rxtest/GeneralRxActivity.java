@@ -191,6 +191,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 channelListFragment.resetSelectItem();
                 break;
         }
+        setSelectItemMenu(channelId,type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
