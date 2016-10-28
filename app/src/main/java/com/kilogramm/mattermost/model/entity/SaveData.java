@@ -3,14 +3,25 @@ package com.kilogramm.mattermost.model.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by melkshake on 22.09.16.
  */
 public class SaveData implements Parcelable {
 
+    @SerializedName("category")
+    @Expose
     private String category;
+    @SerializedName("name")
+    @Expose
     private String name;
+    @SerializedName("user_id")
+    @Expose
     private String user_id;
+    @SerializedName("value")
+    @Expose
     private String value;
 
     public SaveData(String name, String user_id, Boolean value, String category) {
