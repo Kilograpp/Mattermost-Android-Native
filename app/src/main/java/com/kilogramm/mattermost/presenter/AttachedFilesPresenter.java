@@ -62,7 +62,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
-            sendShowToast("Loading start");
+//            sendShowToast("Loading start");
             String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
             String mimeType = fileUtil.getMimeType(filePath);
 
@@ -85,7 +85,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         }, (attachedFilesLayout, fileUploadResponse) -> {
             if (fileUploadResponse.getFilenames()!=null
                     && fileUploadResponse.getFilenames().size() != 0) {
-                sendShowToast("Loading complete");
+//                sendShowToast("Loading complete");
                 Log.d(TAG, fileUploadResponse.toString());
                 FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
                 FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);

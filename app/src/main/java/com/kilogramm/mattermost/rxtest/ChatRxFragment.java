@@ -404,7 +404,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        if (post.getMessage().length() != 0) {
+        if (post.getMessage().length() != 0 || !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
             getPresenter().requestSendToServer(post);
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
