@@ -50,6 +50,8 @@ import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -185,10 +187,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onResume() {
         super.onResume();
-//        if (PostRepository.query(new PostByChannelId(channelId)).first().getType().equals("D"))
-            setupToolbar("", channelName, v -> ProfileRxActivity.start(getActivity(), channelId), v -> searchMessage());
-//        else
-//            setupToolbar("", channelName, null, v -> searchMessage());
+        setupToolbar("", channelName, v -> {
+            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
+            if (users != null)
+                ProfileRxActivity.start(getActivity(), users.first().getId());
+        }, v -> searchMessage());
         checkNeededPermissions();
     }
 
