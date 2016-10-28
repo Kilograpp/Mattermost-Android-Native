@@ -41,14 +41,14 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
-import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
-import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
@@ -119,7 +119,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
-    
+
     private BroadcastReceiver brReceiverTyping;
 
     @Override
@@ -185,8 +185,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onResume() {
         super.onResume();
-        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
-                "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+//        if (PostRepository.query(new PostByChannelId(channelId)).first().getType().equals("D"))
+            setupToolbar("", channelName, v -> ProfileRxActivity.start(getActivity(), channelId), v -> searchMessage());
+//        else
+//            setupToolbar("", channelName, null, v -> searchMessage());
         checkNeededPermissions();
     }
 
@@ -648,7 +650,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     @Override
     public void OnItemClick(View view, String item) {
-        if(PostRepository.query(new PostByIdSpecification(item)).size()!=0){
+        if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
             Post post = PostRepository.query(new PostByIdSpecification(item)).first();
             switch (view.getId()) {
                 case R.id.sendStatusError:
