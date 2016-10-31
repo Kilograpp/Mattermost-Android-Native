@@ -126,17 +126,22 @@
     <string name="triggers_other_mention_hint">Type words</string>
     <string name="triggers_other_separate">Separate by commas</string>
 
-<<<<<<< HEAD
                     <!--Add channels-->
     <string name="add_channels_no_more">No more channels to join</string>
     <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
-=======
-    <!--Email-->
+
+                    <!--Email-->
     <string name="email_title">SEND DESKTOP NOTIFICATIONS</string>
     <string name="email_immediately">Immediately</string>
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
->>>>>>> 26743513aef517d9d226d15f1ed95dc4ad1fbdfb
+
+                    <!--Create new channel/group-->
+    <string name="create_new_ch_gr_name_hint">Channel Name*</string>
+    <string name="create_new_ch_gr_header_hint">Header (optional)</string>
+    <string name="create_new_ch_gr_purpose_hint">Purpose (optional)</string>
+    <string name="create_new_ch_gr_toolber_ch">New Channel</string>
+    <string name="create_new_ch_gr_toolber_gr">New Group</string>
 
 </resources>

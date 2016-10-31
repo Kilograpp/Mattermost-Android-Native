@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -13,23 +14,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="5dp"
+            android:layout_margin="@dimen/progress_bar_margin"
             android:indeterminate="true"
-            android:visibility="gone"
-            app:mpb_progressStyle="circular" />
+            app:mpb_progressStyle="circular"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
+            android:layout_marginTop="@dimen/create_new_ch_gr_ll_margin"
+            android:layout_marginLeft="@dimen/create_new_ch_gr_ll_margin"
+            android:layout_marginRight="@dimen/create_new_ch_gr_ll_margin"
             android:orientation="horizontal">
             <TextView
                 android:id="@+id/newChannelAvatar"
-                style="@style/textNormalWhite"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
+                style="@style/textNormalWhite"
                 android:background="@drawable/circle_backgraund"
                 android:backgroundTint="@color/colorPrimaryDark"
                 android:textSize="20dp"/>
@@ -40,7 +41,7 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="20dp"
                 android:textColor="@color/black"
-                android:hint="Channel Name *"
+                android:hint="@string/create_new_ch_gr_name_hint"
                 android:singleLine="true"
                 android:maxLines="1"
                 android:textColorHint="@color/hint_grey"
@@ -65,7 +66,7 @@
             app:hintAnimationEnabled="true">
 
             <EditText
-                android:hint="Header (optional)"
+                android:hint="@string/create_new_ch_gr_header_hint"
                 android:id="@+id/header"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
@@ -92,7 +93,7 @@
             app:hintAnimationEnabled="true">
 
             <EditText
-                android:hint="Purpose (optional)"
+                android:hint="@string/create_new_ch_gr_purpose_hint"
                 android:id="@+id/purpose"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
@@ -109,6 +110,5 @@
             android:layout_marginEnd="@dimen/search_margin"/>
 
     </LinearLayout>
-
 
 </layout>

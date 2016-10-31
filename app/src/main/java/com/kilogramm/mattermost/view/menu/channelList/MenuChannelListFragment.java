@@ -28,6 +28,8 @@ public class MenuChannelListFragment extends Fragment {
     public static final int REQUEST_JOIN_CHANNEL = 98;
     public static final int REQUEST_CREATE_CHANNEL = 97;
 
+    public final String IS_CHANNEL = "isChannel";
+
     private FragmentMenuChannelListBinding binding;
     private OnChannelItemClickListener channelItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
@@ -107,7 +109,8 @@ public class MenuChannelListFragment extends Fragment {
 
     private void createNewChannel() {
         getActivity().startActivityForResult(
-                new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class),
+                new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class)
+                    .putExtra(IS_CHANNEL, true),
                 REQUEST_CREATE_CHANNEL);
     }
 }
