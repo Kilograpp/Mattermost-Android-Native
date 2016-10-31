@@ -15,6 +15,7 @@ import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
@@ -25,6 +26,7 @@ import io.realm.RealmResults;
 
 public class MenuChannelListFragment extends Fragment {
     public static final int REQUEST_JOIN_CHANNEL = 98;
+    public static final int REQUEST_CREATE_CHANNEL = 97;
 
     private FragmentMenuChannelListBinding binding;
     private OnChannelItemClickListener channelItemClickListener;
@@ -44,6 +46,9 @@ public class MenuChannelListFragment extends Fragment {
         View view = binding.getRoot();
         binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
         setupListView();
+
+        binding.addChannel.setOnClickListener(v -> createNewChannel());
+
         return view;
     }
 
@@ -98,6 +103,12 @@ public class MenuChannelListFragment extends Fragment {
         getActivity().startActivityForResult(
                 new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),
                 REQUEST_JOIN_CHANNEL);
+    }
+
+    private void createNewChannel() {
+        getActivity().startActivityForResult(
+                new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class),
+                REQUEST_CREATE_CHANNEL);
     }
 }
 

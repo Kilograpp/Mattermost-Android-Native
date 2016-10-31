@@ -125,4 +125,8 @@
     <string name="triggers_other_mention_hint">Type words</string>
     <string name="triggers_other_separate">Separate by commas</string>
 
+                    <!--Add channels-->
+    <string name="add_channels_no_more">No more channels to join</string>
+    <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
+
 </resources>
