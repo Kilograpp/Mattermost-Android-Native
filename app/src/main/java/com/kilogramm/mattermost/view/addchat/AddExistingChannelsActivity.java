@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityAllChatsBinding;
@@ -78,6 +79,22 @@ public class AddExistingChannelsActivity
                 .putExtra(CHANNEL_NAME, channelName)
                 .putExtra(TYPE, type);
         setResult(Activity.RESULT_OK, intent);
-        finish();
+        getPresenter().requestAddChat(joinChannelId);
+    }
+
+    public void setProgress(boolean bool) {
+        binding.circProgressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void setNoChannels(boolean bool) {
+        binding.noMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void setRecycleView(boolean bool) {
+        binding.recViewMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void finishActivity() {
+        this.finish();
     }
 }

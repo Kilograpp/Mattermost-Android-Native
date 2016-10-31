@@ -50,9 +50,15 @@ public class AddExistingChannelsAdapter extends
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (channelClickListener != null) {
+
+                String channelName = getData().get(position).getDisplayName() == ""
+                        ? getData().get(position).getName()
+                        : getData().get(position).getDisplayName();
+
                 channelClickListener.onChannelItemClick(
                         getData().get(position).getId(),
-                        getData().get(position).getName(),
+                        channelName,
+                        //getData().get(position).getName(),
                         holder.getTypeChannel());
             }
         });

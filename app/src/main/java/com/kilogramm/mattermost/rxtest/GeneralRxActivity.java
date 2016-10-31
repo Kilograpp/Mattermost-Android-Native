@@ -297,7 +297,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 }
             }
             if (requestCode == MenuChannelListFragment.REQUEST_JOIN_CHANNEL) {
-                getPresenter().requestAddChat(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID));
+                this.setFragmentChat(
+                        data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
+                        data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
+                        data.getStringExtra(AddExistingChannelsActivity.TYPE)
+                );
             }
         }
     }
