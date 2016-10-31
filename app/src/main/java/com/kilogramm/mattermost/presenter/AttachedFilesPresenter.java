@@ -105,7 +105,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     public void sendShowToast(String log){
         createTemplateObservable(log)
-                .subscribe(split((attachedFilesLayout, s) -> attachedFilesLayout.showToast(s)));
+                .subscribe(split(AttachedFilesLayout::showToast));
     }
 
     private void startRequest() {

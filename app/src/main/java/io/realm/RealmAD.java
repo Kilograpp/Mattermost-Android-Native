@@ -1,6 +1,5 @@
 package io.realm;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 
@@ -107,7 +106,7 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
 
         animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
         if(this.animatePrimaryIdType == RealmFieldType.INTEGER) {
-            rowPrimaryId = Long.valueOf(row.getLong(this.animatePrimaryColumnIndex));
+            rowPrimaryId = row.getLong(this.animatePrimaryColumnIndex);
         } else {
             if(this.animatePrimaryIdType != RealmFieldType.STRING) {
                 throw new IllegalStateException("Unknown animatedIdType");

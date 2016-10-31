@@ -98,7 +98,7 @@ public class ImageViewerActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        runExitAnimation(() -> finish());
+        runExitAnimation(this::finish);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class ImageViewerActivity extends BaseActivity {
     }
 
     public void runEnterAnimation() {
-        final long duration = (long) (ANIM_DURATION * 1);
+        final long duration = (long) (ANIM_DURATION);
 
         // Set starting values for properties we're going to animate. These
         // values scale and position the full size version down to the thumbnail
@@ -200,7 +200,7 @@ public class ImageViewerActivity extends BaseActivity {
     }
 
     public void runExitAnimation(final Runnable endAction) {
-        final long duration = (long) (ANIM_DURATION * 1);
+        final long duration = (long) (ANIM_DURATION);
 
         // No need to set initial values for the reverse animation; the image is at the
         // starting size/location that we want to start from. Just animate to the

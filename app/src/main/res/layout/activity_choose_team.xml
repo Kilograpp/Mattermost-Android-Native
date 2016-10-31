@@ -16,15 +16,14 @@
             android:paddingTop="@dimen/activity_horizontal_text_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:background="@color/colorPrimary"
-            android:gravity="center_vertical"
-            />
+            android:gravity="center_vertical" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/timeList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_text_margin"
-            android:layout_gravity="center_vertical"></android.support.v7.widget.RecyclerView>
+            android:layout_gravity="center_vertical" />
 
     </LinearLayout>
 </layout>

@@ -41,9 +41,7 @@ public class MenuDirectListAdapter extends RealmRecyclerViewAdapter<Channel,Menu
         this.context = context;
         this.mRecyclerView = mRecyclerView;
         this.userStatuses = userStatuses;
-        this.userStatuses.addChangeListener(element -> {
-            notifyDataSetChanged();
-        });
+        this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
         this.directItemClickListener = listener;
     }
 

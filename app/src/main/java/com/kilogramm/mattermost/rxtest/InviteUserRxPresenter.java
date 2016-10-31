@@ -7,7 +7,6 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 
-
 import icepick.State;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -38,12 +37,12 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
     }
 
     private void initInviteRequest() {
-        restartableFirst(REQUEST_INVITE, () -> {
-            return service.invite(MattermostPreference.getInstance().getTeamId(), listInvite)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread());
-        }, (inviteUserRxActivity, o) -> sendInviteOk()
-         , (inviteUserRxActivity1, throwable) -> sendError(throwable.getMessage()));
+        restartableFirst(REQUEST_INVITE,
+                () -> service.invite(MattermostPreference.getInstance().getTeamId(), listInvite)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()),
+                (inviteUserRxActivity, o) -> sendInviteOk(),
+                (inviteUserRxActivity1, throwable) -> sendError(throwable.getMessage()));
     }
 
     public void requestInvite(ListInviteObj inviteObj){
@@ -53,7 +52,7 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
 
     private void sendError(String message) {
         createTemplateObservable(message)
-                .subscribe(split((inviteUserRxActivity, s) -> inviteUserRxActivity.showError(s)));
+                .subscribe(split(InviteUserRxActivity::showError));
     }
 
     private void sendInviteOk() {

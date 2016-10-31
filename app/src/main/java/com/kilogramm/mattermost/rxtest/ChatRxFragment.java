@@ -730,12 +730,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 case R.id.delete:
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.confirm_post_delete))
-                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                            })
-                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                getPresenter().requestDeletePost(post);
-                            })
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> getPresenter().requestDeletePost(post))
                             .show();
                     break;
                 case R.id.permalink:
@@ -743,12 +739,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.copy_permalink))
                             .setView(binding.getRoot())
-                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                            })
-                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> {
-                                copyLink(binding.edit.getText().toString());
-                            })
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
                             .show();
                     break;
                 case R.id.reply:

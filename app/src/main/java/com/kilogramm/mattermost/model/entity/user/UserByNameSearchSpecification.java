@@ -25,14 +25,14 @@ public class UserByNameSearchSpecification implements RealmSpecification {
             return realm.where(User.class)
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
-                    .equalTo("deleteAt", 0l)
+                    .equalTo("deleteAt", 0L)
                     .findAllSorted("username", Sort.ASCENDING);
         else {
             String[] username = name.split("@");
             return realm.where(User.class)
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
-                    .equalTo("deleteAt", 0l)
+                    .equalTo("deleteAt", 0L)
                     .contains("username", username[username.length - 1])
                     .findAllSorted("username", Sort.ASCENDING);
         }

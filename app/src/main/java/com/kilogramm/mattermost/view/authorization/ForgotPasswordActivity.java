@@ -34,12 +34,9 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
     private void initView(){
         setupToolbar(getString(R.string.title_forgot_password), true);
         setColorScheme(R.color.colorPrimary,R.color.colorPrimaryDark);
-        binding.buttonRecovery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        binding.buttonRecovery.setOnClickListener(view -> {
 //                getPresenter().sendEmail(getEmailText());
-                getPresenter().requestSendEmail(getEmailText());
-            }
+            getPresenter().requestSendEmail(getEmailText());
         });
     }
 

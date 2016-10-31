@@ -24,7 +24,6 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
-import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -38,7 +37,6 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -125,7 +123,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (generalRxActivity, stringUserMap) -> {
-                    List<User> users = new ArrayList<User>();
+                    List<User> users = new ArrayList<>();
                     users.addAll(stringUserMap.values());
                     users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
@@ -133,44 +131,44 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     requestLoadChannels();
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
-        restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
-            return service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, channelsWithMembers) -> {
-            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                    MattermostPreference.getInstance().getMyUserId());
-            requestUserTeam();
-        }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+        restartableFirst(REQUEST_LOAD_CHANNELS,
+                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, channelsWithMembers) -> {
+                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                            MattermostPreference.getInstance().getMyUserId());
+                    requestUserTeam();
+                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
-        restartableFirst(REQUEST_USER_TEAM, () -> {
-            return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, stringUserMap) -> {
-            UserRepository.add(stringUserMap.values());
-            if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
-                sendSetSelectChannel(channel.getId(), channel.getType());
-                if (channel != null) {
-                    setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
-                }
-            }
-        }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
+        restartableFirst(REQUEST_USER_TEAM,
+                () -> service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, stringUserMap) -> {
+                    UserRepository.add(stringUserMap.values());
+                    if (MattermostPreference.getInstance().getLastChannelId() == null) {
+                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
+                        sendSetSelectChannel(channel.getId(), channel.getType());
+                        if (channel != null) {
+                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
+                        }
+                    }
+                }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
 
-        restartableFirst(REQUEST_LOGOUT, () -> {
-            return service.logout(new Object())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, logoutData) -> {
-            Log.d(TAG, "Complete logout");
-            clearDataBaseAfterLogout();
-            clearPreference();
-            sendShowMainRxActivity();
-        }, (generalRxActivity1, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, "Error logout");
-        });
+        restartableFirst(REQUEST_LOGOUT,
+                () -> service.logout(new Object())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, logoutData) -> {
+                    Log.d(TAG, "Complete logout");
+                    clearDataBaseAfterLogout();
+                    clearPreference();
+                    sendShowMainRxActivity();
+                }, (generalRxActivity1, throwable) -> {
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error logout");
+                });
 
         initSaveRequest();
 

@@ -3,20 +3,12 @@ package com.kilogramm.mattermost.network;
 import android.content.Context;
 import android.util.Log;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 /**

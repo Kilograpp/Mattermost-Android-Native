@@ -42,8 +42,8 @@ public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> {
         setupToolbar(getString(R.string.choose_team), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
-        RealmResults<Team> teams = teamRepository.query();
-        TeamListAdapter teamListAdapter = new TeamListAdapter(this, teams, id -> setTeam(id));
+        RealmResults<Team> teams = TeamRepository.query();
+        TeamListAdapter teamListAdapter = new TeamListAdapter(this, teams, this::setTeam);
         String siteName = MattermostPreference.getInstance().getSiteName();
         if (siteName != null && siteName.length() > 0)
             binding.siteName.setText(siteName);

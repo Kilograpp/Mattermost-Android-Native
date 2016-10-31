@@ -153,7 +153,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     }
 
     public boolean isChannelTrigger() {
-        return notifyProps.getChannel().equals("true") ? true : false;
+        return notifyProps.getChannel().equals("true");
     }
 
     public void setChannelTrigger(boolean channel) {
@@ -162,7 +162,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     public boolean isFirstNameTrigger() {
         if (notifyProps.getFirstName() != null)
-            return notifyProps.getFirstName().equals("true") ? true : false;
+            return notifyProps.getFirstName().equals("true");
         return false;
     }
 
