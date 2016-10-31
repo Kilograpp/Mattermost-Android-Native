@@ -22,6 +22,7 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
     private ActivityNotificationBinding binding;
 
     private NotificationFragment notificationFragment;
+    private NotificationEmailFragment notificationEmailFragment;
     private NotificationPushFragment notificationPushFragment;
 
     @Override
@@ -73,21 +74,30 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         binding.fragmentNotification.setTag("NotificationFragment");
     }
 
+
+    public void openEmailNotification() {
+        setupToolbar(getString(R.string.notification_email), true);
+        if (notificationEmailFragment == null)
+            notificationEmailFragment = new NotificationEmailFragment();
+        getFragmentManager().beginTransaction()
+                .replace(binding.fragmentNotification.getId(), notificationEmailFragment)
+                .commit();
+        binding.fragmentNotification.setTag("NotificationEmailFragment");
+    }
+
+
     @Override
     public void onBackPressed() {
         switch (binding.fragmentNotification.getTag().toString()) {
             case "NotificationFragment":
                 super.onBackPressed();
                 break;
-            case "NotificationPushFragment":
-                openNotification();
-                break;
             case "WordsTriggerMentionsFragment":
                 ((WordsTriggerMentionsFragment) getFragmentManager().findFragmentById(R.id.fragmentNotification)).setMentionsKeys();
                 openNotification();
                 break;
             default:
-                super.onBackPressed();
+                openNotification();
         }
     }
 
