@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.view.fragments;
 import android.os.Bundle;
 import android.view.View;
 
-import com.android.annotations.Nullable;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import icepick.Icepick;

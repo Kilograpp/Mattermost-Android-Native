@@ -95,7 +95,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
         URI newUrl = URI.create(url);
         String s = newUrl.getAuthority();
         if (s == null) {
-            s = url.toString();
+            s = url;
         }
 
         //TODO FIX logic

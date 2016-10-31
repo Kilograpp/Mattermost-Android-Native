@@ -2,13 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel" />
-    </data>
-
     <com.kilogramm.mattermost.ui.CheckableLinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -22,7 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@{viewModel.channelName}"
             android:textColor="@color/white" />
 
         <TextView
@@ -30,7 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="2dp"
-            android:text="@{viewModel.unreadedMessage}"
             android:textColor="@color/white"
             tools:text="1" />
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -8,12 +10,46 @@
 
         <include layout="@layout/toolbar_layout" />
 
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:visibility="gone"
+            android:id="@+id/circProgressBar"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:mpb_progressStyle="circular" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recViewMoreChannels"
             style="@style/scrollbar_shape_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/noMoreChannels"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:text="No more channels to join"
+                android:layout_margin="10dp"
+                android:layout_gravity="center" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Click 'Create New Channel' to make a new one"
+                android:layout_margin="10dp"
+                android:textColor="@color/light_grey"
+                android:layout_gravity="center"/>
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

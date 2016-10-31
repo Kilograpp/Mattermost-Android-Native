@@ -37,7 +37,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
     private FragmentMenuDirectListBinding binding;
     private OnDirectItemClickListener directItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
-    AdapterMenuDirectList adapter;
+    MenuDirectListAdapter adapter;
     private int mSelectedItem;
 
 
@@ -72,7 +72,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT));
 
         binding.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new AdapterMenuDirectList(getActivity(), results, binding.recView,
+        adapter = new MenuDirectListAdapter(getActivity(), results, binding.recView,
                 (itemId, name, type) -> directItemClickListener.onDirectClick(itemId, name, type),
                 statusRealmResults);
 

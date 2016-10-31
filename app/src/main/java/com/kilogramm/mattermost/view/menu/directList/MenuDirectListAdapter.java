@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.view.menu.channelList;
+package com.kilogramm.mattermost.view.menu.directList;
 
 import android.content.Context;
 import android.databinding.OnRebindCallback;
@@ -10,32 +10,39 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 
 import java.util.List;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
+import io.realm.RealmResults;
 
 /**
  * Created by Evgeny on 18.08.2016.
  */
-public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, MenuChannelListHolder> {
+public class MenuDirectListAdapter extends RealmRecyclerViewAdapter<Channel,MenuDirectListHolder> {
 
-    private static final String TAG = "AdapterMenuDirectList";
+    private static final String TAG = "MenuDirectListAdapter";
 
     private Context context;
     private RecyclerView mRecyclerView;
-    private MenuChannelListFragment.OnChannelItemClickListener channelItemClickListener;
-    private MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
+    private MenuDirectListFragment.OnDirectItemClickListener directItemClickListener;
+    private MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener;
     private int selecteditem = -1;
+    private RealmResults<UserStatus> userStatuses;
 
-    public AdapterMenuChannelList(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
-                                  RecyclerView mRecyclerView, MenuChannelListFragment.OnChannelItemClickListener listener) {
+    public MenuDirectListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Channel> data,
+                                 RecyclerView mRecyclerView, MenuDirectListFragment.OnDirectItemClickListener listener,
+                                 RealmResults<UserStatus> userStatuses) {
         super(context, data, true);
         this.context = context;
         this.mRecyclerView = mRecyclerView;
-        this.channelItemClickListener = listener;
+        this.userStatuses = userStatuses;
+        this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
+        this.directItemClickListener = listener;
     }
 
     static Object DATA_INVALIDATION = new Object();
@@ -53,12 +60,13 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
     }
 
     @Override
-    public MenuChannelListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        MenuChannelListHolder holder = MenuChannelListHolder.create(inflater, parent);
+    public MenuDirectListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MenuDirectListHolder holder = MenuDirectListHolder.create(inflater, parent);
         holder.getmBinding().addOnRebindCallback(new OnRebindCallback() {
             public boolean onPreBind(ViewDataBinding binding) {
                 return mRecyclerView != null && mRecyclerView.isComputingLayout();
             }
+
             public void onCanceled(ViewDataBinding binding) {
                 if (mRecyclerView == null || mRecyclerView.isComputingLayout()) {
                     return;
@@ -73,34 +81,32 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
     }
 
     @Override
-    public void onBindViewHolder(MenuChannelListHolder holder, int position) {
+    public void onBindViewHolder(MenuDirectListHolder holder, int position) {
         Channel channel = getData().get(position);
+        UserStatus userStatus = null;
+
+        RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
+        if (byId.count() != 0) {
+            userStatus = byId.findFirst();
+        }
+
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
-                    if(channelItemClickListener!=null){
-                        channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
+                    if(directItemClickListener!=null){
+                        directItemClickListener.onDirectClick(channel.getId(), channel.getType(), channel.getUser().getUsername());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
                     }
                 });
-        if(holder.getAdapterPosition() == selecteditem){
+        if (holder.getAdapterPosition() == selecteditem) {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
-        holder.bindTo(channel, context);
-    }
 
-    @Override
-    public void onBindViewHolder(MenuChannelListHolder holder, int position, List<Object> payloads) {
-        super.onBindViewHolder(holder, position, payloads);
-        if(isForDataBinding(payloads)){
-            holder.getmBinding().executePendingBindings();
-        } else {
-            onBindViewHolder(holder, position);
-        }
+        holder.bindTo(channel, context, userStatus);
     }
 
     public int getSelecteditem() {
@@ -114,12 +120,13 @@ public class AdapterMenuChannelList extends RealmRecyclerViewAdapter<Channel, Me
     }
 
     private void onChangeSelected() {
-        if(selectedItemChangeListener!=null){
+        if (selectedItemChangeListener != null) {
             selectedItemChangeListener.onChangeSelected(selecteditem);
         }
     }
 
-    public void setSelectedItemChangeListener(MenuChannelListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
+    public void setSelectedItemChangeListener(MenuDirectListFragment.OnSelectedItemChangeListener selectedItemChangeListener) {
         this.selectedItemChangeListener = selectedItemChangeListener;
     }
+
 }

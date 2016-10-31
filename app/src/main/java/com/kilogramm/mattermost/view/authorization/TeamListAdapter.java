@@ -43,12 +43,7 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Team team = getData().get(position);
-        if (team.getDisplayName().length() != 0) {
-            holder.binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
-            holder.binding.timeIcon.getBackground()
-                    .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
-            holder.binding.timeName.setText(team.getDisplayName());
-        }
+        holder.bindTo(team);
         holder.binding.getRoot().setOnClickListener(view ->
                 onItemClickListener.onItemClick(team.getId()));
     }
@@ -60,6 +55,15 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
         public ViewHolder(ItemTeamBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+
+        public void bindTo(Team team){
+            if (team.getDisplayName().length() != 0) {
+                binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
+                binding.timeIcon.getBackground()
+                        .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
+                binding.timeName.setText(team.getDisplayName());
+            }
         }
     }
 

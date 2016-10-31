@@ -7,8 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.neovisionaries.ws.client.WebSocketException;
-
 /**
  * Created by Evgeny on 08.09.2016.
  */

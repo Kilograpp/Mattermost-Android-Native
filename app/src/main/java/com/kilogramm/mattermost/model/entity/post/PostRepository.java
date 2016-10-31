@@ -64,7 +64,7 @@ public class PostRepository {
     public static void prepareAndAddPost(Post post) {
         Realm realm = Realm.getDefaultInstance();
         if (!post.isSystemMessage())
-            post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+           post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);

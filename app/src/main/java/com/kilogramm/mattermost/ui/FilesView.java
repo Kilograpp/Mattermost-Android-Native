@@ -3,10 +3,8 @@ package com.kilogramm.mattermost.ui;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.databinding.tool.Binding;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -18,10 +16,10 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
-import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 import com.squareup.picasso.Picasso;
@@ -141,13 +139,10 @@ public class FilesView extends GridLayout {
                         break;
                     case JPG:
                         initAndAddItem(binding, getImageUrl(fileName));
-                        binding.image.setOnClickListener(view -> {
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(fileName));
-
-                        });
+                        binding.image.setOnClickListener(view -> ImageViewerActivity.start(getContext(),
+                                binding.image,
+                                binding.title.getText().toString(),
+                                getImageUrl(fileName)));
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));

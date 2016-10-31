@@ -4,16 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityAllChatsBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.presenter.AddExistingChannelsPresenter;
-import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.Realm;
@@ -75,11 +74,27 @@ public class AddExistingChannelsActivity
 
     @Override
     public void onChannelItemClick(String joinChannelId, String channelName, String type) {
+        getPresenter().requestAddChat(joinChannelId);
+    }
+
+    public void setProgress(boolean bool) {
+        binding.circProgressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void setNoChannels(boolean bool) {
+        binding.noMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void setRecycleView(boolean bool) {
+        binding.recViewMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    public void finishActivity(String joinChannelId, String channelName, String type) {
         Intent intent = new Intent(this, AddExistingChannelsActivity.class)
                 .putExtra(CHANNEL_ID, joinChannelId)
                 .putExtra(CHANNEL_NAME, channelName)
                 .putExtra(TYPE, type);
         setResult(Activity.RESULT_OK, intent);
-        finish();
+        this.finish();
     }
 }

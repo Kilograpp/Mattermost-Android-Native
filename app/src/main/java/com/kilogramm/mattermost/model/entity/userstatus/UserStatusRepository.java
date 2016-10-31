@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.model.entity.userstatus;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
-import com.kilogramm.mattermost.model.Repository;
 import com.kilogramm.mattermost.model.Specification;
 
 import java.util.Collection;

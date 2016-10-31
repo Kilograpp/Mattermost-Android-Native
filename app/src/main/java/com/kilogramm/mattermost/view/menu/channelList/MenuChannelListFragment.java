@@ -15,10 +15,8 @@ import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
-import com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel;
 
 import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -29,7 +27,6 @@ public class MenuChannelListFragment extends Fragment {
     public static final int REQUEST_JOIN_CHANNEL = 98;
 
     private FragmentMenuChannelListBinding binding;
-    private FrMenuChannelViewModel viewModel;
     private OnChannelItemClickListener channelItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private MenuChannelRxAdapter adapter;
@@ -45,8 +42,6 @@ public class MenuChannelListFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_menu_channel_list,
                 container, false);
         View view = binding.getRoot();
-        viewModel = new FrMenuChannelViewModel(getContext());
-        binding.setViewModel(viewModel);
         binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
         setupListView();
         return view;

@@ -32,21 +32,21 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
     }
 
     private void initSendEmailRequest() {
-        restartableFirst(REQUEST_SEND_EMAIL, () -> {
-            return service.forgotPassword(new ForgotData(userEmail))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (forgotPasswordActivity, forgotData) -> {
-            sendShowProgress(false);
-            sendHideKeyBoard();
-            sendFinishActivity();
-            sendShowMessage(forgotData.email);
+        restartableFirst(REQUEST_SEND_EMAIL,
+                () -> service.forgotPassword(new ForgotData(userEmail))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                , (forgotPasswordActivity, forgotData) -> {
+                    sendShowProgress(false);
+                    sendHideKeyBoard();
+                    sendFinishActivity();
+                    sendShowMessage(forgotData.email);
 
-        }, (forgotPasswordActivity, throwable) -> {
-            throwable.printStackTrace();
-            sendShowProgress(false);
-            sendErrorText(throwable.getMessage());
-        });
+                }, (forgotPasswordActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    sendShowProgress(false);
+                    sendErrorText(throwable.getMessage());
+                });
     }
 
     public void requestSendEmail(String userEmail) {
@@ -68,7 +68,7 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
 
     private void sendShowProgress(Boolean bool) {
         createTemplateObservable(bool)
-                .subscribe(split((forgotPasswordActivity, aBoolean) -> forgotPasswordActivity.showProgress(aBoolean)));
+                .subscribe(split(ForgotPasswordActivity::showProgress));
     }
 
     private void sendHideKeyBoard() {

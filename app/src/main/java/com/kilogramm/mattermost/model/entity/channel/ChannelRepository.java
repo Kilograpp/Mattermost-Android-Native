@@ -7,7 +7,6 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import java.util.Collection;
 
 import io.realm.Realm;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 

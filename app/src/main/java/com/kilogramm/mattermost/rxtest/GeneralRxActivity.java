@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -64,6 +65,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
         setupRightMenu();
+        showProgressBar();
         MattermostService.Helper.create(this).startWebSocket();
     }
 
@@ -175,20 +177,32 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }
     }
 
+    public void closeProgressBar(){
+        binding.progressBar.setVisibility(View.GONE);
+    }
+
+    public void showProgressBar(){
+        binding.progressBar.setVisibility(View.VISIBLE);
+    }
+
     public void setFragmentChat(String channelId, String channelName, String type) {
         replaceFragment(channelId, channelName);
+        closeProgressBar();
         switch (type) {
             case "O":
-                directListFragment.resetSelectItem();
+//                directListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
+                channelListFragment.resetSelectItem();
                 break;
             case "D":
-                channelListFragment.resetSelectItem();
+//                channelListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
+                directListFragment.resetSelectItem();
                 break;
             case "P":
-                directListFragment.resetSelectItem();
+//                directListFragment.resetSelectItem();
                 channelListFragment.resetSelectItem();
+                privateListFragment.resetSelectItem();
                 break;
         }
         setSelectItemMenu(channelId,type);
@@ -209,6 +223,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
+                this.searchMessageId = null;
             }
         }
 //        binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -293,7 +308,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 }
             }
             if (requestCode == MenuChannelListFragment.REQUEST_JOIN_CHANNEL) {
-                getPresenter().requestAddChat(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID));
+                this.setFragmentChat(
+                        data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
+                        data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
+                        data.getStringExtra(AddExistingChannelsActivity.TYPE)
+                );
             }
         }
     }

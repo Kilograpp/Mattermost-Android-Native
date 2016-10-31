@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.viewmodel.menu.ItemChannelViewModel;
 
 /**
  * Created by Evgeny on 17.10.2016.
@@ -28,11 +27,7 @@ public class MenuChannelListHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindTo(Channel channel, Context context) {
-        if(mBinding.getViewModel() == null){
-            mBinding.setViewModel(new ItemChannelViewModel(channel));
-        } else {
-            mBinding.getViewModel().setChannel(channel);
-        }
+        mBinding.channelName.setText(channel.getDisplayName());
         if(mBinding.linearLayout.isChecked()){
             mBinding.channelName.setTextColor(context.getResources().getColor(R.color.black));
             mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.black));

@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.model;
 
 import java.util.Collection;
-import java.util.List;
 
 import io.realm.RealmModel;
 import io.realm.RealmResults;

@@ -10,13 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.viewmodel.menu.FrMenuPrivateViewModel;
+import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 
 import io.realm.OrderedRealmCollection;
-import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -26,7 +24,6 @@ import io.realm.RealmResults;
 public class MenuPrivateListFragment extends Fragment {
 
     private FragmentMenuPrivateListBinding binding;
-    private FrMenuPrivateViewModel viewModel;
     private OnPrivateItemClickListener privateItemClickListener;
     private OnSelectedItemChangeListener selectedItemChangeListener;
     private AdapterMenuPrivateList adapter;
@@ -42,8 +39,6 @@ public class MenuPrivateListFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_menu_private_list,
                 container, false);
         View view = binding.getRoot();
-        viewModel = new FrMenuPrivateViewModel(getContext());
-        binding.setViewModel(viewModel);
         setupListView();
         return view;
     }

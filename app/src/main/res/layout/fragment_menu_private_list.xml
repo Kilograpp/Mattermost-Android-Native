@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools">
-    <data>
-        <variable
-            name="theme"
-            type="com.kilogramm.mattermost.model.entity.ThemeProps"/>
-        <variable
-            name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.menu.FrMenuPrivateViewModel"/>
-    </data>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:paddingTop="@dimen/left_padding"
         android:paddingLeft="@dimen/left_padding"

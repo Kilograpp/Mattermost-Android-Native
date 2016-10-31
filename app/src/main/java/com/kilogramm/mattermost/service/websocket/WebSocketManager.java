@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -154,7 +153,7 @@ public class WebSocketManager {
     }
 
     private boolean hasWebsocket() {
-        return ((webSocket != null) && (!(webSocket.getState() == WebSocketState.CLOSED))) ? true : false;
+        return ((webSocket != null) && (!(webSocket.getState() == WebSocketState.CLOSED)));
     }
 
     public void reconnect() throws WebSocketException {

@@ -15,7 +15,6 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.squareup.picasso.Picasso;
 
-import io.realm.Realm;
 import nucleus.factory.RequiresPresenter;
 
 /**

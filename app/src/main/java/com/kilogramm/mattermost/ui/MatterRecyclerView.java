@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -37,7 +36,7 @@ public class MatterRecyclerView extends RecyclerView {
 
     public MatterRecyclerView(Context context) {
         super(context);
-        this.init(context, (AttributeSet) null);
+        this.init(context, null);
     }
 
     public MatterRecyclerView(Context context, @Nullable AttributeSet attrs) {

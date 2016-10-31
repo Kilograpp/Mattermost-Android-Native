@@ -52,9 +52,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_USER_TEAM = 3;
     private static final int REQUEST_LOGOUT = 4;
     private static final int REQUEST_SAVE = 5;
-    private static final int REQUEST_ADD_CHAT = 6;
     private static final int REQUEST_INITLOAD = 7;
-    private static final int REQUEST_CHANNELS_TEAM = 8;
 
     private Realm realm;
 
@@ -126,7 +124,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (generalRxActivity, stringUserMap) -> {
-                    List<User> users = new ArrayList<User>();
+                    List<User> users = new ArrayList<>();
                     users.addAll(stringUserMap.values());
                     users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
@@ -134,58 +132,46 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     requestLoadChannels();
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
-        restartableFirst(REQUEST_LOAD_CHANNELS, () -> {
-            return service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, channelsWithMembers) -> {
-            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-                    MattermostPreference.getInstance().getMyUserId());
-            requestUserTeam();
-        }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+        restartableFirst(REQUEST_LOAD_CHANNELS,
+                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, channelsWithMembers) -> {
+                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                            MattermostPreference.getInstance().getMyUserId());
+                    requestUserTeam();
+                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
-        restartableFirst(REQUEST_USER_TEAM, () -> {
-            return service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, stringUserMap) -> {
-            UserRepository.add(stringUserMap.values());
-            if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
-                sendSetSelectChannel(channel.getId(), channel.getType());
-                if (channel != null) {
-                    setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
-                }
-            }
-        }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
+        restartableFirst(REQUEST_USER_TEAM,
+                () -> service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, stringUserMap) -> {
+                    UserRepository.add(stringUserMap.values());
+                    if (MattermostPreference.getInstance().getLastChannelId() == null) {
+                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
+                        sendSetSelectChannel(channel.getId(), channel.getType());
+                        if (channel != null) {
+                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
+                        }
+                    }
+                }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
 
-        restartableFirst(REQUEST_LOGOUT, () -> {
-            return service.logout(new Object())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io());
-        }, (generalRxActivity, logoutData) -> {
-            Log.d(TAG, "Complete logout");
-            clearDataBaseAfterLogout();
-            clearPreference();
-            sendShowMainRxActivity();
-        }, (generalRxActivity1, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, "Error logout");
-        });
+        restartableFirst(REQUEST_LOGOUT,
+                () -> service.logout(new Object())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (generalRxActivity, logoutData) -> {
+                    Log.d(TAG, "Complete logout");
+                    clearDataBaseAfterLogout();
+                    clearPreference();
+                    sendShowMainRxActivity();
+                }, (generalRxActivity1, throwable) -> {
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error logout");
+                });
 
         initSaveRequest();
-
-        restartableFirst(REQUEST_ADD_CHAT, () ->
-                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (generalRxActivity, channel) ->
-                        makeChannelsTeamRequest(channel),
-                (generalRxActivity, throwable) -> {
-                    throwable.printStackTrace();
-                    Log.d(TAG, throwable.getMessage());
-                }
-        );
 
         restartableFirst(REQUEST_INITLOAD, () ->
                         service.initLoad()
@@ -198,21 +184,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, throwable) ->
                         handleErrorLogin(throwable)
         );
-    }
-
-    private void makeChannelsTeamRequest(Channel channel) {
-        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(channelsWithMembers -> {
-                    RealmList<Channel> channelsList = new RealmList<>();
-                    channelsList.addAll(channelsWithMembers.getChannels());
-                    ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
-                    ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-
-                    String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
-                    sendSetFragmentChat(channel.getId(), channelName, channel.getType());
-                });
     }
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
@@ -249,12 +220,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             mSaveData.getmSaveData().clear();
             sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
-    }
-
-    public void requestAddChat(String joinChannelId) {
-        channelId = joinChannelId;
-        user.setUserId("");
-        start(REQUEST_ADD_CHAT);
     }
 
     public void requestSaveData(SaveData data, String userId) {
