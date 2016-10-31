@@ -40,7 +40,11 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
         binding.wordTrigger.setOnClickListener(view1 ->
                 ((NotificationActivity) getActivity()).openWordsTriggerMentions());
 
+        binding.email.setOnClickListener(view1 ->
+                ((NotificationActivity) getActivity()).openEmailNotification());
+
         binding.descriptionWordsTrigger.setText(getPresenter().getMentionsAll());
+        binding.emailSetting.setText(getPresenter().getEmailSetting().toString());
 
         return view;
     }

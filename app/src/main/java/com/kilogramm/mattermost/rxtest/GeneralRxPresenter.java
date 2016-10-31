@@ -24,6 +24,7 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
+import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -37,6 +38,7 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -214,10 +216,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             }
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
-                })), (generalRxActivity, channel) -> {
-                    mSaveData.getmSaveData().clear();
-                    sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-                }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+                        })), (generalRxActivity, channel) -> {
+            mSaveData.getmSaveData().clear();
+            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestSaveData(SaveData data, String userId) {

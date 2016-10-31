@@ -140,6 +140,18 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         return notifyProps.getPush();
     }
 
+
+    public String getEmailSetting() {
+        if (notifyProps.getEmail().equals("true"))
+            return "Immediately";
+        else
+            return "Never";
+    }
+
+    public void setEmailSetting(String setting) {
+        notifyProps.setEmail(setting);
+    }
+
     public void setPushSetting(String push) {
         notifyProps.setPush(push);
     }

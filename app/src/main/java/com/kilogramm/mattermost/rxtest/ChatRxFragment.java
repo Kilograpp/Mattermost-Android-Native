@@ -411,6 +411,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         if (post.getMessage().length() != 0 || !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
             getPresenter().requestSendToServer(post);
+            hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
             Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
