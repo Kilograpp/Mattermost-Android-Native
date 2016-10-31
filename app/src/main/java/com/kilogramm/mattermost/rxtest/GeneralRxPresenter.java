@@ -54,6 +54,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_ADD_CHAT = 6;
     private static final int REQUEST_INITLOAD = 7;
+    private static final int REQUEST_CHANNELS_TEAM = 8;
 
     private Realm realm;
 
@@ -174,27 +175,17 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
         initSaveRequest();
 
-        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
-                () -> Observable.zip(
+        restartableFirst(REQUEST_ADD_CHAT, () ->
                         service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (channel, channelsWithMembers) -> {
-                            RealmList<Channel> channelsList = new RealmList<>();
-                            channelsList.addAll(channelsWithMembers.getChannels());
-                            ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
-                            ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-                            return channel;
-        })), (generalRxActivity, channel) -> {
-            String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
-            sendSetFragmentChat(channel.getId(), channelName, channel.getType());
-        }, (generalRxActivity, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, throwable.getMessage());
-        });
+                (generalRxActivity, channel) ->
+                        makeChannelsTeamRequest(channel),
+                (generalRxActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    Log.d(TAG, throwable.getMessage());
+                }
+        );
 
         restartableFirst(REQUEST_INITLOAD, () ->
                         service.initLoad()
@@ -207,6 +198,21 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, throwable) ->
                         handleErrorLogin(throwable)
         );
+    }
+
+    private void makeChannelsTeamRequest(Channel channel) {
+        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(channelsWithMembers -> {
+                    RealmList<Channel> channelsList = new RealmList<>();
+                    channelsList.addAll(channelsWithMembers.getChannels());
+                    ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
+                    ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
+
+                    String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+                    sendSetFragmentChat(channel.getId(), channelName, channel.getType());
+                });
     }
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
@@ -239,10 +245,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             }
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
-                })), (generalRxActivity, channel) -> {
-                    mSaveData.getmSaveData().clear();
-                    sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-                }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+                        })), (generalRxActivity, channel) -> {
+            mSaveData.getmSaveData().clear();
+            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestAddChat(String joinChannelId) {
