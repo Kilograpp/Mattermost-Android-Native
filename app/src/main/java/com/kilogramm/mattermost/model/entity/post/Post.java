@@ -90,7 +90,7 @@ public class Post extends RealmObject implements Parcelable {
 
     public boolean isSystemMessage() {
         if (type != null)
-            return type.equals("system_join_leave");
+            return type.contains("system");
         else
             return false;
     }

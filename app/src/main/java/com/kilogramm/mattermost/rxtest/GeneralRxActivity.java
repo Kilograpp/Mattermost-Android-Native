@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -64,6 +65,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
         setupMenu();
         setupRightMenu();
+        showProgressBar();
         MattermostService.Helper.create(this).startWebSocket();
     }
 
@@ -175,8 +177,17 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }
     }
 
+    public void closeProgressBar(){
+        binding.progressBar.setVisibility(View.GONE);
+    }
+
+    public void showProgressBar(){
+        binding.progressBar.setVisibility(View.VISIBLE);
+    }
+
     public void setFragmentChat(String channelId, String channelName, String type) {
         replaceFragment(channelId, channelName);
+        closeProgressBar();
         switch (type) {
             case "O":
                 directListFragment.resetSelectItem();
