@@ -6,15 +6,11 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.realm.Realm;
 import rx.schedulers.Schedulers;
 
 /**
@@ -36,16 +32,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                 , (wholeDirectListActivity, stringUserMap) -> {
-                    Realm.getDefaultInstance().executeTransaction(realm1 -> {
-                        List<User> users = new ArrayList<>();
-                        for (User user : stringUserMap.values()) {
-                            if (user.getEmail() != null) {
-                                users.add(user);
-                            }
-                        }
-
-                        realm1.insertOrUpdate(users);
-                    });
+                    UserRepository.add(stringUserMap.values());
                     sendSetRecyclerView();
                 }, (wholeDirectListActivity1, throwable) -> {
                     Log.d(TAG, "Error load profiles for direct messages list");

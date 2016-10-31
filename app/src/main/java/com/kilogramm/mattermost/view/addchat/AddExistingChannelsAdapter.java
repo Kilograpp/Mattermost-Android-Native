@@ -1,15 +1,10 @@
 package com.kilogramm.mattermost.view.addchat;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ItemMoreChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.utils.ColorGenerator;
 
@@ -17,14 +12,13 @@ import java.util.ArrayList;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
-import io.realm.RealmViewHolder;
 
 /**
  * Created by melkshake on 19.10.16.
  */
 
 public class AddExistingChannelsAdapter extends
-        RealmRecyclerViewAdapter<ChannelsDontBelong, AddExistingChannelsAdapter.MyViewHolder> {
+        RealmRecyclerViewAdapter<ChannelsDontBelong, AddExistingChannelHolder> {
 
     private OnChannelItemClickListener channelClickListener;
 
@@ -41,12 +35,12 @@ public class AddExistingChannelsAdapter extends
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return MyViewHolder.create(inflater, parent);
+    public AddExistingChannelHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return AddExistingChannelHolder.create(inflater, parent);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(AddExistingChannelHolder holder, int position) {
         colorGenerator = ColorGenerator.MATERIAL;
         for (int i = 0; i < getData().size(); i++) {
             backgroundColors.add(colorGenerator.getRandomColor());
@@ -62,38 +56,6 @@ public class AddExistingChannelsAdapter extends
                         holder.getTypeChannel());
             }
         });
-    }
-
-    public static class MyViewHolder extends RealmViewHolder {
-        private ItemMoreChannelBinding moreBinding;
-        private String typeChannel;
-
-        private MyViewHolder(ItemMoreChannelBinding binding) {
-            super(binding.getRoot());
-            moreBinding = binding;
-        }
-
-        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            return new MyViewHolder(DataBindingUtil.inflate(inflater, R.layout.item_more_channel, parent, false));
-        }
-
-        public void bindTo(ChannelsDontBelong channelDontBelong, int backgroundColor) {
-            String firstLetter = String.valueOf(channelDontBelong.getName().charAt(0)).toUpperCase();
-            moreBinding.avatarChannel.setText(firstLetter);
-            moreBinding.avatarChannel.getBackground()
-                    .setColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY);
-
-            typeChannel = channelDontBelong.getType();
-            moreBinding.tvChannelName.setText(channelDontBelong.getDisplayName().toUpperCase());
-        }
-
-        public String getTypeChannel() {
-            return typeChannel;
-        }
-
-        public ItemMoreChannelBinding getmBinding() {
-            return moreBinding;
-        }
     }
 
     public interface OnChannelItemClickListener {

@@ -181,14 +181,17 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             case "O":
                 directListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
+                channelListFragment.resetSelectItem();
                 break;
             case "D":
                 channelListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
+                directListFragment.resetSelectItem();
                 break;
             case "P":
                 directListFragment.resetSelectItem();
                 channelListFragment.resetSelectItem();
+                privateListFragment.resetSelectItem();
                 break;
         }
         setSelectItemMenu(channelId,type);
