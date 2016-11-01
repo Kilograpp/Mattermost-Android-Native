@@ -177,11 +177,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }
     }
 
-    public void closeProgressBar(){
+    public void closeProgressBar() {
         binding.progressBar.setVisibility(View.GONE);
     }
 
-    public void showProgressBar(){
+    public void showProgressBar() {
         binding.progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -205,21 +205,23 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 privateListFragment.resetSelectItem();
                 break;
         }
-        setSelectItemMenu(channelId,type);
+        setSelectItemMenu(channelId, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
     private void replaceFragment(String channelId, String channelName) {
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-            currentChannel = channelId;getFragmentManager().beginTransaction()
+            currentChannel = channelId;
+            getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            if(searchMessageId != null){
+            if (searchMessageId != null) {
                 ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-                currentChannel = channelId;getFragmentManager().beginTransaction()
+                currentChannel = channelId;
+                getFragmentManager().beginTransaction()
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
                 binding.drawerLayout.closeDrawer(GravityCompat.START);

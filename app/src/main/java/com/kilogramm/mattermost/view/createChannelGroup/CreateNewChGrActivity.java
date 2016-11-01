@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.view.createChannelGroup;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.kilogramm.mattermost.R;
@@ -39,8 +40,44 @@ public class CreateNewChGrActivity extends BaseActivity<CreateNewChGrPresenter> 
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.create_channel_toolbar, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finishActivity();
+                break;
+
+            case R.id.action_create:
+                if (binding.tvChannelName.getText().length() != 0) {
+                    if (isChannel) {
+                        getPresenter().requestCreateChannel(binding.tvChannelName.getText().toString(),
+                                                            binding.header.getText().toString(),
+                                                            binding.purpose.getText().toString());
+                        break;
+                    } else {
+                        getPresenter().requestCreateGroup(binding.tvChannelName.getText().toString(),
+                                                          binding.header.getText().toString(),
+                                                          binding.purpose.getText().toString());
+                    }
+                } else {
+                    String errorText = isChannel ? "     Channel name is required \n" : "     Group name is required \n";
+                    getPresenter().sendShowError(errorText);
+                }
+                BaseActivity.hideKeyboard(this);
+                break;
+            default:
+                super.onOptionsItemSelected(item);
+
+        }
+        return true;
+    }
+
+    public void finishActivity() {
+        this.finish();
     }
 }

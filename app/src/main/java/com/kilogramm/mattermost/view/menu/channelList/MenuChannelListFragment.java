@@ -26,7 +26,7 @@ import io.realm.RealmResults;
 
 public class MenuChannelListFragment extends Fragment {
     public static final int REQUEST_JOIN_CHANNEL = 98;
-    public static final int REQUEST_CREATE_CHANNEL = 97;
+    public static final int REQUEST_CREATE = 97;
 
     public final String IS_CHANNEL = "isChannel";
 
@@ -81,6 +81,11 @@ public class MenuChannelListFragment extends Fragment {
         void onChannelClick(String itemId, String name, String type);
     }
 
+    //
+//    public interface OnAddChannelClickListener() {
+//        void onAddChannelClick(String type);
+//    }
+
     public interface OnSelectedItemChangeListener {
         void onChangeSelected(int position);
     }
@@ -111,7 +116,7 @@ public class MenuChannelListFragment extends Fragment {
         getActivity().startActivityForResult(
                 new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class)
                     .putExtra(IS_CHANNEL, true),
-                REQUEST_CREATE_CHANNEL);
+                REQUEST_CREATE);
     }
 }
 

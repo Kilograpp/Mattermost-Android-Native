@@ -212,6 +212,33 @@ public class Channel extends RealmObject {
 
     /**
      *
+     * @param displayName
+     * The displayName
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     *
+     * @param purpose
+     * The purpose
+     */
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    /**
+     *
+     * @param header
+     * The header
+     */
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    /**
+     *
      * @return
      * The header
      */
@@ -269,5 +296,12 @@ public class Channel extends RealmObject {
     }
 
 
-
+    public void setAttributesToCreate(String name, String displayName,
+                                      String purpose, String header, String type) {
+        setName(name);
+        setDisplayName(displayName);
+        setPurpose(purpose);
+        setHeader(header);
+        setType(type);
+    }
 }

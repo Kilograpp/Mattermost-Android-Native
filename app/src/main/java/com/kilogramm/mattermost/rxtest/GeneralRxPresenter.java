@@ -62,7 +62,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     ListSaveData mSaveData = new ListSaveData();
 
     private LogoutData user;
-    private String channelId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {

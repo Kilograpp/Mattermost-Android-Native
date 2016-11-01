@@ -24,7 +24,7 @@ import io.realm.RealmResults;
  */
 
 public class MenuPrivateListFragment extends Fragment {
-    public static final int REQUEST_CREATE_GROUP = 96;
+    public static final int REQUEST_CREATE = 96;
     public final String IS_CHANNEL = "isChannel";
 
     private FragmentMenuPrivateListBinding binding;
@@ -52,7 +52,7 @@ public class MenuPrivateListFragment extends Fragment {
         getActivity().startActivityForResult(
                 new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class)
                     .putExtra(IS_CHANNEL, false),
-                REQUEST_CREATE_GROUP);
+                REQUEST_CREATE);
     }
 
 

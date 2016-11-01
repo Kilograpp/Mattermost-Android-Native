@@ -39,6 +39,7 @@
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
     <string name="save">Save</string>
+    <string name="create">Create</string>
     <string name="message">Message</string>
     <string name="edit_the_post">Edit the post…</string>
     <string name="copy_permalink">Copy Permalink</string>
