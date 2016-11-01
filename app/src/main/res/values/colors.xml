@@ -31,4 +31,10 @@
     <color name="color_highlight">#d3ddfb</color>
     <color name="color_header">#3082b7</color>
 
+    <!--Channel-->
+    <color name="textColorRed">#e21b3e</color>
+    <color name="icon_team_color_start">#006bd7</color>
+    <color name="icon_team_color_end">#008edc</color>
+    <color name="icon_team_color_shadow">#00658f</color>
+
 </resources>

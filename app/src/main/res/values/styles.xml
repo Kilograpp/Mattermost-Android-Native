@@ -86,6 +86,19 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <!--BLUE-->
+
+    <style name="textBlue" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <!--BLUE-->
+
+    <style name="textRad" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/textColorRed</item>
+    </style>
+
+
     <!--BLACK-->
 
     <style name="textBlack" parent="@android:style/TextAppearance">

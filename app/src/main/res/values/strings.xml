@@ -133,4 +133,15 @@
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
 
+
+    <!--Channel info-->
+    <string name="channel_info">Channel info</string>
+    <string name="channel_info_header">Header</string>
+    <string name="channel_info_purpose">Purpose</string>
+    <string name="channel_info_url">URL</string>
+    <string name="channel_info_id">ID</string>
+    <string name="channel_info_add_members">  Add Members</string>
+    <string name="channel_info_see_all">SEE ALL</string>
+    <string name="channel_info_leave_channel">Leave Channel</string>
+
 </resources>
