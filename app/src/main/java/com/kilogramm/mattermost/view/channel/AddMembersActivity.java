@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.MembersListBinding;
-import com.kilogramm.mattermost.presenter.channel.AllMembersPresenter;
+import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.ChannelPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -18,7 +18,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by ngers on 01.11.16.
  */
 @RequiresPresenter(ChannelPresenter.class)
-public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
+public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     MembersListBinding binding;
 
     @Override
@@ -29,14 +29,15 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
     }
 
     private void setToolbar() {
-        setupToolbar(getString(R.string.all_members_toolbar), true);
+        setupToolbar(getString(R.string.add_members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, AllMembersActivity.class);
+        Intent starter = new Intent(context, AddMembersActivity.class);
         context.startActivity(starter);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         onBackPressed();

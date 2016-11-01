@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.kilogramm.mattermost.R;
@@ -30,6 +31,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
 
     private void initClick() {
         binding.seeAll.setOnClickListener(this);
+        binding.addMembers.setOnClickListener(this);
     }
 
     private void setToolbar() {
@@ -47,6 +49,15 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         switch (view.getId()){
             case R.id.seeAll:
                 AllMembersActivity.start(this);
+                break;
+            case R.id.addMembers:
+                AddMembersActivity.start(this);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -144,6 +144,7 @@
     <string name="channel_info_see_all">SEE ALL</string>
     <string name="channel_info_leave_channel">Leave Channel</string>
 
-    <string name="members_toolbar">All members</string>
+    <string name="all_members_toolbar">All Members</string>
+    <string name="add_members_toolbar">Add Members</string>
 
 </resources>
