@@ -6,14 +6,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/memberIcon"
-            style="@style/textNormalWhite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:background="@drawable/circle_backgraund"
-            android:gravity="center" />
+            />
 
 
         <View

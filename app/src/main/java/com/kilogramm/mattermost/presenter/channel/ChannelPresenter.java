@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.presenter.channel;
 
+import android.os.Bundle;
+
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
@@ -8,4 +10,9 @@ import com.kilogramm.mattermost.view.channel.ChannelActivity;
  */
 
 public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
+
+    @Override
+    protected void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
+    }
 }

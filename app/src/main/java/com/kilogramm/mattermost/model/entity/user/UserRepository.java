@@ -57,6 +57,11 @@ public class UserRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static RealmResults<User> query() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(User.class).findAll();
+    }
+
     public static void updateUserMessage(String postId, String message) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 ->

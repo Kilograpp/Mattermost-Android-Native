@@ -191,7 +191,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupToolbar("", channelName, v -> {
             RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
             if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
-            else ChannelActivity.start(getActivity());
+            else ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
     }
