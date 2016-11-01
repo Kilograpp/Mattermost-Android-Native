@@ -26,9 +26,6 @@ import io.realm.RealmResults;
 
 public class MenuChannelListFragment extends Fragment {
     public static final int REQUEST_JOIN_CHANNEL = 98;
-    public static final int REQUEST_CREATE = 97;
-
-    public final String IS_CHANNEL = "isChannel";
 
     private FragmentMenuChannelListBinding binding;
     private OnChannelItemClickListener channelItemClickListener;
@@ -49,16 +46,26 @@ public class MenuChannelListFragment extends Fragment {
         binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
         setupListView();
 
-        binding.addChannel.setOnClickListener(v -> createNewChannel());
-
         return view;
     }
 
     private void setupListView() {
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MenuChannelRxAdapter(getContext(), results,
-                (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
+        binding.addChannel.setOnClickListener(v -> channelItemClickListener.onCreateChannelClick());
+
+        adapter = new MenuChannelRxAdapter(getContext(), results, new OnChannelItemClickListener() {
+            @Override
+            public void onChannelClick(String itemId, String name, String type) {
+                channelItemClickListener.onChannelClick(itemId, name, type);
+            }
+
+            @Override
+            public void onCreateChannelClick() {
+            }
+        });
+
+
         if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }
@@ -79,12 +86,8 @@ public class MenuChannelListFragment extends Fragment {
 
     public interface OnChannelItemClickListener {
         void onChannelClick(String itemId, String name, String type);
+        void onCreateChannelClick();
     }
-
-    //
-//    public interface OnAddChannelClickListener() {
-//        void onAddChannelClick(String type);
-//    }
 
     public interface OnSelectedItemChangeListener {
         void onChangeSelected(int position);
@@ -110,13 +113,6 @@ public class MenuChannelListFragment extends Fragment {
         getActivity().startActivityForResult(
                 new Intent(getActivity().getApplicationContext(), AddExistingChannelsActivity.class),
                 REQUEST_JOIN_CHANNEL);
-    }
-
-    private void createNewChannel() {
-        getActivity().startActivityForResult(
-                new Intent(getActivity().getApplicationContext(), CreateNewChGrActivity.class)
-                    .putExtra(IS_CHANNEL, true),
-                REQUEST_CREATE);
     }
 }
 

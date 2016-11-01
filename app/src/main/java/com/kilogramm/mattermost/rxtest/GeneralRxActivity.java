@@ -25,6 +25,9 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -46,9 +49,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private static final String TAG = "GeneralRxActivity";
+    public static final int REQUEST_CREATE_CHANNEL = 97;
+    public static final int REQUEST_CREATE_GROUP = 96;
 
+    private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+
+    public final String TYPE = "TYPE";
 
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
@@ -142,12 +149,33 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
                 .commit();
 
-        privateListFragment.setPrivateItemClickListener((itemId, name, type) -> getPresenter().setSelectedMenu(itemId, type, name));
+        privateListFragment.setPrivateItemClickListener(new MenuPrivateListFragment.OnPrivateItemClickListener() {
+            @Override
+            public void onPrivatelClick(String itemId, String name, String type) {
+                getPresenter().setSelectedMenu(itemId, type, name);
+            }
+
+            @Override
+            public void onCreateGroupClick() {
+                CreateNewGroupActivity.startActivityForResult(GeneralRxActivity.this, REQUEST_CREATE_GROUP);
+            }
+        });
+
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentPrivateList.getId(), privateListFragment)
                 .commit();
         //initChannelList
-        channelListFragment.setListener((itemId, name, type) -> getPresenter().setSelectedMenu(itemId, type, name));
+
+        channelListFragment.setListener(new MenuChannelListFragment.OnChannelItemClickListener() {
+            @Override
+            public void onChannelClick(String itemId, String name, String type) {
+                getPresenter().setSelectedMenu(itemId, name, type);
+            }
+            @Override
+            public void onCreateChannelClick() {
+                CreateNewChannelActivity.startActivityForResult(GeneralRxActivity.this, REQUEST_CREATE_CHANNEL);
+            }
+        });
 
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentChannelList.getId(), channelListFragment)
@@ -316,6 +344,16 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                         data.getStringExtra(AddExistingChannelsActivity.TYPE)
                 );
             }
+//            if (requestCode == REQUEST_CREATE_CHANNEL) {
+//                this.setFragmentChat(data.getStringExtra(CreateNewChGrActivity.CHANNEL_ID),
+//                                     data.getStringExtra(CreateNewChGrActivity.CHANNEL_NAME),
+//                                     data.getStringExtra(CreateNewChGrActivity.TYPE));
+//            }
+//            if (requestCode == REQUEST_CREATE_GROUP) {
+//                this.setFragmentChat(data.getStringExtra(CreateNewChGrActivity.CHANNEL_ID),
+//                                     data.getStringExtra(CreateNewChGrActivity.CHANNEL_NAME),
+//                                     data.getStringExtra(CreateNewChGrActivity.TYPE));
+//            }
         }
     }
 }

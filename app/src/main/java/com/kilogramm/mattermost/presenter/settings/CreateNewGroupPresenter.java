@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.presenter;
+package com.kilogramm.mattermost.presenter.settings;
 
 import android.os.Bundle;
 
@@ -9,17 +9,17 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by melkshake on 31.10.16.
+ * Created by melkshake on 01.11.16.
  */
 
-public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivity> {
-    private static final int REQUEST_CREATE_CHANNEL_GROUP = 1;
+public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActivity> {
+    private static final int REQUEST_CREATE_GROUP = 1;
     private static final int REQUEST_GET_INFO = 2;
 
     private ApiMethod service;
@@ -41,7 +41,7 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
     }
 
     private void initRequests() {
-        restartableFirst(REQUEST_CREATE_CHANNEL_GROUP,
+        restartableFirst(REQUEST_CREATE_GROUP,
                 () -> service.createChannel(teamId, createChannel)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()
@@ -78,14 +78,9 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
         });
     }
 
-    public void requestCreateChannel(String name, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, name, header, purpose, "O");
-        start(REQUEST_CREATE_CHANNEL_GROUP);
-    }
-
     public void requestCreateGroup(String name, String header, String purpose) {
         createChannel.setAttributesToCreate(name, name, header, purpose, "P");
-        start(REQUEST_CREATE_CHANNEL_GROUP);
+        start(REQUEST_CREATE_GROUP);
     }
 
     public void requestGetChannelInfo() {
