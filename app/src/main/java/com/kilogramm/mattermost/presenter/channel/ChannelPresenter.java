@@ -1,4 +1,4 @@
-package com.kilogramm.mattermost.presenter;
+package com.kilogramm.mattermost.presenter.channel;
 
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;

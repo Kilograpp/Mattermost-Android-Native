@@ -56,6 +56,11 @@
         </activity>
 
         <activity
+            android:name=".view.channel.AllMembersActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
             android:name=".view.authorization.ChooseTeamActivity"
             android:screenOrientation="portrait">
         </activity>

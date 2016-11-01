@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.view.View;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ChannelActivityBinding;
+import com.kilogramm.mattermost.databinding.AllMembersBinding;
+import com.kilogramm.mattermost.presenter.channel.AllMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.ChannelPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -17,36 +17,23 @@ import nucleus.factory.RequiresPresenter;
  * Created by ngers on 01.11.16.
  */
 @RequiresPresenter(ChannelPresenter.class)
-public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener{
-    ChannelActivityBinding binding;
+public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
+    AllMembersBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.channel_activity);
+        binding = DataBindingUtil.setContentView(this, R.layout.all_members);
         setToolbar();
-        initClick();
-    }
-
-    private void initClick() {
-        binding.seeAll.setOnClickListener(this);
     }
 
     private void setToolbar() {
-        setupToolbar(getString(R.string.channel_info), true);
+        setupToolbar(getString(R.string.members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     public static void start(Context context) {
-        Intent starter = new Intent(context, ChannelActivity.class);
+        Intent starter = new Intent(context, AllMembersActivity.class);
         context.startActivity(starter);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.seeAll:
-                AllMembersActivity.start(this);
-        }
     }
 }
