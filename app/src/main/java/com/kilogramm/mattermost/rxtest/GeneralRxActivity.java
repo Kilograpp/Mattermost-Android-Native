@@ -28,6 +28,7 @@ import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
+import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
@@ -122,7 +123,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.about_mattermost:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    RightMenuAboutAppActivity.start(this);
                     break;
                 case R.id.logout:
                     getPresenter().requestLogout();
