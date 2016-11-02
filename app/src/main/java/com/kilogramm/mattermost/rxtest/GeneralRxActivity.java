@@ -107,8 +107,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     getPresenter().requestSwitchTeam();
                     break;
                 case R.id.files:
-//                    showFiles();
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    showFiles();
                     break;
                 case R.id.settings:
                     NotificationActivity.start(this);
@@ -117,10 +116,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     InviteUserRxActivity.start(this);
                     break;
                 case R.id.help:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.report_a_problem:
-                    Toast.makeText(GeneralRxActivity.this, "In Development", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.about_mattermost:
                     RightMenuAboutAppActivity.start(this);
@@ -219,19 +218,16 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         closeProgressBar();
         switch (type) {
             case "O":
-//                directListFragment.resetSelectItem();
+                directListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
-                channelListFragment.resetSelectItem();
                 break;
             case "D":
-//                channelListFragment.resetSelectItem();
                 privateListFragment.resetSelectItem();
-                directListFragment.resetSelectItem();
+                channelListFragment.resetSelectItem();
                 break;
             case "P":
-//                directListFragment.resetSelectItem();
                 channelListFragment.resetSelectItem();
-                privateListFragment.resetSelectItem();
+                directListFragment.resetSelectItem();
                 break;
         }
         setSelectItemMenu(channelId, type);
