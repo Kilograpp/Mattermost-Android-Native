@@ -21,20 +21,19 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 style="@style/textNormalWhite"
-                android:background="@drawable/circle_backgraund"
-                android:backgroundTint="@color/colorPrimaryDark"
-                android:textSize="20dp"/>
+                android:gravity="center"
+                android:background="@drawable/circle_background"
+                android:textSize="32sp"/>
             <EditText
                 android:id="@+id/tvChannelName"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="20dp"
-                android:textColor="@color/black"
-                android:hint="@string/create_new_ch_gr_name_hint"
                 android:singleLine="true"
                 android:maxLines="1"
                 android:textColorHint="@color/hint_grey"
+                android:textColor="@color/black"
                 android:textSize="27sp"
                 android:layout_weight="1"
                 android:inputType="textCapSentences"/>
@@ -61,7 +60,7 @@
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapSentences" />
+                android:inputType="textCapSentences|textMultiLine" />
         </android.support.design.widget.TextInputLayout>
 
         <View
@@ -86,7 +85,7 @@
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapSentences" />
+                android:inputType="textCapSentences|textMultiLine" />
         </android.support.design.widget.TextInputLayout>
 
         <View

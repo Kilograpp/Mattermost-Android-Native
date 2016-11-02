@@ -142,11 +142,12 @@
     <string name="email_description_end"> for more than 5 minutes.</string>
 
                     <!--Create new channel/group-->
-    <string name="create_new_ch_gr_name_hint">Channel Name*</string>
+    <string name="create_new_channel_name_hint">Channel Name*</string>
+    <string name="create_new_group_name_hint">Group Name*</string>
     <string name="create_new_ch_gr_header_hint">Header (optional)</string>
     <string name="create_new_ch_gr_purpose_hint">Purpose (optional)</string>
-    <string name="create_new_ch_gr_toolber_ch">New Channel</string>
-    <string name="create_new_ch_gr_toolber_gr">New Group</string>
+    <string name="create_new_ch_gr_toolbar_ch">New Channel</string>
+    <string name="create_new_ch_gr_toolbar_gr">New Group</string>
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
 

@@ -21,7 +21,7 @@
                 android:textSize="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/circle_backgraund"
+                android:background="@drawable/circle_background"
                 android:gravity="center" />
             <TextView
                 android:id="@+id/tvChannelName"

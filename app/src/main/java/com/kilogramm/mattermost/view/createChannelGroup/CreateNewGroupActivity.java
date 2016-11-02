@@ -3,7 +3,10 @@ package com.kilogramm.mattermost.view.createChannelGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.view.View;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityCreateChannelGroupBinding;
 import com.kilogramm.mattermost.presenter.CreateNewGroupPresenter;
+import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import nucleus.factory.RequiresPresenter;
@@ -26,14 +30,45 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
     public static final String CREATED_GROUP_ID = "CREATED_CHANNEL_ID";
 
     private ActivityCreateChannelGroupBinding binding;
+    private ColorGenerator colorGenerator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_create_channel_group);
-        setupToolbar(getString(R.string.create_new_ch_gr_toolber_gr), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+        this.init();
     }
+
+    private void init() {
+        binding.tvChannelName.setHint(getResources().getString(R.string.create_new_group_name_hint));
+        setupToolbar(getString(R.string.create_new_ch_gr_toolbar_gr), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+
+        colorGenerator = ColorGenerator.MATERIAL;
+        binding.newChannelAvatar.getBackground()
+                .setColorFilter(colorGenerator.getRandomColor(), PorterDuff.Mode.MULTIPLY);
+
+        binding.tvChannelName.addTextChangedListener(textingWatcher);
+    }
+
+    private final TextWatcher textingWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (binding.tvChannelName.getText().length() == 0) {
+                binding.newChannelAvatar.setText("");
+            } else {
+                binding.newChannelAvatar.setText(String.valueOf(binding.tvChannelName.getText().toString().charAt(0)));
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -45,6 +80,7 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                BaseActivity.hideKeyboard(this);
                 this.finish();
                 break;
             case R.id.action_create:

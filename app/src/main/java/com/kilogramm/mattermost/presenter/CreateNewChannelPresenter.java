@@ -54,8 +54,12 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                         requestGetChannelInfo();
                     } else {
                         sendShowError("\\t Channel is not created \\n");
+                        sendSetProgressVisibility(false);
                     }
-                }, (createNewChGrActivity, throwable) -> sendShowError(throwable));
+                }, (createNewChGrActivity, throwable) -> {
+                    sendShowError(throwable);
+                    sendSetProgressVisibility(false);
+                });
     }
 
     private void getChannelsInfo() {
@@ -75,7 +79,10 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                 (createNewChGrActivity, extraInfo) -> {
                     sendFinishActivity(channelId, displayName);
                     sendSetProgressVisibility(false);
-                }, (createNewChGrActivity, throwable) -> this.sendShowError(throwable));
+                }, (createNewChGrActivity, throwable) -> {
+                    this.sendShowError(throwable);
+                    sendSetProgressVisibility(false);
+                });
     }
 
     public void requestCreateChannel(String name, String displayName, String header, String purpose) {
