@@ -22,9 +22,12 @@
     <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
+    <string name="message_empty">Message is empty</string>
+    <string name="wait_files">Wait file for uploading</string>
 
     <string name="transitions_image">image</string>
     <string name="typing">typing…</string>
+    <string name="send">Send</string>
 
     <string name="title_forgot_password">Password recovery</string>
     <string name="choose_team">Choose your team</string>

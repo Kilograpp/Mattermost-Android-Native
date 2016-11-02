@@ -1,9 +1,12 @@
 package com.kilogramm.mattermost.model;
 
+import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.NotificationCompat;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -83,7 +86,7 @@ public class FileDownloadManager {
 
 // region Kepar variant
 
-        service.downloadFile(MattermostPreference.getInstance().getTeamId(), decodedName)
+        /*service.downloadFile(MattermostPreference.getInstance().getTeamId(), decodedName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
@@ -184,7 +187,60 @@ public class FileDownloadManager {
                             }
                         }
                     }
-                });
+                });*/
+
+        //endregion
+
+        //region DownloadManager
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/"
+                + "api/v3/teams/"
+                + MattermostPreference.getInstance().getTeamId()
+                + "/files/get"
+                + fileId));
+
+//        request.setDescription("Testando");
+//        request.setTitle("Download");
+//        request.allowScanningByMediaScanner();
+//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "");
+     /*   try {
+            request.setDestinationInExternalPublicDir(FileUtil.getInstance().getDownloadedFilesDir(), FileUtil.getInstance().getFileNameFromIdDecoded(fileId));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }*/
+
+
+        request.setDescription("Testando");
+        request.setTitle("Download");
+        request.addRequestHeader("Authorization","Bearer " + MattermostPreference.getInstance().getAuthToken());
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        try {
+            request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileId))));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        final DownloadManager manager = (DownloadManager) MattermostApp.getSingleton().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
+
+/*
+        //Restrict the types of networks over which this download may proceed.
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        //Set whether this download may proceed over a roaming connection.
+        request.setAllowedOverRoaming(false);
+        //Set the title of this download, to be displayed in notifications (if enabled).
+        request.setTitle("My Data Download");
+        //Set a description of this download, to be displayed in notifications (if enabled)
+        request.setDescription("Android Data download using DownloadManager.");
+        //Set the local destination for the downloaded file to a path within the application's external files directory
+//        request.setDestinationInExternalFilesDir(MattermostApp.getSingleton().getApplicationContext(),Environment.DIRECTORY_DOWNLOADS,"CountryList.json");
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "");*/
+
+
+
+        final long downloadId = manager.enqueue(request);
 
         //endregion
 
