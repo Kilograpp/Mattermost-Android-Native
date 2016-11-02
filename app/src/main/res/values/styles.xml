@@ -76,25 +76,45 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="textBigGrey" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/grey</item>
+    <style name="textGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/title_grey</item>
+    </style>
+
+    <style name="textLittleGrey" parent="@style/textGrey">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="textBigGrey" parent="@style/textGrey">
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="textVeryBigDarkGrey" parent="@android:style/TextAppearance">
+    <style name="textVeryBigDarkGrey" parent="@style/textGrey">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="textBigDarkGrey" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/dark_grey</item>
         <item name="android:textSize">18sp</item>
     </style>
 
+
     <!--BLUE-->
 
     <style name="textBlue" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/title_blue</item>
     </style>
 
-    <!--BLUE-->
+    <style name="textNormalBlue" parent="@style/textBlue">
+        <item name="android:textSize">14sp</item>
+    </style>
 
-    <style name="textRad" parent="@android:style/TextAppearance">
+    <style name="textLittleBlue" parent="@style/textBlue">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!--RED-->
+
+    <style name="textRed" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/textColorRed</item>
     </style>
 
@@ -129,6 +149,10 @@
     <style name="textTitleWhite" parent="@style/textWhite">
         <item name="android:textSize">25sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textBigWhite" parent="@style/textWhite">
+        <item name="android:textSize">25sp</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">

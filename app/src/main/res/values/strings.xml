@@ -141,6 +141,7 @@
     <string name="channel_info_url">URL</string>
     <string name="channel_info_id">ID</string>
     <string name="channel_info_add_members">  Add Members</string>
+    <string name="channel_info_count_members">MEMBERS</string>
     <string name="channel_info_see_all">SEE ALL</string>
     <string name="channel_info_leave_channel">Leave Channel</string>
 

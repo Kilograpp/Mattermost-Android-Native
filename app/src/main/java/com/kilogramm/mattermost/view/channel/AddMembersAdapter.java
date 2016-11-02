@@ -1,49 +1,43 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AddMembersItemBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.utils.ListRecyclerViewAD;
 import com.squareup.picasso.Picasso;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.RealmRecyclerViewAdapter;
+import java.util.List;
+
 import io.realm.RealmViewHolder;
 
 /**
  * Created by ngers on 01.11.16.
  */
 
-public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersAdapter.MyViewHolder> {
+public class AddMembersAdapter extends ListRecyclerViewAD<User,AddMembersAdapter.MyViewHolder> {
 
     OnItemClickListener onItemClickListener;
 
-    public AddMembersAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<User> data,
+    public AddMembersAdapter(@NonNull Context context, @Nullable List<User> data,
                              OnItemClickListener onItemClickListener) {
-        super(context, data, true);
+        super(context, data);
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        AddMembersItemBinding binding = DataBindingUtil.inflate(
-                LayoutInflater.from(parent.getContext()),
-                R.layout.add_members_item,
-                parent,
-                false);
+        AddMembersItemBinding binding = createBinding(parent, R.layout.add_members_item);
         return new MyViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        User user = getData().get(position);
+        User user = getItem(position);
         if (user.getId() != null) {
             holder.binding.memberName.setText(user.getUsername());
 
@@ -61,14 +55,6 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
             holder.binding.getRoot().setOnClickListener(view ->
                     onItemClickListener.onItemClick(user.getId()));
         }
-    }
-
-    public String getImageUrl(User user) {
-        return "https://"
-                + MattermostPreference.getInstance().getBaseUrl()
-                + "/api/v3/users/"
-                + user.getId()
-                + "/image";
     }
 
     public static class MyViewHolder extends RealmViewHolder {

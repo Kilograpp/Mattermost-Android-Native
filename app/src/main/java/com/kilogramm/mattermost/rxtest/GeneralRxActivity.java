@@ -25,6 +25,7 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
@@ -271,6 +272,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            if(requestCode == ChannelActivity.REQUEST_ID){
+                getPresenter().setFirstChannelBeforeLeave();
+            }
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
 

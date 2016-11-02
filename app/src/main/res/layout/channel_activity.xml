@@ -8,10 +8,23 @@
 
         <include layout="@layout/toolbar_layout" />
 
-        <ScrollView
+        <FrameLayout
+            android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/background_activity_grey">
+            android:paddingBottom="@dimen/progress_bar">
+        <ProgressBar
+            android:layout_width="@dimen/progress_bar"
+            android:layout_height="@dimen/progress_bar"
+            android:layout_gravity="center"/>
+        </FrameLayout>
+
+        <ScrollView
+            android:id="@+id/layoutData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background_activity_grey"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -26,13 +39,14 @@
 
                     <TextView
                         android:id="@+id/channel_icon"
-                        style="@style/textNormalWhite"
+                        style="@style/textTitleWhite"
                         android:layout_width="@dimen/circle_icon_size"
                         android:layout_height="@dimen/circle_icon_size"
                         android:layout_margin="@dimen/activity_horizontal_margin"
                         android:background="@drawable/circle_backgraund_channel"
                         android:gravity="center"
-                        android:text="T" />
+                        app:textAllCaps="true"
+                        />
 
                     <TextView
                         android:id="@+id/channelName"
@@ -41,7 +55,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:maxLines="1"
-                        android:text="Test" />
+                        />
                 </LinearLayout>
 
                 <android.support.v7.widget.CardView
@@ -50,6 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_start"
+                    app:cardCornerRadius="0dp"
                     android:tag="true">
 
                     <LinearLayout
@@ -67,7 +82,7 @@
 
                         <TextView
                             android:id="@+id/header_description"
-                            style="@style/textBlack"
+                            style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -81,6 +96,7 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <LinearLayout
@@ -98,7 +114,7 @@
 
                         <TextView
                             android:id="@+id/purpose_description"
-                            style="@style/textBigGrey"
+                            style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -113,6 +129,7 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <LinearLayout
@@ -130,7 +147,7 @@
 
                         <TextView
                             android:id="@+id/url_description"
-                            style="@style/textBigGrey"
+                            style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -144,6 +161,7 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <LinearLayout
@@ -161,7 +179,7 @@
 
                         <TextView
                             android:id="@+id/id_description"
-                            style="@style/textBigGrey"
+                            style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -176,6 +194,7 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
                     android:layout_marginTop="@dimen/activity_vertical_start">
 
                     <LinearLayout
@@ -200,7 +219,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/activity_vertical_text_margin"
+                    android:layout_marginBottom="@dimen/standart_margin"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_start"
@@ -214,7 +233,7 @@
 
                     <TextView
                         android:id="@+id/seeAll"
-                        style="@style/textBlue"
+                        style="@style/textNormalBlue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
@@ -226,6 +245,7 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <android.support.v7.widget.RecyclerView
@@ -237,15 +257,16 @@
 
                 <android.support.v7.widget.CardView
                     style="@style/CardView.Light"
+                    android:id="@+id/leave"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_start"
                     android:layout_marginTop="@dimen/activity_vertical_start"
+                    app:cardCornerRadius="0dp"
                     android:tag="true">
 
                     <TextView
-                        android:id="@+id/leave"
-                        style="@style/textRad"
+                        style="@style/textRed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

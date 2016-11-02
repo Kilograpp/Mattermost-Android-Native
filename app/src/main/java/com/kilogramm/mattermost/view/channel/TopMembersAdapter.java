@@ -4,8 +4,11 @@ import android.content.Context;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.AllMembersItemBinding;
+import com.kilogramm.mattermost.databinding.TopMembersItemBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.userstatus.StatusByIdSpecification;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.utils.ListRecyclerViewAD;
 import com.squareup.picasso.Picasso;
 
@@ -17,18 +20,11 @@ import io.realm.RealmViewHolder;
  * Created by ngers on 01.11.16.
  */
 
-public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter.MyViewHolder> {
+public class TopMembersAdapter extends ListRecyclerViewAD<User, TopMembersAdapter.MyViewHolder> {
 
     OnItemClickListener onItemClickListener;
-    int countItem = -1;
 
-    public AllMembersAdapter(Context context ,OnItemClickListener onItemClickListener, List<User> data, int countItem) {
-        super(context, data);
-        this.onItemClickListener = onItemClickListener;
-        this.countItem = countItem;
-    }
-
-    public AllMembersAdapter(Context context ,OnItemClickListener onItemClickListener, List<User> data) {
+    public TopMembersAdapter(Context context, OnItemClickListener onItemClickListener, List<User> data) {
         super(context, data);
         this.onItemClickListener = onItemClickListener;
     }
@@ -36,7 +32,7 @@ public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        AllMembersItemBinding binding = createBinding(parent, R.layout.all_members_item);
+        TopMembersItemBinding binding = createBinding(parent, R.layout.top_members_item);
         return new MyViewHolder(binding);
     }
 
@@ -45,6 +41,16 @@ public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter
         User user = getItem(position);
         if (user.getId() != null) {
             holder.binding.memberName.setText(user.getUsername());
+            if (user.getRoles().equals("admin")) {
+                holder.binding.status.setText(user.getRoles());
+                holder.binding.status.setTextColor(holder.binding.getRoot().getContext()
+                        .getResources().getColor(R.color.title_grey));
+            } else if (getStatus(user.getId()).equals(UserStatus.ONLINE)) {
+                holder.binding.status.setText(UserStatus.ONLINE);
+            } else {
+                holder.binding.status.setText("");
+            }
+
             Picasso.with(holder.binding.getRoot().getContext())
                     .load(getImageUrl(user))
                     .resize(60, 60)
@@ -63,15 +69,22 @@ public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter
 
     @Override
     public int getItemCount() {
-        if (countItem != -1)
-            return countItem;
-        return getrData().size();
+        return 5;
+    }
+
+    public String getStatus(String id) {
+        try {
+            return UserStatusRepository.query(new StatusByIdSpecification(id)).first().getStatus();
+        }catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public static class MyViewHolder extends RealmViewHolder {
-        AllMembersItemBinding binding;
+        TopMembersItemBinding binding;
 
-        private MyViewHolder(AllMembersItemBinding binding) {
+        private MyViewHolder(TopMembersItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

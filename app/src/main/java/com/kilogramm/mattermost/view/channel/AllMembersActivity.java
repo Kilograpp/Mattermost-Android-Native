@@ -37,8 +37,10 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
     }
 
     private void initiationData() {
-        AllMembersAdapter allMembersAdapter = new AllMembersAdapter(this, UserRepository.query(),
-                id -> ProfileRxActivity.start(this,id));
+        AllMembersAdapter allMembersAdapter = new AllMembersAdapter(
+                this,
+                id -> ProfileRxActivity.start(this,id),
+                UserRepository.query());
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
 

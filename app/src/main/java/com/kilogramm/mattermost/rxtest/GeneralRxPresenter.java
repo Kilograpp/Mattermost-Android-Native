@@ -313,6 +313,26 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         -> generalRxActivity1.setSelectItemMenu(openChatObject.getChannelId(), type)));
     }
 
+    public void setFirstChannelBeforeLeave(){
+        RealmResults<Channel> channelsOpen = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
+        if (channelsOpen.size() != 0) {
+            setSelectedMenu(channelsOpen.first().getId(), channelsOpen.first().getName(), channelsOpen.first().getType());
+            return;
+        }
+        RealmResults<Channel> channelsPrivate = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
+        if (channelsPrivate.size() != 0) {
+            setSelectedMenu(channelsPrivate.first().getId(), channelsPrivate.first().getName(), channelsPrivate.first().getType());
+            return;
+        }
+
+        RealmResults<Channel> channelsDirect = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));
+        if (channelsDirect.size() != 0) {
+            setSelectedMenu(channelsDirect.first().getId(), channelsDirect.first().getName(), channelsDirect.first().getType());
+            return;
+        }
+
+    }
+
     public static class OpenChatObject {
         private String channelId;
         private String name;
