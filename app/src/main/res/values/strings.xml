@@ -24,6 +24,7 @@
     <string name="retry">Retry</string>
     <string name="message_empty">Message is empty</string>
     <string name="wait_files">Wait file for uploading</string>
+    <string name="in_development">In Development</string>
 
     <string name="transitions_image">image</string>
     <string name="typing">typing…</string>

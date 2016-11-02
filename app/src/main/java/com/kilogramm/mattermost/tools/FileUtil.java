@@ -233,13 +233,18 @@ public class FileUtil {
         return null;
     }
 
-    public String getFileNameFromIdDecoded(String fileId) throws UnsupportedEncodingException {
+    public String getFileNameFromIdDecoded(String fileId){
         Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
         Matcher matcher = pattern.matcher(fileId);
         if (matcher.matches()) {
-            return URLDecoder.decode(matcher.group(1), "UTF-8");
+            try {
+                return URLDecoder.decode(matcher.group(1), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return fileId;
+            }
         }
-        return null;
+        return fileId;
     }
 
     public Intent createOpenFileIntent(String path){

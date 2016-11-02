@@ -83,24 +83,38 @@ public class FilesView extends GridLayout {
             for (String fileName : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.files_item_layout, this, false);
 
+                FileDownloadManager.FileDownloadListener fileDownloadListener = new FileDownloadManager.FileDownloadListener() {
+                    @Override
+                    public void onComplete(String fileId) {
+                        binding.downloadFileControls.post(() ->
+                                binding.downloadFileControls.setVisibility(GONE));
+                    }
+
+                    @Override
+                    public void onProgress(int percantage) {
+                        binding.downloadFileControls.post(() ->
+                                binding.downloadFileControls.setProgress(percantage));
+                    }
+
+                    @Override
+                    public void onError(String fileId) {
+                        Toast.makeText(getContext(),
+                                getContext().getString(R.string.error_during_file_download),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                };
+
                 binding.downloadFileControls.setControlsClickListener(new DownloadFileControls.ControlsClickListener() {
                     @Override
                     public void onClickDownload() {
-                        try {
-                            File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
-                                    + File.separator
-                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-                            if (file.exists()) {
-                                binding.downloadFileControls.post(() -> createDialog(fileName, binding));
-                            } else {
-                                downloadFile(fileName, binding);
-                            }
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                            downloadFile(fileName, binding);
+                        File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                                + File.separator
+                                + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                        if (file.exists()) {
+                            binding.downloadFileControls.post(() -> createDialog(fileName, binding));
+                        } else {
+                            downloadFile(fileName, fileDownloadListener);
                         }
-//                        downloadFile(fileName, binding);
-
                         FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                         if (fileToAttach != null) {
                             if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
@@ -112,18 +126,17 @@ public class FilesView extends GridLayout {
 
                     @Override
                     public void onClickCancel() {
-//                        FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
                         FileToAttachRepository.getInstance().remove(fileName);
                         FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
                     }
                 });
 
                 FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
-                if (fileToAttach != null) {
-                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
-                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-                        binding.downloadFileControls.showProgressControls();
-                    }
+                if (fileToAttach != null &&
+                        (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                                fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
+                    binding.downloadFileControls.showProgressControls();
+                    FileDownloadManager.getInstance().addListener(fileName, fileDownloadListener);
                 }
 
                 switch (FileUtil.getInstance().getFileType(fileName)) {
@@ -150,13 +163,21 @@ public class FilesView extends GridLayout {
                         break;
                 }
             }
-        } else {
+        } else
+
+        {
             clearView();
         }
+
     }
 
-    private void downloadFile(String fileName, FilesItemLayoutBinding binding) {
-        FileDownloadManager.getInstance().addItem(fileName, new FileDownloadManager.FileDownloadListener() {
+    private void downloadFile(String fileName, FileDownloadManager.FileDownloadListener fileDownloadListener) {
+        FileDownloadManager.getInstance().addItem(fileName, fileDownloadListener);
+    }
+
+    private void createDialog(String fileName, FilesItemLayoutBinding binding) {
+
+        FileDownloadManager.FileDownloadListener fileDownloadListener = new FileDownloadManager.FileDownloadListener() {
             @Override
             public void onComplete(String fileId) {
                 binding.downloadFileControls.post(() ->
@@ -175,10 +196,8 @@ public class FilesView extends GridLayout {
                         getContext().getString(R.string.error_during_file_download),
                         Toast.LENGTH_SHORT).show();
             }
-        });
-    }
+        };
 
-    private void createDialog(String fileName, FilesItemLayoutBinding binding) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(getContext().getString(R.string.file_exists));
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
@@ -186,18 +205,14 @@ public class FilesView extends GridLayout {
             dialog.dismiss();
         });
         builder.setPositiveButton(R.string.replace, (dialog, which) ->
-                downloadFile(fileName, binding));
+                downloadFile(fileName, fileDownloadListener));
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
             Intent intent = null;
-            try {
-                intent = FileUtil.getInstance().
-                        createOpenFileIntent(
-                                FileUtil.getInstance().getDownloadedFilesDir()
-                                        + File.separator
-                                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            intent = FileUtil.getInstance().
+                    createOpenFileIntent(
+                            FileUtil.getInstance().getDownloadedFilesDir()
+                                    + File.separator
+                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
             if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
                     .getApplicationContext().getPackageManager(), 0) != null) {
                 getContext().startActivity(intent);
