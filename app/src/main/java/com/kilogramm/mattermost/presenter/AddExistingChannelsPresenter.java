@@ -146,14 +146,12 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
         channelId = joinChannelId;
         user.setUserId("");
         start(REQUEST_ADD_CHAT);
-
         sendSetProgress(true);
         sendSetRecycleView(false);
     }
 
     public void requestChannelsMore() {
         start(REQUEST_CHANNELS_MORE);
-
         sendSetProgress(true);
     }
 

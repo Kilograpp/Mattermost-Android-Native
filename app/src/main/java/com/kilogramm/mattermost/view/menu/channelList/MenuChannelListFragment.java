@@ -44,14 +44,27 @@ public class MenuChannelListFragment extends Fragment {
         View view = binding.getRoot();
         binding.btnMoreChannel.setOnClickListener(view1 -> goToAddChannelsActivity());
         setupListView();
+
         return view;
     }
 
     private void setupListView() {
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MenuChannelRxAdapter(getContext(), results,
-                (itemId, name, type) -> channelItemClickListener.onChannelClick(itemId, name, type));
+        binding.addChannel.setOnClickListener(v -> channelItemClickListener.onCreateChannelClick());
+
+        adapter = new MenuChannelRxAdapter(getContext(), results, new OnChannelItemClickListener() {
+            @Override
+            public void onChannelClick(String itemId, String name, String type) {
+                channelItemClickListener.onChannelClick(itemId, name, type);
+            }
+
+            @Override
+            public void onCreateChannelClick() {
+            }
+        });
+
+
         if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }
@@ -72,6 +85,8 @@ public class MenuChannelListFragment extends Fragment {
 
     public interface OnChannelItemClickListener {
         void onChannelClick(String itemId, String name, String type);
+
+        void onCreateChannelClick();
     }
 
     public interface OnSelectedItemChangeListener {

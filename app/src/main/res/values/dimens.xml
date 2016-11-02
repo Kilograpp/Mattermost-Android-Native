@@ -36,4 +36,8 @@
     <dimen name="search_some_margin">15dp</dimen>
     <dimen name="search_margin_top_bottom">5dp</dimen>
 
+    <dimen name="progress_bar_margin">5dp</dimen>
+
+    <dimen name="create_new_ch_gr_ll_margin">15dp</dimen>
+
 </resources>
