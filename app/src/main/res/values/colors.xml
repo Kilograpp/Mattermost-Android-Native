@@ -31,4 +31,6 @@
     <color name="color_highlight">#d3ddfb</color>
     <color name="color_header">#3082b7</color>
 
+    <color name="light_blue">#007aff</color>
+
 </resources>
