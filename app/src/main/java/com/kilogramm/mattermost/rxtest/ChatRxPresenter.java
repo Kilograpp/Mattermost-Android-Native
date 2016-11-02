@@ -78,6 +78,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     String search;
     @State
     Long updateAt;
+    @State
+    Boolean isSendingPost = false;
 
     private Boolean isEmpty = false;
 
@@ -201,6 +203,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendOnItemAdded();
                     sendShowList();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
+                    isSendingPost = false;
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
@@ -365,7 +368,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
+        if(isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
+        isSendingPost = true;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);

@@ -112,7 +112,8 @@ public class FilesView extends GridLayout {
 
                     @Override
                     public void onClickCancel() {
-                        FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
+//                        FileToAttachRepository.getInstance().updateUploadStatus(fileName, UploadState.IN_LIST);
+                        FileToAttachRepository.getInstance().remove(fileName);
                         FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
                     }
                 });

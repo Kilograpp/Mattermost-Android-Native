@@ -409,12 +409,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        if (post.getMessage().length() != 0 || !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+        if (post.getMessage().length() != 0 || (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()
+                && !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
-            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+            if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
+            } else if (post.getMessage().length() <= 0) {
+                Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
+            }
         }
     } // +
 
@@ -428,7 +433,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             setMessage("");
             getPresenter().requestEditPost(postEdit);
         } else {
-            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
         }
     } // +
 
@@ -436,7 +441,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.editableText.setText(null);
         binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
         rootPost = null;
-        binding.btnSend.setText("Send");
+        binding.btnSend.setText(getString(R.string.send));
     }
 
     private Long getTimePost() {
