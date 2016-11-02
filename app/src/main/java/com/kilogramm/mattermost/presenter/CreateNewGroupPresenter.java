@@ -9,17 +9,17 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
+import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by melkshake on 31.10.16.
+ * Created by melkshake on 01.11.16.
  */
 
-public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivity> {
-    private static final int REQUEST_CREATE_CHANNEL_GROUP = 1;
+public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActivity> {
+    private static final int REQUEST_CREATE_GROUP = 1;
     private static final int REQUEST_GET_INFO = 2;
 
     private ApiMethod service;
@@ -27,6 +27,7 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
     private Channel createChannel;
     private String teamId;
     private String channelId;
+    private String displayName;
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -41,20 +42,19 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
     }
 
     private void initRequests() {
-        restartableFirst(REQUEST_CREATE_CHANNEL_GROUP,
+        restartableFirst(REQUEST_CREATE_GROUP,
                 () -> service.createChannel(teamId, createChannel)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()
                         ), (createNewChGrActivity, channel) -> {
                     if (channel != null) {
                         this.channelId = channel.getId();
+                        this.displayName = channel.getDisplayName();
                         requestGetChannelInfo();
                     } else {
-                        sendShowError("Channel is not created");
+                        sendShowError("\\t Channel is not created \\n");
                     }
-                }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(throwable);
-                });
+                }, (createNewChGrActivity, throwable) -> sendShowError(throwable));
     }
 
     private void getChannelsInfo() {
@@ -70,22 +70,17 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
                             return extraInfo;
-                        })), (createNewChGrActivity, extraInfo) -> {
-            // open created channel/group
-            sendFinishActivity();
-        }, (createNewChGrActivity, throwable) -> {
-            this.sendShowError(throwable);
-        });
+                        })),
+                (createNewChGrActivity, extraInfo) -> {
+                    sendFinishActivity(channelId, displayName);
+                    sendSetProgressVisibility(false);
+                }, (createNewChGrActivity, throwable) -> this.sendShowError(throwable));
     }
 
-    public void requestCreateChannel(String name, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, name, header, purpose, "O");
-        start(REQUEST_CREATE_CHANNEL_GROUP);
-    }
-
-    public void requestCreateGroup(String name, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, name, header, purpose, "P");
-        start(REQUEST_CREATE_CHANNEL_GROUP);
+    public void requestCreateGroup(String name, String displayName, String header, String purpose) {
+        createChannel.setAttributesToCreate(name, displayName, header, purpose, "P");
+        sendSetProgressVisibility(true);
+        start(REQUEST_CREATE_GROUP);
     }
 
     public void requestGetChannelInfo() {
@@ -102,8 +97,15 @@ public class CreateNewChGrPresenter extends BaseRxPresenter<CreateNewChGrActivit
                 .subscribe(split(BaseActivity::showErrorText));
     }
 
-    public void sendFinishActivity() {
+    private void sendFinishActivity(String groupId, String groupName) {
         createTemplateObservable(new Object())
-                .subscribe(split((createNewChGrActivity, o) -> createNewChGrActivity.finishActivity()));
+                .subscribe(split((createNewChGrActivity, o) ->
+                        createNewChGrActivity.finishActivity(groupId, groupName)));
+    }
+
+    private void sendSetProgressVisibility(boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((createNewGroupActivity, aBoolean) ->
+                        createNewGroupActivity.setProgressVisibility(bool)));
     }
 }

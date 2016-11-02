@@ -79,16 +79,14 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".view.createChannelGroup.CreateNewChGrActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name=".view.createChannelGroup.CreateNewChannelActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
 
         <activity
             android:name=".view.createChannelGroup.CreateNewGroupActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
 
         <activity
             android:name="com.nononsenseapps.filepicker.FilePickerActivity"

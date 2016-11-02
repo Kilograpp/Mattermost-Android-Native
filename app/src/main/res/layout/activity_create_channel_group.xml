@@ -9,16 +9,6 @@
 
         <include layout="@layout/toolbar_layout" />
 
-        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="@dimen/progress_bar_margin"
-            android:indeterminate="true"
-            app:mpb_progressStyle="circular"
-            android:visibility="gone"/>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +36,8 @@
                 android:maxLines="1"
                 android:textColorHint="@color/hint_grey"
                 android:textSize="27sp"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:inputType="textCapSentences"/>
         </LinearLayout>
 
         <View
@@ -64,15 +55,13 @@
             app:hintTextAppearance="@style/HintTextStyle"
             app:hintEnabled="true"
             app:hintAnimationEnabled="true">
-
             <EditText
                 android:hint="@string/create_new_ch_gr_header_hint"
                 android:id="@+id/header"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapSentences|text" />
-
+                android:inputType="textCapSentences" />
         </android.support.design.widget.TextInputLayout>
 
         <View
@@ -91,15 +80,13 @@
             app:hintTextAppearance="@style/HintTextStyle"
             app:hintEnabled="true"
             app:hintAnimationEnabled="true">
-
             <EditText
                 android:hint="@string/create_new_ch_gr_purpose_hint"
                 android:id="@+id/purpose"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
-
+                android:inputType="textCapSentences" />
         </android.support.design.widget.TextInputLayout>
 
         <View
@@ -108,6 +95,16 @@
             android:background="@color/very_light_grey"
             android:layout_marginStart="@dimen/search_margin"
             android:layout_marginEnd="@dimen/search_margin"/>
+
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/progress_bar_margin"
+            android:indeterminate="true"
+            app:mpb_progressStyle="circular"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

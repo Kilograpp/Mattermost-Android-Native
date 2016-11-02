@@ -15,7 +15,6 @@ import com.kilogramm.mattermost.databinding.FragmentMenuChannelListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
-import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
@@ -86,6 +85,7 @@ public class MenuChannelListFragment extends Fragment {
 
     public interface OnChannelItemClickListener {
         void onChannelClick(String itemId, String name, String type);
+
         void onCreateChannelClick();
     }
 

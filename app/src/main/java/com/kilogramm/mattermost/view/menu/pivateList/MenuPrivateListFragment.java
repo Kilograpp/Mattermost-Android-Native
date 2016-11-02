@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.view.menu.pivateList;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +13,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChGrActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
@@ -24,8 +22,6 @@ import io.realm.RealmResults;
  */
 
 public class MenuPrivateListFragment extends Fragment {
-    public static final int REQUEST_CREATE = 96;
-    public final String IS_CHANNEL = "isChannel";
 
     private FragmentMenuPrivateListBinding binding;
     private OnPrivateItemClickListener privateItemClickListener;
@@ -97,6 +93,7 @@ public class MenuPrivateListFragment extends Fragment {
 
     public interface OnPrivateItemClickListener {
         void onPrivatelClick(String itemId, String name, String type);
+
         void onCreateGroupClick();
     }
 

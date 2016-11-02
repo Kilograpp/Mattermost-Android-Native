@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -27,6 +28,7 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
     private Channel createChannel;
     private String teamId;
     private String channelId;
+    private String displayName;
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -48,13 +50,12 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                         ), (createNewChGrActivity, channel) -> {
                     if (channel != null) {
                         this.channelId = channel.getId();
+                        this.displayName = channel.getDisplayName();
                         requestGetChannelInfo();
                     } else {
-                        sendShowError("Channel is not created");
+                        sendShowError("\\t Channel is not created \\n");
                     }
-                }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(throwable);
-                });
+                }, (createNewChGrActivity, throwable) -> sendShowError(throwable));
     }
 
     private void getChannelsInfo() {
@@ -70,16 +71,16 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
                             return extraInfo;
-                        })), (createNewChGrActivity, extraInfo) -> {
-            // open created channel/group
-            sendFinishActivity();
-        }, (createNewChGrActivity, throwable) -> {
-            this.sendShowError(throwable);
-        });
+                        })),
+                (createNewChGrActivity, extraInfo) -> {
+                    sendFinishActivity(channelId, displayName);
+                    sendSetProgressVisibility(false);
+                }, (createNewChGrActivity, throwable) -> this.sendShowError(throwable));
     }
 
-    public void requestCreateChannel(String name, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, name, header, purpose, "O");
+    public void requestCreateChannel(String name, String displayName, String header, String purpose) {
+        createChannel.setAttributesToCreate(name, displayName, header, purpose, "O");
+        sendSetProgressVisibility(true);
         start(REQUEST_CREATE_CHANNEL);
     }
 
@@ -97,8 +98,15 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                 .subscribe(split(BaseActivity::showErrorText));
     }
 
-    public void sendFinishActivity() {
+    public void sendFinishActivity(String createdChannelId, String channelName) {
         createTemplateObservable(new Object())
-                .subscribe(split((createNewChGrActivity, o) -> createNewChGrActivity.finishActivity()));
+                .subscribe(split((createNewChGrActivity, o) ->
+                        createNewChGrActivity.finishActivity(createdChannelId, channelName)));
+    }
+
+    private void sendSetProgressVisibility(boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((createNewGroupActivity, aBoolean) ->
+                        createNewGroupActivity.setProgressVisibility(bool)));
     }
 }

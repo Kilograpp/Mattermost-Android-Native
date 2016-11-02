@@ -144,5 +144,7 @@
     <string name="create_new_ch_gr_purpose_hint">Purpose (optional)</string>
     <string name="create_new_ch_gr_toolber_ch">New Channel</string>
     <string name="create_new_ch_gr_toolber_gr">New Group</string>
+    <string name="create_new_channel_error"> \t Channel name is required \n</string>
+    <string name="create_new_group_error"> \t Group name is required \n </string>
 
 </resources>
