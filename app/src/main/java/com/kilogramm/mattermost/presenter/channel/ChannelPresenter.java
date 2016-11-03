@@ -64,6 +64,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
                     this.extraInfo = extraInfo;
+
                     requestMembers();
                 }, (channelActivity, throwable) ->
                         sendError(getError(throwable))

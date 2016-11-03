@@ -1,42 +1,40 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AllMembersItemBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.utils.ListRecyclerViewAD;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
+import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmViewHolder;
 
 /**
  * Created by ngers on 01.11.16.
  */
 
-public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter.MyViewHolder> {
+public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembersAdapter.MyViewHolder> {
 
     OnItemClickListener onItemClickListener;
-    int countItem = -1;
 
-    public AllMembersAdapter(Context context ,OnItemClickListener onItemClickListener, List<User> data, int countItem) {
-        super(context, data);
-        this.onItemClickListener = onItemClickListener;
-        this.countItem = countItem;
-    }
-
-    public AllMembersAdapter(Context context ,OnItemClickListener onItemClickListener, List<User> data) {
-        super(context, data);
+    public AllMembersAdapter(Context context, OnItemClickListener onItemClickListener) {
+        super(context, null, true);
         this.onItemClickListener = onItemClickListener;
     }
 
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        AllMembersItemBinding binding = createBinding(parent, R.layout.all_members_item);
+        AllMembersItemBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.all_members_item,
+                parent,
+                false);
         return new MyViewHolder(binding);
     }
 
@@ -61,11 +59,12 @@ public class AllMembersAdapter extends ListRecyclerViewAD<User,AllMembersAdapter
         }
     }
 
-    @Override
-    public int getItemCount() {
-        if (countItem != -1)
-            return countItem;
-        return getrData().size();
+    public String getImageUrl(User user) {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + user.getId()
+                + "/image";
     }
 
     public static class MyViewHolder extends RealmViewHolder {

@@ -6,8 +6,10 @@ import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Collection;
+import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -59,7 +61,7 @@ public class UserRepository {
 
     public static RealmResults<User> query() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(User.class).findAll();
+        return realm.where(User.class).isNotNull("id").findAll();
     }
 
     public static void updateUserMessage(String postId, String message) {
@@ -84,6 +86,29 @@ public class UserRepository {
             return realm.where(User.class)
                     .equalTo("id", id)
                     .findAll();
+        }
+    }
+
+
+    public static class UserByIdsSpecification implements RealmSpecification {
+
+        private final List<User> users;
+
+        public UserByIdsSpecification(List<User> users) {
+            this.users = users;
+        }
+
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            RealmQuery realmQuery = realm.where(User.class);
+            User lastUser = users.get(users.size() - 1);
+            for (User u : users) {
+                if (lastUser != u)
+                    realmQuery.equalTo("id", u.getId()).or();
+                else
+                    realmQuery.equalTo("id", u.getId());
+            }
+            return realmQuery.findAll();
         }
     }
 }

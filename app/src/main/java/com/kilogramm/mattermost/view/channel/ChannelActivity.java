@@ -116,7 +116,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.seeAll:
-                AllMembersActivity.start(this);
+                AllMembersActivity.start(this, channelId);
                 break;
             case R.id.addMembers:
                 AddMembersActivity.start(this);

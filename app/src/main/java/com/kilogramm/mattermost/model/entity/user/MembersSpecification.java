@@ -2,23 +2,25 @@ package com.kilogramm.mattermost.model.entity.user;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
 
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
  * Created by Evgeny on 20.09.2016.
  */
-public class UserByChannelSpecification implements RealmSpecification {
+public class MembersSpecification implements RealmSpecification {
 
-    private final String channelId;
+    private List<User> members;
 
-    public UserByChannelSpecification(String id) {
-        this.channelId = id;
+    public MembersSpecification(List<User> members) {
+        this.members = members;
     }
 
     @Override
     public RealmResults<User> toRealmResults(Realm realm) {
-            return realm.where(User.class)
-                    .findAll();
+        
+        return null;
     }
 }

@@ -7,18 +7,33 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.user.User;
 
-import java.util.List;
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Evgeny on 22.08.2016.
  */
-public class ExtraInfo implements Parcelable {
+public class ExtraInfo extends RealmObject implements Parcelable {
+
+    @PrimaryKey
+    @SerializedName("id")
+    @Expose
+    private String id;
     @SerializedName("member_count")
     @Expose
     private String member_count;
     @SerializedName("members")
     @Expose
-    private List<User> members;
+    private RealmList<User> members;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getMember_count() {
         return member_count;
@@ -28,11 +43,11 @@ public class ExtraInfo implements Parcelable {
         this.member_count = member_count;
     }
 
-    public List<User> getMembers() {
+    public RealmList<User> getMembers() {
         return members;
     }
 
-    public void setMembers(List<User> members) {
+    public void setMembers(RealmList<User> members) {
         this.members = members;
     }
 
@@ -46,13 +61,14 @@ public class ExtraInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
         dest.writeString(this.member_count);
         dest.writeTypedList(this.members);
     }
 
     protected ExtraInfo(Parcel in) {
+        this.id = in.readString();
         this.member_count = in.readString();
-        this.members = in.createTypedArrayList(User.CREATOR);
     }
 
     public static final Creator<ExtraInfo> CREATOR = new Creator<ExtraInfo>() {
