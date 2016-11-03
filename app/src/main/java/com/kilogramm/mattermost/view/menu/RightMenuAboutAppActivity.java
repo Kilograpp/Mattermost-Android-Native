@@ -3,10 +3,9 @@ package com.kilogramm.mattermost.view.menu;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityRightMenuAboutAppBinding;
@@ -29,21 +28,8 @@ public class RightMenuAboutAppActivity extends BaseActivity {
         setupToolbar("About Mattermost", true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
-        binding.mattermostOrg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.mattermost.org/"));
-                startActivity(intent);
-            }
-        });
-
-        binding.kilograppTeam.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://kilograpp.com/"));
-                startActivity(intent);
-            }
-        });
+        binding.mattermostOrg.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.kilograppTeam.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public static void start(Context context) {

@@ -114,8 +114,6 @@
     <string name="mob_push_mentions_direct">For mentions and direct messages</string>
     <string name="mob_push_never">Never</string>
     <string name="mob_push_description_send">Notification alerts are pushed to your mobile device when there is activity in Mattermost.</string>
-
-
     <string name="mob_push_title_trigger">TRIGGER PUSH NOTIFICATIONS WHEN</string>
     <string name="mob_push_on_away_off">Online, away or offline</string>
     <string name="mob_push_away_off">Away or offline</string>
@@ -151,5 +149,14 @@
     <string name="create_new_ch_gr_toolbar_gr">New Group</string>
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
+
+                    <!--About-->
+    <string name="about_team_edition">Mattermost Team Edition</string>
+    <string name="about_long_text">All your team communication in one place, instantly searchable and accessible anywhere.</string>
+    <string name="about_version">Version: 3.0.0(3.0.3)</string>
+    <string name="about_copyright">Copyright 2016 Mattermost, Inc. All rights reserved.</string>
+    <string name="about_mattermost_org">Join the Mattermost community at mattermost.org</string>
+    <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
+    <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
 
 </resources>
