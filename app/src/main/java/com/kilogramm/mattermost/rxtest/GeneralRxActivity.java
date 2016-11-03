@@ -55,8 +55,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
 
-    public final String TYPE = "TYPE";
-
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
     MenuPrivateListFragment privateListFragment;
@@ -64,7 +62,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private String currentChannel = "";
     private String searchMessageId;
-    private SaveData saveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
