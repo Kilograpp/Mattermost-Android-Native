@@ -102,7 +102,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NAME"
+                            android:text="@string/name"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -125,7 +125,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="USERNAME"
+                            android:text="@string/username"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -148,7 +148,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NICKNAME"
+                            android:text="@string/nickname"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -180,7 +180,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="EMAIL"
+                            android:text="@string/email"
                             android:textColor="@color/grey" />
 
                         <TextView

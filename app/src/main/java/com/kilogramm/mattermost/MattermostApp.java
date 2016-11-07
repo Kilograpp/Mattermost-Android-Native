@@ -56,7 +56,8 @@ public class MattermostApp extends Application{
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+        Realm.init(getApplicationContext());
+        RealmConfiguration configuration = new RealmConfiguration.Builder()
                 .name("mattermostDb.realm")
                 .build();
         Realm.compactRealm(configuration);

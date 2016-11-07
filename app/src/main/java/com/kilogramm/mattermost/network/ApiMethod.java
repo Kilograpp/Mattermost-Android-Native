@@ -251,6 +251,20 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @POST("api/v3/users/update")
+    Observable<User> updateUser(@Body User user);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest"})
+    @Multipart
+    @POST("api/v3/users/newimage")
+    Observable<Boolean> newimage(@Part MultipartBody.Part image);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @POST("api/v3/teams/all")
     Observable<List<Team>> getAllTeams();
 }

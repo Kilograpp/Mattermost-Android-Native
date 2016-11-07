@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.model.entity.user;
 
 
+import android.util.Log;
+
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -64,6 +66,19 @@ public class UserRepository {
                         .equalTo("id", postId)
                         .findFirst()
                         .setMessage(message));
+    }
+
+    public static void updateUserAfterSaveSettings(User user){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Log.d(TAG, "change user");
+        User me = realm.where(User.class).equalTo("id", user.getId()).findAll().first();
+        me.setNickname(user.getNickname());
+        me.setUsername(user.getUsername());
+        me.setFirstName(user.getFirstName());
+        me.setLastName(user.getLastName());
+        realm.copyToRealmOrUpdate(me);
+        realm.commitTransaction();
     }
 
     public static class UserByIdSpecification implements RealmSpecification {

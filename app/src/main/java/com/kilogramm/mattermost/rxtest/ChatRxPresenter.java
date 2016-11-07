@@ -311,8 +311,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initLoadBeforeAndAfter() {
-        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () -> Observable.defer(
-                () -> Observable.zip(
+        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
+                Observable.defer(() -> Observable.zip(
                         service.getExtraInfoChannel(teamId, channelId)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),

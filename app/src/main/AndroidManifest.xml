@@ -74,6 +74,10 @@
         <activity android:name=".rxtest.ProfileRxActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".rxtest.EditProfileRxActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
         <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
             android:screenOrientation="portrait" />

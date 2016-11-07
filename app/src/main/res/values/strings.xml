@@ -132,5 +132,12 @@
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
+    <string name="change_email">Change email</string>
+    <string name="change_password">Change password</string>
+    <string name="name">NAME</string>
+    <string name="username">USERNAME</string>
+    <string name="nickname">NICKNAME</string>
+    <string name="user_updated">User updated</string>
+    <string name="avatar_updated">Avatar updated</string>
 
 </resources>

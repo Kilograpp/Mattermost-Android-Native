@@ -94,6 +94,29 @@ public class User extends RealmObject implements Parcelable {
 
     }
 
+    public User(User user){
+        this.id = user.getId();
+        this.createAt=user.getCreateAt();
+        this.updateAt=user.getUpdateAt();
+        this.deleteAt=user.getDeleteAt();
+        this.username=user.getUsername();
+        this.authData=user.getAuthData();
+        this.authService=user.getAuthService();
+        this.email=user.getEmail();
+        this.nickname=user.getNickname();
+        this.firstName=user.getFirstName();
+        this.lastName=user.getLastName();
+        this.roles=user.getRoles();
+        this.lastActivityAt=user.getLastActivityAt();
+        this.lastPingAt=user.getLastPingAt();
+        this.allowMarketing=user.isAllowMarketing();
+        this.notifyProps=user.getNotifyProps();
+        this.themeProps=user.getThemeProps();
+        this.lastPasswordUpdate=user.getLastPasswordUpdate();
+        this.lastPictureUpdate=user.getLastPictureUpdate();
+        this.locale=user.getLocale();
+        this.status=user.getStatus();
+    }
     public User(String id, String username, String firstName) {
         this.id = id;
         this.username = username;
@@ -388,7 +411,7 @@ public class User extends RealmObject implements Parcelable {
      * @return
      * The allowMarketing
      */
-    public boolean isAllowMarketing() {
+    public Boolean isAllowMarketing() {
         return allowMarketing;
     }
 
