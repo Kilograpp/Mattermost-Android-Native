@@ -181,14 +181,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
         binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
 
-        binding.writingMessage.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if ( v == binding.writingMessage && !hasFocus) {
+        binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
+                if (v == binding.writingMessage && !hasFocus) {
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.RESULT_HIDDEN);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
-            }
         });
     }
 
