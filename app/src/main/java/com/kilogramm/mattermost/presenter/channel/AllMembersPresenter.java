@@ -16,8 +16,8 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.AllMembersActivity;
 
 import icepick.State;
-import io.realm.RealmList;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -103,10 +103,10 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
     }
 
     public RealmResults<User> getMembers(String name) {
-        return extraInfo.getMembers().where().contains("username", name).findAll();
+        return extraInfo.getMembers().where().contains("username", name).findAllSorted("username", Sort.ASCENDING);
     }
 
-    public RealmList<User> getMembers() {
-        return extraInfo.getMembers();
+    public RealmResults<User> getMembers() {
+        return extraInfo.getMembers().where().findAllSorted("username", Sort.ASCENDING);
     }
 }

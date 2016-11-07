@@ -11,6 +11,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Evgeny on 19.09.2016.
@@ -111,4 +112,28 @@ public class UserRepository {
             return realmQuery.findAll();
         }
     }
+
+    public static class UserByNotIdsSpecification implements RealmSpecification {
+
+        private final List<User> users;
+        private final String searchName;
+
+        public UserByNotIdsSpecification(List<User> users, String searchName) {
+            this.users = users;
+            this.searchName = searchName;
+        }
+
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            RealmQuery realmQuery = realm.where(User.class);
+            realmQuery.isNotNull("createAt");
+            if (searchName != null)
+                realmQuery.contains("username", searchName);
+            for (User u : users) {
+                realmQuery.notEqualTo("id", u.getId());
+            }
+            return realmQuery.findAllSorted("username", Sort.ASCENDING);
+        }
+    }
+
 }

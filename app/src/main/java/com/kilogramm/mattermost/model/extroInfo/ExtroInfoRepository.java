@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.model.extroInfo;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 
 import java.util.Collection;
@@ -33,6 +34,15 @@ public class ExtroInfoRepository {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 ->
                 realm1.insertOrUpdate(item)
+        );
+    }
+
+    public static void update(ExtraInfo item, User user) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 ->{
+                item.getMembers().add(user);
+                realm1.copyToRealmOrUpdate(item);
+    }
         );
     }
 

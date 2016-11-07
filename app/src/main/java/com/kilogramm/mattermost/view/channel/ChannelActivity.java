@@ -151,7 +151,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AllMembersActivity.start(this, channelId);
                 break;
             case R.id.addMembers:
-                AddMembersActivity.start(this);
+                AddMembersActivity.start(this, channelId);
                 break;
             case R.id.leave:
                 getPresenter().requestLeave();
