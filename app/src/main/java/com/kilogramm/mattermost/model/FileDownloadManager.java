@@ -134,7 +134,7 @@ public class FileDownloadManager {
                     if (fileDownloadListeners.get(fileId) != null) {
                         fileDownloadListeners.get(fileId).onComplete(fileId);
                     }
-                    FileToAttachRepository.getInstance().remove(fileId);
+                    FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
                     startDownload();
                 }
 
