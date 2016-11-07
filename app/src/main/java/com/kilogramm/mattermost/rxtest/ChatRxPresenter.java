@@ -330,9 +330,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                                 .subscribeOn(Schedulers.io()),
                         (extraInfo, postsBef, foundPosts, postsAft) -> {
                             ArrayList<Posts> allPosts = new ArrayList<>();
-                            allPosts.add(postsAft);
+                            if (postsAft.getPosts() != null) {
+                                allPosts.add(postsAft);
+                            }
                             allPosts.add(foundPosts);
-                            allPosts.add(postsBef);
+                            if (postsBef.getPosts() != null) {
+                                allPosts.add(postsBef);
+                            }
                             return allPosts;
                         }))
                 , (chatRxFragment, postsAll) -> {
@@ -342,15 +346,19 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         return;
                     }
 
-                    for (Posts posts : postsAll) {
-                        PostRepository.prepareAndAdd(posts);
+                    try {
+                        for (Posts posts : postsAll) {
+                            PostRepository.prepareAndAdd(posts);
+                        }
+                    } catch (Throwable e){
+                        e.printStackTrace();
+                        sendError(e.getMessage());
+                    } finally {
+                        sendRefreshing(false);
+                        sendShowList();
+                        sendDisableShowLoadMoreBot();
+                        sendSlideDialogToFoundMessage();
                     }
-
-                    sendRefreshing(false);
-                    sendShowList();
-                    sendDisableShowLoadMoreBot();
-
-                    sendSlideDialogToFoundMessage();
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
                     sendError(throwable.getMessage());
