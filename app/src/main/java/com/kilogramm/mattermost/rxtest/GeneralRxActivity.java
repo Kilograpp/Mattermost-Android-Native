@@ -28,6 +28,7 @@ import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
+import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 import com.kilogramm.mattermost.view.menu.directList.MenuDirectListFragment;
 import com.kilogramm.mattermost.view.menu.pivateList.MenuPrivateListFragment;
@@ -54,8 +55,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
 
-    public final String TYPE = "TYPE";
-
     private ActivityMenuBinding binding;
     MenuChannelListFragment channelListFragment;
     MenuPrivateListFragment privateListFragment;
@@ -63,7 +62,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
     private String currentChannel = "";
     private String searchMessageId;
-    private SaveData saveData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,7 +119,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                     Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.about_mattermost:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+                    RightMenuAboutAppActivity.start(this);
                     break;
                 case R.id.logout:
                     getPresenter().requestLogout();
