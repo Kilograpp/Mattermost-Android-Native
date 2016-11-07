@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
+import com.kilogramm.mattermost.R;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -255,5 +257,17 @@ public class FileUtil {
         intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
                 ? "*/*" : mimeType);
         return intent;
+    }
+
+    public String convertFileSize(long bytes){
+        if (bytes > 1024 * 1024) {
+            return String.format("%.2f Mb", ((float)bytes) / 1024 / 1024);
+        } else if (bytes > 1024) {
+            return String.format("%.2f Kb", ((float)bytes) / 1024);
+        } else if (bytes <= 0) {
+            return null;
+        } else {
+            return String.format("%.2el b", bytes);
+        }
     }
 }
