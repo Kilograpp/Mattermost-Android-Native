@@ -139,7 +139,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         privateListFragment = new MenuPrivateListFragment();
         directListFragment = new MenuDirectListFragment();
 
-        directListFragment.setDirectItemClickListener((itemId, name, type) -> getPresenter().setSelectedMenu(itemId, type, name));
+        directListFragment.setDirectItemClickListener((itemId, name, type) -> getPresenter().setSelectedMenu(itemId, name, type));
 
         getFragmentManager().beginTransaction()
                 .replace(binding.fragmentDirectList.getId(), directListFragment)
@@ -148,7 +148,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         privateListFragment.setPrivateItemClickListener(new MenuPrivateListFragment.OnPrivateItemClickListener() {
             @Override
             public void onPrivatelClick(String itemId, String name, String type) {
-                getPresenter().setSelectedMenu(itemId, type, name);
+                getPresenter().setSelectedMenu(itemId, name, type);
             }
 
             @Override

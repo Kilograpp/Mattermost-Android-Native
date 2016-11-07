@@ -28,7 +28,6 @@ import rx.schedulers.Schedulers;
 /**
  * Created by kepar on 30.9.16.
  */
-
 public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout> {
     private static final String TAG = "AttachedFilesPresenter";
 
@@ -75,7 +74,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             this.fileName = file.getName();
             FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
+
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+
             channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 

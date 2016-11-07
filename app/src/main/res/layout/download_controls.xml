@@ -6,12 +6,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ProgressBar
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressWait"
+        android:layout_margin="5dp"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:mpb_progressStyle="circular"
+        app:theme="@style/ProgressWhite" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -22,7 +25,7 @@
         android:background="@drawable/circle_shape"
         android:indeterminate="false"
         android:max="100"
-        android:progressDrawable="@drawable/circular_blue_progress_bar"
+        android:progressDrawable="@drawable/circular_white_progress_bar"
         android:visibility="invisible" />
 
     <ImageView
