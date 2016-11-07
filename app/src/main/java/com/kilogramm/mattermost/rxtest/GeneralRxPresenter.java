@@ -184,6 +184,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         );
     }
 
+
+
+
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();

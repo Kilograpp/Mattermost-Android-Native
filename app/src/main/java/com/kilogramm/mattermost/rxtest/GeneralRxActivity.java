@@ -286,7 +286,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
                 Realm realm = Realm.getDefaultInstance();
                 String myId = MattermostPreference.getInstance().getMyUserId();
-                RealmResults<Channel> channels = realm.where(Channel.class)
+                RealmResults<Channel> channels = realm.where(Channel.class)  //TODO использовать репозиторий
                         .equalTo("name", myId + "__" + userTalkToId)
                         .or()
                         .equalTo("name", userTalkToId + "__" + myId)

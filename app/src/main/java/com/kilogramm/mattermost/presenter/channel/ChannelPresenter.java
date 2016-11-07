@@ -7,14 +7,19 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.ListSaveData;
+import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
+import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -25,7 +30,13 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final String TAG = "ChannelPresenter";
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LEAVE = 2;
+    private static final int REQUEST_SAVE = 3;
     private ApiMethod service;
+
+    private LogoutData user;
+
+    @State
+    ListSaveData mSaveData = new ListSaveData();
 
     @State
     ExtraInfo extraInfo;
@@ -41,6 +52,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
+        MattermostApp.getSingleton();
+
         initRequests();
     }
 
@@ -55,6 +68,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void initRequests() {
         initExtraInfo();
         leaveChannel();
+        initSaveRequest();
     }
 
     private void initExtraInfo() {
@@ -83,6 +97,42 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                 }, (channelActivity, throwable) ->
                         sendError(getError(throwable))
         );
+    }
+
+
+    private void initSaveRequest() {
+        restartableFirst(REQUEST_SAVE, () -> Observable.defer(
+                () -> Observable.zip(
+                        service.save(mSaveData.getmSaveData())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        (aBoolean, channel) -> {
+                            if (aBoolean == Boolean.FALSE) {
+                                return null;
+                            }
+                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
+                            return channel;
+                        })), (generalRxActivity, channel) -> {
+            mSaveData.getmSaveData().clear();
+            MattermostPreference.getInstance().setLastChannelId(channel.getId());
+            sendSetFragmentChat();
+        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+    }
+
+    public void requestSaveData(SaveData data, String userId) {
+        mSaveData.getmSaveData().clear();
+        mSaveData.getmSaveData().add(data);
+        user.setUserId(userId);
+        start(REQUEST_SAVE);
+    }
+
+    private void sendSetFragmentChat() {
+        createTemplateObservable(new Object())
+                .subscribe(split((channelActivity, o) ->
+                        channelActivity.startGeneralActivity()));
     }
 
     public void requestExtraInfo() {

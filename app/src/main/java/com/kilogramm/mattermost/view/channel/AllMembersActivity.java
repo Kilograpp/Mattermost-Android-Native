@@ -13,6 +13,8 @@ import android.view.View;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.MembersListBinding;
+import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -21,6 +23,7 @@ import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -44,7 +47,7 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
     private void initiationData() {
         allMembersAdapter = new AllMembersAdapter(
                 this,
-                id -> openDialog(id));
+                id -> openDirect(id));
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
@@ -56,17 +59,34 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
         });
     }
 
-    private void openDialog(String id) {
+    private void openDirect(String id) {
         String userId = MattermostPreference.getInstance().getMyUserId();
         if (!userId.equals(id)) {
-            MattermostPreference.getInstance().setLastChannelId(
-                    ChannelRepository.query(new ChannelByNameSpecification(null, id))
-                            .first()
-                            .getId()
-            );
-            GeneralRxActivity.start(this, null);
+            RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
+            if (channels.size() > 0) {
+                MattermostPreference.getInstance().setLastChannelId(
+                        channels.first().getId()
+                );
+                startGeneralActivity();
+            } else startDialog(id);
         }
     }
+
+    public void startGeneralActivity() {
+        GeneralRxActivity.start(this, null);
+    }
+
+    private void startDialog(String userTalkToId) {
+        SaveData saveData = new SaveData(
+                userTalkToId,
+                MattermostPreference.getInstance().getMyUserId(),
+                true,
+                "direct_channel_show");
+
+        getPresenter().requestSaveData(saveData, userTalkToId);
+
+    }
+
 
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
