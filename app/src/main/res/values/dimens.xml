@@ -11,6 +11,8 @@
     <dimen name="standart_margin">10dp</dimen>
     <dimen name="left_padding">15dp</dimen>
 
+    <dimen name="image_height">250dp</dimen>
+
     <!--Direct list-->
     <dimen name="margin_start">5dp</dimen>
     <dimen name="circle_image_size">40dp</dimen>
@@ -36,5 +38,19 @@
     <dimen name="search_some_margin">15dp</dimen>
     <dimen name="search_margin_top_bottom">5dp</dimen>
     <dimen name="card_corner_radius">0dp</dimen>
+
+    <dimen name="progress_bar_margin">5dp</dimen>
+
+    <dimen name="create_new_ch_gr_ll_margin">15dp</dimen>
+
+    <!--About Mattermost-->
+    <dimen name="about_margin_top">30dp</dimen>
+    <dimen name="about_big_icon_size">160dp</dimen>
+    <dimen name="about_small_icon_size">40dp</dimen>
+    <dimen name="about_margin_start_end">20dp</dimen>
+    <dimen name="about_margin_top_small">20dp</dimen>
+    <dimen name="about_margin_top_normal">40dp</dimen>
+    <dimen name="about_margin_top_big">70dp</dimen>
+    <dimen name="about_margin_bottom_small">15dp</dimen>
 
 </resources>

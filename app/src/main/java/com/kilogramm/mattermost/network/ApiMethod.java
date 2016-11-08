@@ -267,4 +267,12 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/teams/all")
     Observable<List<Team>> getAllTeams();
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{team_id}/channels/create")
+    Observable<Channel> createChannel(@Path("team_id") String teamId,
+                                      @Body Channel creatingChannel);
 }

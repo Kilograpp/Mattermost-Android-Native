@@ -31,23 +31,25 @@
         <LinearLayout
             android:id="@+id/noMoreChannels"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:text="No more channels to join"
+                android:textSize="15sp"
+                android:text="@string/add_channels_no_more"
                 android:layout_margin="10dp"
                 android:layout_gravity="center" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Click 'Create New Channel' to make a new one"
+                android:text="@string/add_channels_no_more_additional"
                 android:layout_margin="10dp"
-                android:textColor="@color/light_grey"
+                android:textColor="@color/hint_grey"
+                android:textSize="13sp"
                 android:layout_gravity="center"/>
         </LinearLayout>
 

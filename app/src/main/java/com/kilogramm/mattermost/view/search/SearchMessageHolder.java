@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,7 +89,7 @@ public class SearchMessageHolder extends RealmViewHolder {
     public String getChatName(String rawName) {
         String[] channelNameParsed = rawName.split("__");
         String myId = MattermostPreference.getInstance().getMyUserId();
-        if (channelNameParsed[0] == myId) {
+        if (Objects.equals(channelNameParsed[0], myId)) {
             return UserRepository.query(new UserRepository.UserByIdSpecification(channelNameParsed[1])).get(0).getUsername();
         } else {
             return UserRepository.query(new UserRepository.UserByIdSpecification(channelNameParsed[0])).get(0).getUsername();

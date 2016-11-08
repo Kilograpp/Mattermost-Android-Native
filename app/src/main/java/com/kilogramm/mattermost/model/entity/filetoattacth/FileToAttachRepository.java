@@ -187,6 +187,14 @@ public class FileToAttachRepository {
         return false;
     }
 
+    public boolean haveFilesToAttach(){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults<FileToAttach> fileToAttachRealmResults = realm.where(FileToAttach.class).findAll();
+        realm.commitTransaction();
+        return fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0;
+    }
+
     public boolean haveDownloadingFile() {
         Realm realm = Realm.getDefaultInstance();
         FileToAttach fileToAttach = realm.where(FileToAttach.class)
