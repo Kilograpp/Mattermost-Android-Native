@@ -83,7 +83,7 @@ public class FilesView extends GridLayout {
         backgroundColorId = getResources().getDrawable(R.drawable.files_item_background_comment);
     }
 
-    public void setItems(List<String> items) {
+    public void setIems(List<String> items) {
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
