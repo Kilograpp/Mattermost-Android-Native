@@ -303,5 +303,4 @@ public class FilesView extends GridLayout {
         fileList.clear();
         this.removeAllViews();
     }
-
 }
