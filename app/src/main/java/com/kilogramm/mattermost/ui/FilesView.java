@@ -112,7 +112,7 @@ public class FilesView extends GridLayout {
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
-                            Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
@@ -124,10 +124,11 @@ public class FilesView extends GridLayout {
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
-                        binding.image.setOnClickListener(view -> ImageViewerActivity.start(getContext(),
-                                binding.image,
-                                binding.title.getText().toString(),
-                                getImageUrl(fileName)));
+                        binding.image.setOnClickListener(view ->
+                            ImageViewerActivity.start(getContext(),
+                                    binding.image,
+                                    binding.title.getText().toString(),
+                                    getImageUrl(fileName)));
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));

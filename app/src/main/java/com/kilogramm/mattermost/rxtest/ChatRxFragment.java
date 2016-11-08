@@ -13,6 +13,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -729,14 +731,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void showPopupMenu(View view, Post post) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+
         if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
             popupMenu.inflate(R.menu.my_chat_item_popupmenu);
         } else {
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
+
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
                     R.layout.edit_dialog_layout, null, false);
+
             switch (menuItem.getItemId()) {
                 case R.id.edit:
                     rootPost = post;
@@ -772,12 +777,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
+
         if (type.equals(REPLY_MESSAGE))
             binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
         else {
             binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
             binding.btnSend.setText(R.string.save);
         }
+
         binding.editReplyMessageLayout.editableText.setText(message);
         binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
