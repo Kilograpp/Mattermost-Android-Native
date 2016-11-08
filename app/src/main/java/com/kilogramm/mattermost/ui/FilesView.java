@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
+import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -40,6 +41,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+
+import static com.kilogramm.mattermost.view.ImageViewerActivity.startActivity;
 
 /**
  * Created by Evgeny on 01.09.2016.
@@ -83,7 +86,7 @@ public class FilesView extends GridLayout {
         backgroundColorId = getResources().getDrawable(R.drawable.files_item_background_comment);
     }
 
-    public void setIems(List<String> items) {
+    public void setItems(List<String> items) {
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
@@ -106,17 +109,35 @@ public class FilesView extends GridLayout {
 
                 binding.fileSize.setVisibility(VISIBLE);
 
+                ArrayList<String> photoUriList = new ArrayList<>();
+                for (String fileItem : fileList) {
+                    photoUriList.add(getImageUrl(fileItem));
+                }
+
                 switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
+
                         binding.image.setOnClickListener(view -> {
                             //Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(fileName));
+
+//                            ImageViewerActivity.start(getContext(),
+//                                    binding.image,
+//                                    binding.title.getText().toString(),
+//                                    getImageUrl(fileName));
+
+//                            ArrayList<String> photoUriList = new ArrayList<>();
+//                            for (String fileItem : fileList) {
+//                                photoUriList.add(getImageUrl(fileItem));
+//                            }
+
+                             ViewPagerWGesturesActivity.start(getContext(),
+                             binding.image,
+                             binding.title.getText().toString(),
+                             getImageUrl(fileName),
+                             photoUriList);
 
                         });
                         break;
@@ -124,11 +145,23 @@ public class FilesView extends GridLayout {
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
+
+
                         binding.image.setOnClickListener(view ->
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(fileName)));
+//                            ImageViewerActivity.start(getContext(),
+//                                    binding.image,
+//                                    binding.title.getText().toString(),
+//                                    getImageUrl(fileName))
+
+                                ViewPagerWGesturesActivity.start(getContext(),
+                                        binding.image,
+                                        binding.title.getText().toString(),
+                                        getImageUrl(fileName),
+                                        photoUriList)
+
+
+                        );
+
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));
