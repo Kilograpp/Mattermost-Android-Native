@@ -114,6 +114,10 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
 
     public void updateDataList(OrderedRealmCollection<User> realmResult) {
         allMembersAdapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.listEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.listEmpty.setVisibility(View.INVISIBLE);
     }
 
     private void setToolbar() {

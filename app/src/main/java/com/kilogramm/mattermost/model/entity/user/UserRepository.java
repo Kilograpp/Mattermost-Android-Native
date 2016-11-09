@@ -142,6 +142,7 @@ public class UserRepository {
         public RealmResults<User> toRealmResults(Realm realm) {
             RealmQuery realmQuery = realm.where(User.class);
             realmQuery.isNotNull("createAt");
+            realmQuery.equalTo("deleteAt", 0);
             if (searchName != null)
                 realmQuery.contains("username", searchName);
             for (User u : users) {

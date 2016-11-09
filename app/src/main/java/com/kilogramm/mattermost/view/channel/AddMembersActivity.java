@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.MembersListBinding;
@@ -81,14 +82,19 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         };
     }
 
-    public void requestMember() {
+    public void requestMember(String s) {
         binding.list.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
         binding.searchText.setText("");
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     public void updateDataList(OrderedRealmCollection<User> realmResult) {
         addMembersAdapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.listEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.listEmpty.setVisibility(View.INVISIBLE);
     }
 
     private void setToolbar() {

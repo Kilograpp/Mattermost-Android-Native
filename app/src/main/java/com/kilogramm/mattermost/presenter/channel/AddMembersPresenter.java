@@ -65,7 +65,10 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         .observeOn(Schedulers.io()),
                 (addMembersActivity, user) ->
                         updateMembers(user.getUser_id())
-                , (generalRxActivity1, throwable) -> throwable.printStackTrace());
+                , (generalRxActivity1, throwable) -> {
+                    throwable.printStackTrace();
+                    errorUpdateMembers(throwable.getMessage());
+                });
     }
 
     private void updateMembers(String id) {
@@ -75,8 +78,14 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     ExtroInfoRepository.update(extraInfo, UserRepository.query(
                             new UserRepository.UserByIdSpecification(id))
                             .first());
-                    addMembersActivity.requestMember();
+                    addMembersActivity.requestMember("User added");
                 }));
+    }
+
+    private void errorUpdateMembers(String s) {
+        createTemplateObservable(new Object())
+                .subscribe(split((addMembersActivity, openChatObject)
+                        -> addMembersActivity.requestMember(s)));
     }
 
     public void initPresenter(String id) {
