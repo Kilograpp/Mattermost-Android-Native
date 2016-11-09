@@ -74,11 +74,6 @@ public class AddExistingChannelsActivity
 
     @Override
     public void onChannelItemClick(String joinChannelId, String channelName, String type) {
-        Intent intent = new Intent(this, AddExistingChannelsActivity.class)
-                .putExtra(CHANNEL_ID, joinChannelId)
-                .putExtra(CHANNEL_NAME, channelName)
-                .putExtra(TYPE, type);
-        setResult(Activity.RESULT_OK, intent);
         getPresenter().requestAddChat(joinChannelId);
     }
 
@@ -94,7 +89,12 @@ public class AddExistingChannelsActivity
         binding.recViewMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
     }
 
-    public void finishActivity() {
+    public void finishActivity(String joinChannelId, String channelName, String type) {
+        Intent intent = new Intent(this, AddExistingChannelsActivity.class)
+                .putExtra(CHANNEL_ID, joinChannelId)
+                .putExtra(CHANNEL_NAME, channelName)
+                .putExtra(TYPE, type);
+        setResult(Activity.RESULT_OK, intent);
         this.finish();
     }
 }

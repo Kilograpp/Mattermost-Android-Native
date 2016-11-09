@@ -29,7 +29,8 @@
                 android:background="@drawable/circle_shape"
                 android:indeterminate="false"
                 android:max="100"
-                android:progressDrawable="@drawable/circular_white_progress_bar" />
+                android:progressDrawable="@drawable/circular_white_progress_bar"
+                android:visibility="invisible"/>
 
             <me.zhanghai.android.materialprogressbar.MaterialProgressBar
                 android:id="@+id/progressWait"
@@ -40,7 +41,7 @@
                 android:visibility="gone"
                 android:layout_gravity="center"
                 app:mpb_progressStyle="circular"
-                app:theme="@style/ProgressWhite"/>
+                app:theme="@style/ProgressWhite" />
 
             <TextView
                 android:id="@+id/fileName"

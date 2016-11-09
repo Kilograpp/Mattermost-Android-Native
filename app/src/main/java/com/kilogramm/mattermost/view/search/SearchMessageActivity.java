@@ -59,6 +59,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
             defaultMessageVisibility(true);
             searchResultVisibility(false);
             defaultVisibility(false);
+            showKeyboard(this);
         });
     }
 

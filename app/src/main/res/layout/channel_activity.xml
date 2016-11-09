@@ -35,7 +35,7 @@
                         android:layout_width="@dimen/circle_icon_size"
                         android:layout_height="@dimen/circle_icon_size"
                         android:layout_margin="@dimen/activity_horizontal_margin"
-                        android:background="@drawable/circle_backgraund"
+                        android:background="@drawable/circle_background"
                         android:gravity="center"
                         app:textAllCaps="true" />
 

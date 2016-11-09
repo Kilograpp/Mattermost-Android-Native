@@ -46,7 +46,7 @@ public class MenuChannelRxAdapter extends RealmAD<Channel, MenuChannelListHolder
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if (channelItemClickListener != null) {
-                        channelItemClickListener.onChannelClick(channel.getId(), channel.getType(), channel.getDisplayName());
+                        channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName(), channel.getType());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();

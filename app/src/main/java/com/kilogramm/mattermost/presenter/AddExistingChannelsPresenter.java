@@ -83,13 +83,14 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                                     realm1.delete(ChannelsDontBelong.class);
                                     realm1.insertOrUpdate(moreChannels);
                                 });
-                    }},
+                    }
+                },
                 (addExistingChannelsActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendSetProgress(false);
                 });
 
-        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
+/*        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
                 () -> Observable.zip(
                         service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
                                 .subscribeOn(Schedulers.io())
@@ -103,34 +104,62 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                             ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
                             ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
                             return channel;
-         })), (generalRxActivity, channel) -> {
+                        })), (generalRxActivity, channel) -> {
             sendSetProgress(false);
             sendFinish();
         }, (generalRxActivity, throwable) -> {
             throwable.printStackTrace();
             Log.d(TAG, throwable.getMessage());
             sendSetProgress(false);
-        });
+        });*/
+
+        restartableFirst(REQUEST_ADD_CHAT, () ->
+                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (generalRxActivity, channel) -> makeChannelsTeamRequest(channel),
+                (generalRxActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    Log.d(TAG, throwable.getMessage());
+                    sendSetProgress(false);
+                }
+        );
+    }
+
+    private void makeChannelsTeamRequest(Channel channel) {
+        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(channelsWithMembers -> {
+                    RealmList<Channel> channelsList = new RealmList<>();
+                    channelsList.addAll(channelsWithMembers.getChannels());
+                    ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
+                    ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
+
+                    sendSetProgress(false);
+                    String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+                    sendFinish(channelId, channelName, channel.getType());
+                });
     }
 
     public void requestAddChat(String joinChannelId) {
         channelId = joinChannelId;
         user.setUserId("");
         start(REQUEST_ADD_CHAT);
-
         sendSetProgress(true);
         sendSetRecycleView(false);
     }
 
     public void requestChannelsMore() {
         start(REQUEST_CHANNELS_MORE);
-
         sendSetProgress(true);
     }
 
-    private void sendFinish() {
+    private void sendFinish(String joinChannelId, String channelName, String type) {
         createTemplateObservable(new Object())
-                .subscribe(split((addExistingChannelsActivity, o) -> addExistingChannelsActivity.finishActivity()));
+                .subscribe(split((addExistingChannelsActivity, o) ->
+                        addExistingChannelsActivity.finishActivity(joinChannelId, channelName, type))
+                );
     }
 
     private void sendSetNoMoreChannels(Boolean bool) {

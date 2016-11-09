@@ -57,6 +57,7 @@ public class ImageViewerActivity extends BaseActivity {
                 .load(imageUrl)
                 .placeholder(Color.RED)
                 .into(binding.image);
+
         String title = getIntent().getStringExtra(TITLE);
         setupToolbar(title, true);
 
@@ -67,7 +68,6 @@ public class ImageViewerActivity extends BaseActivity {
 
         mBackground = new ColorDrawable(Color.BLACK);
         binding.topLayout.setBackground(mBackground);
-
 
         if (savedInstanceState == null) {
             ViewTreeObserver observer = binding.image.getViewTreeObserver();
@@ -103,7 +103,7 @@ public class ImageViewerActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;
@@ -118,23 +118,22 @@ public class ImageViewerActivity extends BaseActivity {
         overridePendingTransition(0, 0);
     }
 
-    public static void startActivity(Context context, View view, String title, String imageUrl){
-        Intent intent = new Intent(context,ImageViewerActivity.class);
+    public static void startActivity(Context context, View view, String title, String imageUrl) {
+        Intent intent = new Intent(context, ImageViewerActivity.class);
         int colour = context.getResources().getColor(R.color.black);
         intent.putExtra(COLOR, colour);
         intent.putExtra(TITLE, title);
         intent.putExtra(IMAGE_URL, imageUrl);
-        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(colour);
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view,bitmap,0,0);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
         context.startActivity(intent, optionsCompat.toBundle());
     }
 
-    public static final void start(Context context, View view, String title, String imageUrl){
+    public static final void start(Context context, View view, String title, String imageUrl) {
         int[] screenLocation = new int[2];
         view.getLocationOnScreen(screenLocation);
-        Intent subActivity = new Intent(context,
-                ImageViewerActivity.class);
+        Intent subActivity = new Intent(context, ImageViewerActivity.class);
         int orientation = context.getResources().getConfiguration().orientation;
         subActivity.
                 putExtra(PACKAGE + ".orientation", orientation).
@@ -150,6 +149,7 @@ public class ImageViewerActivity extends BaseActivity {
         // to our custom one
         ((Activity) context).overridePendingTransition(0, 0);
     }
+
     @Override
     protected void onResume() {
         super.onResume();

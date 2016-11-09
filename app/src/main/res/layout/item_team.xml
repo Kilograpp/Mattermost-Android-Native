@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:background="@drawable/circle_backgraund"
+            android:background="@drawable/circle_background"
             android:gravity="center" />
 
 

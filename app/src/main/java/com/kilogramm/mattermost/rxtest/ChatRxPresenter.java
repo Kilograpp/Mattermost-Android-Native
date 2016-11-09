@@ -80,6 +80,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     String search;
     @State
     Long updateAt;
+    @State
+    Boolean isSendingPost = false;
 
     private Boolean isEmpty = false;
 
@@ -205,8 +207,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
-                    sendHideFileAttachLayout();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
+                    isSendingPost = false;
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
@@ -317,8 +319,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initLoadBeforeAndAfter() {
-        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () -> Observable.defer(
-                () -> Observable.zip(
+        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
+                Observable.defer(() -> Observable.zip(
                         service.getExtraInfoChannel(teamId, channelId)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
@@ -333,9 +335,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                                 .subscribeOn(Schedulers.io()),
                         (extraInfo, postsBef, foundPosts, postsAft) -> {
                             ArrayList<Posts> allPosts = new ArrayList<>();
-                            allPosts.add(postsAft);
+                            if (postsAft.getPosts() != null) {
+                                allPosts.add(postsAft);
+                            }
                             allPosts.add(foundPosts);
-                            allPosts.add(postsBef);
+                            if (postsBef.getPosts() != null) {
+                                allPosts.add(postsBef);
+                            }
                             return allPosts;
                         }))
                 , (chatRxFragment, postsAll) -> {
@@ -345,15 +351,19 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         return;
                     }
 
-                    for (Posts posts : postsAll) {
-                        PostRepository.prepareAndAdd(posts);
+                    try {
+                        for (Posts posts : postsAll) {
+                            PostRepository.prepareAndAdd(posts);
+                        }
+                    } catch (Throwable e){
+                        e.printStackTrace();
+                        sendError(e.getMessage());
+                    } finally {
+                        sendRefreshing(false);
+                        sendShowList();
+                        sendDisableShowLoadMoreBot();
+                        sendSlideDialogToFoundMessage();
                     }
-
-                    sendRefreshing(false);
-                    sendShowList();
-                    sendDisableShowLoadMoreBot();
-
-                    sendSlideDialogToFoundMessage();
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
                     sendError(throwable.getMessage());
@@ -371,7 +381,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
+        if(isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
+        isSendingPost = true;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);

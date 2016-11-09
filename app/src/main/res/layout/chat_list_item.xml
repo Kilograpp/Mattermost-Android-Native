@@ -77,25 +77,25 @@
                     android:id="@+id/linearLayoutRootPost"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
+                    android:layout_marginBottom="@dimen/comment_margin_element"
                     android:layout_marginLeft="@dimen/cardview_compat_inset_shadow"
                     android:layout_marginRight="@dimen/cardview_compat_inset_shadow"
-                    android:layout_marginBottom="@dimen/comment_margin_element"
+                    android:visibility="gone"
                     app:cardBackgroundColor="@color/comment_cardview_Background">
 
                     <View
                         android:layout_width="2dp"
                         android:layout_height="fill_parent"
-                        android:layout_marginLeft="@dimen/comment_margin_element"
                         android:layout_marginBottom="@dimen/comment_margin_element"
+                        android:layout_marginLeft="@dimen/comment_margin_element"
                         android:layout_marginTop="@dimen/comment_margin_element"
                         android:background="@color/light_grey" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/comment_margin_text"
                         android:layout_marginBottom="@dimen/comment_margin_element"
+                        android:layout_marginLeft="@dimen/comment_margin_text"
                         android:layout_marginTop="@dimen/comment_margin_element"
                         android:orientation="vertical">
 
@@ -153,28 +153,29 @@
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/controlMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.controlMenuVisibility}"
-                app:srcCompat="@drawable/ic_more_horiz_grey_24dp" />
+                android:orientation="vertical">
 
-            <ProgressBar
-                android:id="@id/progressBar"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:visibility="@{viewModel.progressSendVisibility}" />
+                <ImageView
+                    android:id="@+id/controlMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.controlMenuVisibility}"
+                    app:srcCompat="@drawable/ic_more_horiz_grey_24dp" />
 
-            <ImageView
-                android:visibility="@{viewModel.progressErrorSendVisibility}"
-                android:id="@+id/sendStatusError"
-                android:layout_width="24dp"
-                app:srcCompat="@drawable/ic_error_red_24dp"
-                android:layout_height="24dp" />
+                <ProgressBar
+                    android:id="@id/progressBar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:visibility="@{viewModel.progressSendVisibility}" />
+
+                <ImageView
+                    android:id="@+id/sendStatusError"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:visibility="@{viewModel.progressErrorSendVisibility}"
+                    app:srcCompat="@drawable/ic_error_red_24dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

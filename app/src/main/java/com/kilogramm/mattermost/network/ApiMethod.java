@@ -263,8 +263,30 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @POST("api/v3/users/update")
+    Observable<User> updateUser(@Body User user);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest"})
+    @Multipart
+    @POST("api/v3/users/newimage")
+    Observable<Boolean> newimage(@Part MultipartBody.Part image);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @POST("api/v3/teams/all")
     Observable<List<Team>> getAllTeams();
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{team_id}/channels/create")
+    Observable<Channel> createChannel(@Path("team_id") String teamId,
+                                      @Body Channel creatingChannel);
 
     @Headers({
             "Accept: application/json",
@@ -281,7 +303,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/teams/{teamId}/channels/update_header")
     Observable<Channel> updateHeader(@Path("teamId") String teamId,
-                                                      @Body HeaderPresenter.ChannelHeader channelHeader);
+                                     @Body HeaderPresenter.ChannelHeader channelHeader);
 
     @Headers({
             "Accept: application/json",
@@ -289,7 +311,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/teams/{teamId}/channels/update_purpose")
     Observable<Channel> updatePurpose(@Path("teamId") String teamId,
-                                     @Body PurposePresenter.ChannelPurpose channelPurpose);
+                                      @Body PurposePresenter.ChannelPurpose channelPurpose);
 
     @Headers({
             "Accept: application/json",

@@ -4,6 +4,9 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -12,14 +15,21 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
+import com.kilogramm.mattermost.R;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rx.Observable;
 
 /**
  * Created by Evgeny on 13.10.2016.
@@ -233,13 +243,18 @@ public class FileUtil {
         return null;
     }
 
-    public String getFileNameFromIdDecoded(String fileId) throws UnsupportedEncodingException {
+    public String getFileNameFromIdDecoded(String fileId){
         Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
         Matcher matcher = pattern.matcher(fileId);
         if (matcher.matches()) {
-            return URLDecoder.decode(matcher.group(1), "UTF-8");
+            try {
+                return URLDecoder.decode(matcher.group(1), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return fileId;
+            }
         }
-        return null;
+        return fileId;
     }
 
     public Intent createOpenFileIntent(String path){
@@ -250,5 +265,117 @@ public class FileUtil {
         intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
                 ? "*/*" : mimeType);
         return intent;
+    }
+
+    public String convertFileSize(long bytes){
+        if (bytes > 1024 * 1024) {
+            return String.format("%.2f Mb", ((float)bytes) / 1024 / 1024);
+        } else if (bytes > 1024) {
+            return String.format("%.2f Kb", ((float)bytes) / 1024);
+        } else if (bytes <= 0) {
+            return null;
+        } else {
+            return String.format("%.2el b", bytes);
+        }
+    }
+
+    public Observable<BitmapWithUri> getBitmap(Uri outputFileUri, Intent data){
+        return Observable.create(subscriber -> {
+            final boolean isCamera;
+            isCamera = isCamera(data);
+            Uri selectedImageUri;
+            if (isCamera) {
+                selectedImageUri = outputFileUri;
+                //Bitmap factory
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                // downsizing image as it throws OutOfMemory Exception for larger
+                // images
+                options.inSampleSize = 8;
+                final Bitmap bitmap = BitmapFactory.decodeFile(selectedImageUri.getPath(), options);
+                subscriber.onNext(new BitmapWithUri(bitmap, selectedImageUri));
+                subscriber.onCompleted();
+                //mBinding.headerPicture.setImageBitmap(bitmap);
+            } else {
+                selectedImageUri = data == null ? null : data.getData();
+                //Log.d("ImageURI", selectedImageUri.getLastPathSegment());
+                // /Bitmap factory
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                // downsizing image as it throws OutOfMemory Exception for larger
+                // images
+                options.inSampleSize = 8;
+                try {//Using Input Stream to get uri did the trick
+                    InputStream input = mContext.getContentResolver().openInputStream(selectedImageUri);
+                    Rect rect = new Rect(0,0,0,0);
+                    final Bitmap bitmap = BitmapFactory.decodeStream(input,rect,options);
+                    subscriber.onNext(new BitmapWithUri(bitmap, selectedImageUri));
+                    subscriber.onCompleted();
+                } catch (FileNotFoundException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
+    private boolean isCamera(Intent data) {
+        boolean isCamera;
+        if (data == null) {
+            isCamera = true;
+        } else {
+            final String action = data.getAction();
+            if (action == null) {
+                isCamera = false;
+                if(data.getData()==null){
+                    isCamera = true;
+                }
+            } else {
+                isCamera = true;
+            }
+        }
+        return isCamera;
+    }
+
+
+    public String getFileByUri(Uri imageUri) {
+        String path;
+        try {
+            File dir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost");
+
+            path = dir.getAbsolutePath() + File.separator + "img_" + System.currentTimeMillis() + ".jpg";
+            InputStream input = mContext.getContentResolver().openInputStream(imageUri);
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            byte[] buffer = new byte[32 * 1024];
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, read);
+            }
+            fileOutputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return path;
+    }
+
+
+    public class BitmapWithUri{
+        private Bitmap bitmap;
+        private Uri uri;
+
+        public BitmapWithUri(Bitmap bitmap, Uri uri) {
+            this.bitmap = bitmap;
+            this.uri = uri;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+
+        public Uri getUri() {
+            return uri;
+        }
     }
 }

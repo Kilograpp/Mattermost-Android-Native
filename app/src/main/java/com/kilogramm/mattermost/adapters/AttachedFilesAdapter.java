@@ -44,11 +44,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileToAttach fileToAttach = getData().get(position);
-        try {
-            holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
 /*        Picasso.with(context)
                 .load(fileToAttach.getFilePath())
                 .resize(150, 150)

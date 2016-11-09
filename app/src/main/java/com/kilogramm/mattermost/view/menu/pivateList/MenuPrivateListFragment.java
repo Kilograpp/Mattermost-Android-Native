@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.databinding.FragmentMenuPrivateListBinding;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
@@ -40,16 +40,28 @@ public class MenuPrivateListFragment extends Fragment {
                 container, false);
         View view = binding.getRoot();
         setupListView();
+        binding.addGroup.setOnClickListener(v -> privateItemClickListener.onCreateGroupClick());
+
         return view;
     }
-
 
     private void setupListView() {
         RealmResults<Channel> results = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
         binding.recView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         adapter = new AdapterMenuPrivateList(getContext(), results, binding.recView,
-                (itemId, name, type) ->  privateItemClickListener.onPrivatelClick(itemId, name, type));
-        if(selectedItemChangeListener!=null){
+                new OnPrivateItemClickListener() {
+                    @Override
+                    public void onPrivatelClick(String itemId, String name, String type) {
+                        privateItemClickListener.onPrivatelClick(itemId, name, type);
+                    }
+
+                    @Override
+                    public void onCreateGroupClick() {
+                    }
+                });
+
+        if (selectedItemChangeListener != null) {
             adapter.setSelectedItemChangeListener(selectedItemChangeListener);
         }
         binding.recView.setAdapter(adapter);
@@ -79,14 +91,17 @@ public class MenuPrivateListFragment extends Fragment {
         }
     }
 
-    public interface OnPrivateItemClickListener{
+    public interface OnPrivateItemClickListener {
         void onPrivatelClick(String itemId, String name, String type);
+
+        void onCreateGroupClick();
     }
-    public interface OnSelectedItemChangeListener{
+
+    public interface OnSelectedItemChangeListener {
         void onChangeSelected(int position);
     }
 
-    public void resetSelectItem(){
+    public void resetSelectItem() {
         adapter.setSelecteditem(-1);
     }
 }

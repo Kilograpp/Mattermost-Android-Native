@@ -22,9 +22,13 @@
     <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
+    <string name="message_empty">Message is empty</string>
+    <string name="wait_files">Wait file for uploading</string>
+    <string name="in_development">In Development</string>
 
     <string name="transitions_image">image</string>
     <string name="typing">typing…</string>
+    <string name="send">Send</string>
 
     <string name="title_forgot_password">Password recovery</string>
     <string name="choose_team">Choose your team</string>
@@ -39,6 +43,7 @@
     <string name="permalink">Permalink</string>
     <string name="edit_post">Edit Post</string>
     <string name="save">Save</string>
+    <string name="create">Create</string>
     <string name="message">Message</string>
     <string name="edit_the_post">Edit the post…</string>
     <string name="copy_permalink">Copy Permalink</string>
@@ -109,8 +114,6 @@
     <string name="mob_push_mentions_direct">For mentions and direct messages</string>
     <string name="mob_push_never">Never</string>
     <string name="mob_push_description_send">Notification alerts are pushed to your mobile device when there is activity in Mattermost.</string>
-
-
     <string name="mob_push_title_trigger">TRIGGER PUSH NOTIFICATIONS WHEN</string>
     <string name="mob_push_on_away_off">Online, away or offline</string>
     <string name="mob_push_away_off">Away or offline</string>
@@ -126,12 +129,42 @@
     <string name="triggers_other_mention_hint">Type words</string>
     <string name="triggers_other_separate">Separate by commas</string>
 
-    <!--Email-->
+                    <!--Add channels-->
+    <string name="add_channels_no_more">No more channels to join</string>
+    <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
+
+                    <!--Email-->
     <string name="email_title">SEND DESKTOP NOTIFICATIONS</string>
     <string name="email_immediately">Immediately</string>
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
+    <string name="change_email">Change email</string>
+    <string name="change_password">Change password</string>
+    <string name="name">NAME</string>
+    <string name="username">USERNAME</string>
+    <string name="nickname">NICKNAME</string>
+    <string name="user_updated">User updated</string>
+    <string name="avatar_updated">Avatar updated</string>
+
+                    <!--Create new channel/group-->
+    <string name="create_new_channel_name_hint">Channel Name*</string>
+    <string name="create_new_group_name_hint">Group Name*</string>
+    <string name="create_new_ch_gr_header_hint">Header (optional)</string>
+    <string name="create_new_ch_gr_purpose_hint">Purpose (optional)</string>
+    <string name="create_new_ch_gr_toolbar_ch">New Channel</string>
+    <string name="create_new_ch_gr_toolbar_gr">New Group</string>
+    <string name="create_new_channel_error"> \t Channel name is required \n</string>
+    <string name="create_new_group_error"> \t Group name is required \n </string>
+
+                    <!--About-->
+    <string name="about_team_edition">Mattermost Team Edition</string>
+    <string name="about_long_text">All your team communication in one place, instantly searchable and accessible anywhere.</string>
+    <string name="about_version">Version: 3.0.0(3.0.3)</string>
+    <string name="about_copyright">Copyright 2016 Mattermost, Inc. All rights reserved.</string>
+    <string name="about_mattermost_org">Join the Mattermost community at mattermost.org</string>
+    <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
+    <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
 
 
     <!--Channel info-->

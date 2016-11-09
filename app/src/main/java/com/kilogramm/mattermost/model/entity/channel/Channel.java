@@ -215,16 +215,38 @@ public class Channel extends RealmObject implements Parcelable {
 
     /**
      *
+     * @param displayName
+     * The displayName
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     *
+     * @param purpose
+     * The purpose
+     */
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    /**
+     *
+     * @param header
+     * The header
+     */
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    /**
+     *
      * @return
      * The header
      */
     public String getHeader() {
         return header;
-    }
-
-
-    public void setHeader(String header) {
-        this.header = header;
     }
 
     /**
@@ -234,11 +256,6 @@ public class Channel extends RealmObject implements Parcelable {
      */
     public String getPurpose() {
         return purpose;
-    }
-
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     /**
@@ -282,6 +299,14 @@ public class Channel extends RealmObject implements Parcelable {
     }
 
 
+    public void setAttributesToCreate(String name, String displayName,
+                                      String purpose, String header, String type) {
+        setName(name);
+        setDisplayName(displayName);
+        setPurpose(purpose);
+        setHeader(header);
+        setType(type);
+    }
     @Override
     public int describeContents() {
         return 0;
