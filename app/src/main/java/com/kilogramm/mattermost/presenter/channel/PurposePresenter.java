@@ -61,9 +61,10 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
                         .subscribeOn(Schedulers.io()),
                 (purposeActivity, channel) -> {
                     ChannelRepository.update(channel);
-                    requestFinish();
-                }, (purposeActivity, throwable) ->
-                        throwable.printStackTrace()
+                    requestFinish("Saved successfully");
+                }, (purposeActivity, throwable) ->{
+                        throwable.printStackTrace();
+                    requestFinish("Unable to save");}
         );
     }
 
@@ -71,9 +72,9 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
         start(REQUEST_UPDATE_PURPOSE);
     }
 
-    private void requestFinish() {
+    private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((purposeActivity, o) ->
-                purposeActivity.requestSave()));
+                purposeActivity.requestSave(s)));
     }
 
     public String getPurpose() {

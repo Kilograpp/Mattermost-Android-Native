@@ -61,9 +61,11 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderActivity> {
                         .subscribeOn(Schedulers.io()),
                 (headerActivity, channel) -> {
                     ChannelRepository.update(channel);
-                    requestFinish();
-                }, (headerActivity, throwable) ->
-                        throwable.printStackTrace()
+                    requestFinish("Saved successfully");
+                }, (headerActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    requestFinish("Unable to save");
+                }
         );
     }
 
@@ -71,9 +73,9 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderActivity> {
         start(REQUEST_UPDATE_HEADER);
     }
 
-    private void requestFinish() {
+    private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((headerActivity, o) ->
-                headerActivity.requestSave()));
+                headerActivity.requestSave(s)));
     }
 
     public String getHeader() {

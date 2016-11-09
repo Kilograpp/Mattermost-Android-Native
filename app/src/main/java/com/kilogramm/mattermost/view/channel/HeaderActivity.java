@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.SetHeaderBinding;
@@ -64,9 +65,10 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
     }
 
 
-    public void requestSave() {
+    public void requestSave(String s) {
         saveItem.setVisible(true);
         binding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     private void setToolbar() {

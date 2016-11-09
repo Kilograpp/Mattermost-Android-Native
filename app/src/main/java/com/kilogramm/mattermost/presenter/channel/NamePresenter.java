@@ -30,7 +30,6 @@ public class NamePresenter extends BaseRxPresenter<NameActivity> {
     Channel channel;
 
 
-
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -59,9 +58,11 @@ public class NamePresenter extends BaseRxPresenter<NameActivity> {
                         .subscribeOn(Schedulers.io()),
                 (nameActivity, channel) -> {
                     ChannelRepository.update(channel);
-                    requestFinish();
-                }, (nameActivity, throwable) ->
-                        throwable.printStackTrace()
+                    requestFinish("Saved successfully");
+                }, (nameActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    requestFinish("Unable to save");
+                }
         );
     }
 
@@ -69,9 +70,9 @@ public class NamePresenter extends BaseRxPresenter<NameActivity> {
         start(REQUEST_UPDATE_CHANNEL);
     }
 
-    private void requestFinish() {
+    private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((purposeActivity, o) ->
-                purposeActivity.requestSave()));
+                purposeActivity.requestSave(s)));
     }
 
     public Channel getChannel() {
@@ -85,9 +86,6 @@ public class NamePresenter extends BaseRxPresenter<NameActivity> {
     public void setName(String name) {
         this.channel.setName(name);
     }
-
-
-
 
 
 }
