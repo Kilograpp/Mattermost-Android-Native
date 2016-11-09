@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.databinding.ActivitySettingsBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.settings.EmailEditActivity;
 import com.squareup.picasso.Picasso;
 
 import nucleus.factory.RequiresPresenter;
@@ -23,7 +24,12 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(ProfileRxPresenter.class)
 public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
+    private static final int EMAIL_EDIT_REQUEST_CODE = 1;
+
     private static final String USER_ID = "user_id";
+
+    public static final String EDITED_EMAIL = "EDITED_EMAIL";
+
     private ActivitySettingsBinding mBinding;
 
     private String userId;
@@ -64,6 +70,9 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
                 .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .into(mBinding.headerPicture);
+
+        mBinding.changeEmail.setOnClickListener(v -> EmailEditActivity.startForResult(
+                ProfileRxActivity.this, EMAIL_EDIT_REQUEST_CODE));
     }
 
     public String getAvatarUrl() {
@@ -100,10 +109,19 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
         Snackbar.make(mBinding.getRoot(),"save click",Snackbar.LENGTH_SHORT).show();
     }
 
-
     public static void start(Context context, String userId) {
         Intent starter = new Intent(context, ProfileRxActivity.class);
         starter.putExtra(USER_ID, userId);
         context.startActivity(starter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && requestCode == EMAIL_EDIT_REQUEST_CODE){
+            if(data != null && data.getExtras() != null){
+                mBinding.email.setText(data.getStringExtra(EDITED_EMAIL));
+            }
+        }
     }
 }

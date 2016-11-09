@@ -142,6 +142,14 @@
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
 
+                    <!-- Settings -->
+    <string name="change_email">Change email</string>
+    <string name="change_password">Change password</string>
+    <string name="enter_new_email">Enter new email</string>
+    <string name="new_email">New email</string>
+    <string name="current_password">Current password</string>
+    <string name="edit_email">Edit email</string>
+
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>
     <string name="create_new_group_name_hint">Group Name*</string>

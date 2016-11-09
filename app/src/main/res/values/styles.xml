@@ -76,9 +76,15 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="textBigGrey" parent="@android:style/TextAppearance">
+    <style name="textGrey" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/grey</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textDarkGreyCaps" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="textVeryBigDarkGrey" parent="@android:style/TextAppearance">

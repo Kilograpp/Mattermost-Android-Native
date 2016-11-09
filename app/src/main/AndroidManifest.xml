@@ -75,6 +75,10 @@
             android:screenOrientation="portrait"/>
 
         <activity
+            android:name=".view.settings.EmailEditActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
             android:screenOrientation="portrait" />
 
