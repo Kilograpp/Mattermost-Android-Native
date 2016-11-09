@@ -49,7 +49,7 @@
     <dimen name="about_margin_start_end">20dp</dimen>
     <dimen name="about_margin_top_small">20dp</dimen>
     <dimen name="about_margin_top_normal">40dp</dimen>
-    <dimen name="about_margin_top_big">70dp</dimen>
+    <dimen name="about_margin_top_big">60dp</dimen>
     <dimen name="about_margin_bottom_small">15dp</dimen>
 
 </resources>

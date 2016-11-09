@@ -121,20 +121,12 @@ public class FilesView extends GridLayout {
                         initAndAddItem(binding, getImageUrl(fileName));
 
                         binding.image.setOnClickListener(view -> {
-                            //Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-
 //                            ImageViewerActivity.start(getContext(),
 //                                    binding.image,
 //                                    binding.title.getText().toString(),
 //                                    getImageUrl(fileName));
 
-//                            ArrayList<String> photoUriList = new ArrayList<>();
-//                            for (String fileItem : fileList) {
-//                                photoUriList.add(getImageUrl(fileItem));
-//                            }
-
                              ViewPagerWGesturesActivity.start(getContext(),
-                             binding.image,
                              binding.title.getText().toString(),
                              getImageUrl(fileName),
                              photoUriList);
@@ -146,7 +138,6 @@ public class FilesView extends GridLayout {
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
 
-
                         binding.image.setOnClickListener(view ->
 //                            ImageViewerActivity.start(getContext(),
 //                                    binding.image,
@@ -154,12 +145,9 @@ public class FilesView extends GridLayout {
 //                                    getImageUrl(fileName))
 
                                 ViewPagerWGesturesActivity.start(getContext(),
-                                        binding.image,
                                         binding.title.getText().toString(),
                                         getImageUrl(fileName),
                                         photoUriList)
-
-
                         );
 
                         break;

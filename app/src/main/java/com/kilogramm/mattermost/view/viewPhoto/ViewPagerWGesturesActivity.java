@@ -4,20 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityPhotoViewerBinding;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * Created by melkshake on 08.11.16.
  */
 
-public class ViewPagerWGesturesActivity extends BaseActivity implements VerticalSwipeListener{
+public class ViewPagerWGesturesActivity extends BaseActivity implements VerticalSwipeListener/*, TouchImageAdapter.SwipeToNextItemListener */{
 
     public static final String IMAGE_URL = "image_url";
     public static final String TITLE = "title";
@@ -26,7 +27,11 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
 
-    public static void start(Context context, View view, String title, String imageUrl, ArrayList<String> photoList) {
+    private ArrayList<String> photosList;
+    private String clickedImageUri;
+    String fulPhotoName;
+
+    public static void start(Context context, String title, String imageUrl, ArrayList<String> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
         starter
                 .putExtra(TITLE, title)
@@ -40,16 +45,32 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
-
-        setupToolbar(getIntent().getStringExtra(TITLE), true);
+        setupToolbar(binding.toolbar, getIntent().getStringExtra(TITLE), true);
         setColorScheme(R.color.black, R.color.black);
 
-        adapter = new TouchImageAdapter(
-                binding,
-                //getIntent().getStringExtra(IMAGE_URL),
-                getIntent().getStringArrayListExtra(PHOTO_LIST));
+        photosList = getIntent().getStringArrayListExtra(PHOTO_LIST);
+        clickedImageUri = getIntent().getStringExtra(IMAGE_URL);
+
+        adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList, this);
 
         binding.viewPager.setAdapter(adapter);
+        binding.viewPager.setCurrentItem(photosList.indexOf(clickedImageUri));
+        binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                fulPhotoName = photosList.get(position);
+                String[] parsedName = fulPhotoName.split("/");
+                setupToolbar(parsedName[parsedName.length-1], true);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
     }
 
     @Override
@@ -64,6 +85,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
 
     @Override
     public void onSwipe() {
-        this.finish();
+        finish();
     }
 }
