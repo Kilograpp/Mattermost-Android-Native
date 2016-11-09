@@ -31,8 +31,8 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
     public RealmAD(RealmResults<T> adapterData) {
         this.adapterData = adapterData;
         this.adapterData.addChangeListener(getRealmChangeListener());
-        this.animatePrimaryColumnIndex = adapterData.getTableOrView().getTable().getPrimaryKey();
-        this.animatePrimaryIdType = adapterData.getTableOrView().getColumnType(this.animatePrimaryColumnIndex);
+        this.animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
+        this.animatePrimaryIdType = adapterData.getTable().getColumnType(this.animatePrimaryColumnIndex);
     }
 
 
@@ -104,7 +104,7 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         Row row = proxy.realmGet$proxyState().getRow$realm();
         Object rowPrimaryId;
 
-        animatePrimaryColumnIndex = adapterData.getTableOrView().getTable().getPrimaryKey();
+        animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
         if(this.animatePrimaryIdType == RealmFieldType.INTEGER) {
             rowPrimaryId = row.getLong(this.animatePrimaryColumnIndex);
         } else {

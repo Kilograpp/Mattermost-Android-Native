@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
@@ -60,6 +61,16 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channel_id}/")
+    Observable<ChannelWithMember> getChannel(@Path("teamId") String teamId,
+                                                  @Path("channel_id") String channelId);
+
 
     @Headers({
             "Accept: application/json",

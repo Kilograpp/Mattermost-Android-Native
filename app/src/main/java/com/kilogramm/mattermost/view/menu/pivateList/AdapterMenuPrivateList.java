@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
+import com.kilogramm.mattermost.model.entity.member.MemberById;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListHolder;
 
@@ -17,6 +20,7 @@ import java.util.List;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
+import io.realm.RealmResults;
 
 /**
  * Created by Evgeny on 18.08.2016.
@@ -76,6 +80,13 @@ public class AdapterMenuPrivateList extends RealmRecyclerViewAdapter<Channel, Me
     @Override
     public void onBindViewHolder(MenuChannelListHolder holder, int position) {
         Channel channel = getData().get(position);
+        Member member = null;
+
+        RealmResults<Member> memberRealmResults = MembersRepository.query(new MemberById(channel.getId()));
+        memberRealmResults.addChangeListener(element -> notifyDataSetChanged());
+        if ( memberRealmResults.size()!=0){
+            member = memberRealmResults.first();
+        }
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
@@ -91,7 +102,7 @@ public class AdapterMenuPrivateList extends RealmRecyclerViewAdapter<Channel, Me
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
-        holder.bindTo(channel, context);
+        holder.bindTo(channel, context, member);
     }
 
     @Override

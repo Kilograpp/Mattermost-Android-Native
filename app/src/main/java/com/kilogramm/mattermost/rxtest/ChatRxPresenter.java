@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
@@ -130,6 +131,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         (channelsWithMembers, extraInfo) -> {
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
+                            MembersRepository.add(channelsWithMembers.getMembers().values());
                             return extraInfo;
                         }))
                 , (chatRxFragment, extraInfo) -> {
