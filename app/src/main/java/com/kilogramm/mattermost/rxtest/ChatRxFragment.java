@@ -185,6 +185,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
 
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -319,6 +324,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
+
 
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == CAMERA_PIC_REQUEST) {

@@ -3,10 +3,13 @@ package com.kilogramm.mattermost.view.channel;
 import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -20,6 +23,7 @@ import com.kilogramm.mattermost.model.entity.team.TeamRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.presenter.channel.ChannelPresenter;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
+import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.RealmResults;
@@ -44,8 +48,40 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         initView();
         setToolbar();
         initClick();
+        setCTollBarTitle(getPresenter().getChannel().getDisplayName());
 
+    }
 
+    public void setCTollBarTitle(final String name) {
+        binding.layoutAppBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = false;
+            boolean isNotColapsed = true;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    if (isNotColapsed) {
+                        binding.toolbarText.startAnimation(AnimationUtils.loadAnimation(
+                                binding.getRoot().getContext(), R.anim.visible_anim));
+                        binding.toolbarText.setText(name);
+                        binding.layoutName.setVisibility(View.INVISIBLE);
+                        isNotColapsed = false;
+                        isShow = true;
+                    }
+                } else if (isShow) {
+                    binding.toolbarText.startAnimation(AnimationUtils.loadAnimation(
+                            binding.getRoot().getContext(), R.anim.visible_anim));
+                    binding.toolbarText.setText(getString(R.string.channel_info));
+                    binding.layoutName.setVisibility(View.VISIBLE);
+                    isNotColapsed = true;
+                    isShow = false;
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -62,8 +98,17 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
 
         Channel channel = getPresenter().getChannel();
 
+        channel.addChangeListener(element -> {
+            binding.channelName.setText(channel.getDisplayName());
+            binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
+            binding.headerDescription.setText(channel.getHeader());
+            binding.purposeDescription.setText(channel.getPurpose());
+        });
+
         binding.channelName.setText(channel.getDisplayName());
         binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
+        binding.channelIcon.getBackground()
+                .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
         binding.headerDescription.setText(channel.getHeader());
         binding.purposeDescription.setText(channel.getPurpose());
         binding.urlDescription.setText(getMessageLink(channel.getName()));
@@ -108,6 +153,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             } else startDialog(id);
         }
     }
+
     public void startGeneralActivity() {
         GeneralRxActivity.start(this, null);
     }
@@ -126,16 +172,19 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     private void initClick() {
         binding.header.setOnClickListener(this);
         binding.purpose.setOnClickListener(this);
+        binding.channelName.setOnClickListener(this);
+        binding.channelIcon.setOnClickListener(this);
         binding.url.setOnClickListener(this);
         binding.id.setOnClickListener(this);
         binding.leave.setOnClickListener(this);
         binding.seeAll.setOnClickListener(this);
         binding.addMembers.setOnClickListener(this);
+        binding.toolbarText.setOnClickListener(this);
     }
 
     private void setToolbar() {
-        setupToolbar(getString(R.string.channel_info), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+        binding.toolbarText.setText(getString(R.string.channel_info));
+        setupToolbar(null, true);
     }
 
     public static void start(Activity activity, String channelId) {
@@ -144,9 +193,26 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         activity.startActivityForResult(starter, REQUEST_ID);
     }
 
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.toolbarText:
+                if (getPresenter().getChannel().getDisplayName().equals(binding.toolbarText.getText()))
+                    NameActivity.start(this, channelId);
+                break;
+            case R.id.channel_icon:
+                NameActivity.start(this, channelId);
+                break;
+            case R.id.channelName:
+                NameActivity.start(this, channelId);
+                break;
+            case R.id.header:
+                HeaderActivity.start(this, getPresenter().getChannel().getHeader(), channelId);
+                break;
+            case R.id.purpose:
+                PurposeActivity.start(this, getPresenter().getChannel().getPurpose(), channelId);
+                break;
             case R.id.seeAll:
                 AllMembersActivity.start(this, channelId);
                 break;
@@ -161,7 +227,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
+        setResult(RESULT_CANCELED, new Intent());
+        finish();
         return super.onOptionsItemSelected(item);
     }
 }

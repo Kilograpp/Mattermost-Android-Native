@@ -222,6 +222,11 @@ public class Channel extends RealmObject implements Parcelable {
         return header;
     }
 
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
     /**
      *
      * @return
@@ -229,6 +234,11 @@ public class Channel extends RealmObject implements Parcelable {
      */
     public String getPurpose() {
         return purpose;
+    }
+
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     /**
@@ -276,6 +286,27 @@ public class Channel extends RealmObject implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
+    public Channel(Channel channel) {
+        this.id = channel.getId();
+        this.createAt = channel.getCreateAt();
+        this.updateAt = channel.getUpdateAt();
+        this.deleteAt = channel.getDeleteAt();
+        this.teamId = channel.getTeamId();
+        this.type = channel.getType();
+        this.displayName = channel.getDisplayName();
+        this.name = channel.getName();
+        this.header = channel.getHeader();
+        this.purpose = channel.getPurpose();
+        this.lastPostAt = channel.getLastPostAt();
+        this.totalMsgCount = channel.getTotalMsgCount();
+        this.extraUpdateAt = channel.getExtraUpdateAt();
+        this.creatorId = channel.getCreatorId();
+        this.username = channel.getUsername();
+        this.user = channel.getUser();
+        this.unreadedMessage = channel.getUnreadedMessage();
+    }
+
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {

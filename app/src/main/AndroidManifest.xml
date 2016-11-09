@@ -56,6 +56,21 @@
         </activity>
 
         <activity
+            android:name=".view.channel.HeaderActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.PurposeActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.NameActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
             android:name=".view.channel.AllMembersActivity"
             android:screenOrientation="portrait">
         </activity>
@@ -73,6 +88,7 @@
         <activity
             android:name=".rxtest.GeneralRxActivity"
             android:screenOrientation="portrait" />
+
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"

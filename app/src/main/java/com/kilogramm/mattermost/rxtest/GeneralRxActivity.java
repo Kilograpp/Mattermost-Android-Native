@@ -20,6 +20,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -178,11 +179,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }
     }
 
-    public void closeProgressBar(){
+    public void closeProgressBar() {
         binding.progressBar.setVisibility(View.GONE);
     }
 
-    public void showProgressBar(){
+    public void showProgressBar() {
         binding.progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -206,21 +207,23 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 privateListFragment.resetSelectItem();
                 break;
         }
-        setSelectItemMenu(channelId,type);
+        setSelectItemMenu(channelId, type);
         MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
     private void replaceFragment(String channelId, String channelName) {
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-            currentChannel = channelId;getFragmentManager().beginTransaction()
+            currentChannel = channelId;
+            getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            if(searchMessageId != null){
+            if (searchMessageId != null) {
                 ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-                currentChannel = channelId;getFragmentManager().beginTransaction()
+                currentChannel = channelId;
+                getFragmentManager().beginTransaction()
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -271,8 +274,19 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_CANCELED)
+            if (requestCode == ChannelActivity.REQUEST_ID)
+                ((ChatRxFragment) getFragmentManager()
+                        .findFragmentById(binding.contentFrame.getId()))
+                        .setChannelName(
+                                ChannelRepository
+                                        .query(new ChannelRepository
+                                                .ChannelByIdSpecification(currentChannel))
+                                        .first()
+                                        .getDisplayName());
+
         if (resultCode == RESULT_OK) {
-            if(requestCode == ChannelActivity.REQUEST_ID){
+            if (requestCode == ChannelActivity.REQUEST_ID) {
                 getPresenter().setFirstChannelBeforeLeave();
             }
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {

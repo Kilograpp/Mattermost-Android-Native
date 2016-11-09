@@ -1,40 +1,32 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#efeff4"
         android:orientation="vertical">
 
-        <include layout="@layout/toolbar_layout" />
-
-        <FrameLayout
-            android:id="@+id/progressBar"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/layout_app_bar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="@dimen/progress_bar">
-        <ProgressBar
-            android:layout_width="@dimen/progress_bar"
-            android:layout_height="@dimen/progress_bar"
-            android:layout_gravity="center"/>
-        </FrameLayout>
-
-        <ScrollView
-            android:id="@+id/layoutData"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/background_activity_grey"
-            android:visibility="gone">
-
-            <LinearLayout
+            android:layout_height="wrap_content">
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:fitsSystemWindows="true"
+                android:background="@color/colorPrimary"
+                app:titleEnabled="false"
+                app:expandedTitleMarginStart="100dp"
+                app:contentScrim="@color/colorPrimary"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
                 <LinearLayout
+                    android:id="@+id/layoutName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
+                    android:paddingTop="?android:actionBarSize"
                     android:orientation="horizontal">
 
                     <TextView
@@ -43,10 +35,9 @@
                         android:layout_width="@dimen/circle_icon_size"
                         android:layout_height="@dimen/circle_icon_size"
                         android:layout_margin="@dimen/activity_horizontal_margin"
-                        android:background="@drawable/circle_backgraund_channel"
+                        android:background="@drawable/circle_backgraund"
                         android:gravity="center"
-                        app:textAllCaps="true"
-                        />
+                        app:textAllCaps="true" />
 
                     <TextView
                         android:id="@+id/channelName"
@@ -54,9 +45,55 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:maxLines="1"
-                        />
+                        android:maxLines="1" />
                 </LinearLayout>
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+                    <TextView
+                        android:id="@+id/toolbarText"
+                        style="@style/textNormalTitleWhite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAllCaps="true"
+                        android:layout_gravity="center_vertical"
+                        android:maxLines="1" />
+                </android.support.v7.widget.Toolbar>
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+
+
+        <FrameLayout
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:paddingBottom="@dimen/progress_bar">
+
+            <ProgressBar
+                android:layout_width="@dimen/progress_bar"
+                android:layout_height="@dimen/progress_bar"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/layoutData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
 
                 <android.support.v7.widget.CardView
                     android:id="@+id/header"
@@ -64,8 +101,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_start"
-                    app:cardCornerRadius="0dp"
-                    android:tag="true">
+                    android:tag="true"
+                    app:cardCornerRadius="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -96,8 +133,8 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="0dp"
-                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
+                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow"
+                    app:cardCornerRadius="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -129,8 +166,8 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="0dp"
-                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
+                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow"
+                    app:cardCornerRadius="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -161,8 +198,8 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="0dp"
-                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
+                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow"
+                    app:cardCornerRadius="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -194,8 +231,8 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="0dp"
-                    android:layout_marginTop="@dimen/activity_vertical_start">
+                    android:layout_marginTop="@dimen/activity_vertical_start"
+                    app:cardCornerRadius="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -245,8 +282,8 @@
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="0dp"
-                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
+                    android:layout_marginTop="@dimen/cardview_compat_inset_shadow"
+                    app:cardCornerRadius="0dp">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/list"
@@ -256,14 +293,14 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    style="@style/CardView.Light"
                     android:id="@+id/leave"
+                    style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_start"
                     android:layout_marginTop="@dimen/activity_vertical_start"
-                    app:cardCornerRadius="0dp"
-                    android:tag="true">
+                    android:tag="true"
+                    app:cardCornerRadius="0dp">
 
                     <TextView
                         style="@style/textRed"
@@ -274,6 +311,6 @@
                         android:text="@string/channel_info_leave_channel" />
                 </android.support.v7.widget.CardView>
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
+    </android.support.design.widget.CoordinatorLayout>
 </layout>

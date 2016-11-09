@@ -52,7 +52,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-        MattermostApp.getSingleton();
 
         initRequests();
     }

@@ -18,6 +18,8 @@ import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
+import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
+import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 
 import java.util.List;
 import java.util.Map;
@@ -272,4 +274,29 @@ public interface ApiMethod {
     Observable<AddMembersPresenter.Members> addMember(@Path("teamId") String teamId,
                                                       @Path("channelId") String channelId,
                                                       @Body AddMembersPresenter.Members members);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/update_header")
+    Observable<Channel> updateHeader(@Path("teamId") String teamId,
+                                                      @Body HeaderPresenter.ChannelHeader channelHeader);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/update_purpose")
+    Observable<Channel> updatePurpose(@Path("teamId") String teamId,
+                                     @Body PurposePresenter.ChannelPurpose channelPurpose);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/update")
+    Observable<Channel> updateChannel(@Path("teamId") String teamId,
+                                      @Body Channel channel);
+
 }
