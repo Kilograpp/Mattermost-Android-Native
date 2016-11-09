@@ -69,13 +69,13 @@ public class TopMembersAdapter extends ListRecyclerViewAD<User, TopMembersAdapte
 
     @Override
     public int getItemCount() {
-        return 5;
+        return getrData().size() > 5 ? 5 : getrData().size();
     }
 
     public String getStatus(String id) {
         try {
             return UserStatusRepository.query(new StatusByIdSpecification(id)).first().getStatus();
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return "";
         }
