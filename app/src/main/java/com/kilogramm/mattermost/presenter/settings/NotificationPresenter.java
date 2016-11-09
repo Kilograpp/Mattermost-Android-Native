@@ -102,7 +102,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     public String getMentionsAll() {
         String result = "";
         if (isFirstNameTrigger()) {
-            result = "\"" + getFirstName() + "\",";
+            result = "\"" + getFirstName() + "\"";
         }
         if (notifyProps != null) {
             String[] mentions = notifyProps.getMentionKeys().split(",");
