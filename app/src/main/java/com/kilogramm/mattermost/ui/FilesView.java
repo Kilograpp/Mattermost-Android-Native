@@ -116,6 +116,7 @@ public class FilesView extends GridLayout {
 
                 switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
+                    case JPG:
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
@@ -128,28 +129,10 @@ public class FilesView extends GridLayout {
 
                             ViewPagerWGesturesActivity.start(getContext(),
                                     binding.title.getText().toString(),
-                                    getImageUrl(fileName),
-                                    photoUriList)
+                                    fileName,
+                                    (ArrayList<String>) fileList)
 
                         );
-                        break;
-                    case JPG:
-                        binding.image.setVisibility(VISIBLE);
-                        binding.circleFrame.setVisibility(GONE);
-                        initAndAddItem(binding, getImageUrl(fileName));
-
-                        binding.image.setOnClickListener(view ->
-//                            ImageViewerActivity.start(getContext(),
-//                                    binding.image,
-//                                    binding.title.getText().toString(),
-//                                    getImageUrl(fileName))
-
-                              ViewPagerWGesturesActivity.start(getContext(),
-                                      binding.title.getText().toString(),
-                                      getImageUrl(fileName),
-                                      photoUriList)
-                        );
-
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));

@@ -41,9 +41,6 @@ import rx.schedulers.Schedulers;
  */
 
 public class FileDownloadManager {
-
-    private static final String TAG = "FileDownloadManager";
-
     private static FileDownloadManager instance;
 
     private Map<String, FileDownloadListener> fileDownloadListeners;
@@ -65,6 +62,11 @@ public class FileDownloadManager {
 
     public void addItem(String fileId, FileDownloadListener fileDownloadListener) {
         fileDownloadListeners.put(fileId, fileDownloadListener);
+        FileToAttachRepository.getInstance().addForDownload(fileId);
+        startDownload();
+    }
+
+    public void addItem(String fileId) {
         FileToAttachRepository.getInstance().addForDownload(fileId);
         startDownload();
     }
@@ -138,9 +140,8 @@ public class FileDownloadManager {
                     startDownload();
                 }
 
-                final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
-
                 if (bytes_total > 0) {
+                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
                     if (fileDownloadListeners.get(fileId) != null) {
                         fileDownloadListeners.get(fileId).onProgress(dl_progress);
                     }

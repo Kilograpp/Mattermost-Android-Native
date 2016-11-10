@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -55,7 +56,7 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Picasso.with(getContext())
-                .load(imageUri)
+                .load(FileUtil.getInstance().getImageUrl(imageUri))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
                 .into(photoBinding.image, new Callback() {
                     @Override
