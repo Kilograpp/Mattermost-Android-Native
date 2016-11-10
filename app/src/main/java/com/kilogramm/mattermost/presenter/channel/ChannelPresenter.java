@@ -12,6 +12,7 @@ import com.kilogramm.mattermost.model.entity.ListSaveData;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -76,11 +77,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
-                    this.extraInfo = extraInfo;
-
+                    ExtroInfoRepository.update(extraInfo);
                     requestMembers();
                 }, (channelActivity, throwable) ->
-                        sendError(getError(throwable))
+                        sendError("Error loading data")
         );
     }
 
@@ -148,7 +148,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void requestMembers() {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) ->
-                channelActivity.initiationData(extraInfo)));
+                channelActivity.initiationData(ExtroInfoRepository.query(
+                        new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
     private void requestFinish() {
