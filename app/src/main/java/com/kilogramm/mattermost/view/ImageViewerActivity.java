@@ -36,11 +36,14 @@ public class ImageViewerActivity extends BaseActivity {
 
     private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
     private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+
     ColorDrawable mBackground;
+
     int mLeftDelta;
     int mTopDelta;
     float mWidthScale;
     float mHeightScale;
+
     private String imageUrl;
     private ActivityImageViewerBinding binding;
     private ImageViewerViewModel viewModel;
@@ -233,10 +236,8 @@ public class ImageViewerActivity extends BaseActivity {
         shadowAnim.start();
         // Animate a color filter to take the image back to grayscale,
         // in parallel with the image scaling and moving into place.
-        ObjectAnimator colorizer =
-                ObjectAnimator.ofFloat(ImageViewerActivity.this, "saturation", 1, 0);
+        ObjectAnimator colorizer = ObjectAnimator.ofFloat(ImageViewerActivity.this, "saturation", 1, 0);
         colorizer.setDuration(duration);
         colorizer.start();
-
     }
 }

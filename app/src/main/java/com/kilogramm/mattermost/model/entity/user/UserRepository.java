@@ -85,6 +85,7 @@ public class UserRepository {
         me.setUsername(user.getUsername());
         me.setFirstName(user.getFirstName());
         me.setLastName(user.getLastName());
+        me.setEmail(user.getEmail());
         realm.copyToRealmOrUpdate(me);
         realm.commitTransaction();
     }
@@ -104,7 +105,6 @@ public class UserRepository {
                     .findAll();
         }
     }
-
 
     public static class UserByIdsSpecification implements RealmSpecification {
 

@@ -38,7 +38,6 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-
     <!--SCROLLBAR-->
     <style name="scrollbar_shape_style">
         <item name="android:scrollbarAlwaysDrawVerticalTrack">false</item>
@@ -48,7 +47,6 @@
         <item name="android:scrollbarThumbVertical">@drawable/scroll_bar_vertical_thumb</item>
         <item name="android:scrollbarSize">5dp</item>
     </style>
-
 
     <!-- For dialog picker-->
     <style name="FilePickerTheme" parent="NNF_BaseTheme.Light">
@@ -63,7 +61,6 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/file_picker_icon</item>
     </style>
-
 
     <!--POPUP MENU-->
     <style name="PopupMenu" parent="@android:style/Widget.DeviceDefault.Light.PopupMenu">
@@ -87,8 +84,12 @@
         <item name="android:textColor">@color/title_blue</item>
     </style>
 
-    <style name="textNormalBlue" parent="@style/textBlue">
+    <style name="textNormalBlue" parent="@style/textBlue"/>
+
+    <style name="textDarkGreyCaps" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/dark_grey</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="textLittleBlue" parent="@style/textBlue">

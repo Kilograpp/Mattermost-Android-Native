@@ -21,6 +21,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.settings.EmailEditActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 import com.squareup.picasso.Picasso;
 
@@ -143,7 +144,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                     "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
                     .show();
         }
-
     }
 
     private void openImageIntent() {
@@ -211,8 +211,10 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     private void initView() {
         invalidateView();
         mBinding.notification.setOnClickListener(v -> NotificationActivity.start(this));
-        mBinding.changeEmail.setOnClickListener(v ->
-                Toast.makeText(this, "in development", Toast.LENGTH_SHORT).show());
+
+        mBinding.changeEmail.setOnClickListener(v -> EmailEditActivity.start(
+                EditProfileRxActivity.this));
+
         mBinding.changeAvatar.setOnClickListener(v -> openImageIntent());
 
         Picasso.with(this)
