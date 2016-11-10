@@ -37,8 +37,8 @@
 
                 <ImageView
                     android:id="@+id/selectAll"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -63,8 +63,8 @@
 
                 <ImageView
                     android:id="@+id/selectMentionsDirect"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -89,8 +89,8 @@
 
                 <ImageView
                     android:id="@+id/selectNever"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -132,8 +132,8 @@
 
                 <ImageView
                     android:id="@+id/selectAllTriger"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -158,8 +158,8 @@
 
                 <ImageView
                     android:id="@+id/selectAwayOff"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -184,8 +184,8 @@
 
                 <ImageView
                     android:id="@+id/selectOff"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
