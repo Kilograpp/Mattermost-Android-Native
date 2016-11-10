@@ -42,9 +42,10 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/header_picture"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginRight="8dp" />
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="12dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -102,7 +103,10 @@
                     android:layout_marginBottom="1dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:contentPadding="15dp">
+                    app:contentPaddingLeft="15dp"
+                    app:contentPaddingTop="15dp"
+                    app:contentPaddingRight="15dp"
+                    app:contentPaddingBottom="5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -117,6 +121,8 @@
                             android:textColor="@color/grey" />
 
                         <EditText
+                            android:paddingLeft="0dp"
+                            android:paddingRight="0dp"
                             android:id="@+id/edit_first_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -135,7 +141,10 @@
                     android:layout_marginBottom="1dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:contentPadding="15dp">
+                    app:contentPaddingLeft="15dp"
+                    app:contentPaddingTop="15dp"
+                    app:contentPaddingRight="15dp"
+                    app:contentPaddingBottom="5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -150,6 +159,8 @@
                             android:textColor="@color/grey" />
 
                         <EditText
+                            android:paddingLeft="0dp"
+                            android:paddingRight="0dp"
                             android:id="@+id/edit_last_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -168,7 +179,10 @@
                     android:layout_marginBottom="1dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:contentPadding="15dp">
+                    app:contentPaddingLeft="15dp"
+                    app:contentPaddingTop="15dp"
+                    app:contentPaddingRight="15dp"
+                    app:contentPaddingBottom="5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -183,6 +197,8 @@
                             android:textColor="@color/grey" />
 
                         <EditText
+                            android:paddingLeft="0dp"
+                            android:paddingRight="0dp"
                             android:id="@+id/edit_user_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -200,7 +216,10 @@
                     android:layout_marginBottom="1dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:contentPadding="15dp">
+                    app:contentPaddingLeft="15dp"
+                    app:contentPaddingTop="15dp"
+                    app:contentPaddingRight="15dp"
+                    app:contentPaddingBottom="5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -215,6 +234,8 @@
                             android:textColor="@color/grey" />
 
                         <EditText
+                            android:paddingLeft="0dp"
+                            android:paddingRight="0dp"
                             android:id="@+id/edit_nick_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
