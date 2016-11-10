@@ -38,7 +38,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public static final int REQUEST_ID = 201;
     ChannelActivityBinding binding;
     String channelId;
-    TopMembersAdapter topMembersAdapter;
+    AllMembersAdapter allMembersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,11 +139,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     public void setAdapter(ExtraInfo extraInfo) {
-        topMembersAdapter = new TopMembersAdapter(
+        allMembersAdapter = new AllMembersAdapter(
                 this,
                 id -> openDirect(id),
-                extraInfo.getMembers());
-        binding.list.setAdapter(topMembersAdapter);
+                extraInfo.getMembers(), true);
+        binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         binding.list.setNestedScrollingEnabled(false);
     }

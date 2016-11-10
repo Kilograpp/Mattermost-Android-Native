@@ -80,7 +80,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ExtroInfoRepository.update(extraInfo);
                     requestMembers();
                 }, (channelActivity, throwable) ->
-                        sendError(getError(throwable))
+                        sendError("Error loading data")
         );
     }
 
