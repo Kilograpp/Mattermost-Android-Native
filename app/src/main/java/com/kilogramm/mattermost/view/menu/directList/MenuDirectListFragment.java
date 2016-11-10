@@ -53,7 +53,7 @@ public class MenuDirectListFragment extends BaseFragment<MenuDirectListPresenter
                 container, false);
         View view = binding.getRoot();
 
-        binding.btnMore.setOnClickListener(view1 -> getPresenter().onMoreClick());
+        binding.btnMore.setOnClickListener(view1 -> getPresenter().onMoreClick());  //TODO лишний вход в презентер как по мне
 
         setupRecyclerViewDirection();
 

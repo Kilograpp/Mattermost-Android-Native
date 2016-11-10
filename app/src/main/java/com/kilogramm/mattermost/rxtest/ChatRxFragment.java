@@ -13,6 +13,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -55,6 +58,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -177,11 +181,24 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } else {
             getPresenter().requestExtraInfo();
         }
+
         binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+
+        binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
+                if (v == binding.writingMessage && !hasFocus) {
+                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+        });
     }
 
     public void slideToMessageById() {
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+    }
+
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     @Override
@@ -189,8 +206,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         super.onResume();
         setupToolbar("", channelName, v -> {
             RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
-            if (users != null)
-                ProfileRxActivity.start(getActivity(), users.first().getId());
+            if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
+            else ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
     }
@@ -318,6 +335,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
+
 
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == CAMERA_PIC_REQUEST) {
@@ -720,14 +738,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void showPopupMenu(View view, Post post) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+
         if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
             popupMenu.inflate(R.menu.my_chat_item_popupmenu);
         } else {
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
+
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
                     R.layout.edit_dialog_layout, null, false);
+
             switch (menuItem.getItemId()) {
                 case R.id.edit:
                     rootPost = post;
@@ -763,12 +784,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
                 R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
+
         if (type.equals(REPLY_MESSAGE))
             binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
         else {
             binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
             binding.btnSend.setText(R.string.save);
         }
+
         binding.editReplyMessageLayout.editableText.setText(message);
         binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);

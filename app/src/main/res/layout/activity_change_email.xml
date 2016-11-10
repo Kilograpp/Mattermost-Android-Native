@@ -19,6 +19,31 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="30dp"
+            android:text="@string/current_email"
+            style="@style/textDarkGreyCaps"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/changePassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="15dp"
+            app:cardBackgroundColor="@color/white">
+
+            <TextView
+                android:id="@+id/currentEmail"
+                style="@style/textVeryBigBlack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="15dp" />
+        </android.support.v7.widget.CardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="15dp"
             android:text="@string/new_email"
@@ -37,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_margin="10dp"
+                    android:layout_margin="15dp"
                     android:hint="@string/enter_new_email"
                     tools:text="Maria Reynolds"
                     android:maxLines="1"
@@ -45,36 +70,6 @@
                     android:background="@null"/>
 
         </android.support.v7.widget.CardView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="30dp"
-            android:text="@string/current_password"
-            style="@style/textDarkGreyCaps"/>
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/changePassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="15dp"
-            app:cardBackgroundColor="@color/white">
-
-            <EditText
-                android:id="@+id/currentPassword"
-                style="@style/textVeryBigBlack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="10dp"
-                tools:text="Maria Reynolds"
-                android:inputType="textPassword"
-                android:background="@null"/>
-        </android.support.v7.widget.CardView>
-
-
     </LinearLayout>
 </layout>
 

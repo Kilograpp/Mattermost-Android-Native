@@ -8,7 +8,7 @@
     <color name="white">#FFF</color>
     <color name="black">#000</color>
     <color name="dark_grey">#606060</color>
-    <color name="grey">#999999</color>
+    <color name="grey">#8798a4</color>
     <color name="light_grey">#c9c9c9</color>
     <color name="very_light_grey">#d7dee3</color>
     <color name="very_much_light_grey">#e7eef3</color>
@@ -31,4 +31,13 @@
     <color name="color_highlight">#d3ddfb</color>
     <color name="color_header">#3082b7</color>
 
+    <color name="light_blue">#007aff</color>
+
+    <!--Channel-->
+    <color name="textColorRed">#e21b3e</color>
+    <color name="icon_team_color_start">#006bd7</color>
+    <color name="icon_team_color_end">#008edc</color>
+    <color name="icon_team_color_shadow">#00658f</color>
+    <color name="title_grey">#8798a4</color>
+    <color name="title_blue">#007aff</color>
 </resources>

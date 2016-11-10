@@ -94,6 +94,7 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
         hideKeyboard(this);
     }
 
+
     public static void start(Context context, Integer flags) {
         Intent starter = new Intent(context, MainRxAcivity.class);
         if (flags != null) {

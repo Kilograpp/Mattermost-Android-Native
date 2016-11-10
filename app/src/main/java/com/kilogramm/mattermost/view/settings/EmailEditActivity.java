@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -44,6 +45,9 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.edit_email));
 
+        User editedUser = new User(UserRepository.query(new UserRepository.
+                UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
+        binding.currentEmail.setText(editedUser.getEmail());
     }
 
     @Override
@@ -68,9 +72,17 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     }
 
     private void onClickSave() {
-        Intent intent = new Intent();
-        intent.putExtra(ProfileRxActivity.EDITED_EMAIL, binding.newEmail.getText().toString());
-        setResult(RESULT_OK, intent);
+        hideKeyboard(this);
+        String newEmail = binding.newEmail.getText().toString();
+        if(newEmail !=null && newEmail.length() > 0
+                && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()){
+            User editedUser = new User(UserRepository.query(new UserRepository.
+                    UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
+            editedUser.setEmail(binding.newEmail.getText().toString());
+            getPresenter().requestSave(editedUser);
+        } else {
+            showErrorText(getString(R.string.invalid_email));
+        }
     }
 
     public static void start(Context context) {
@@ -78,8 +90,7 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
         context.startActivity(starter);
     }
 
-    public static void startForResult(Activity context, int requestCode) {
-        Intent starter = new Intent(context, EmailEditActivity.class);
-        context.startActivityForResult(starter, requestCode);
+    public void showSuccessMessage(){
+        Toast.makeText(this, getString(R.string.verify_email), Toast.LENGTH_SHORT).show();
     }
 }

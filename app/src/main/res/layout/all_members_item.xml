@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/memberIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/memberIcon"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/memberIcon"
+            android:background="@color/light_grey" />
+
+        <TextView
+            android:id="@+id/memberName"
+            style="@style/textVeryBigDarkGrey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="50dp"
+            android:layout_toEndOf="@+id/memberIcon"
+            android:layout_toRightOf="@+id/openMembers"
+            android:padding="2dp"
+            android:layout_marginRight="@dimen/activity_vertical_start"
+            />
+
+        <ImageView
+            android:id="@+id/openMembers"
+            style="@style/textVeryBigDarkGrey"
+            android:foregroundGravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            app:srcCompat="@drawable/ic_open_member"
+          />
+
+    </RelativeLayout>
+</layout>

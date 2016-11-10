@@ -24,11 +24,7 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(ProfileRxPresenter.class)
 public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
-    private static final int EMAIL_EDIT_REQUEST_CODE = 1;
-
     private static final String USER_ID = "user_id";
-
-    public static final String EDITED_EMAIL = "EDITED_EMAIL";
 
     private ActivitySettingsBinding mBinding;
 
@@ -70,9 +66,6 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
                 .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .into(mBinding.headerPicture);
-
-        mBinding.changeEmail.setOnClickListener(v -> EmailEditActivity.startForResult(
-                ProfileRxActivity.this, EMAIL_EDIT_REQUEST_CODE));
     }
 
     public String getAvatarUrl() {
@@ -113,15 +106,5 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
         Intent starter = new Intent(context, ProfileRxActivity.class);
         starter.putExtra(USER_ID, userId);
         context.startActivity(starter);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK && requestCode == EMAIL_EDIT_REQUEST_CODE){
-            if(data != null && data.getExtras() != null){
-                mBinding.email.setText(data.getStringExtra(EDITED_EMAIL));
-            }
-        }
     }
 }

@@ -113,11 +113,31 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    public static void showKeyboard(Activity activity) {
+        if (activity == null) return;
+
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+
+        imm.showSoftInput(view, 0);
+    }
+
     public void showErrorText(String text) {
         Snackbar error = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
         error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
         error.setActionTextColor(getResources().getColor(R.color.white));
         error.show();
+        //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showGoodText(String text) {
+        Snackbar good = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
+        good.setActionTextColor(getResources().getColor(R.color.white));
+        good.show();
         //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 }

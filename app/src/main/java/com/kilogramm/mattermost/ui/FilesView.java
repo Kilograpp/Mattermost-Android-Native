@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -23,9 +24,15 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,11 +104,15 @@ public class FilesView extends GridLayout {
                     FileDownloadManager.getInstance().addListener(fileName, fileDownloadListener);
                 }
 
+                binding.fileSize.setVisibility(VISIBLE);
+
                 switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
+                        binding.image.setVisibility(VISIBLE);
+                        binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
                         binding.image.setOnClickListener(view -> {
-                            Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
                             ImageViewerActivity.start(getContext(),
                                     binding.image,
                                     binding.title.getText().toString(),
@@ -110,11 +121,14 @@ public class FilesView extends GridLayout {
                         });
                         break;
                     case JPG:
+                        binding.image.setVisibility(VISIBLE);
+                        binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
-                        binding.image.setOnClickListener(view -> ImageViewerActivity.start(getContext(),
-                                binding.image,
-                                binding.title.getText().toString(),
-                                getImageUrl(fileName)));
+                        binding.image.setOnClickListener(view ->
+                            ImageViewerActivity.start(getContext(),
+                                    binding.image,
+                                    binding.title.getText().toString(),
+                                    getImageUrl(fileName)));
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));
@@ -140,21 +154,34 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
+
         Picasso.with(getContext())
                 .load(url)
-                .resize(150, 150).centerCrop()
+                .resize(300, 300)
+                .centerCrop()
                 .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
                 .into(binding.image);
         this.addView(binding.getRoot());
+
+        new Thread(() -> {
+            long fileSize = getRemoteFileSize(url);
+            Log.d(TAG, String.valueOf(fileSize));
+            if(fileSize > 0) {
+                binding.fileSize.post(() -> binding.fileSize.setText(FileUtil.getInstance()
+                        .convertFileSize(fileSize)));
+            }
+        }).start();
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
         return new FileDownloadManager.FileDownloadListener() {
             @Override
             public void onComplete(String fileId) {
-                binding.downloadFileControls.post(() ->
-                        binding.downloadFileControls.setVisibility(GONE));
+                binding.downloadFileControls.post(() -> {
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                });
             }
 
             @Override
@@ -174,7 +201,7 @@ public class FilesView extends GridLayout {
 
     private DownloadFileControls.ControlsClickListener createControlsClickListener(String fileName,
                                                                                    FileDownloadManager.FileDownloadListener fileDownloadListener,
-                                                                                   FilesItemLayoutBinding binding){
+                                                                                   FilesItemLayoutBinding binding) {
         return new DownloadFileControls.ControlsClickListener() {
             @Override
             public void onClickDownload() {
@@ -246,6 +273,25 @@ public class FilesView extends GridLayout {
                     + "/files/get" + id;
         } else {
             return "";
+        }
+    }
+
+    private long getRemoteFileSize(String fileUrl) {
+        try {
+            Log.d(TAG, fileUrl);
+            URL url = new URL(fileUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+            Log.d(TAG, urlConnection.getResponseMessage());
+            final long file_size = Long.parseLong(urlConnection.getHeaderField("Content-Length"));
+            urlConnection.disconnect();
+            return file_size;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return 0L;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0L;
         }
     }
 

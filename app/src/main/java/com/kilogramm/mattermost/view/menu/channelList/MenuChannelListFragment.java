@@ -85,7 +85,6 @@ public class MenuChannelListFragment extends Fragment {
 
     public interface OnChannelItemClickListener {
         void onChannelClick(String itemId, String name, String type);
-
         void onCreateChannelClick();
     }
 

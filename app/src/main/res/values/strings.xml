@@ -114,8 +114,6 @@
     <string name="mob_push_mentions_direct">For mentions and direct messages</string>
     <string name="mob_push_never">Never</string>
     <string name="mob_push_description_send">Notification alerts are pushed to your mobile device when there is activity in Mattermost.</string>
-
-
     <string name="mob_push_title_trigger">TRIGGER PUSH NOTIFICATIONS WHEN</string>
     <string name="mob_push_on_away_off">Online, away or offline</string>
     <string name="mob_push_away_off">Away or offline</string>
@@ -141,14 +139,23 @@
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
     <string name="email_description_end"> for more than 5 minutes.</string>
+    <string name="name">NAME</string>
+    <string name="username">USERNAME</string>
+    <string name="nickname">NICKNAME</string>
+    <string name="user_updated">User updated</string>
+    <string name="email_updated">Email updated</string>
+    <string name="avatar_updated">Avatar updated</string>
+    <string name="invalid_email">Invalid email</string>
 
                     <!-- Settings -->
     <string name="change_email">Change email</string>
     <string name="change_password">Change password</string>
     <string name="enter_new_email">Enter new email</string>
     <string name="new_email">New email</string>
+    <string name="current_email">Current email</string>
     <string name="current_password">Current password</string>
     <string name="edit_email">Edit email</string>
+    <string name="verify_email">Email successfully changed. We will send you the verification email</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>
@@ -159,5 +166,38 @@
     <string name="create_new_ch_gr_toolbar_gr">New Group</string>
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
+
+                    <!--About-->
+    <string name="about_team_edition">Mattermost Team Edition</string>
+    <string name="about_long_text">All your team communication in one place, instantly searchable and accessible anywhere.</string>
+    <string name="about_version">Version: 3.0.0(3.0.3)</string>
+    <string name="about_copyright">Copyright 2016 Mattermost, Inc. All rights reserved.</string>
+    <string name="about_mattermost_org">Join the Mattermost community at mattermost.org</string>
+    <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
+    <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
+
+
+    <!--Channel info-->
+    <string name="channel_info">Channel info</string>
+    <string name="channel_info_header">Header</string>
+    <string name="channel_info_purpose">Purpose</string>
+    <string name="channel_info_url">URL</string>
+    <string name="channel_info_id">ID</string>
+    <string name="channel_info_add_members">  Add Members</string>
+    <string name="channel_info_count_members">MEMBERS</string>
+    <string name="channel_info_see_all">SEE ALL</string>
+    <string name="channel_info_leave_channel">Leave Channel</string>
+
+    <string name="all_members_toolbar">All Members</string>
+    <string name="add_members_toolbar">Add Members</string>
+
+    <string name="channel_header">Edit header</string>
+    <string name="channel_header_toolbar">Channel Header</string>
+    <string name="channel_purpose">Edit purpose</string>
+    <string name="channel_purpose_toolbar">Channel Purpose</string>
+    <string name="channel_name_toolbar">Channel Name</string>
+    <string name="channel_display_name">Display Name</string>
+    <string name="channel_display_name_edit">Edit name</string>
+    <string name="channel_name_edit">Edit handle</string>
 
 </resources>

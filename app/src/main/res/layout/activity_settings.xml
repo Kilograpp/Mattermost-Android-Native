@@ -105,7 +105,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NAME"
+                            android:text="@string/name"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -128,7 +128,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="USERNAME"
+                            android:text="@string/username"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -151,7 +151,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NICKNAME"
+                            android:text="@string/nickname"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -183,7 +183,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="EMAIL"
+                            android:text="@string/email"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -217,67 +217,6 @@
                             android:textColor="@color/black"
                             tools:text="Maria Reynolds" />-->
 
-
-                    </LinearLayout>
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/changeEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:cardBackgroundColor="@color/white">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="15dp"
-                            app:srcCompat="@drawable/ic_email" />
-
-                        <TextView
-                            style="@style/textVeryBigBlack"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:paddingStart="15dp"
-                            android:text="@string/change_email"
-                            tools:text="Maria Reynolds" />
-
-                    </LinearLayout>
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/changePassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
-                    app:cardBackgroundColor="@color/white">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="15dp"
-                            app:srcCompat="@drawable/ic_password" />
-
-                        <TextView
-                            style="@style/textVeryBigBlack"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:paddingStart="15dp"
-                            android:text="@string/change_password"
-                            tools:text="Maria Reynolds" />
 
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
