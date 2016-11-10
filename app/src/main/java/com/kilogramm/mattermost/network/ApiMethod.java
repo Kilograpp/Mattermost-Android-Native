@@ -317,7 +317,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/{teamId}/channels/updateMembers")
+    @POST("api/v3/teams/{teamId}/channels/update")
     Observable<Channel> updateChannel(@Path("teamId") String teamId,
                                       @Body Channel channel);
 

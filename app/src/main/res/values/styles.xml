@@ -10,6 +10,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
+
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
@@ -65,6 +66,7 @@
     <!--POPUP MENU-->
     <style name="PopupMenu" parent="@android:style/Widget.DeviceDefault.Light.PopupMenu">
         <item name="android:textSize">10sp</item>
+        <item name="android:popupBackground">@color/white</item>
         <item name="android:textColor">@color/black</item>
     </style>
 
