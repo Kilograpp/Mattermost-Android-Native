@@ -104,7 +104,8 @@ public class MenuDirectListAdapter extends RealmRecyclerViewAdapter<Channel,Menu
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(directItemClickListener!=null){
-                        directItemClickListener.onDirectClick(channel.getId(),channel.getUser().getUsername() , channel.getType());
+                        directItemClickListener.onDirectClick(channel.getId(),
+                                channel.getUser().getUsername(), channel.getType());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();

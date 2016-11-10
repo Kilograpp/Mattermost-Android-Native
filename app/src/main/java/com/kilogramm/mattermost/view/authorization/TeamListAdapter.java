@@ -26,7 +26,7 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
     private OnItemClickListener onItemClickListener;
 
     public TeamListAdapter(@NonNull Context context, @Nullable OrderedRealmCollection<Team> data, OnItemClickListener onItemClickListener) {
-        super(context, data, true);
+        super(context, data, false);
         this.onItemClickListener = onItemClickListener;
     }
 

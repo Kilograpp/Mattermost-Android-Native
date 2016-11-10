@@ -6,6 +6,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityNotificationBinding;
@@ -24,6 +26,8 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
     private NotificationFragment notificationFragment;
     private NotificationEmailFragment notificationEmailFragment;
     private NotificationPushFragment notificationPushFragment;
+
+    MenuItem saveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,8 +113,11 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
+                saveItem = item;
                 updateNotification();
                 BaseActivity.hideKeyboard(this);
+                item.setVisible(false);
+                binding.progressBar.setVisibility(View.VISIBLE);
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -118,10 +125,16 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         return true;
     }
 
+    public void requestSave(String s) {
+        saveItem.setVisible(true);
+        binding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.notification_toolbar, menu);
+        getMenuInflater().inflate(R.menu.save_toolbar, menu);
         return true;
     }
 

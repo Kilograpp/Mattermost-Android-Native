@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +24,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -58,6 +56,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -195,13 +194,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
 
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
+            Log.d(TAG, "init Toolbar");
             RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
-            if (users != null)
-                ProfileRxActivity.start(getActivity(), users.first().getId());
+            if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
+            else ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
     }
@@ -329,6 +334,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
+
 
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == CAMERA_PIC_REQUEST) {

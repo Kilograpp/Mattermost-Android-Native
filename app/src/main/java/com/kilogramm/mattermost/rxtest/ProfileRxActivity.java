@@ -24,6 +24,7 @@ import nucleus.factory.RequiresPresenter;
 public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
     private static final String USER_ID = "user_id";
+
     private ActivitySettingsBinding mBinding;
 
     private String userId;
@@ -99,7 +100,6 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
     private void onClickSave() {
         Snackbar.make(mBinding.getRoot(),"save click",Snackbar.LENGTH_SHORT).show();
     }
-
 
     public static void start(Context context, String userId) {
         Intent starter = new Intent(context, ProfileRxActivity.class);

@@ -29,7 +29,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/textGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"
@@ -61,7 +61,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/textGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"
@@ -92,7 +92,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/textGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"

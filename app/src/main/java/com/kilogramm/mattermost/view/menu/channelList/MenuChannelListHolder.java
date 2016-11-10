@@ -38,13 +38,10 @@ public class MenuChannelListHolder extends RecyclerView.ViewHolder {
             mBinding.unreadedMessage.setText(member.getMentionCount()!=0
                     ? member.getMentionCount().toString()
                     : "");
-            if(!member.getMsgCount()
-                    .equals(channel.getTotalMsgCount())){
-                mBinding.channelName.setTypeface(null, Typeface.BOLD);
-                mBinding.unreadedMessage.setTypeface(null, Typeface.BOLD);
+            if(!member.getMsgCount().equals(channel.getTotalMsgCount())){
+                setBold(context);
             } else {
-                mBinding.channelName.setTypeface(Typeface.DEFAULT);
-                mBinding.unreadedMessage.setTypeface(Typeface.DEFAULT);
+                setDefault(context);
             }
         }
         mBinding.unreadedMessage.setText(member!=null
@@ -66,6 +63,24 @@ public class MenuChannelListHolder extends RecyclerView.ViewHolder {
             mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.white));
         }
         mBinding.executePendingBindings();
+    }
+
+    private void setDefault(Context context) {
+        mBinding.channelName.setTypeface(Typeface.DEFAULT);
+        mBinding.channelName.setTextSize(12f);
+        mBinding.channelName.setTextColor(context.getResources().getColor(R.color.very_light_grey));
+        mBinding.unreadedMessage.setTypeface(Typeface.DEFAULT);
+        mBinding.unreadedMessage.setTextSize(12f);
+        mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.very_light_grey));
+    }
+
+    private void setBold(Context context) {
+        mBinding.channelName.setTypeface(null, Typeface.BOLD);
+        mBinding.channelName.setTextSize(15f);
+        mBinding.channelName.setTextColor(context.getResources().getColor(R.color.white));
+        mBinding.unreadedMessage.setTypeface(null, Typeface.BOLD);
+        mBinding.unreadedMessage.setTextSize(15f);
+        mBinding.unreadedMessage.setTextColor(context.getResources().getColor(R.color.white));
     }
 
     public ItemChannelBinding getmBinding() {

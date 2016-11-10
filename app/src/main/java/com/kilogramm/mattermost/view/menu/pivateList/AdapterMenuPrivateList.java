@@ -91,7 +91,7 @@ public class AdapterMenuPrivateList extends RealmRecyclerViewAdapter<Channel, Me
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
                     if(privateItemClickListener !=null){
-                        privateItemClickListener.onPrivatelClick(channel.getId(), channel.getType(), channel.getDisplayName());
+                        privateItemClickListener.onPrivatelClick(channel.getId(), channel.getDisplayName(), channel.getType());
                         ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(true);
                         setSelecteditem(holder.getAdapterPosition());
                         onChangeSelected();
