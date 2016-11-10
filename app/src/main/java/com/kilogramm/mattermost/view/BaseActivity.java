@@ -141,6 +141,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         Snackbar error = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
         error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
         error.setActionTextColor(getResources().getColor(R.color.white));
+        error.setDuration(3000);
         error.show();
         //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }

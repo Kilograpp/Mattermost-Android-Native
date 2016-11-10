@@ -20,6 +20,7 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
+import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 
 import java.util.List;
 import java.util.Map;
@@ -320,5 +321,13 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/channels/update")
     Observable<Channel> updateChannel(@Path("teamId") String teamId,
                                       @Body Channel channel);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/newpassword")
+    Observable<ResponseBody> changePassword(@Body PasswordChangePresenter.NewPassword newPassword);
+
 
 }
