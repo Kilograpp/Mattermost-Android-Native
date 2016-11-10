@@ -12,7 +12,6 @@ import com.kilogramm.mattermost.databinding.ActivityPhotoViewerBinding;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 /**
  * Created by melkshake on 08.11.16.
@@ -29,7 +28,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
 
     private ArrayList<String> photosList;
     private String clickedImageUri;
-    String fulPhotoName;
 
     public static void start(Context context, String title, String imageUrl, ArrayList<String> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
@@ -45,6 +43,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
+
         setupToolbar(binding.toolbar, getIntent().getStringExtra(TITLE), true);
         setColorScheme(R.color.black, R.color.black);
 
@@ -58,9 +57,8 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                fulPhotoName = photosList.get(position);
-                String[] parsedName = fulPhotoName.split("/");
-                setupToolbar(parsedName[parsedName.length-1], true);
+                String[] parsedName = photosList.get(position).split("/");
+                setupToolbar(parsedName[parsedName.length - 1], true);
             }
 
             @Override

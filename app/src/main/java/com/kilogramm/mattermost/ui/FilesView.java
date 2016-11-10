@@ -120,18 +120,18 @@ public class FilesView extends GridLayout {
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
 
-                        binding.image.setOnClickListener(view -> {
+                        binding.image.setOnClickListener(view ->
 //                            ImageViewerActivity.start(getContext(),
 //                                    binding.image,
 //                                    binding.title.getText().toString(),
 //                                    getImageUrl(fileName));
 
-                             ViewPagerWGesturesActivity.start(getContext(),
-                             binding.title.getText().toString(),
-                             getImageUrl(fileName),
-                             photoUriList);
+                            ViewPagerWGesturesActivity.start(getContext(),
+                                    binding.title.getText().toString(),
+                                    getImageUrl(fileName),
+                                    photoUriList)
 
-                        });
+                        );
                         break;
                     case JPG:
                         binding.image.setVisibility(VISIBLE);
@@ -144,10 +144,10 @@ public class FilesView extends GridLayout {
 //                                    binding.title.getText().toString(),
 //                                    getImageUrl(fileName))
 
-                                ViewPagerWGesturesActivity.start(getContext(),
-                                        binding.title.getText().toString(),
-                                        getImageUrl(fileName),
-                                        photoUriList)
+                              ViewPagerWGesturesActivity.start(getContext(),
+                                      binding.title.getText().toString(),
+                                      getImageUrl(fileName),
+                                      photoUriList)
                         );
 
                         break;
@@ -188,7 +188,7 @@ public class FilesView extends GridLayout {
         new Thread(() -> {
             long fileSize = getRemoteFileSize(url);
             Log.d(TAG, String.valueOf(fileSize));
-            if(fileSize > 0) {
+            if (fileSize > 0) {
                 binding.fileSize.post(() -> binding.fileSize.setText(FileUtil.getInstance()
                         .convertFileSize(fileSize)));
             }

@@ -17,11 +17,10 @@
             app:title=""
             app:titleTextColor="#FFFFFF"/>
 
-        <com.kilogramm.mattermost.view.viewPhoto.ExtendedViewPager
+        <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </com.kilogramm.mattermost.view.viewPhoto.ExtendedViewPager>
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 </layout>

@@ -4,7 +4,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
  * Created by melkshake on 09.11.16.
@@ -31,10 +28,12 @@ public class PhotoViewFragment extends Fragment {
 
     static PhotoViewFragment newInstance(String imageUri, VerticalSwipeListener listener) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
+
         Bundle arguments = new Bundle();
         arguments.putString(IMAGE_URI, imageUri);
         arguments.putSerializable(LISTENER, listener);
         photoViewFragment.setArguments(arguments);
+
         return photoViewFragment;
     }
 
@@ -50,51 +49,35 @@ public class PhotoViewFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        TouchImageView img = new TouchImageView(container.getContext());
-        img.setVisibility(View.GONE);
-
         photoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_photo_view, container, false);
-        photoBinding.progressBar.setVisibility(View.VISIBLE);
+        return photoBinding.getRoot();
+    }
 
-        Picasso.with(container.getContext())
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Picasso.with(getContext())
                 .load(imageUri)
-                .error(container.getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
-                .placeholder(container.getContext().getResources().getDrawable(R.drawable.circular_white_progress_bar))
-                .into(img, new PhotoViewFragment.ImageLoadedCallback(photoBinding.progressBar) {
+                .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
+                .into(photoBinding.image, new Callback() {
                     @Override
                     public void onSuccess() {
                         if (photoBinding.progressBar != null) {
                             photoBinding.progressBar.setVisibility(View.GONE);
-                            img.setVisibility(View.VISIBLE);
+                            photoBinding.image.setVisibility(View.VISIBLE);
                         }
+                    }
+
+                    @Override
+                    public void onError() {
+
                     }
                 });
 
-        img.setVerticalSwipeListener(() -> {
+        photoBinding.image.setVerticalSwipeListener(() -> {
             if (verticalSwipeListener != null) {
                 verticalSwipeListener.onSwipe();
             }
         });
-
-        container.addView(img, ViewPager.LayoutParams.MATCH_PARENT, ViewPager.LayoutParams.MATCH_PARENT);
-
-        return img;
-    }
-
-    private class ImageLoadedCallback implements Callback {
-        MaterialProgressBar progressBar = null;
-
-        public ImageLoadedCallback(MaterialProgressBar progBar) {
-            progressBar = progBar;
-        }
-
-        @Override
-        public void onSuccess() {
-        }
-
-        @Override
-        public void onError() {
-        }
     }
 }
