@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by melkshake on 08.11.16.
  */
 
-public class ViewPagerWGesturesActivity extends BaseActivity implements VerticalSwipeListener/*, TouchImageAdapter.SwipeToNextItemListener */{
+public class ViewPagerWGesturesActivity extends BaseActivity {
 
     public static final String IMAGE_URL = "image_url";
     public static final String TITLE = "title";
@@ -50,7 +50,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
         photosList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         clickedImageUri = getIntent().getStringExtra(IMAGE_URL);
 
-        adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList, this);
+        adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setCurrentItem(photosList.indexOf(clickedImageUri));
@@ -79,10 +79,5 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onSwipe() {
-        finish();
     }
 }
