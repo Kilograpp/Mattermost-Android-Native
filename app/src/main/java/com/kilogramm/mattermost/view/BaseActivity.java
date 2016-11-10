@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -55,6 +56,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
             setStatusBarColorActivity(portStatusBarColorRes);
         }
     }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void setStatusBarColorActivity(int portStatusBarColorRes) {
         getWindow().setStatusBarColor(getResources().getColor(portStatusBarColorRes));
@@ -62,6 +64,16 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
 
     public void setupToolbar(String title, Boolean hasButtonBack){
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(hasButtonBack) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+        }
+        setTitleActivity(title);
+    }
+
+    public void setupToolbar(Toolbar toolbar, String title, Boolean hasButtonBack){
         setSupportActionBar(toolbar);
         if(hasButtonBack) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -129,6 +141,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         Snackbar error = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
         error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
         error.setActionTextColor(getResources().getColor(R.color.white));
+        error.setDuration(3000);
         error.show();
         //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }

@@ -8,9 +8,12 @@ import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Collection;
+import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Evgeny on 19.09.2016.
@@ -59,6 +62,11 @@ public class UserRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static RealmResults<User> query() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(User.class).isNotNull("id").findAll();
+    }
+
     public static void updateUserMessage(String postId, String message) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 ->
@@ -77,6 +85,7 @@ public class UserRepository {
         me.setUsername(user.getUsername());
         me.setFirstName(user.getFirstName());
         me.setLastName(user.getLastName());
+        me.setEmail(user.getEmail());
         realm.copyToRealmOrUpdate(me);
         realm.commitTransaction();
     }
@@ -96,4 +105,51 @@ public class UserRepository {
                     .findAll();
         }
     }
+
+    public static class UserByIdsSpecification implements RealmSpecification {
+
+        private final List<User> users;
+
+        public UserByIdsSpecification(List<User> users) {
+            this.users = users;
+        }
+
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            RealmQuery realmQuery = realm.where(User.class);
+            User lastUser = users.get(users.size() - 1);
+            for (User u : users) {
+                if (lastUser != u)
+                    realmQuery.equalTo("id", u.getId()).or();
+                else
+                    realmQuery.equalTo("id", u.getId());
+            }
+            return realmQuery.findAll();
+        }
+    }
+
+    public static class UserByNotIdsSpecification implements RealmSpecification {
+
+        private final List<User> users;
+        private final String searchName;
+
+        public UserByNotIdsSpecification(List<User> users, String searchName) {
+            this.users = users;
+            this.searchName = searchName;
+        }
+
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            RealmQuery realmQuery = realm.where(User.class);
+            realmQuery.isNotNull("createAt");
+            realmQuery.equalTo("deleteAt", 0);
+            if (searchName != null)
+                realmQuery.contains("username", searchName);
+            for (User u : users) {
+                realmQuery.notEqualTo("id", u.getId());
+            }
+            return realmQuery.findAllSorted("username", Sort.ASCENDING);
+        }
+    }
+
 }

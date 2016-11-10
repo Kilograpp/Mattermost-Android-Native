@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
+import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -40,6 +41,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+
+import static com.kilogramm.mattermost.view.ImageViewerActivity.startActivity;
 
 /**
  * Created by Evgeny on 01.09.2016.
@@ -106,29 +109,30 @@ public class FilesView extends GridLayout {
 
                 binding.fileSize.setVisibility(VISIBLE);
 
+                ArrayList<String> photoUriList = new ArrayList<>();
+                for (String fileItem : fileList) {
+                    photoUriList.add(getImageUrl(fileItem));
+                }
+
                 switch (FileUtil.getInstance().getFileType(fileName)) {
                     case PNG:
-                        binding.image.setVisibility(VISIBLE);
-                        binding.circleFrame.setVisibility(GONE);
-                        initAndAddItem(binding, getImageUrl(fileName));
-                        binding.image.setOnClickListener(view -> {
-                            //Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(fileName));
-
-                        });
-                        break;
                     case JPG:
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
                         initAndAddItem(binding, getImageUrl(fileName));
+
                         binding.image.setOnClickListener(view ->
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
+//                            ImageViewerActivity.start(getContext(),
+//                                    binding.image,
+//                                    binding.title.getText().toString(),
+//                                    getImageUrl(fileName));
+
+                            ViewPagerWGesturesActivity.start(getContext(),
                                     binding.title.getText().toString(),
-                                    getImageUrl(fileName)));
+                                    fileName,
+                                    (ArrayList<String>) fileList)
+
+                        );
                         break;
                     default:
                         initAndAddItem(binding, getImageUrl(fileName));
@@ -167,7 +171,7 @@ public class FilesView extends GridLayout {
         new Thread(() -> {
             long fileSize = getRemoteFileSize(url);
             Log.d(TAG, String.valueOf(fileSize));
-            if(fileSize > 0) {
+            if (fileSize > 0) {
                 binding.fileSize.post(() -> binding.fileSize.setText(FileUtil.getInstance()
                         .convertFileSize(fileSize)));
             }
@@ -303,5 +307,4 @@ public class FilesView extends GridLayout {
         fileList.clear();
         this.removeAllViews();
     }
-
 }

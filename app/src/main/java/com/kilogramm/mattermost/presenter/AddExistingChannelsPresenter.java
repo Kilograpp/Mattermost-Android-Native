@@ -36,10 +36,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     private ApiMethod service;
 
     private String teamId;
-
     private List<ChannelsDontBelong> moreChannels;
-
-
     private LogoutData user;
     private String channelId;
 
@@ -67,16 +64,13 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (addExistingChannelsActivity, channelsWithMembers) -> {
-                    sendSetProgress(false);
-
                     if (channelsWithMembers.getChannels().size() == 0) {
                         sendSetNoMoreChannels(true);
+                        sendSetProgress(false);
                     } else {
-
                         for (Channel channel : channelsWithMembers.getChannels()) {
                             moreChannels.add(new ChannelsDontBelong(channel));
                         }
-                        sendSetRecycleView(true);
 
                         Realm.getDefaultInstance()
                                 .executeTransaction(realm1 -> {
@@ -84,34 +78,14 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                                     realm1.insertOrUpdate(moreChannels);
                                 });
                     }
+
+                    sendSetRecycleView(true);
+                    sendSetProgress(false);
                 },
                 (addExistingChannelsActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendSetProgress(false);
                 });
-
-/*        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
-                () -> Observable.zip(
-                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (channel, channelsWithMembers) -> {
-                            RealmList<Channel> channelsList = new RealmList<>();
-                            channelsList.addAll(channelsWithMembers.getChannels());
-                            ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
-                            ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-                            return channel;
-                        })), (generalRxActivity, channel) -> {
-            sendSetProgress(false);
-            sendFinish();
-        }, (generalRxActivity, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, throwable.getMessage());
-            sendSetProgress(false);
-        });*/
 
         restartableFirst(REQUEST_ADD_CHAT, () ->
                         service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
@@ -120,7 +94,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                 (generalRxActivity, channel) -> makeChannelsTeamRequest(channel),
                 (generalRxActivity, throwable) -> {
                     throwable.printStackTrace();
-                    Log.d(TAG, throwable.getMessage());
                     sendSetProgress(false);
                 }
         );
@@ -135,9 +108,8 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     channelsList.addAll(channelsWithMembers.getChannels());
                     ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
                     ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-
-                    sendSetProgress(false);
                     String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+                    sendSetProgress(false);
                     sendFinish(channelId, channelName, channel.getType());
                 });
     }
@@ -145,14 +117,17 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     public void requestAddChat(String joinChannelId) {
         channelId = joinChannelId;
         user.setUserId("");
-        start(REQUEST_ADD_CHAT);
+
         sendSetProgress(true);
         sendSetRecycleView(false);
+        sendSetNoMoreChannels(false);
+
+        start(REQUEST_ADD_CHAT);
     }
 
     public void requestChannelsMore() {
-        start(REQUEST_CHANNELS_MORE);
         sendSetProgress(true);
+        start(REQUEST_CHANNELS_MORE);
     }
 
     private void sendFinish(String joinChannelId, String channelName, String type) {
@@ -177,3 +152,26 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                 .subscribe(split((addExistingChannelsActivity, aBoolean) -> addExistingChannelsActivity.setRecycleView(bool)));
     }
 }
+
+/*        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
+                () -> Observable.zip(
+                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                        (channel, channelsWithMembers) -> {
+                            RealmList<Channel> channelsList = new RealmList<>();
+                            channelsList.addAll(channelsWithMembers.getChannels());
+                            ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
+                            ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
+                            return channel;
+                        })), (generalRxActivity, channel) -> {
+            sendSetProgress(false);
+            sendFinish();
+        }, (generalRxActivity, throwable) -> {
+            throwable.printStackTrace();
+            Log.d(TAG, throwable.getMessage());
+            sendSetProgress(false);
+        });*/

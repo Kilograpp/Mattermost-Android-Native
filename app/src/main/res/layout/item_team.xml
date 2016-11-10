@@ -33,7 +33,7 @@
             android:layout_marginStart="16dp"
             android:layout_toEndOf="@+id/timeIcon"
             android:padding="2dp"
-            tools:text="YOUTRENM" />
+            />
 
     </RelativeLayout>
 </layout>

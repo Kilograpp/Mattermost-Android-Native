@@ -33,4 +33,11 @@
 
     <color name="light_blue">#007aff</color>
 
+    <!--Channel-->
+    <color name="textColorRed">#e21b3e</color>
+    <color name="icon_team_color_start">#006bd7</color>
+    <color name="icon_team_color_end">#008edc</color>
+    <color name="icon_team_color_shadow">#00658f</color>
+    <color name="title_grey">#8798a4</color>
+    <color name="title_blue">#007aff</color>
 </resources>

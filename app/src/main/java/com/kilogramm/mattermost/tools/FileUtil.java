@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 
 import java.io.File;
@@ -275,7 +276,7 @@ public class FileUtil {
         } else if (bytes <= 0) {
             return null;
         } else {
-            return String.format("%.2el b", bytes);
+            return String.format("%d b", bytes);
         }
     }
 
@@ -376,6 +377,18 @@ public class FileUtil {
 
         public Uri getUri() {
             return uri;
+        }
+    }
+
+    public String getImageUrl(String id) {
+        if (id != null) {
+            return "https://"
+                    + MattermostPreference.getInstance().getBaseUrl()
+                    + "/api/v3/teams/"
+                    + MattermostPreference.getInstance().getTeamId()
+                    + "/files/get" + id;
+        } else {
+            return "";
         }
     }
 }

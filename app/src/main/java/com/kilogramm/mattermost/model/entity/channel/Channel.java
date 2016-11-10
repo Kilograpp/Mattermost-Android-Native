@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.model.entity.channel;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -11,7 +14,7 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Evgeny on 03.08.2016.
  */
-public class Channel extends RealmObject {
+public class Channel extends RealmObject implements Parcelable {
 
 
     public static final String DIRECT = "D";
@@ -304,4 +307,85 @@ public class Channel extends RealmObject {
         setHeader(header);
         setType(type);
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public Channel(Channel channel) {
+        this.id = channel.getId();
+        this.createAt = channel.getCreateAt();
+        this.updateAt = channel.getUpdateAt();
+        this.deleteAt = channel.getDeleteAt();
+        this.teamId = channel.getTeamId();
+        this.type = channel.getType();
+        this.displayName = channel.getDisplayName();
+        this.name = channel.getName();
+        this.header = channel.getHeader();
+        this.purpose = channel.getPurpose();
+        this.lastPostAt = channel.getLastPostAt();
+        this.totalMsgCount = channel.getTotalMsgCount();
+        this.extraUpdateAt = channel.getExtraUpdateAt();
+        this.creatorId = channel.getCreatorId();
+        this.username = channel.getUsername();
+        this.user = channel.getUser();
+        this.unreadedMessage = channel.getUnreadedMessage();
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeValue(this.createAt);
+        dest.writeValue(this.updateAt);
+        dest.writeValue(this.deleteAt);
+        dest.writeString(this.teamId);
+        dest.writeString(this.type);
+        dest.writeString(this.displayName);
+        dest.writeString(this.name);
+        dest.writeString(this.header);
+        dest.writeString(this.purpose);
+        dest.writeValue(this.lastPostAt);
+        dest.writeValue(this.totalMsgCount);
+        dest.writeValue(this.extraUpdateAt);
+        dest.writeString(this.creatorId);
+        dest.writeString(this.username);
+        dest.writeParcelable(this.user, flags);
+        dest.writeValue(this.unreadedMessage);
+    }
+
+    public Channel() {
+    }
+
+    protected Channel(Parcel in) {
+        this.id = in.readString();
+        this.createAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.updateAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.deleteAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.teamId = in.readString();
+        this.type = in.readString();
+        this.displayName = in.readString();
+        this.name = in.readString();
+        this.header = in.readString();
+        this.purpose = in.readString();
+        this.lastPostAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.totalMsgCount = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.extraUpdateAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.creatorId = in.readString();
+        this.username = in.readString();
+        this.user = in.readParcelable(User.class.getClassLoader());
+        this.unreadedMessage = (Integer) in.readValue(Integer.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Channel> CREATOR = new Parcelable.Creator<Channel>() {
+        @Override
+        public Channel createFromParcel(Parcel source) {
+            return new Channel(source);
+        }
+
+        @Override
+        public Channel[] newArray(int size) {
+            return new Channel[size];
+        }
+    };
 }

@@ -21,12 +21,14 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
@@ -99,19 +101,21 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         user.removeChangeListeners();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (Build.VERSION.SDK_INT >= 23 && fragment != null) {
-            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_CANCELED)
+            if (requestCode == ChannelActivity.REQUEST_ID)
+                ((ChatRxFragment) getFragmentManager()
+                        .findFragmentById(binding.contentFrame.getId()))
+                        .setChannelName(
+                                ChannelRepository
+                                        .query(new ChannelRepository
+                                                .ChannelByIdSpecification(currentChannel))
+                                        .first()
+                                        .getDisplayName());
+
         if (resultCode == RESULT_OK) {
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
@@ -368,5 +372,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (Build.VERSION.SDK_INT >= 23 && fragment != null) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
 }

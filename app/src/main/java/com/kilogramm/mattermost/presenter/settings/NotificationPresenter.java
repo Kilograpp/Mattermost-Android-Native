@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.presenter.settings;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -84,19 +83,15 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                     sendToast("Saved successfully");
                 },
                 (notificationActivity, throwable) -> {
-                    sendError("Unable to save");
+                    sendToast("Unable to save");
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }
 
-    private void sendError(String error) {
-        createTemplateObservable(error)
-                .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
-    }
 
     private void sendToast(String message) {
         createTemplateObservable(message)
-                .subscribe(split((notificationActivity, s) -> Toast.makeText(notificationActivity, s, Toast.LENGTH_SHORT).show()));
+                .subscribe(split((notificationActivity, s) -> notificationActivity.requestSave(message)));
     }
 
     public void requestUpdateNotify() {
@@ -107,7 +102,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     public String getMentionsAll() {
         String result = "";
         if (isFirstNameTrigger()) {
-            result = "\"" + getFirstName() + "\",";
+            result = "\"" + getFirstName() + "\"";
         }
         if (notifyProps != null) {
             String[] mentions = notifyProps.getMentionKeys().split(",");

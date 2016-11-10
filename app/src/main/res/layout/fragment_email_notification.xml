@@ -14,7 +14,7 @@
             android:orientation="vertical">
 
             <TextView
-                style="@style/textBigGrey"
+                style="@style/textGrey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -38,8 +38,8 @@
 
                 <ImageView
                     android:id="@+id/selectImmediately"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -65,8 +65,8 @@
 
                 <ImageView
                     android:id="@+id/selectNever"
-                    android:layout_width="@dimen/bottom_toolbar_icon_size"
-                    android:layout_height="@dimen/bottom_toolbar_icon_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:visibility="invisible"
@@ -77,7 +77,7 @@
 
             <TextView
                 android:id="@+id/description"
-                style="@style/textBigGrey"
+                style="@style/textGrey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
