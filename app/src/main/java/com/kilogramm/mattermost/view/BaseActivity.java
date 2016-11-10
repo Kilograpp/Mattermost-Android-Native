@@ -144,4 +144,12 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         error.show();
         //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
+
+    public void showGoodText(String text) {
+        Snackbar good = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
+        good.setActionTextColor(getResources().getColor(R.color.white));
+        good.show();
+        //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+    }
 }

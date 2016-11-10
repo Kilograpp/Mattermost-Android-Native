@@ -58,6 +58,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -195,13 +196,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
 
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
             RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
-            if (users != null)
-                ProfileRxActivity.start(getActivity(), users.first().getId());
+            if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
+            else ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
     }
@@ -329,6 +335,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
+
 
         if (resultCode != Activity.RESULT_CANCELED) {
             if (requestCode == CAMERA_PIC_REQUEST) {

@@ -31,7 +31,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         Icepick.saveInstanceState(this, state);
     }
 
-    public <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj) {
+    protected  <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj) {
         return Observable.just(obj)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

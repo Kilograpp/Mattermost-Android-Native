@@ -20,9 +20,10 @@
                 android:layout_height="?android:actionBarSize"
                 android:background="@color/colorPrimary"
                 app:title=""
-                app:titleTextColor="#FFFFFF"/>
+                app:titleTextColor="#FFFFFF" />
 
-            <LinearLayout android:id="@+id/header_infos_container"
+            <LinearLayout
+                android:id="@+id/header_infos_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -33,31 +34,32 @@
                     android:id="@+id/header_picture"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginRight="8dp"/>
+                    android:layout_marginRight="8dp" />
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
                     <TextView
                         android:id="@+id/header_username"
                         style="@style/TextAppearance.AppCompat.Title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="Toolbar Title"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        tools:text="Toolbar Title" />
 
                     <TextView
                         android:id="@+id/header_name"
                         style="@style/TextAppearance.AppCompat.Body1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="Toolbar Title"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        tools:text="Toolbar Title" />
                 </LinearLayout>
 
 
             </LinearLayout>
-
 
 
         </android.support.design.widget.AppBarLayout>
@@ -83,7 +85,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:paddingTop="50dp">
+                android:paddingTop="50dp"
+                android:paddingBottom="20dp">
 
                 <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
@@ -102,7 +105,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NAME"
+                            android:text="@string/name"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -125,7 +128,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="USERNAME"
+                            android:text="@string/username"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -148,7 +151,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="NICKNAME"
+                            android:text="@string/nickname"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -180,7 +183,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
-                            android:text="EMAIL"
+                            android:text="@string/email"
                             android:textColor="@color/grey" />
 
                         <TextView
@@ -218,36 +221,36 @@
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
-               <!-- <android.support.v7.widget.CardView
-                    android:id="@+id/notification"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:contentPaddingBottom="10dp"
-                    app:contentPaddingTop="10dp">
+                <!-- <android.support.v7.widget.CardView
+                     android:id="@+id/notification"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="15dp"
+                     app:cardBackgroundColor="@color/white"
+                     app:contentPaddingBottom="10dp"
+                     app:contentPaddingTop="10dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center_vertical"
+                         android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingEnd="15dp"
-                            android:paddingStart="15dp"
-                            app:srcCompat="@drawable/ic_notifications_grey_24dp" />
+                         <ImageView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:paddingEnd="15dp"
+                             android:paddingStart="15dp"
+                             app:srcCompat="@drawable/ic_notifications_grey_24dp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Notification"
-                            android:textColor="@color/black" />
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Notification"
+                             android:textColor="@color/black" />
 
-                    </LinearLayout>
-                </android.support.v7.widget.CardView>-->
+                     </LinearLayout>
+                 </android.support.v7.widget.CardView>-->
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
     </android.support.design.widget.CoordinatorLayout>

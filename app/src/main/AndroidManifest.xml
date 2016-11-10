@@ -51,6 +51,36 @@
         </activity>
 
         <activity
+            android:name=".view.channel.ChannelActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.HeaderActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.PurposeActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.NameActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.AllMembersActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.channel.AddMembersActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
             android:name=".view.authorization.ChooseTeamActivity"
             android:screenOrientation="portrait">
         </activity>
@@ -58,6 +88,7 @@
         <activity
             android:name=".rxtest.GeneralRxActivity"
             android:screenOrientation="portrait" />
+
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"
@@ -73,6 +104,15 @@
 
         <activity android:name=".rxtest.ProfileRxActivity"
             android:screenOrientation="portrait"/>
+
+        <activity android:name=".rxtest.EditProfileRxActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+        <activity
+            android:name=".view.settings.EmailEditActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible"/>
 
         <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
