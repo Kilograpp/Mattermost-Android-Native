@@ -275,7 +275,7 @@ public class FileUtil {
         } else if (bytes <= 0) {
             return null;
         } else {
-            return String.format("%.2el b", bytes);
+            return String.format("%d b", bytes);
         }
     }
 
