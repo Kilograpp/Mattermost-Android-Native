@@ -49,7 +49,7 @@
                 android:layout_weight="1"
                 android:maxLength="128"
                 android:hint="@string/channel_purpose"
-                android:maxLines="1" />
+                />
 
                 <ImageView
                     android:id="@+id/btnClear"
