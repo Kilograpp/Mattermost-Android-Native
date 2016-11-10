@@ -37,12 +37,13 @@ public class ExtroInfoRepository {
         );
     }
 
-    public static void update(ExtraInfo item, User user) {
+    public static void updateMembers(ExtraInfo item, User user) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 ->{
-                item.getMembers().add(user);
-                realm1.copyToRealmOrUpdate(item);
-    }
+        realm.executeTransaction(realm1 -> {
+                    item.getMembers().add(user);
+                    item.setMember_count(String.valueOf(Integer.parseInt(item.getMember_count()) + 1));
+                    realm1.copyToRealmOrUpdate(item);
+                }
         );
     }
 

@@ -561,7 +561,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         /*Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
-        PostRepository.update(post);*/
+        PostRepository.updateMembers(post);*/
         sendIvalidateAdapter();
     }
 }

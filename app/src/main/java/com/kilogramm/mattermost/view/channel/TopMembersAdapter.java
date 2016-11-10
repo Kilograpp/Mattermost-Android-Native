@@ -1,38 +1,44 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.TopMembersItemBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.StatusByIdSpecification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
-import com.kilogramm.mattermost.utils.ListRecyclerViewAD;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmViewHolder;
 
 /**
  * Created by ngers on 01.11.16.
  */
 
-public class TopMembersAdapter extends ListRecyclerViewAD<User, TopMembersAdapter.MyViewHolder> {
+public class TopMembersAdapter extends RealmRecyclerViewAdapter<User, TopMembersAdapter.MyViewHolder> {
 
     OnItemClickListener onItemClickListener;
 
-    public TopMembersAdapter(Context context, OnItemClickListener onItemClickListener, List<User> data) {
-        super(context, data);
+    public TopMembersAdapter(Context context, OnItemClickListener onItemClickListener, OrderedRealmCollection<User> realmResult) {
+        super(context, realmResult, true);
         this.onItemClickListener = onItemClickListener;
     }
 
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TopMembersItemBinding binding = createBinding(parent, R.layout.top_members_item);
+        TopMembersItemBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.top_members_item,
+                parent,
+                false);
         return new MyViewHolder(binding);
     }
 
@@ -67,9 +73,17 @@ public class TopMembersAdapter extends ListRecyclerViewAD<User, TopMembersAdapte
         }
     }
 
+    public String getImageUrl(User user) {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + user.getId()
+                + "/image";
+    }
+
     @Override
     public int getItemCount() {
-        return getrData().size() > 5 ? 5 : getrData().size();
+        return getData().size() > 5 ? 5 : getData().size();
     }
 
     public String getStatus(String id) {
