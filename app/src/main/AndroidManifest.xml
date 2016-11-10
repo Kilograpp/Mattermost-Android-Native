@@ -129,6 +129,10 @@
             android:windowSoftInputMode="adjustResize|stateVisible"/>
 
         <activity
+            android:name=".view.viewPhoto.ViewPagerWGesturesActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
             android:name=".view.menu.RightMenuAboutAppActivity"
             android:screenOrientation="portrait" />
 
