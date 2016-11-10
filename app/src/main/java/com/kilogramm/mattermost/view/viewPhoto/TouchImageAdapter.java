@@ -18,12 +18,12 @@ public class TouchImageAdapter extends FragmentPagerAdapter {
     List<PhotoViewFragment> photoViewFragmentList;
     private ArrayList<String> photosList;
 
-    public TouchImageAdapter(FragmentManager fm, ArrayList<String> photosList, VerticalSwipeListener listener) {
+    public TouchImageAdapter(FragmentManager fm, ArrayList<String> photosList) {
         super(fm);
         this.photosList = photosList;
         photoViewFragmentList = new ArrayList<>();
         for (String photo : photosList) {
-            PhotoViewFragment fragment = PhotoViewFragment.newInstance(photo, listener);
+            PhotoViewFragment fragment = PhotoViewFragment.newInstance(photo);
             photoViewFragmentList.add(fragment);
         }
     }

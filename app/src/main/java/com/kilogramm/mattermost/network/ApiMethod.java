@@ -155,7 +155,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/updateMembers")
     Observable<Post> editPost(@Path("teamId") String teamId,
                               @Path("channelId") String channelId,
                               @Body PostEdit post);
@@ -264,7 +264,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/users/update")
+    @POST("api/v3/users/updateMembers")
     Observable<User> updateUser(@Body User user);
 
     @Headers({
@@ -318,7 +318,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/{teamId}/channels/update")
+    @POST("api/v3/teams/{teamId}/channels/updateMembers")
     Observable<Channel> updateChannel(@Path("teamId") String teamId,
                                       @Body Channel channel);
 

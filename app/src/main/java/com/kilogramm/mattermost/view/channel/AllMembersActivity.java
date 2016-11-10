@@ -47,7 +47,7 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
     private void initiationData() {
         allMembersAdapter = new AllMembersAdapter(
                 this,
-                id -> openDirect(id));
+                id -> openDirect(id), null);
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));

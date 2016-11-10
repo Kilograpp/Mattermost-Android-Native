@@ -38,6 +38,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public static final int REQUEST_ID = 201;
     ChannelActivityBinding binding;
     String channelId;
+    AllMembersAdapter allMembersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +106,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             binding.purposeDescription.setText(channel.getPurpose());
         });
 
+        extraInfo.addChangeListener(element ->
+                binding.countMembers.setText(String.format("%s %s",
+                extraInfo.getMember_count(),
+                getString(R.string.channel_info_count_members))));
+
         binding.channelName.setText(channel.getDisplayName());
         binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
         binding.channelIcon.getBackground()
@@ -117,6 +123,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
     }
+
+
 
     private String getMessageLink(String name) {
         return "https://"
@@ -131,11 +139,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     public void setAdapter(ExtraInfo extraInfo) {
-        TopMembersAdapter topMembersAdapter = new TopMembersAdapter(
+        allMembersAdapter = new AllMembersAdapter(
                 this,
                 id -> openDirect(id),
-                extraInfo.getMembers());
-        binding.list.setAdapter(topMembersAdapter);
+                extraInfo.getMembers(), true);
+        binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         binding.list.setNestedScrollingEnabled(false);
     }

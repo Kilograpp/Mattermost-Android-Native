@@ -63,8 +63,9 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         id, new Members(user_id))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (addMembersActivity, user) ->
-                        updateMembers(user.getUser_id())
+                (addMembersActivity, user) -> {
+                    updateMembers(user.getUser_id());
+                }
                 , (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
                     errorUpdateMembers(throwable.getMessage());
@@ -75,7 +76,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
         createTemplateObservable(new Object())
                 .subscribe(split((addMembersActivity, openChatObject)
                         -> {
-                    ExtroInfoRepository.update(extraInfo, UserRepository.query(
+                    ExtroInfoRepository.updateMembers(extraInfo, UserRepository.query(
                             new UserRepository.UserByIdSpecification(id))
                             .first());
                     addMembersActivity.requestMember("User added");

@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by melkshake on 08.11.16.
  */
 
-public class ViewPagerWGesturesActivity extends BaseActivity implements VerticalSwipeListener/*, TouchImageAdapter.SwipeToNextItemListener */{
+public class ViewPagerWGesturesActivity extends BaseActivity {
 
     public static final String IMAGE_URL = "image_url";
     public static final String TITLE = "title";
@@ -50,15 +50,17 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
         photosList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         clickedImageUri = getIntent().getStringExtra(IMAGE_URL);
 
-        adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList, this);
+        adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setCurrentItem(photosList.indexOf(clickedImageUri));
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                String[] parsedName = photosList.get(position).split("/");
-                setupToolbar(parsedName[parsedName.length - 1], true);
+                //String[] parsedName = photosList.get(position).split("/");
+                //setupToolbar(parsedName[parsedName.length - 1], true);
+                String toolbarTitle = position + " из " + (photosList.size() - 1);
+                setupToolbar(toolbarTitle, true);
             }
 
             @Override
@@ -79,10 +81,5 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements Vertical
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onSwipe() {
-        finish();
     }
 }

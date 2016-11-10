@@ -6,6 +6,6 @@ import java.io.Serializable;
  * Created by melkshake on 08.11.16.
  */
 
-public interface VerticalSwipeListener extends Serializable {
+public interface VerticalSwipeListener {
     void onSwipe();
 }
