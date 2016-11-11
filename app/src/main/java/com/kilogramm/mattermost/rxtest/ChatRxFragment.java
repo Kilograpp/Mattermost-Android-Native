@@ -479,7 +479,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.INVISIBLE);
         binding.sendingMessageContainer.setVisibility(View.INVISIBLE);
         binding.line.setVisibility(View.INVISIBLE);
-
     }
 
     private Long getTimePost() {

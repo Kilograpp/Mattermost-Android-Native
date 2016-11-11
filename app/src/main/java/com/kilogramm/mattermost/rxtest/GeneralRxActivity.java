@@ -5,13 +5,17 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -206,34 +210,34 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             binding.navView.setNavigationItemSelectedListener(item -> {
                 binding.drawerLayout.closeDrawer(GravityCompat.END);
 
-                switch (item.getItemId()) {
-                    case R.id.switch_team:
-                        getPresenter().requestSwitchTeam();
-                        break;
-                    case R.id.files:
-                        showFiles();
-                        break;
-                    case R.id.settings:
-                        EditProfileRxActivity.start(this);
-                        break;
-                    case R.id.invite_new_member:
-                        InviteUserRxActivity.start(this);
-                        break;
-                    case R.id.help:
-                        Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.report_a_problem:
-                        Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.about_mattermost:
-                        RightMenuAboutAppActivity.start(this);
-                        break;
-                    case R.id.logout:
-                        getPresenter().requestLogout();
-                        break;
-                }
-                return false;
-            });
+            switch (item.getItemId()) {
+                case R.id.switch_team:
+                    getPresenter().requestSwitchTeam();
+                    break;
+                case R.id.files:
+                    showFiles();
+                    break;
+                case R.id.settings:
+                    EditProfileRxActivity.start(this);
+                    break;
+                case R.id.invite_new_member:
+                    InviteUserRxActivity.start(this);
+                    break;
+                case R.id.help:
+                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.report_a_problem:
+                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.about_mattermost:
+                    RightMenuAboutAppActivity.start(this);
+                    break;
+                case R.id.logout:
+                    getPresenter().requestLogout();
+                    break;
+            }
+            return false;
+        });
     }
 
     private void updateHeaderUserName(User user) {
