@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -138,7 +137,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     public void showErrorText(String text) {
-        Snackbar error = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        Snackbar error = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
         error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
         error.setActionTextColor(getResources().getColor(R.color.white));
         error.setDuration(3000);
@@ -147,7 +146,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     public void showGoodText(String text) {
-        Snackbar good = Snackbar.make(this.getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        Snackbar good = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
         good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
         good.setActionTextColor(getResources().getColor(R.color.white));
         good.show();

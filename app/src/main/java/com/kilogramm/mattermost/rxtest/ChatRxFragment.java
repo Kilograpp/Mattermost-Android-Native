@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +24,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -159,13 +157,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setButtonAddFileOnClickListener();
         setDropDownUserList();
         setAttachedFilesLayout();
+
         brReceiverTyping = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
                 if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
-                    getActivity().runOnUiThread(() -> invalidateAdapter());
+                    getActivity().runOnUiThread(() -> {
+                        updateEditedPosition(obj.getData().getPost().getId());
+                    });
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
                         getActivity().runOnUiThread(() -> showTyping());
@@ -174,6 +175,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
+        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
         if (searchMessageId != null) {
@@ -190,6 +192,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
         });
+    }
+
+    private void updateEditedPosition(String id) {
+        invalidateByPosition(adapter.getPositionById(id));
     }
 
     public void slideToMessageById() {
@@ -805,6 +811,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 + realm.where(Team.class).findFirst().getName()
                 + "/pl/"
                 + postId;
+    }
+
+    public void invalidateByPosition(int position){
+        adapter.notifyItemChanged(position);
     }
 
     public void invalidateAdapter() {

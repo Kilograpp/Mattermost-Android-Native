@@ -73,7 +73,8 @@ public class UserRepository {
                 realm.where(Post.class)
                         .equalTo("id", postId)
                         .findFirst()
-                        .setMessage(message));
+                        .setMessage(message)
+        );
     }
 
     public static void updateUserAfterSaveSettings(User user){
