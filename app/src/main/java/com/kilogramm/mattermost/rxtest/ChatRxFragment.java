@@ -203,9 +203,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
-            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
+/*            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
             if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
-            else ChannelActivity.start(getActivity(), channelId);
+            else*/ ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
     }
@@ -425,8 +425,22 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        if (post.getMessage().length() != 0 || (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()
-                && !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
+
+        /*
+        * post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()
+        * post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+        * post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+        * */
+
+
+
+       /* if (post.getMessage().length() != 0 || (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()
+                && !FileToAttachRepository.getInstance().haveUnloadedFiles())) {*/
+        if (
+        post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+        ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());

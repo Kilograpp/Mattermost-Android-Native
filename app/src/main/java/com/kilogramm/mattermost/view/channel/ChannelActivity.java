@@ -46,10 +46,10 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         channelId = getIntent().getStringExtra(CHANNEL_ID);
 
         binding = DataBindingUtil.setContentView(this, R.layout.channel_activity);
-        initView();
+/*        initView();
         setToolbar();
         initClick();
-        setCTollBarTitle(getPresenter().getChannel().getDisplayName());
+        setCTollBarTitle(getPresenter().getChannel().getDisplayName());*/
 
     }
 
@@ -143,9 +143,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 this,
                 id -> openDirect(id),
                 extraInfo.getMembers(), true);
-        binding.list.setAdapter(allMembersAdapter);
-        binding.list.setLayoutManager(new LinearLayoutManager(this));
-        binding.list.setNestedScrollingEnabled(false);
+//        binding.list.setAdapter(allMembersAdapter);
+//        binding.list.setLayoutManager(new LinearLayoutManager(this));
+//        binding.list.setNestedScrollingEnabled(false);
     }
 
 
