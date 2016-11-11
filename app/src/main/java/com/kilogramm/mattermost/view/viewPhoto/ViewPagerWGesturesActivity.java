@@ -16,6 +16,9 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityPhotoViewerBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
+import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -38,6 +41,8 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
     private ArrayList<String> photosList;
     private String clickedImageUri;
 
+    private Menu menu;
+
     public static void start(Context context, String title, String imageUrl, ArrayList<String> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
         starter
@@ -53,11 +58,14 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
 
-        setupToolbar(binding.toolbar, getIntent().getStringExtra(TITLE), true);
-        setColorScheme(R.color.black, R.color.black);
-
         photosList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         clickedImageUri = getIntent().getStringExtra(IMAGE_URL);
+
+        String toolbarTitle = (photosList.indexOf(clickedImageUri) + 1)
+                + " из " + photosList.size();
+
+        setupToolbar(binding.toolbar, toolbarTitle, true);
+        setColorScheme(R.color.black, R.color.black);
 
         adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
@@ -68,12 +76,16 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 //String[] parsedName = photosList.get(position).split("/");
                 //setupToolbar(parsedName[parsedName.length - 1], true);
-                String toolbarTitle = position + " из " + (photosList.size() - 1);
-                setupToolbar(toolbarTitle, true);
             }
 
             @Override
             public void onPageSelected(int position) {
+                String toolbarTitle = (position + 1) + " из " + photosList.size();
+                setupToolbar(toolbarTitle, true);
+ /*               FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(photosList.get(position));
+                if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.DOWNLOADED){
+                    menu.findItem(R.id.action_download).setVisible(false);
+                }*/
             }
 
             @Override
@@ -87,6 +99,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_download, menu);
+        this.menu = menu;
         return true;
     }
 
