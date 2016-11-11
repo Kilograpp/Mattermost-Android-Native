@@ -330,6 +330,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_marginTop="15dp"
+                    android:layout_marginBottom="@dimen/about_margin_top_normal"
                     android:clickable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/white"
