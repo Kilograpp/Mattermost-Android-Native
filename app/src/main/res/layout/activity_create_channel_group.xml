@@ -34,6 +34,7 @@
                 android:maxLines="1"
                 android:textColorHint="@color/hint_grey"
                 android:textColor="@color/black"
+                android:maxLength="22"
                 android:textSize="27sp"
                 android:layout_weight="1"
                 android:inputType="textCapSentences"/>

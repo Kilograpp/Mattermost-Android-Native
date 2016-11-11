@@ -143,9 +143,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 this,
                 id -> openDirect(id),
                 extraInfo.getMembers(), true);
-//        binding.list.setAdapter(allMembersAdapter);
-//        binding.list.setLayoutManager(new LinearLayoutManager(this));
-//        binding.list.setNestedScrollingEnabled(false);
+        binding.list.setAdapter(allMembersAdapter);
+        binding.list.setLayoutManager(new LinearLayoutManager(this));
+        binding.list.setNestedScrollingEnabled(false);
     }
 
 

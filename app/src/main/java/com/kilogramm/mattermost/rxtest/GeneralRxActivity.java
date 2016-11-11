@@ -5,13 +5,17 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -189,19 +193,22 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private void setupRightMenu() {
         binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
                 MattermostPreference.getInstance().getMyUserId()));
-        user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        user.addChangeListener(userRealmChangeListener = element -> {
-            Log.d(TAG, "OnChange users");
-            updateHeaderUserName(element);
-        });
-        updateHeaderUserName(user);
-        Picasso.with(this)
-                .load(getAvatarUrl())
-                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(binding.headerPicture);
-        binding.navView.setNavigationItemSelectedListener(item -> {
-            binding.drawerLayout.closeDrawer(GravityCompat.END);
+        RealmResults users = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
+        if(users!=null) {
+            user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+            user.addChangeListener(userRealmChangeListener = element -> {
+                Log.d(TAG, "OnChange users");
+                updateHeaderUserName(element);
+            });
+            updateHeaderUserName(user);
+            Picasso.with(this)
+                    .load(getAvatarUrl())
+                    .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .into(binding.headerPicture);
+        }
+            binding.navView.setNavigationItemSelectedListener(item -> {
+                binding.drawerLayout.closeDrawer(GravityCompat.END);
 
             switch (item.getItemId()) {
                 case R.id.switch_team:

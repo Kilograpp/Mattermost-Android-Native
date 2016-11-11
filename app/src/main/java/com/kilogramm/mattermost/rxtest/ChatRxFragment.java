@@ -468,7 +468,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.INVISIBLE);
         binding.sendingMessageContainer.setVisibility(View.INVISIBLE);
         binding.line.setVisibility(View.INVISIBLE);
-
     }
 
     private Long getTimePost() {
@@ -687,7 +686,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
-            Post post = PostRepository.query(new PostByIdSpecification(item)).first();
+            Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
             switch (view.getId()) {
                 case R.id.sendStatusError:
                     showErrorSendMenu(view, post);
