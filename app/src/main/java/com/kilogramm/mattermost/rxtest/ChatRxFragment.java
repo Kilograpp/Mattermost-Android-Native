@@ -465,9 +465,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
 
     public void setErrorLayout(String error) {
-        binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.INVISIBLE);
-        binding.sendingMessageContainer.setVisibility(View.INVISIBLE);
-        binding.line.setVisibility(View.INVISIBLE);
+        binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.GONE);
+        binding.sendingMessageContainer.setVisibility(View.GONE);
+        binding.line.setVisibility(View.GONE);
     }
 
     private Long getTimePost() {
