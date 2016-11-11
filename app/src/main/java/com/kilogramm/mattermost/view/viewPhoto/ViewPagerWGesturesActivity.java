@@ -59,7 +59,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 //String[] parsedName = photosList.get(position).split("/");
                 //setupToolbar(parsedName[parsedName.length - 1], true);
-                String toolbarTitle = position + " из " + (photosList.size() - 1);
+                String toolbarTitle = (position + 1) + " из " + (photosList.size());
                 setupToolbar(toolbarTitle, true);
             }
 
