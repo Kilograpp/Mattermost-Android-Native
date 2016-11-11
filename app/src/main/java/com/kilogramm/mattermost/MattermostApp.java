@@ -56,8 +56,8 @@ public class MattermostApp extends Application{
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        Realm.init(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder()
+       // Realm.init(getApplicationContext());
+        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .build();
         Realm.compactRealm(configuration);
@@ -70,6 +70,7 @@ public class MattermostApp extends Application{
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this)
                                 .databaseNamePattern(Pattern.compile(".+\\.realm"))
                                 .build())

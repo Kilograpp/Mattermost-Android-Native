@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -17,21 +18,18 @@ import com.squareup.picasso.Picasso;
  * Created by melkshake on 09.11.16.
  */
 
-public class PhotoViewFragment extends Fragment {
+public class PhotoViewFragment extends Fragment implements VerticalSwipeListener {
 
     public static final String IMAGE_URI = "image_uri";
-    public static final String LISTENER = "listener";
 
     private FragmentPhotoViewBinding photoBinding;
     private String imageUri;
-    private VerticalSwipeListener verticalSwipeListener;
 
-    static PhotoViewFragment newInstance(String imageUri, VerticalSwipeListener listener) {
+    static PhotoViewFragment newInstance(String imageUri/*, VerticalSwipeListener listener*/) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
 
         Bundle arguments = new Bundle();
         arguments.putString(IMAGE_URI, imageUri);
-        arguments.putSerializable(LISTENER, listener);
         photoViewFragment.setArguments(arguments);
 
         return photoViewFragment;
@@ -42,8 +40,9 @@ public class PhotoViewFragment extends Fragment {
         super.onCreate(bundle);
         if (getArguments() != null) {
             this.imageUri = getArguments().getString(IMAGE_URI);
-            this.verticalSwipeListener = (VerticalSwipeListener) getArguments().getSerializable(LISTENER);
         }
+
+
     }
 
     @Nullable
@@ -57,7 +56,7 @@ public class PhotoViewFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Picasso.with(getContext())
-                .load(imageUri)
+                .load(FileUtil.getInstance().getImageUrl(imageUri))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
                 .into(photoBinding.image, new Callback() {
                     @Override
@@ -70,14 +69,16 @@ public class PhotoViewFragment extends Fragment {
 
                     @Override
                     public void onError() {
-
                     }
                 });
 
         photoBinding.image.setVerticalSwipeListener(() -> {
-            if (verticalSwipeListener != null) {
-                verticalSwipeListener.onSwipe();
-            }
+            getActivity().finish();
         });
+    }
+
+    @Override
+    public void onSwipe() {
+
     }
 }

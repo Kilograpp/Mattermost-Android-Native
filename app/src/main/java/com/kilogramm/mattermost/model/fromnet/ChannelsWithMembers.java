@@ -2,8 +2,8 @@ package com.kilogramm.mattermost.model.fromnet;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Map;
 
@@ -20,14 +20,14 @@ public class ChannelsWithMembers {
 
     @SerializedName("members")
     @Expose
-    private Map<String,User> members;
+    private Map<String,Member> members;
 
 
-    public Map<String, User> getMembers() {
+    public Map<String, Member> getMembers() {
         return members;
     }
 
-    public void setMembers(Map<String, User> members) {
+    public void setMembers(Map<String, Member> members) {
         this.members = members;
     }
 

@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
+import com.kilogramm.mattermost.model.entity.member.MemberById;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 
@@ -84,11 +87,18 @@ public class MenuDirectListAdapter extends RealmRecyclerViewAdapter<Channel,Menu
     public void onBindViewHolder(MenuDirectListHolder holder, int position) {
         Channel channel = getData().get(position);
         UserStatus userStatus = null;
+        Member member = null;
 
         RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", channel.getUser().getId());
         if (byId.count() != 0) {
             userStatus = byId.findFirst();
         }
+        RealmResults<Member> memberRealmResults = MembersRepository.query(new MemberById(channel.getId()));
+        memberRealmResults.addChangeListener(element -> notifyDataSetChanged());
+        if ( memberRealmResults.size()!=0){
+            member = memberRealmResults.first();
+        }
+
 
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
@@ -107,7 +117,7 @@ public class MenuDirectListAdapter extends RealmRecyclerViewAdapter<Channel,Menu
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
 
-        holder.bindTo(channel, context, userStatus);
+        holder.bindTo(channel, context, userStatus, member);
     }
 
     public int getSelecteditem() {

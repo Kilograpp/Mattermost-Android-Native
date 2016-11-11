@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
+import com.kilogramm.mattermost.model.entity.member.MemberById;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 
 import io.realm.RealmAD;
@@ -42,6 +45,13 @@ public class MenuChannelRxAdapter extends RealmAD<Channel, MenuChannelListHolder
     @Override
     public void onBindViewHolder(MenuChannelListHolder holder, int position) {
         Channel channel = getData().get(position);
+        Member member = null;
+
+        RealmResults<Member> memberRealmResults = MembersRepository.query(new MemberById(channel.getId()));
+        memberRealmResults.addChangeListener(element -> notifyDataSetChanged());
+        if ( memberRealmResults.size()!=0){
+            member = memberRealmResults.first();
+        }
         holder.getmBinding().getRoot()
                 .setOnClickListener(v -> {
                     Log.d(TAG, "onClickItem() holder");
@@ -58,7 +68,7 @@ public class MenuChannelRxAdapter extends RealmAD<Channel, MenuChannelListHolder
         } else {
             ((CheckableLinearLayout) holder.getmBinding().getRoot()).setChecked(false);
         }
-        holder.bindTo(channel, context);
+        holder.bindTo(channel, context, member);
     }
 
     public int getSelecteditem() {
