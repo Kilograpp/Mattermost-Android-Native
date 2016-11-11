@@ -201,6 +201,7 @@
     <string name="channel_purpose_toolbar">Channel Purpose</string>
     <string name="channel_name_toolbar">Channel Name</string>
     <string name="channel_display_name">Display Name</string>
+    <string name="channel_handle_name">Handle</string>
     <string name="channel_display_name_edit">Edit name</string>
     <string name="channel_name_edit">Edit handle</string>
 
