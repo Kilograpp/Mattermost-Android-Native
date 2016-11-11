@@ -16,12 +16,13 @@
     <string name="forgot_password_recovery_button">Recovery</string>
     <string name="forgot_password_description">Enter the email address associated with your team.</string>
     <string name="more">More…</string>
-    <string name="direct_message">DIRECT_MESSAGE</string>
+    <string name="direct_message">DIRECT MESSAGE</string>
     <string name="channels">CHANNELS</string>
     <string name="private_groups">PRIVATE GROUPS</string>
     <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
+    <string name="edit_profile">Edit Profile</string>
     <string name="message_empty">Message is empty</string>
     <string name="wait_files">Wait file for uploading</string>
     <string name="in_development">In Development</string>
@@ -179,7 +180,6 @@
     <string name="about_mattermost_org">Join the Mattermost community at mattermost.org</string>
     <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
     <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
-
 
     <!--Channel info-->
     <string name="channel_info">Channel info</string>

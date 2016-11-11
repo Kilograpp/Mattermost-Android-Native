@@ -73,7 +73,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
         setSupportActionBar(mBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Edit Profile");
+        getSupportActionBar().setTitle(getResources().getString(R.string.edit_profile));
     }
 
     @Override
