@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.settings.EmailEditActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
+import com.kilogramm.mattermost.view.settings.PasswordChangeActivity;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -214,6 +215,8 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
         mBinding.changeEmail.setOnClickListener(v -> EmailEditActivity.start(
                 EditProfileRxActivity.this));
+
+        mBinding.changePassword.setOnClickListener(v -> PasswordChangeActivity.start(this));
 
         mBinding.changeAvatar.setOnClickListener(v -> openImageIntent());
 

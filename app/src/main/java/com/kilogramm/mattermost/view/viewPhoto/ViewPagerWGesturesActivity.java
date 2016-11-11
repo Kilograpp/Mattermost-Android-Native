@@ -5,12 +5,21 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityPhotoViewerBinding;
+import com.kilogramm.mattermost.model.FileDownloadManager;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -74,12 +83,60 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_download, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;
+            case R.id.action_download:
+                String fileId = photosList.get(binding.viewPager.getCurrentItem());
+                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator
+                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileId));
+                if (file.exists()) {
+                    createDialog(fileId);
+                } else {
+                    downloadFile(fileId);
+                }
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createDialog(String fileName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.file_exists));
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton(R.string.replace, (dialog, which) ->downloadFile(fileName));
+        builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
+            Intent intent = null;
+            intent = FileUtil.getInstance().
+                    createOpenFileIntent(
+                            FileUtil.getInstance().getDownloadedFilesDir()
+                                    + File.separator
+                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                startActivity(intent);
+            } else {
+                Toast.makeText(this,
+                        getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.show();
+    }
+
+    private void downloadFile(String fileName){
+        findViewById(R.id.action_download).setVisibility(View.GONE);
+        FileDownloadManager.getInstance().addItem(fileName);
     }
 }

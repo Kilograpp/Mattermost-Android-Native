@@ -7,6 +7,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import java.util.Collection;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -17,7 +18,7 @@ public class ChannelRepository {
 
     private static final int LOW_DASH_COUNT = 2;
 
-    public static void add(Channel channel){
+    public static void add(Channel channel) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm1.insertOrUpdate(channel));
     }
@@ -35,34 +36,42 @@ public class ChannelRepository {
     public static void remove(Channel item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            Channel post = realm1.where(Channel.class).equalTo("id",item.getId()).findFirst();
+            Channel post = realm1.where(Channel.class).equalTo("id", item.getId()).findFirst();
             post.deleteFromRealm();
         });
     }
 
-    public static void prepareChannelAndAdd(Collection<Channel> items, String myId){
+    public static void prepareChannelAndAdd(Collection<Channel> items, String myId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             for (Channel channel : items) {
                 String userId;
-                if(channel.getType().equals(Channel.DIRECT)){
-                    if(channel.getName().startsWith(myId)){
-                        userId = channel.getName().substring(myId.length()+ LOW_DASH_COUNT);
+                if (channel.getType().equals(Channel.DIRECT)) {
+                    if (channel.getName().startsWith(myId)) {
+                        userId = channel.getName().substring(myId.length() + LOW_DASH_COUNT);
                     } else {
-                        userId = channel.getName().substring(0, channel.getName().length()-myId.length()-LOW_DASH_COUNT);
+                        userId = channel.getName().substring(0, channel.getName().length() - myId.length() - LOW_DASH_COUNT);
                     }
                     channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                     channel.setUsername(channel.getUser().getUsername());
                 }
             }
             realm1.copyToRealmOrUpdate(items);
+
+            RealmQuery<Channel> channelRealmQuery = realm.where(Channel.class);
+            for (Channel channel : items)
+                channelRealmQuery.notEqualTo("id", channel.getId());
+            if (channelRealmQuery.findAll().size() > 0)
+                channelRealmQuery.findAll().deleteAllFromRealm();
         });
+
+
     }
 
     public static void prepareDirectChannelAndAdd(Channel channel, String userId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            if(channel.getType().equals(Channel.DIRECT)){
+            if (channel.getType().equals(Channel.DIRECT)) {
                 channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                 channel.setUsername(channel.getUser().getUsername());
             }
@@ -131,10 +140,10 @@ public class ChannelRepository {
         }
     }
 
-    public static class ChannelAllSpecification implements RealmSpecification{
+    public static class ChannelAllSpecification implements RealmSpecification {
         @Override
         public RealmResults toRealmResults(Realm realm) {
-            return realm.where(Channel.class).findAllSorted("username",Sort.ASCENDING);
+            return realm.where(Channel.class).findAllSorted("username", Sort.ASCENDING);
         }
     }
     //endregion

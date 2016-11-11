@@ -155,7 +155,11 @@
     <string name="current_email">Current email</string>
     <string name="current_password">Current password</string>
     <string name="edit_email">Edit email</string>
+    <string name="new_password">New password</string>
+    <string name="new_password_again">New password again</string>
+    <string name="error_in_confirm_password">Incorrect second new password</string>
     <string name="verify_email">Email successfully changed. We will send you the verification email</string>
+    <string name="password_changed">Password was successfully changed</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>

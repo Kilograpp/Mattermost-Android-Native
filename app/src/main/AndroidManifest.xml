@@ -114,6 +114,11 @@
             android:windowSoftInputMode="stateVisible"/>
 
         <activity
+            android:name=".view.settings.PasswordChangeActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible"/>
+
+        <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
             android:screenOrientation="portrait" />
 

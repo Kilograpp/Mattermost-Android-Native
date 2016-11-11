@@ -18,13 +18,13 @@ import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
-import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -38,7 +38,6 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -138,6 +137,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, channelsWithMembers) -> {
                     ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                             MattermostPreference.getInstance().getMyUserId());
+                    MembersRepository.add(channelsWithMembers.getMembers().values());
                     requestUserTeam();
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 

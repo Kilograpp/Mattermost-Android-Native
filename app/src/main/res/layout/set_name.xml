@@ -58,7 +58,7 @@
                 android:layout_weight="1"
                 android:hint="@string/channel_display_name_edit"
                 android:maxLength="22"
-                android:maxLines="1" />
+                />
 
                 <ImageView
                     android:id="@+id/btnClearDisplayName"
@@ -106,7 +106,7 @@
                     android:layout_weight="1"
                     android:hint="@string/channel_name_edit"
                     android:maxLength="22"
-                    android:maxLines="1" />
+                    />
 
                 <ImageView
                     android:id="@+id/btnClearName"

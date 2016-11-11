@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
@@ -20,6 +21,7 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
+import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,16 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channel_id}/")
+    Observable<ChannelWithMember> getChannel(@Path("teamId") String teamId,
+                                                  @Path("channel_id") String channelId);
+
 
     @Headers({
             "Accept: application/json",
@@ -154,7 +166,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/updateMembers")
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/update")
     Observable<Post> editPost(@Path("teamId") String teamId,
                               @Path("channelId") String channelId,
                               @Body PostEdit post);
@@ -263,7 +275,7 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/users/updateMembers")
+    @POST("api/v3/users/update")
     Observable<User> updateUser(@Body User user);
 
     @Headers({
@@ -317,8 +329,16 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/{teamId}/channels/updateMembers")
+    @POST("api/v3/teams/{teamId}/channels/update")
     Observable<Channel> updateChannel(@Path("teamId") String teamId,
                                       @Body Channel channel);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/newpassword")
+    Observable<ResponseBody> changePassword(@Body PasswordChangePresenter.NewPassword newPassword);
+
 
 }
