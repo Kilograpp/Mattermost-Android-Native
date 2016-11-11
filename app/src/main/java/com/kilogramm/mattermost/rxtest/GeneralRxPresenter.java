@@ -185,9 +185,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         );
     }
 
-
-
-
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();
@@ -218,7 +215,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             }
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
-                        })), (generalRxActivity, channel) -> {
+                        })
+        ), (generalRxActivity, channel) -> {
             mSaveData.getmSaveData().clear();
             sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
