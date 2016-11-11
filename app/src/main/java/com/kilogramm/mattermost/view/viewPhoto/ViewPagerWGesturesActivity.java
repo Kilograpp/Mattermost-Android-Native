@@ -64,7 +64,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         String toolbarTitle = (photosList.indexOf(clickedImageUri) + 1)
                 + " из " + photosList.size();
 
-        setupToolbar(binding.toolbar, toolbarTitle, true);
+        setupToolbar(toolbarTitle, true);
         setColorScheme(R.color.black, R.color.black);
 
         adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
@@ -82,25 +82,50 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 String toolbarTitle = (position + 1) + " из " + photosList.size();
                 setupToolbar(toolbarTitle, true);
- /*               FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(photosList.get(position));
-                if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.DOWNLOADED){
-                    menu.findItem(R.id.action_download).setVisible(false);
-                }*/
+                setupDownloadIcon(photosList.get(position));
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
             }
         });
+
+
+        setupDownloadIcon(null);
+        findViewById(R.id.action_download).setOnClickListener(v -> {
+            String fileId = photosList.get(binding.viewPager.getCurrentItem());
+            File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                    + File.separator
+                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileId));
+            if (file.exists()) {
+                createDialog(fileId);
+            } else {
+                downloadFile(fileId);
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_download, menu);
-        this.menu = menu;
-        return true;
+    private void setupDownloadIcon(String fileName) {
+        // TODO нужно для показывания прогрессБара в тулбаре при скачивании. Работает с косяками, потому откатился
+        /*FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(clickedImageUri);
+        if (fileToAttach != null && fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+            findViewById(R.id.action_download).setVisibility(View.GONE);
+            findViewById(R.id.progressBar).setVisibility(View.GONE);
+        } else if (fileToAttach != null && (fileToAttach.getUploadState() == UploadState.DOWNLOADING
+                || fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
+            findViewById(R.id.action_download).setVisibility(View.GONE);
+            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+            findViewById(R.id.progressBar).setVisibility(View.GONE);
+        }*/
+        FileToAttach fileToAttach = FileToAttachRepository.getInstance().
+                get(fileName != null ? fileName : clickedImageUri);
+        if (fileToAttach != null) {
+            findViewById(R.id.action_download).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -108,17 +133,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                return true;
-            case R.id.action_download:
-                String fileId = photosList.get(binding.viewPager.getCurrentItem());
-                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
-                        + File.separator
-                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileId));
-                if (file.exists()) {
-                    createDialog(fileId);
-                } else {
-                    downloadFile(fileId);
-                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -128,7 +142,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.file_exists));
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
-        builder.setPositiveButton(R.string.replace, (dialog, which) ->downloadFile(fileName));
+        builder.setPositiveButton(R.string.replace, (dialog, which) -> downloadFile(fileName));
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
             Intent intent = null;
             intent = FileUtil.getInstance().
@@ -148,8 +162,9 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         builder.show();
     }
 
-    private void downloadFile(String fileName){
+    private void downloadFile(String fileName) {
         findViewById(R.id.action_download).setVisibility(View.GONE);
+//        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
         FileDownloadManager.getInstance().addItem(fileName);
     }
 }
