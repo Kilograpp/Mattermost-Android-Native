@@ -192,22 +192,22 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private void setupRightMenu() {
         binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
                 MattermostPreference.getInstance().getMyUserId()));
-
-        user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        user.addChangeListener(userRealmChangeListener = element -> {
-            Log.d(TAG, "OnChange users");
-            updateHeaderUserName(element);
-        });
-
-        updateHeaderUserName(user);
-        Picasso.with(this)
-                .load(getAvatarUrl())
-                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(binding.headerPicture);
-
-        binding.navView.setNavigationItemSelectedListener(item -> {
-            binding.drawerLayout.closeDrawer(GravityCompat.END);
+        RealmResults users = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
+        if(users!=null) {
+            user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+            user.addChangeListener(userRealmChangeListener = element -> {
+                Log.d(TAG, "OnChange users");
+                updateHeaderUserName(element);
+            });
+            updateHeaderUserName(user);
+            Picasso.with(this)
+                    .load(getAvatarUrl())
+                    .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .into(binding.headerPicture);
+        }
+            binding.navView.setNavigationItemSelectedListener(item -> {
+                binding.drawerLayout.closeDrawer(GravityCompat.END);
 
             switch (item.getItemId()) {
                 case R.id.switch_team:

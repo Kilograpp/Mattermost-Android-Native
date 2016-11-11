@@ -180,7 +180,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             .build()));
                     PostRepository.removeTempPost(post.getPendingPostId());
                     PostRepository.add(post);
-
+                    isSendingPost = false;
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
@@ -188,6 +188,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
+                    isSendingPost = false;
                     sendError(throwable.getMessage());
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
@@ -209,6 +210,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     isSendingPost = false;
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
+                    isSendingPost = false;
                     sendError(getError(throwable));
                     setErrorPost(forSendPost.getPendingPostId());
                     throwable.printStackTrace();
@@ -398,6 +400,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServerError(Post post) {
+        if(isSendingPost) return;
+        isSendingPost = true;
         forSendPost = post;
         post.setId(null);
         post.setUser(null);

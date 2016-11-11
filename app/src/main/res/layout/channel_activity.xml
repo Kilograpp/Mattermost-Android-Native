@@ -291,12 +291,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow"
                     app:cardCornerRadius="0dp">
-<!--
+
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:theme="@style/CardView.Light.Blue"/>-->
+                        app:theme="@style/CardView.Light.Blue"/>
 
                 </android.support.v7.widget.CardView>
 
