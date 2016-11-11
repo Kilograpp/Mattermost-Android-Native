@@ -12,6 +12,8 @@ import com.kilogramm.mattermost.model.entity.ListSaveData;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
@@ -20,6 +22,7 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
+import io.realm.RealmList;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -77,7 +80,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
-                    ExtroInfoRepository.update(extraInfo);
+                    RealmList<User> results = new RealmList<>();
+                    results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
+                    extraInfo.setMembers(results);
+                    ExtroInfoRepository.add(extraInfo);
                     requestMembers();
                 }, (channelActivity, throwable) ->
                         sendError("Error loading data")

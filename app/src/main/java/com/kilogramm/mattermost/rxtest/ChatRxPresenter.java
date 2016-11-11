@@ -134,10 +134,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
                             MembersRepository.add(channelsWithMembers.getMembers().values());
-                            RealmList<User> results = new RealmList<>();
-                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
-                            extraInfo.setMembers(results);
-                            ExtroInfoRepository.add(extraInfo);
+
                             return extraInfo;
                         }))
                 , (chatRxFragment, extraInfo) -> {
