@@ -117,6 +117,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                                         .getDisplayName());
 
         if (resultCode == RESULT_OK) {
+            if (requestCode == ChannelActivity.REQUEST_ID) {
+                getPresenter().setFirstChannelBeforeLeave();
+            }
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
 
