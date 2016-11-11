@@ -105,6 +105,10 @@ public class FilesView extends GridLayout {
                                 fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
                     binding.downloadFileControls.showProgressControls();
                     FileDownloadManager.getInstance().addListener(fileName, fileDownloadListener);
+                } else if (fileToAttach != null &&
+                        fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
                 }
 
                 binding.fileSize.setVisibility(VISIBLE);
