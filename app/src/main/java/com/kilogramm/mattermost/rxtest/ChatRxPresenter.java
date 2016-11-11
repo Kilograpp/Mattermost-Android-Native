@@ -142,6 +142,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     requestLoadPosts();
                 }, (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
+                    setErrorLayout(getError(throwable));
                     sendShowList();
                 });
     }
@@ -519,6 +520,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void sendError(String error) {
         createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
                 Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG).show()));
+    }
+
+    private void setErrorLayout(String error) {
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
+                chatRxFragment.setErrorLayout(error)));
     }
 
     private void sendSlideDialogToFoundMessage() {

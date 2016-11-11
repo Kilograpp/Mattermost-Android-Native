@@ -13,7 +13,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +24,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -460,6 +458,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
         rootPost = null;
         binding.btnSend.setText(getString(R.string.send));
+    }
+
+
+    public void setErrorLayout(String error) {
+        binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.INVISIBLE);
+        binding.sendingMessageContainer.setVisibility(View.INVISIBLE);
+        binding.line.setVisibility(View.INVISIBLE);
+
     }
 
     private Long getTimePost() {
