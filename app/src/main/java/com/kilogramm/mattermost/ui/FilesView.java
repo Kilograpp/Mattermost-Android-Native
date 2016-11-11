@@ -17,9 +17,11 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
+import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.ImageViewerActivity;
@@ -111,8 +113,6 @@ public class FilesView extends GridLayout {
                     binding.icDownloadedFile.setVisibility(VISIBLE);
                 }
 
-                binding.fileSize.setVisibility(VISIBLE);
-
                 ArrayList<String> photoUriList = new ArrayList<>();
                 for (String fileItem : fileList) {
                     photoUriList.add(getImageUrl(fileItem));
@@ -123,7 +123,7 @@ public class FilesView extends GridLayout {
                     case JPG:
                         binding.image.setVisibility(VISIBLE);
                         binding.circleFrame.setVisibility(GONE);
-                        initAndAddItem(binding, getImageUrl(fileName));
+                        initAndAddItem(binding, fileName);
 
                         binding.image.setOnClickListener(view ->
 //                            ImageViewerActivity.start(getContext(),
@@ -139,7 +139,7 @@ public class FilesView extends GridLayout {
                         );
                         break;
                     default:
-                        initAndAddItem(binding, getImageUrl(fileName));
+                        initAndAddItem(binding, fileName);
                         break;
                 }
             }
@@ -148,9 +148,10 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
+    private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
         if (backgroundColorId != null)
             binding.root.setBackground(backgroundColorId);
+        String url = getImageUrl(fileName);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
         String title = "";
@@ -172,14 +173,26 @@ public class FilesView extends GridLayout {
                 .into(binding.image);
         this.addView(binding.getRoot());
 
-        new Thread(() -> {
-            long fileSize = getRemoteFileSize(url);
-            Log.d(TAG, String.valueOf(fileSize));
-            if (fileSize > 0) {
-                binding.fileSize.post(() -> binding.fileSize.setText(FileUtil.getInstance()
-                        .convertFileSize(fileSize)));
+        RealmString realmString = RealmStringRepository.getInstance().get(fileName);
+        if(realmString != null) {
+            if(realmString.getFileSize() <= 0) {
+                new Thread(() -> {
+                    long fileSize = getRemoteFileSize(url);
+                    Log.d(TAG, String.valueOf(fileSize));
+                    if (fileSize > 0) {
+                        binding.fileSize.post(() -> {
+                            binding.materialProgressBar.setVisibility(GONE);
+                            binding.fileSize.setText(FileUtil.getInstance()
+                                .convertFileSize(fileSize));
+                            RealmStringRepository.getInstance().updateFileSize(fileName, fileSize);
+                        });
+                    }
+                }).start();
+            } else {
+                binding.materialProgressBar.setVisibility(GONE);
+                binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
             }
-        }).start();
+        }
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
