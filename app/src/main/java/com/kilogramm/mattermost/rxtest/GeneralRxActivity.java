@@ -189,48 +189,51 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     private void setupRightMenu() {
         binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
                 MattermostPreference.getInstance().getMyUserId()));
-        user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        user.addChangeListener(userRealmChangeListener = element -> {
-            Log.d(TAG, "OnChange users");
-            updateHeaderUserName(element);
-        });
-        updateHeaderUserName(user);
-        Picasso.with(this)
-                .load(getAvatarUrl())
-                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(binding.headerPicture);
-        binding.navView.setNavigationItemSelectedListener(item -> {
-            binding.drawerLayout.closeDrawer(GravityCompat.END);
+        RealmResults users = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
+        if(users!=null) {
+            user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+            user.addChangeListener(userRealmChangeListener = element -> {
+                Log.d(TAG, "OnChange users");
+                updateHeaderUserName(element);
+            });
+            updateHeaderUserName(user);
+            Picasso.with(this)
+                    .load(getAvatarUrl())
+                    .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                    .into(binding.headerPicture);
+        }
+            binding.navView.setNavigationItemSelectedListener(item -> {
+                binding.drawerLayout.closeDrawer(GravityCompat.END);
 
-            switch (item.getItemId()) {
-                case R.id.switch_team:
-                    getPresenter().requestSwitchTeam();
-                    break;
-                case R.id.files:
-                    showFiles();
-                    break;
-                case R.id.settings:
-                    EditProfileRxActivity.start(this);
-                    break;
-                case R.id.invite_new_member:
-                    InviteUserRxActivity.start(this);
-                    break;
-                case R.id.help:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.report_a_problem:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.about_mattermost:
-                    RightMenuAboutAppActivity.start(this);
-                    break;
-                case R.id.logout:
-                    getPresenter().requestLogout();
-                    break;
-            }
-            return false;
-        });
+                switch (item.getItemId()) {
+                    case R.id.switch_team:
+                        getPresenter().requestSwitchTeam();
+                        break;
+                    case R.id.files:
+                        showFiles();
+                        break;
+                    case R.id.settings:
+                        EditProfileRxActivity.start(this);
+                        break;
+                    case R.id.invite_new_member:
+                        InviteUserRxActivity.start(this);
+                        break;
+                    case R.id.help:
+                        Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.report_a_problem:
+                        Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.about_mattermost:
+                        RightMenuAboutAppActivity.start(this);
+                        break;
+                    case R.id.logout:
+                        getPresenter().requestLogout();
+                        break;
+                }
+                return false;
+            });
     }
 
     private void updateHeaderUserName(User user) {
