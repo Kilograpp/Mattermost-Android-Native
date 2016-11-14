@@ -80,11 +80,6 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                             }
                         });
 
-/*                Picasso.with(context)
-                        .load(fileToAttach.getFilePath())
-                        .resize(50, 50)
-                        .centerCrop()
-                        .into(holder.binding.imageView);*/
                 break;
             default:
                 holder.binding.imageView.setVisibility(View.GONE);
