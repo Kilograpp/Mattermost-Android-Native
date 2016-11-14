@@ -38,6 +38,9 @@ public class FileUtil {
 
     private Context mContext;
 
+    public static final String PNG = "png";
+    public static final String JPG = "jpg";
+
     private static FileUtil ourInstance;
 
     public static FileUtil getInstance() {
@@ -224,17 +227,17 @@ public class FileUtil {
 
     public void removeFile(String path) {
         File file = new File(path);
-        if(file.exists()){
+        if (file.exists()) {
             file.delete();
         }
     }
 
-    public String getDownloadedFilesDir(){
-        return  Environment.getExternalStoragePublicDirectory(
+    public String getDownloadedFilesDir() {
+        return Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost";
     }
 
-    public String getFileNameFromId(String fileId){
+    public String getFileNameFromId(String fileId) {
         Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
         Matcher matcher = pattern.matcher(fileId);
         if (matcher.matches()) {
@@ -243,7 +246,7 @@ public class FileUtil {
         return null;
     }
 
-    public String getFileNameFromIdDecoded(String fileId){
+    public String getFileNameFromIdDecoded(String fileId) {
         Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
         Matcher matcher = pattern.matcher(fileId);
         if (matcher.matches()) {
@@ -257,7 +260,7 @@ public class FileUtil {
         return fileId;
     }
 
-    public Intent createOpenFileIntent(String path){
+    public Intent createOpenFileIntent(String path) {
         File file = new File(path);
         String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
 
@@ -267,11 +270,11 @@ public class FileUtil {
         return intent;
     }
 
-    public String convertFileSize(long bytes){
+    public String convertFileSize(long bytes) {
         if (bytes > 1024 * 1024) {
-            return String.format("%.2f Mb", ((float)bytes) / 1024 / 1024);
+            return String.format("%.2f Mb", ((float) bytes) / 1024 / 1024);
         } else if (bytes > 1024) {
-            return String.format("%.2f Kb", ((float)bytes) / 1024);
+            return String.format("%.2f Kb", ((float) bytes) / 1024);
         } else if (bytes < 0) {
             return null;
         } else {
@@ -279,7 +282,7 @@ public class FileUtil {
         }
     }
 
-    public Observable<BitmapWithUri> getBitmap(Uri outputFileUri, Intent data){
+    public Observable<BitmapWithUri> getBitmap(Uri outputFileUri, Intent data) {
         return Observable.create(subscriber -> {
             final boolean isCamera;
             isCamera = isCamera(data);
@@ -305,14 +308,24 @@ public class FileUtil {
                 options.inSampleSize = 8;
                 try {//Using Input Stream to get uri did the trick
                     InputStream input = mContext.getContentResolver().openInputStream(selectedImageUri);
-                    Rect rect = new Rect(0,0,0,0);
-                    final Bitmap bitmap = BitmapFactory.decodeStream(input,rect,options);
+                    Rect rect = new Rect(0, 0, 0, 0);
+                    final Bitmap bitmap = BitmapFactory.decodeStream(input, rect, options);
                     subscriber.onNext(new BitmapWithUri(bitmap, selectedImageUri));
                     subscriber.onCompleted();
                 } catch (FileNotFoundException e) {
                     subscriber.onError(e);
                 }
             }
+        });
+    }
+
+    public Observable<Bitmap> getBitmap(String filePath, int inSampleSize) {
+        return Observable.create(subscriber -> {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = inSampleSize;
+            final Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
+            subscriber.onNext(bitmap);
+            subscriber.onCompleted();
         });
     }
 
@@ -323,10 +336,7 @@ public class FileUtil {
         } else {
             final String action = data.getAction();
             if (action == null) {
-                isCamera = false;
-                if(data.getData()==null){
-                    isCamera = true;
-                }
+                isCamera = data.getData() == null;
             } else {
                 isCamera = true;
             }
@@ -361,7 +371,7 @@ public class FileUtil {
     }
 
 
-    public static class BitmapWithUri{
+    public static class BitmapWithUri {
         private Bitmap bitmap;
         private Uri uri;
 
