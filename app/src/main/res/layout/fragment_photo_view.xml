@@ -19,7 +19,7 @@
             android:progressDrawable="@drawable/circular_white_progress_bar"
             app:mpb_progressStyle="circular" />
 
-        <com.kilogramm.mattermost.view.viewPhoto.TouchImageView
+        <com.kilogramm.mattermost.ui.TouchImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
