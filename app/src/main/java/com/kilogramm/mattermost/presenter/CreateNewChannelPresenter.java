@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -86,7 +85,7 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
     }
 
     public void requestCreateChannel(String name, String displayName, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, displayName, header, purpose, "O");
+        createChannel.setAttributesToCreate(name, displayName, purpose, header, "O");
         sendSetProgressVisibility(true);
         start(REQUEST_CREATE_CHANNEL);
     }
