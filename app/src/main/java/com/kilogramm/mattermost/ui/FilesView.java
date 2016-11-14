@@ -109,6 +109,7 @@ public class FilesView extends GridLayout {
                     FileDownloadManager.getInstance().addListener(fileName, fileDownloadListener);
                 } else if (fileToAttach != null &&
                         fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                    setupFileClickListeners(binding, fileName);
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
                 }
@@ -146,6 +147,19 @@ public class FilesView extends GridLayout {
         } else {
             clearView();
         }
+    }
+
+    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName){
+        binding.icDownloadedFile.setOnClickListener(v -> {
+            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
+                + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            getContext().startActivity(intent);
+        });
+        binding.title.setOnClickListener(v -> {
+            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
+                    + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            getContext().startActivity(intent);
+        });
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
@@ -202,6 +216,7 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.post(() -> {
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
+                    setupFileClickListeners(binding, fileId);
                 });
             }
 
