@@ -13,9 +13,11 @@ import io.realm.Sort;
 public class UserByNameSearchSpecification implements RealmSpecification {
 
     private final String name;
+    private final int cursorPos;
 
-    public UserByNameSearchSpecification(String name) {
+    public UserByNameSearchSpecification(String name, int cursorPos) {
         this.name = name;
+        this.cursorPos = cursorPos;
     }
 
     @Override
@@ -28,12 +30,20 @@ public class UserByNameSearchSpecification implements RealmSpecification {
                     .equalTo("deleteAt", 0L)
                     .findAllSorted("username", Sort.ASCENDING);
         else {
+            int position = 0;
+            int count = 0;
             String[] username = name.split("@");
+            for (String s : username) {
+                count += s.length() + 1;
+                if (cursorPos < count)
+                    break;
+                position++;
+            }
             return realm.where(User.class)
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)
-                    .contains("username", username[username.length - 1])
+                    .contains("username", username[position])
                     .findAllSorted("username", Sort.ASCENDING);
         }
     }

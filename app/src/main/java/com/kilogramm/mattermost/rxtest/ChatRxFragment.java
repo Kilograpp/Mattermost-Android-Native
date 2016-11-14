@@ -187,10 +187,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
-                if (v == binding.writingMessage && !hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
+            if (v == binding.writingMessage && !hasFocus) {
+                InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
         });
     }
 
@@ -321,11 +321,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
-                        getPresenter().requestGetUsers(null);
+                int cursorPos = binding.writingMessage.getSelectionStart();
+                if (cursorPos > 0 && charSequence.toString().contains("@"))
+                    if (charSequence.charAt(cursorPos - 1) == '@')
+                        getPresenter().requestGetUsers(null, 0);
                     else
-                        getPresenter().requestGetUsers(charSequence.toString());
+                        getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
                 else
                     setDropDown(null);
             }
@@ -434,10 +435,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         if (
-        post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
-        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
-        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
-        ) {
+                post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -823,7 +824,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 + postId;
     }
 
-    public void invalidateByPosition(int position){
+    public void invalidateByPosition(int position) {
         adapter.notifyItemChanged(position);
     }
 
