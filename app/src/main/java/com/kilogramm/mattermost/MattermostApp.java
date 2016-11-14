@@ -59,6 +59,7 @@ public class MattermostApp extends Application{
        // Realm.init(getApplicationContext());
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
+                .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
                 .build();
         Realm.compactRealm(configuration);
         Realm.removeDefaultConfiguration();

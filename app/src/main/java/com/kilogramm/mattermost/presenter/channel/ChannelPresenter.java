@@ -85,8 +85,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     extraInfo.setMembers(results);
                     ExtroInfoRepository.add(extraInfo);
                     requestMembers();
-                }, (channelActivity, throwable) ->
-                        sendError("Error loading data")
+                }, (channelActivity, throwable) -> {
+                    sendError("Error loading channel info");
+                    sendCloseActivity();
+                }
         );
     }
 
@@ -166,8 +168,15 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     }
 
     private void sendError(String error) {
-        createTemplateObservable(error).subscribe(split((channelActivity, s) ->
-                Toast.makeText(channelActivity, s, Toast.LENGTH_LONG).show()));
+        createTemplateObservable(error)
+                .subscribe(split((channelActivity, s) -> {
+                    Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    private void sendCloseActivity(){
+        createTemplateObservable(new Object())
+                .subscribe(split((channelActivity, o) -> channelActivity.finish()));
     }
 
 }
