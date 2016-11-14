@@ -5,17 +5,13 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -28,6 +24,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragment;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
@@ -250,7 +247,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     private void setupMenu() {
-        channelListFragment = new MenuChannelListFragment();
+        LeftMenuRxFragment fragment = new LeftMenuRxFragment();
+        getFragmentManager().beginTransaction()
+                .replace(binding.leftContainer.getId(),fragment)
+                .commit();
+        /*channelListFragment = new MenuChannelListFragment();
         privateListFragment = new MenuPrivateListFragment();
         directListFragment = new MenuDirectListFragment();
 
@@ -291,20 +292,20 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentChannelList.getId(), channelListFragment)
-                .commit();
+                .commit();*/
     }
 
 
     public void setSelectItemMenu(String id, String typeChannel) {
         switch (typeChannel) {
             case "O":
-                channelListFragment.selectItem(id);
+                //channelListFragment.selectItem(id);
                 break;
             case "D":
-                directListFragment.selectItem(id);
+                //directListFragment.selectItem(id);
                 break;
             case "P":
-                privateListFragment.selectItem(id);
+                //privateListFragment.selectItem(id);
                 break;
         }
     }
@@ -322,16 +323,16 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         closeProgressBar();
         switch (type) {
             case "O":
-                directListFragment.resetSelectItem();
-                privateListFragment.resetSelectItem();
+                //directListFragment.resetSelectItem();
+                //privateListFragment.resetSelectItem();
                 break;
             case "D":
-                privateListFragment.resetSelectItem();
-                channelListFragment.resetSelectItem();
+                //privateListFragment.resetSelectItem();
+                //channelListFragment.resetSelectItem();
                 break;
             case "P":
-                channelListFragment.resetSelectItem();
-                directListFragment.resetSelectItem();
+                //channelListFragment.resetSelectItem();
+                //directListFragment.resetSelectItem();
                 break;
         }
         setSelectItemMenu(channelId, type);

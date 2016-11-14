@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.AllRemove;
@@ -90,6 +91,7 @@ public class MattermostNotificationManager {
 
                     @Override
                     public void onNext(ChannelWithMember channelWithMember) {
+                        ChannelRepository.update(channelWithMember.getChannel());
                         MembersRepository.add(channelWithMember.getMember());
                     }
                 });
