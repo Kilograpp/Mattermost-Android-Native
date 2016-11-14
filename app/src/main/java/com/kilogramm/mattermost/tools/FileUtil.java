@@ -16,7 +16,6 @@ import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -362,7 +361,7 @@ public class FileUtil {
     }
 
 
-    public class BitmapWithUri{
+    public static class BitmapWithUri{
         private Bitmap bitmap;
         private Uri uri;
 

@@ -84,7 +84,7 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
     }
 
     public void requestCreateGroup(String name, String displayName, String header, String purpose) {
-        createChannel.setAttributesToCreate(name, displayName, header, purpose, "P");
+        createChannel.setAttributesToCreate(name, displayName, purpose, header, "P");
         sendSetProgressVisibility(true);
         start(REQUEST_CREATE_GROUP);
     }
