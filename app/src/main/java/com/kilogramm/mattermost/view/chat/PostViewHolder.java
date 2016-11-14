@@ -77,9 +77,15 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             ((ChatListItemBinding) mBinding).avatar.setOnClickListener(null);
         }
         ((ChatListItemBinding) mBinding).avatar.setTag(post);
-        SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
-        ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
-        ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
+
+        if(post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
+            ((ChatListItemBinding) mBinding).message.setVisibility(View.VISIBLE);
+            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
+            ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
+            ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
+        } else {
+            ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
+        }
 
         if (((ChatListItemBinding) mBinding).getViewModel() == null) {
             ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(post));

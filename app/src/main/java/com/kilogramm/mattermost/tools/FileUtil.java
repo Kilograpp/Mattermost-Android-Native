@@ -273,7 +273,7 @@ public class FileUtil {
             return String.format("%.2f Mb", ((float)bytes) / 1024 / 1024);
         } else if (bytes > 1024) {
             return String.format("%.2f Kb", ((float)bytes) / 1024);
-        } else if (bytes <= 0) {
+        } else if (bytes < 0) {
             return null;
         } else {
             return String.format("%d b", bytes);
