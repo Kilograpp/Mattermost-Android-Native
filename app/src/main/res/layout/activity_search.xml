@@ -20,19 +20,22 @@
                 android:layout_marginStart="@dimen/search_image_margin_start"
                 app:srcCompat="@drawable/ic_back" />
 
-            <EditText
-                android:id="@+id/searchText"
+            <AutoCompleteTextView
                 style="@style/DescriptionBlackTextStyle"
-                android:layout_width="0dp"
+                android:id="@+id/searchAutoComplete"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:layout_marginBottom="@dimen/search_edit_text_margin"
-                android:layout_marginStart="@dimen/search_edit_text_margin"
                 android:layout_marginTop="@dimen/search_edit_text_margin"
+                android:layout_marginStart="@dimen/search_edit_text_margin"
+                android:dropDownVerticalOffset="13dp"
                 android:layout_weight="1"
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:singleLine="true"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:completionThreshold="1"/>
 
             <ImageView
                 android:id="@+id/btnClear"
@@ -44,6 +47,7 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/separator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginEnd="@dimen/search_view_margin"
