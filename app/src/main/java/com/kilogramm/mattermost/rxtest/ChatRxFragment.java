@@ -732,7 +732,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void attachFiles(List<Uri> uriList) {
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-        binding.attachedFilesLayout.addItems(uriList, teamId, channelId);
+        binding.attachedFilesLayout.addItems(uriList, channelId);
     }
 
     private void showErrorSendMenu(View view, Post post) {
