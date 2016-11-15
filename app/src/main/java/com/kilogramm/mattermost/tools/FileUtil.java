@@ -270,6 +270,21 @@ public class FileUtil {
         return intent;
     }
 
+    public Intent createOpenMattertestFileIntent(String fileName){
+        String path = getDownloadedFilesDir() + File.separator + fileName;
+        File file = new File(path);
+        String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), mimeType == null || mimeType.equals("")
+                ? "*/*" : mimeType);
+        return intent;
+    }
+
+    public void startOpenFileIntent(Context context, String fileName){
+        context.startActivity(createOpenMattertestFileIntent(fileName));
+    }
+
     public String convertFileSize(long bytes) {
         if (bytes > 1024 * 1024) {
             return String.format("%.2f Mb", ((float) bytes) / 1024 / 1024);

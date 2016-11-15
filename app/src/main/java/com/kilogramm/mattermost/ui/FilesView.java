@@ -209,6 +209,17 @@ public class FilesView extends GridLayout {
         }
     }
 
+    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName){
+        binding.title.setOnClickListener(v -> FileUtil.getInstance().
+                startOpenFileIntent(getContext(),
+                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
+        );
+        binding.icDownloadedFile.setOnClickListener(v -> FileUtil.getInstance().
+                startOpenFileIntent(getContext(),
+                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
+        );
+    }
+
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
         return new FileDownloadManager.FileDownloadListener() {
             @Override
