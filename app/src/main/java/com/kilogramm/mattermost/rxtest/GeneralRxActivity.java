@@ -164,8 +164,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 this.setFragmentChat(
                         data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
                         data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
-                        data.getStringExtra(AddExistingChannelsActivity.TYPE)
-                );
+                        data.getStringExtra(AddExistingChannelsActivity.TYPE));
             }
             if (requestCode == REQUEST_CREATE_CHANNEL) {
                 this.setFragmentChat(

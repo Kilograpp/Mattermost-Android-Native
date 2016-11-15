@@ -10,7 +10,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
-
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
@@ -24,13 +23,14 @@
 
     <style name="DescriptionBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
+        <item name="android:background">@color/white</item>
         <item name="android:textColorHint">@color/hint_grey</item>
-        <item name="android:textSize">@dimen/discription_text_size</item>
+        <item name="android:textSize">@dimen/description_text_size</item>
     </style>
 
     <style name="HintTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/grey</item>
-        <item name="android:textSize">@dimen/discription_text_size</item>
+        <item name="android:textSize">@dimen/description_text_size</item>
     </style>
 
     <style name="Transparent" parent="AppTheme">
@@ -38,6 +38,7 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
 
     <!--SCROLLBAR-->
     <style name="scrollbar_shape_style">
@@ -79,9 +80,7 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-
     <!--BLUE-->
-
     <style name="textBlue" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/title_blue</item>
     </style>
@@ -99,7 +98,6 @@
     </style>
 
     <!--RED-->
-
     <style name="textRed" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/textColorRed</item>
     </style>
@@ -168,7 +166,6 @@
 
 
     <!--GREY-->
-
     <style name="textGrey" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/grey</item>
     </style>
