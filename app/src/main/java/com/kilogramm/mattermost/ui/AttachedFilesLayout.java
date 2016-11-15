@@ -40,7 +40,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     private static final String TAG = "AttachedFilesLayout";
 
-    private String teamId;
     private String channelId;
     private List<Uri> uriList;
 
@@ -104,8 +103,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
-    public void addItems(List<Uri> uriList, String teamId, String channelId) {
-        this.teamId = teamId;
+    public void addItems(List<Uri> uriList, String channelId) {
         this.channelId = channelId;
         if (this.uriList == null) this.uriList = new ArrayList<>();
         this.uriList.addAll(uriList);
