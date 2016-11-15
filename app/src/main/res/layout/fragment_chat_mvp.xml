@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
@@ -56,30 +57,49 @@
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-                    android:id="@+id/swipeRefreshLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:srl_direction="bottom"
-                    tools:visibility="visible">
 
-                    <com.kilogramm.mattermost.ui.MatterRecyclerView
-                        android:id="@+id/rev"
-                        style="@style/scrollbar_shape_style"
+
+                <android.support.design.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+                        android:id="@+id/swipeRefreshLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="400dp"
-                        android:scrollbars="vertical"
-                        android:visibility="gone"/>
-                </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+                        android:layout_height="match_parent"
+                        app:srl_direction="bottom"
+                        tools:visibility="visible">
 
+                        <com.kilogramm.mattermost.ui.MatterRecyclerView
+                            android:id="@+id/rev"
+                            style="@style/scrollbar_shape_style"
+                            android:layout_width="match_parent"
+                            android:layout_height="400dp"
+                            android:scrollbars="vertical"
+                            android:visibility="gone" />
+                    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/idRecUser"
-                    android:layout_weight="1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:background="@color/white"/>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/idRecUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_weight="1"
+                        android:background="@color/white" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_margin="10dp"
+                        app:layout_anchor="@id/rev"
+                        app:layout_anchorGravity="bottom|right|end"
+                        app:layout_behavior="com.kilogramm.mattermost.ui.ScrollAwareFabBehavior"
+                        app:srcCompat="@drawable/ic_down" />
+
+                </android.support.design.widget.CoordinatorLayout>
+
             </FrameLayout>
 
         </LinearLayout>
@@ -108,7 +128,7 @@
                 android:id="@+id/attachedFilesLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <View
                 android:id="@+id/line"
@@ -121,11 +141,11 @@
 
             <LinearLayout
                 android:id="@+id/sendingMessageContainer"
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
-                android:animateLayoutChanges="true">
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal"
+                android:visibility="visible">
 
                 <ImageView
                     android:id="@+id/buttonAttachFile"
@@ -133,7 +153,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    app:srcCompat="@drawable/ic_attachment_grey_24dp"/>
+                    app:srcCompat="@drawable/ic_attachment_grey_24dp" />
 
                 <EditText
                     android:id="@+id/writingMessage"
@@ -142,19 +162,19 @@
                     android:layout_weight="1"
                     android:background="@color/white"
                     android:hint="@string/type_something"
+                    android:inputType="textCapSentences"
                     android:padding="10dp"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/very_light_grey"
-                    android:inputType="textCapSentences"/>
+                    android:textColorHint="@color/very_light_grey" />
 
                 <TextView
                     android:id="@+id/btnSend"
-                    android:text="Send"
-                    android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:padding="10dp"/>
+                    android:padding="10dp"
+                    android:text="Send"
+                    android:textColor="@color/colorPrimary" />
                 <!--<ImageView
                     android:id="@+id/btnSend"
                     android:layout_width="wrap_content"
@@ -165,9 +185,10 @@
             </LinearLayout>
         </LinearLayout>
 
-       <include
-           android:id="@+id/bottomToolbar"
-           layout="@layout/bottom_toolbar_layout" />
+        <include
+            android:id="@+id/bottomToolbar"
+            layout="@layout/bottom_toolbar_layout" />
 
-</LinearLayout>
+    </LinearLayout>
+
 </layout>

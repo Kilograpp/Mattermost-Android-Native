@@ -192,6 +192,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
         });
+
+        binding.fab.hide();
+        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
     }
 
     private void updateEditedPosition(String id) {
