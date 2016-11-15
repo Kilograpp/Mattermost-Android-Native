@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.member.Member;
+import com.kilogramm.mattermost.rxtest.left_menu.OnLeftMenuClickListener;
 import com.kilogramm.mattermost.rxtest.left_menu.holders.ChannelHolder;
-import com.kilogramm.mattermost.view.menu.channelList.MenuChannelListFragment;
 
 import io.realm.RealmAD;
 import io.realm.RealmQuery;
@@ -28,12 +28,12 @@ public class ChannelListAdapter extends RealmAD<Channel, ChannelHolder> {
 
     private int mSelectedItem = -1;
     private LayoutInflater inflater;
-    private MenuChannelListFragment.OnChannelItemClickListener channelItemClickListener;
+    private OnLeftMenuClickListener channelItemClickListener;
     private RealmResults<Member> members;
 
     public ChannelListAdapter(RealmResults<Channel> adapterData,
                               Context context, RealmResults<Member> members,
-                              MenuChannelListFragment.OnChannelItemClickListener listener) {
+                              OnLeftMenuClickListener listener) {
         super(adapterData);
         this.context = MattermostApp.get(context);
         this.inflater = (LayoutInflater) this.context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
@@ -66,7 +66,6 @@ public class ChannelListAdapter extends RealmAD<Channel, ChannelHolder> {
         } else {
             holder.setChecked(false);
         }
-
         holder.bindTo(channel, context, member);
     }
 
@@ -83,6 +82,5 @@ public class ChannelListAdapter extends RealmAD<Channel, ChannelHolder> {
         this.mSelectedItem = selecteditem;
         notifyDataSetChanged();
     }
-
 
 }
