@@ -55,8 +55,7 @@
 
             <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true">
+                android:layout_height="wrap_content">
 
                 <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
                     android:id="@+id/swipeRefreshLayout"

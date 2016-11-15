@@ -43,8 +43,16 @@ public class UserByNameSearchSpecification implements RealmSpecification {
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)
-                    .contains("username", username[position])
+                    .contains("username", username[position].toLowerCase())
+                    .or()
+                    .contains("firstName", username[position].substring(0, 1).toUpperCase()
+                            + username[position].substring(1))
+                    .or()
+                    .contains("lastName", username[position].substring(0, 1).toUpperCase()
+                            + username[position].substring(1))
                     .findAllSorted("username", Sort.ASCENDING);
+
+
         }
     }
 }
