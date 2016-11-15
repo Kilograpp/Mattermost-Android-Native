@@ -77,6 +77,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     @State
     String search;
     @State
+    int cursorPos;
+    @State
     Long updateAt;
     @State
     Boolean isSendingPost = false;
@@ -314,7 +316,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initGetUsers() {
         restartableFirst(REQUEST_DB_GETUSERS,
-                () -> UserRepository.query((new UserByNameSearchSpecification(search))).asObservable(),
+                () -> UserRepository.query((new UserByNameSearchSpecification(search, cursorPos))).asObservable(),
                 (chatRxFragment, o) -> sendDropDown(o));
     }
 
@@ -445,8 +447,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_LOAD_AFTER);
     }
 
-    public void requestGetUsers(String search) {
+    public void requestGetUsers(String search, int cursorPos) {
         this.search = search;
+        this.cursorPos = cursorPos;
         start(REQUEST_DB_GETUSERS);
     }
     //endregion

@@ -13,9 +13,11 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -148,7 +151,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return view;
     }
 
-
     private void initView() {
         setupListChat(channelId);
         setupRefreshListener();
@@ -187,10 +189,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
-                if (v == binding.writingMessage && !hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
+            if (v == binding.writingMessage && !hasFocus) {
+                InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
         });
 
         binding.fab.hide();
@@ -272,6 +274,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
                 }
+                binding.fab.show();
+                binding.fab.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
@@ -324,11 +328,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
-                        getPresenter().requestGetUsers(null);
+                int cursorPos = binding.writingMessage.getSelectionStart();
+                if (cursorPos > 0 && charSequence.toString().contains("@"))
+                    if (charSequence.charAt(cursorPos - 1) == '@')
+                        getPresenter().requestGetUsers(null, 0);
                     else
-                        getPresenter().requestGetUsers(charSequence.toString());
+                        getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
                 else
                     setDropDown(null);
             }
@@ -344,11 +349,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
-
-
+        Log.d(TAG, "OnActivityResult()");
         if (resultCode != Activity.RESULT_CANCELED) {
-            if (requestCode == CAMERA_PIC_REQUEST) {
+            Log.d(TAG, "RESULT_OK");
+            if (requestCode == CAMERA_PIC_REQUEST && fileFromCamera != null) {
+                Log.d(TAG, "FileFromCamera != null");
                 pickedFiles.add(fileFromCamera);
+            } else {
+                // TODO add error message
             }
             if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
@@ -388,6 +396,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         }
         if (pickedFiles.size() > 0) {
+            Log.d(TAG, "befor adding uri");
             attachFiles(pickedFiles);
         }
     }
@@ -437,10 +446,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         if (
-        post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
-        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
-        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
-        ) {
+                post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
@@ -506,6 +515,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
+                    hideDownScrollFab();
+
                 } else {
                     binding.swipeRefreshLayout
                             .setEnabled(false);
@@ -517,6 +528,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+
         binding.swipeRefreshLayout.setOnRefreshListener(direction -> {
             //getPresenter().initLoadNext();
             Log.d("DISABLE", "disable loading");
@@ -525,6 +537,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.setCanPagination(false);
             getPresenter().requestLoadPosts();
         });
+    }
+
+    private void hideDownScrollFab(){
+        CoordinatorLayout.LayoutParams layoutParams =
+                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+        int fab_bottomMargin = layoutParams.bottomMargin;
+        binding.fab.animate()
+                .translationY(binding.fab.getHeight() + fab_bottomMargin + 5)
+                .setInterpolator(new LinearInterpolator())
+                .start();
     }
 
     private void setBottomToolbarOnClickListeners() {
@@ -717,22 +739,34 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             // Create the File where the photo should go
+
+            // Determine Uri of camera image to save.
+            final File root = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES + "/Mattermost");
+            root.mkdir();
+            final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+/*
+
             File photoFile = null;
             try {
                 photoFile = FileUtil.getInstance().createTempImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-            }
+            }*/
             // Continue only if the File was successfully created
-            if (photoFile != null) {
-                fileFromCamera = Uri.fromFile(photoFile);
+//            if (photoFile != null) {
+            fileFromCamera = Uri.fromFile(sdImageMainDirectory);
+//                fileFromCamera = Uri.fromFile(photoFile);
+                Log.d(TAG, fileFromCamera.toString());
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
                 startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
-            }
+//            }
         }
     }
 
     private void attachFiles(List<Uri> uriList) {
+        Log.d(TAG, "try to attach file");
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         binding.attachedFilesLayout.addItems(uriList, channelId);
     }
@@ -826,7 +860,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 + postId;
     }
 
-    public void invalidateByPosition(int position){
+    public void invalidateByPosition(int position) {
         adapter.notifyItemChanged(position);
     }
 

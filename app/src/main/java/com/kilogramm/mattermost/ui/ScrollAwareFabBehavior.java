@@ -13,7 +13,6 @@ import android.view.animation.LinearInterpolator;
 /**
  * Created by kepar on 15.11.16.
  */
-
 public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
 
     public ScrollAwareFabBehavior(Context context, AttributeSet attrs) {
@@ -33,27 +32,6 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
                                View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
                 dyUnconsumed);
-
-        ((RecyclerView) target).addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int bottomRow =
-                        (recyclerView == null || recyclerView.getChildCount() == 0)
-                                ? 0
-                                : recyclerView.getAdapter().getItemCount() - 1;
-                if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
-                        .findLastCompletelyVisibleItemPosition()) {
-                    animateChileDown(child);
-                }
-            }
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-        });
-
-        //child -> Floating Action Button
         if (dyConsumed < 0) {
             animateChileDown(child);
         } else if (dyConsumed > 0) {

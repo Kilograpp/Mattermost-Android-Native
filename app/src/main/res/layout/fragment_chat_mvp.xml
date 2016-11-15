@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
@@ -79,13 +78,19 @@
                             android:visibility="gone" />
                     </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/idRecUser"
+                    <android.support.v7.widget.CardView
+                        style="@style/CardView.Light"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
                         android:layout_weight="1"
-                        android:background="@color/white" />
+                        app:cardCornerRadius="0dp"
+                        android:layout_gravity="bottom">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/idRecUser"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </android.support.v7.widget.CardView>
 
                     <android.support.design.widget.FloatingActionButton
                         android:id="@+id/fab"
@@ -136,7 +141,6 @@
                 android:layout_height="1dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="2dp"
                 android:background="@color/very_light_grey" />
 
             <LinearLayout
@@ -190,5 +194,4 @@
             layout="@layout/bottom_toolbar_layout" />
 
     </LinearLayout>
-
 </layout>

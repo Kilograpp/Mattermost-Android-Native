@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -205,8 +206,9 @@ public class FileUtil {
     }
 
     public File createTempImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        Calendar calendar = Calendar.getInstance();
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(calendar.getTimeInMillis()));
+        String imageFileName = "JPEG_" + calendar.getTimeInMillis();
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES + "/Mattermost");
         if (!storageDir.exists()) {
