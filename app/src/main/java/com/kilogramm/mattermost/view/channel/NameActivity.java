@@ -45,6 +45,11 @@ public class NameActivity extends BaseActivity<NamePresenter> {
         binding.displayName.addTextChangedListener(setTextWatcher(binding.btnClearDisplayName));
         binding.name.addTextChangedListener(setTextWatcher(binding.btnClearName));
 
+        if(getPresenter().getChannel().getName().equals("town-square")){
+            binding.name.setEnabled(false);
+            binding.handleDescription.setText("Handle - Cannot be changed for the default channel");
+        }
+
         binding.btnClearName.setOnClickListener(view -> binding.name.setText(""));
         binding.btnClearDisplayName.setOnClickListener(view -> binding.displayName.setText(""));
     }
