@@ -146,7 +146,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     public void showGoodText(String text) {
-        Snackbar good = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
+        Snackbar good = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_LONG);
         good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
         good.setActionTextColor(getResources().getColor(R.color.white));
         good.show();

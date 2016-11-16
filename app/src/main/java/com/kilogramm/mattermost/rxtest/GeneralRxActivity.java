@@ -5,17 +5,13 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -122,7 +118,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
+                String leftChannel = data.getStringExtra(ChannelActivity.LEAVED_CHANNEL);
                 getPresenter().setFirstChannelBeforeLeave();
+                showGoodText("You`ve just leaved " + leftChannel + " channel");
             }
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
