@@ -2,9 +2,13 @@ package com.kilogramm.mattermost.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -86,6 +90,7 @@ public class ManagerBroadcast {
                 savePost(data.getPost());
                 if(!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
                     createNotification(data.getPost(), context);
+                    //createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
                 break;
@@ -141,6 +146,33 @@ public class ManagerBroadcast {
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, notification);
+    }
+
+    private static void createNotificationNEW(Post post, Context context) {
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
+        remoteViews.setImageViewResource(R.id.imagenotileft, R.drawable.ic_person_grey_24dp);
+        remoteViews.setImageViewResource(R.id.imagenotiright, R.drawable.ic_close_grey_stroke);
+        remoteViews.setTextViewText(R.id.title, post.getUser().getUsername());
+        remoteViews.setTextViewText(R.id.text, Html.fromHtml(post.getMessage()));
+
+        // open to jump on dialog
+//        Intent intent = new Intent(context, ActivityTopSnackBar.class);
+//        intent.putExtra("title", post.getUser().getUsername());
+//        intent.putExtra("text", post.getMessage());
+//        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_person_grey_24dp)
+                .setContentTitle("New message from " + post.getUser().getUsername())
+                .setContentText(Html.fromHtml(post.getMessage()))
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContent(remoteViews);
+//                .setContentIntent(pIntent);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, builder.build());
     }
 
     public static void savePost(Post post){
