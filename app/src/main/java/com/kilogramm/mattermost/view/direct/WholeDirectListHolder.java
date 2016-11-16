@@ -36,8 +36,9 @@ public class WholeDirectListHolder extends RealmViewHolder {
 
         directBinding.directProfileName.setText(user.getUsername());
 
-        StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
-        directBinding.emailProfile.setText(stringBuilder);
+        directBinding.emailProfile.setText(String.format("%s %s",
+                user.getFirstName(),
+                user.getLastName()));
 
         if (userStatus != null) {
             directBinding.status.setImageDrawable(drawStatusIcon(context, userStatus));

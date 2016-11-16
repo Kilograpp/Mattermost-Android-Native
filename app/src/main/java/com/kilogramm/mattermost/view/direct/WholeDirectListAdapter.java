@@ -6,8 +6,6 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 
-import java.util.ArrayList;
-
 import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -18,16 +16,12 @@ import io.realm.RealmResults;
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListHolder> {
 
     private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
-    private ArrayList<String> mUsersIds;
     private RealmResults<UserStatus> userStatuses;
 
     public WholeDirectListAdapter(Context context,
-                                  RealmResults<User> realmResults,
-                                  ArrayList<String> usersIds,
                                   WholeDirectListAdapter.OnDirectItemClickListener listener,
                                   RealmResults<UserStatus> statusRealmResults) {
-        super(context, realmResults, true);
-        this.mUsersIds = usersIds;
+        super(context, null, true);
         this.userStatuses = statusRealmResults;
         this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
         this.directItemClickListener = listener;

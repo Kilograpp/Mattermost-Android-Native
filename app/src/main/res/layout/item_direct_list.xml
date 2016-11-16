@@ -8,65 +8,76 @@
         android:layout_height="wrap_content"
         android:background="@drawable/selector_item_channel_backgroung"
         android:orientation="vertical"
-        android:padding="@dimen/standart_margin">
+        android:paddingTop="@dimen/standart_margin"
+        android:paddingLeft="@dimen/standart_margin"
+        >
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/avatar"
+                android:layout_width="@dimen/circle_image_size"
+                android:layout_height="@dimen/circle_image_size"
+                android:layout_marginEnd="@dimen/left_padding"
+                android:layout_marginStart="@dimen/margin_start">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/avatarDirect"
                     android:layout_width="@dimen/circle_image_size"
                     android:layout_height="@dimen/circle_image_size"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/left_padding"
-                    android:layout_marginStart="@dimen/margin_start" />
+                   />
+
 
                 <ImageView
                     android:id="@+id/status"
                     android:layout_width="@dimen/status_image_size"
                     android:layout_height="@dimen/status_image_size"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginBottom="@dimen/status_margin_bottom"
-                    android:layout_marginEnd="@dimen/status_margin_end"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
                     android:src="@drawable/status_offline_drawable" />
 
-            </FrameLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/directProfileName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/margin_start"
-                    android:textColor="@color/black"
-                    tools:text="test" />
-
-                <TextView
-                    android:id="@+id/emailProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/directProfileName"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/margin_start"
-                    android:textColor="@color/light_grey"
-                    tools:text="test" />
-
             </RelativeLayout>
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/directProfileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="@dimen/margin_start"
+                android:layout_toRightOf="@+id/avatar"
+                android:textColor="@color/black"
+                tools:text="test" />
+
+            <TextView
+                android:id="@+id/emailProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/directProfileName"
+                android:layout_gravity="center"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="@dimen/margin_start"
+                android:layout_toRightOf="@+id/avatar"
+                android:textColor="@color/light_grey"
+                android:maxLines="1"
+                tools:text="test" />
+
+            <CheckBox
+                android:id="@+id/selectFirstName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/checkbox_selector"
+                android:layout_marginRight="@dimen/margin_start"
+                android:layout_marginBottom="@dimen/margin_start"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="@dimen/search_margin"
             android:layout_weight="1"

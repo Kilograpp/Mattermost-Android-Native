@@ -6,9 +6,12 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -17,9 +20,7 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import java.util.ArrayList;
-
-import io.realm.Realm;
+import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -33,13 +34,10 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
-    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         init();
         setRecycleView();
@@ -48,31 +46,73 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private void init() {
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-        getPresenter().getProfilesForDirectMessage();
+
+        binding.searchText.addTextChangedListener(getMassageTextWatcher());
+        binding.btnClear.setOnClickListener(view -> {
+            binding.searchText.setText("");
+            hideKeyboard(this);
+        });
+        setRecycleView();
+        getPresenter().getUsers();
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > 0) {
+                    getPresenter().getSearchUsers(charSequence.toString());
+                    binding.btnClear.setVisibility(View.VISIBLE);
+                } else {
+                    getPresenter().getSearchUsers(null);
+                    binding.btnClear.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+    public void updateDataList(OrderedRealmCollection<User> realmResult) {
+        adapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.listEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.listEmpty.setVisibility(View.INVISIBLE);
     }
 
     public void setRecycleView() {
-        RealmResults<User> users = realm.where(User.class)
-                .isNotNull("id")
-                .isNotNull("email")
-                .notEqualTo("id", MattermostPreference.getInstance().getMyUserId())
-                .findAllSorted("username");
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        ArrayList<String> usersIds = new ArrayList<>();
-        for (User user : users) {
-            usersIds.add(user.getId());
-        }
-
-        adapter = new WholeDirectListAdapter(this, users, usersIds, this, statusRealmResults);
+        adapter = new WholeDirectListAdapter(this, this, statusRealmResults);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.done, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.action_done:
+                getPresenter();
+                break;
+        }
+        return true;
     }
 
     @Override
