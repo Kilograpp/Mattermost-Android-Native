@@ -9,6 +9,7 @@
     android:layout_height="wrap_content">
 
     <TextView
+        android:id="@+id/memberNumberLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
@@ -16,21 +17,13 @@
         android:textColor="@color/black"
         android:textStyle="bold" />
 
-    <TextView
+    <android.support.design.widget.TextInputLayout
+        android:layout_marginTop="@dimen/standart_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        android:paddingLeft="25dp"
-        android:text="@string/email"
-        android:textColor="@color/grey" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        app:cardBackgroundColor="@color/white">
+        app:hintTextAppearance="@style/HintTextStyle"
+        app:hintEnabled="true"
+        app:hintAnimationEnabled="true">
 
         <EditText
             android:id="@+id/editEmail"
@@ -40,25 +33,17 @@
             android:background="@color/white"
             android:inputType="textEmailAddress"
             android:padding="15dp"
+            android:hint="email@domain.com"
             tools:text="email@domain.com" />
-    </android.support.v7.widget.CardView>
+    </android.support.design.widget.TextInputLayout>
 
-
-    <TextView
+    <android.support.design.widget.TextInputLayout
+        android:layout_marginTop="@dimen/standart_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        android:paddingLeft="25dp"
-        android:text="@string/first_name"
-        android:textColor="@color/grey" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        app:cardBackgroundColor="@color/white">
+        app:hintTextAppearance="@style/HintTextStyle"
+        app:hintEnabled="true"
+        app:hintAnimationEnabled="true">
 
         <EditText
             android:id="@+id/editFirstName"
@@ -69,24 +54,15 @@
             android:inputType="textEmailAddress"
             android:padding="15dp"
             tools:text="Max" />
-    </android.support.v7.widget.CardView>
+    </android.support.design.widget.TextInputLayout>
 
-
-    <TextView
+    <android.support.design.widget.TextInputLayout
+        android:layout_marginTop="@dimen/standart_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        android:paddingLeft="25dp"
-        android:text="@string/last_name"
-        android:textColor="@color/grey" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        app:cardBackgroundColor="@color/white">
+        app:hintTextAppearance="@style/HintTextStyle"
+        app:hintEnabled="true"
+        app:hintAnimationEnabled="true">
 
         <EditText
             android:id="@+id/editLastName"
@@ -97,6 +73,7 @@
             android:inputType="textEmailAddress"
             android:padding="15dp"
             tools:text="Simons" />
-    </android.support.v7.widget.CardView>
+    </android.support.design.widget.TextInputLayout>
+
 </LinearLayout>
 </layout>
