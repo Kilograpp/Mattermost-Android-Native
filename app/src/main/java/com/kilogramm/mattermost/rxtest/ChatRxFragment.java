@@ -58,7 +58,7 @@ import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -67,7 +67,6 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -273,9 +272,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
+                    binding.fab.hide();
+                } else {
+//                    ScrollAwareFabBehavior.animateFabUp(binding.fab);
                 }
-                binding.fab.show();
-                binding.fab.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
@@ -510,13 +510,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
-
                 if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
-                    hideDownScrollFab();
-
+                    ScrollAwareFabBehavior.animateFabDown(binding.fab);
                 } else {
                     binding.swipeRefreshLayout
                             .setEnabled(false);
@@ -537,16 +535,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.setCanPagination(false);
             getPresenter().requestLoadPosts();
         });
-    }
-
-    private void hideDownScrollFab(){
-        CoordinatorLayout.LayoutParams layoutParams =
-                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
-        int fab_bottomMargin = layoutParams.bottomMargin;
-        binding.fab.animate()
-                .translationY(binding.fab.getHeight() + fab_bottomMargin + 5)
-                .setInterpolator(new LinearInterpolator())
-                .start();
     }
 
     private void setBottomToolbarOnClickListeners() {

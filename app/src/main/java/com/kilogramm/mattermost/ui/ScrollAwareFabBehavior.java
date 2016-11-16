@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -33,16 +31,20 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
                 dyUnconsumed);
         if (dyConsumed < 0) {
-            animateChileDown(child);
+            animateFabDown(child);
         } else if (dyConsumed > 0) {
-            child.show();
-            child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
+            animateFabUp(child);
         }
     }
 
-    private void animateChileDown(FloatingActionButton child) {
+    public static void animateFabDown(FloatingActionButton child) {
         CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
         int fab_bottomMargin = layoutParams.bottomMargin;
         child.animate().translationY(child.getHeight() + fab_bottomMargin + 5).setInterpolator(new LinearInterpolator()).start();
+    }
+
+    public static void animateFabUp(FloatingActionButton child) {
+        child.show();
+        child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
     }
 }
