@@ -122,7 +122,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                         .subscribe(new Subscriber<FileUtil.BitmapWithUri>() {
                             @Override
                             public void onCompleted() {
-
                             }
 
                             @Override

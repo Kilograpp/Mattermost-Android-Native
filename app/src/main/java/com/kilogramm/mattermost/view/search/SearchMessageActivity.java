@@ -30,7 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -45,8 +44,8 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
                                    implements TextView.OnEditorActionListener,
-                                              SearchMessageAdapter.OnJumpClickListener,
-                                              TextWatcher {
+                                   SearchMessageAdapter.OnJumpClickListener,
+                                   TextWatcher {
 
     private static final String TEAM_ID = "team_id";
     public static final String MESSAGE_ID = "message_id";
@@ -63,6 +62,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     ArrayAdapter<String> historyAutoCompleteAdapter;
     ArrayList<String> historyAutoComplete;
 
+    Display display;
+    Point size;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,8 +76,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.searchAutoComplete.setOnEditorActionListener(this);
         binding.searchAutoComplete.addTextChangedListener(this);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
+        display = getWindowManager().getDefaultDisplay();
+        size = new Point();
         display.getSize(size);
         binding.searchAutoComplete.setDropDownWidth(size.x);
 
@@ -173,7 +175,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static void startForResult(Activity context, String teamId, Integer id) {
         Intent starter = new Intent(context, SearchMessageActivity.class);
         starter.putExtra(TEAM_ID, teamId);
-        context.startActivityForResult(starter,id);
+        context.startActivityForResult(starter, id);
     }
 
     @Override
@@ -204,7 +206,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         editor.commit();
     }
 
-    private ArrayList<String> getSearchHistory (Context context, String key) {
+    private ArrayList<String> getSearchHistory(Context context, String key) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String json = preferences.getString(key, null);
         ArrayList<String> storedHistory = new ArrayList<>();
