@@ -19,6 +19,7 @@ public class Channel extends RealmObject implements Parcelable {
 
     public static final String DIRECT = "D";
     public static final String OPEN = "O";
+    public static final String PRIVATE = "P";
 
     @PrimaryKey
     @SerializedName("id")
@@ -71,6 +72,9 @@ public class Channel extends RealmObject implements Parcelable {
 
     private Integer unreadedMessage = 0;
 
+    public void setTotalMsgCount(Integer totalMsgCount) {
+        this.totalMsgCount = totalMsgCount;
+    }
 
     public Integer getUnreadedMessage() {
         return unreadedMessage;

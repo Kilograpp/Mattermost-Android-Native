@@ -22,9 +22,11 @@ import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
 import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragment;
+import com.kilogramm.mattermost.rxtest.left_menu.OnChannelChangeListener;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
@@ -49,7 +51,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 05.10.2016.
  */
 @RequiresPresenter(GeneralRxPresenter.class)
-public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
+public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implements OnChannelChangeListener {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -64,6 +66,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     MenuChannelListFragment channelListFragment;
     MenuPrivateListFragment privateListFragment;
     MenuDirectListFragment directListFragment;
+
+    private LeftMenuRxFragment leftMenuRxFragment;
 
     private String currentChannel = "";
     private String searchMessageId;
@@ -247,10 +251,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     private void setupMenu() {
-        LeftMenuRxFragment fragment = new LeftMenuRxFragment();
+        leftMenuRxFragment = new LeftMenuRxFragment();
         getFragmentManager().beginTransaction()
-                .replace(binding.leftContainer.getId(),fragment)
+                .replace(binding.leftContainer.getId(), leftMenuRxFragment)
                 .commit();
+        leftMenuRxFragment.setOnChannelChangeListener(this);
         /*channelListFragment = new MenuChannelListFragment();
         privateListFragment = new MenuPrivateListFragment();
         directListFragment = new MenuDirectListFragment();
@@ -340,6 +345,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
     }
 
     private void replaceFragment(String channelId, String channelName) {
+        if (MattermostPreference.getInstance().getLastChannelId() != null &&
+                !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
+            // For clearing attached files on channel change
+            FileToAttachRepository.getInstance().deleteUploadedFiles();
+        }
+
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
@@ -358,6 +369,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 this.searchMessageId = null;
             }
         }
+        MattermostPreference.getInstance().setLastChannelId(channelId);
 //        binding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
@@ -394,4 +406,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
         }
     }
 
+    @Override
+    public void onChange(String channelId, String name) {
+        replaceFragment(channelId, name);
+    }
 }

@@ -91,7 +91,8 @@ public class MattermostNotificationManager {
 
                     @Override
                     public void onNext(ChannelWithMember channelWithMember) {
-                        ChannelRepository.update(channelWithMember.getChannel());
+                        ChannelRepository.prepareChannelAndAdd(channelWithMember.getChannel(),
+                                MattermostPreference.getInstance().getMyUserId());
                         MembersRepository.add(channelWithMember.getMember());
                     }
                 });

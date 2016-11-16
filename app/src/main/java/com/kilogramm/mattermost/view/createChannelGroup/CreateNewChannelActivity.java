@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.createChannelGroup;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
@@ -99,6 +100,12 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
         Intent starter = new Intent(context, CreateNewChannelActivity.class);
         starter.putExtra(TYPE, "O");
         context.startActivityForResult(starter, requestCode);
+    }
+
+    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
+        Intent starter = new Intent(fragment.getActivity(), CreateNewChannelActivity.class);
+        starter.putExtra(TYPE,  "O");
+        fragment.startActivityForResult(starter, requestCode);
     }
 
     public void finishActivity(String createdChannelId, String channelName) {
