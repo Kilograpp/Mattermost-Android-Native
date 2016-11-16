@@ -13,9 +13,11 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -55,7 +58,7 @@ import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -64,7 +67,6 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -148,7 +150,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return view;
     }
 
-
     private void initView() {
         setupListChat(channelId);
         setupRefreshListener();
@@ -192,6 +193,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
+
+        binding.fab.hide();
+        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
     }
 
     private void updateEditedPosition(String id) {
@@ -268,6 +272,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
+                    binding.fab.hide();
+                } else {
+//                    ScrollAwareFabBehavior.animateFabUp(binding.fab);
                 }
             }
         });
@@ -342,11 +349,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
-
-
+        Log.d(TAG, "OnActivityResult()");
         if (resultCode != Activity.RESULT_CANCELED) {
-            if (requestCode == CAMERA_PIC_REQUEST) {
+            Log.d(TAG, "RESULT_OK");
+            if (requestCode == CAMERA_PIC_REQUEST && fileFromCamera != null) {
+                Log.d(TAG, "FileFromCamera != null");
                 pickedFiles.add(fileFromCamera);
+            } else {
+                // TODO add error message
             }
             if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
@@ -386,6 +396,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         }
         if (pickedFiles.size() > 0) {
+            Log.d(TAG, "befor adding uri");
             attachFiles(pickedFiles);
         }
     }
@@ -499,11 +510,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
-
                 if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
+                    ScrollAwareFabBehavior.animateFabDown(binding.fab);
                 } else {
                     binding.swipeRefreshLayout
                             .setEnabled(false);
@@ -515,6 +526,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+
         binding.swipeRefreshLayout.setOnRefreshListener(direction -> {
             //getPresenter().initLoadNext();
             Log.d("DISABLE", "disable loading");
@@ -715,22 +727,34 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             // Create the File where the photo should go
+
+            // Determine Uri of camera image to save.
+            final File root = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES + "/Mattermost");
+            root.mkdir();
+            final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+/*
+
             File photoFile = null;
             try {
                 photoFile = FileUtil.getInstance().createTempImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-            }
+            }*/
             // Continue only if the File was successfully created
-            if (photoFile != null) {
-                fileFromCamera = Uri.fromFile(photoFile);
+//            if (photoFile != null) {
+            fileFromCamera = Uri.fromFile(sdImageMainDirectory);
+//                fileFromCamera = Uri.fromFile(photoFile);
+                Log.d(TAG, fileFromCamera.toString());
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
                 startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
-            }
+//            }
         }
     }
 
     private void attachFiles(List<Uri> uriList) {
+        Log.d(TAG, "try to attach file");
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         binding.attachedFilesLayout.addItems(uriList, channelId);
     }

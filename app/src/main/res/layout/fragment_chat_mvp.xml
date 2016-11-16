@@ -57,36 +57,55 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-                    android:id="@+id/swipeRefreshLayout"
+
+                <android.support.design.widget.CoordinatorLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:srl_direction="bottom"
-                    tools:visibility="visible">
+                    android:layout_height="match_parent">
 
-                    <com.kilogramm.mattermost.ui.MatterRecyclerView
-                        android:id="@+id/rev"
-                        style="@style/scrollbar_shape_style"
+                    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+                        android:id="@+id/swipeRefreshLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="400dp"
-                        android:scrollbars="vertical"
-                        android:visibility="gone" />
-                </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+                        android:layout_height="match_parent"
+                        app:srl_direction="bottom"
+                        tools:visibility="visible">
 
+                        <com.kilogramm.mattermost.ui.MatterRecyclerView
+                            android:id="@+id/rev"
+                            style="@style/scrollbar_shape_style"
+                            android:layout_width="match_parent"
+                            android:layout_height="400dp"
+                            android:scrollbars="vertical"
+                            android:visibility="gone" />
+                    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 
-                <android.support.v7.widget.CardView
-                    style="@style/CardView.Light"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:cardCornerRadius="0dp"
-                    android:layout_gravity="bottom">
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/idRecUser"
+                    <android.support.v7.widget.CardView
+                        style="@style/CardView.Light"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </android.support.v7.widget.CardView>
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="0dp"
+                        android:layout_gravity="bottom">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/idRecUser"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_margin="10dp"
+                        app:layout_anchor="@id/rev"
+                        app:layout_anchorGravity="bottom|right|end"
+                        app:layout_behavior="com.kilogramm.mattermost.ui.ScrollAwareFabBehavior"
+                        app:srcCompat="@drawable/ic_arrow_down"
+                        app:backgroundTint="@color/white"/>
+
+                </android.support.design.widget.CoordinatorLayout>
+
             </FrameLayout>
 
         </LinearLayout>
@@ -96,6 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/typing"
                 android:layout_width="match_parent"
