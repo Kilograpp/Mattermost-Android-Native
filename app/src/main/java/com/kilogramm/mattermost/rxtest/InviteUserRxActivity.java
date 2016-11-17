@@ -4,16 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.InviteUserAdapter;
 import com.kilogramm.mattermost.databinding.ActivityInviteUserBinding;
 import com.kilogramm.mattermost.model.fromnet.InviteObject;
-import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.regex.Matcher;
@@ -28,6 +31,8 @@ import nucleus.factory.RequiresPresenter;
 public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
     private ActivityInviteUserBinding mBinding;
+    private RecyclerView mRecyclerView;
+    private InviteUserAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,24 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void initView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        mRecyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new InviteUserAdapter(this);
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.add(new InviteObject());
+
+        View view = getLayoutInflater().inflate(R.layout.item_invite_list_footer, null);
+        view.setOnClickListener(v -> {
+                    mAdapter.add(new InviteObject());
+                    mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+                }
+        );
+        mAdapter.addFooter(view);
     }
 
     @Override
@@ -48,7 +71,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.invite:
                 onClickInvite();
                 return true;
@@ -61,7 +84,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void onClickInvite() {
-        String email = mBinding.lInvite.editEmail.getText().toString();
+/*        String email = mBinding.lInvite.editEmail.getText().toString();
         String firstName = mBinding.lInvite.editFirstName.getText().toString();
         String lastName = mBinding.lInvite.editFirstName.getText().toString();
         if(isValidEmail(email)){
@@ -70,7 +93,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
             getPresenter().requestInvite(obj);
         } else {
             showError("Email is not valid.");
-        }
+        }*/
     }
 
     private boolean isValidEmail(String email) {
@@ -88,8 +111,8 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     @Override
     protected void onResume() {
         super.onResume();
-        setupToolbar("Invite",true);
-        setColorScheme(R.color.colorPrimary,R.color.colorPrimaryDark);
+        setupToolbar("Invite", true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     public static void start(Context context) {

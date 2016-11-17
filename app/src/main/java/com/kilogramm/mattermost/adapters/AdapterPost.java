@@ -32,7 +32,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
-
     public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
         this.inflater = LayoutInflater.from(context);

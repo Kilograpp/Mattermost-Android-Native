@@ -84,7 +84,19 @@
         <item name="android:textColor">@color/title_blue</item>
     </style>
 
+    <style name="textLightBlue" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/icon_team_color_end</item>
+    </style>
+
     <style name="textNormalBlue" parent="@style/textBlue"/>
+
+    <style name="textBigLightBlue" parent="textLightBlue">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="textLightBigBoldBlue" parent="textBigLightBlue">
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <style name="textDarkGreyCaps" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/dark_grey</item>

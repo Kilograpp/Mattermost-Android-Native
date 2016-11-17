@@ -85,7 +85,9 @@
     <string name="about_mattermost">About Mattermost</string>
     <string name="email">EMAIL</string>
     <string name="first_name">FIRST NAME</string>
+    <string name="first_name_optional">FIRST NAME (OPTIONAL)</string>
     <string name="last_name">LAST NAME</string>
+    <string name="last_name_optional">LAST NAME (OPTIONAL)</string>
     <string name="add_another">Add another</string>
 
     <!---->
@@ -161,6 +163,8 @@
     <string name="error_in_confirm_password">Incorrect second new password</string>
     <string name="verify_email">Email successfully changed. We will send you the verification email</string>
     <string name="password_changed">Password was successfully changed</string>
+    <string name="add_another_plus">Add another +</string>
+    <string name="member">Member #</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>

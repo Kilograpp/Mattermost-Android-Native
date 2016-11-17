@@ -1,79 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/activity_invite_user"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/memberNumberLabel"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="Member #1"
-        android:textColor="@color/black"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        tools:showIn="@layout/activity_invite_user">
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_marginTop="@dimen/standart_margin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintTextAppearance="@style/HintTextStyle"
-        app:hintEnabled="true"
-        app:hintAnimationEnabled="true">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/editEmail"
-            style="@style/DescriptionBlackTextStyle"
+            <TextView
+                android:id="@+id/memberNumberLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:text="Member #1"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="20dp"
+                android:textColor="@color/red_error_send_massage"/>
+
+        </FrameLayout>
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:inputType="textEmailAddress"
-            android:padding="15dp"
-            android:hint="email@domain.com"
-            tools:text="email@domain.com" />
-    </android.support.design.widget.TextInputLayout>
+            android:layout_marginTop="@dimen/standart_margin"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextAppearance="@style/HintTextStyle">
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_marginTop="@dimen/standart_margin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintTextAppearance="@style/HintTextStyle"
-        app:hintEnabled="true"
-        app:hintAnimationEnabled="true">
+            <EditText
+                android:id="@+id/editEmail"
+                style="@style/DescriptionBlackTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:padding="15dp"
+                tools:text="@string/email" />
+        </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/editFirstName"
-            style="@style/DescriptionBlackTextStyle"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:inputType="textEmailAddress"
-            android:padding="15dp"
-            tools:text="Max" />
-    </android.support.design.widget.TextInputLayout>
+            android:layout_marginTop="@dimen/standart_margin"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextAppearance="@style/HintTextStyle">
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_marginTop="@dimen/standart_margin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:hintTextAppearance="@style/HintTextStyle"
-        app:hintEnabled="true"
-        app:hintAnimationEnabled="true">
+            <EditText
+                android:id="@+id/editFirstName"
+                style="@style/DescriptionBlackTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/first_name_optional"
+                android:inputType="textEmailAddress"
+                android:padding="15dp"
+                tools:text="@string/first_name_optional" />
+        </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/editLastName"
-            style="@style/DescriptionBlackTextStyle"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:inputType="textEmailAddress"
-            android:padding="15dp"
-            tools:text="Simons" />
-    </android.support.design.widget.TextInputLayout>
+            android:layout_marginTop="@dimen/standart_margin"
+            app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
+            app:hintTextAppearance="@style/HintTextStyle">
 
-</LinearLayout>
+            <EditText
+                android:id="@+id/editLastName"
+                style="@style/DescriptionBlackTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/last_name_optional"
+                android:inputType="textEmailAddress"
+                android:padding="15dp"
+                tools:text="@string/last_name_optional" />
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
 </layout>
