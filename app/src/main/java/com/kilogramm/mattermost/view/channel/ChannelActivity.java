@@ -34,6 +34,8 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChannelPresenter.class)
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
+    public static final String LEAVED_CHANNEL = "leaved_channel";
+
     private static final String CHANNEL_ID = "channel_id";
     public static final int REQUEST_ID = 201;
     ChannelActivityBinding binding;
@@ -238,5 +240,12 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         setResult(RESULT_CANCELED, new Intent());
         finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    public void finishActivity(String leftChannelName) {
+        Intent intent = new Intent(this, ChannelActivity.class);
+        intent.putExtra(LEAVED_CHANNEL, leftChannelName);
+        setResult(Activity.RESULT_OK, intent);
+        this.finish();
     }
 }

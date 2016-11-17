@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -35,6 +36,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LEAVE = 2;
     private static final int REQUEST_SAVE = 3;
+
     private ApiMethod service;
 
     private LogoutData user;
@@ -98,14 +100,14 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> {
-                    ChannelRepository.remove(new
-                            ChannelRepository.ChannelByIdSpecification(channel.getId()));
-                    requestFinish();
-                }, (channelActivity, throwable) ->
-                        sendError(getError(throwable))
+                    RealmResults<Channel> leftChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
+                    String leftChannelName = leftChannel.first().getDisplayName();
+                    ChannelRepository.remove(
+                            new ChannelRepository.ChannelByIdSpecification(channel.getId()));
+                    requestFinish(leftChannelName);
+                }, (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }
-
 
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
@@ -160,18 +162,21 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-    private void requestFinish() {
+//    private void requestFinish() {
+//        createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
+//            channelActivity.setResult(Activity.RESULT_OK, new Intent().putExtra(LEAVED_CHANNEL, channel.getName()));
+//            channelActivity.finish();
+//        }));
+//    }
+    private void requestFinish(String leftChannelName) {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
-            channelActivity.setResult(Activity.RESULT_OK, new Intent());
-            channelActivity.finish();
+            channelActivity.finishActivity(leftChannelName);
         }));
     }
 
     private void sendError(String error) {
         createTemplateObservable(error)
-                .subscribe(split((channelActivity, s) -> {
-                    Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show();
-                }));
+                .subscribe(split((channelActivity, s) -> Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
     private void sendCloseActivity(){

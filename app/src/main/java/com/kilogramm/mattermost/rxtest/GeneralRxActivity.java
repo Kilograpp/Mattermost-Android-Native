@@ -118,7 +118,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
+                String leftChannel = data.getStringExtra(ChannelActivity.LEAVED_CHANNEL);
                 getPresenter().setFirstChannelBeforeLeave();
+                showGoodText("You`ve just leaved " + leftChannel + " channel");
             }
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
@@ -160,8 +162,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 this.setFragmentChat(
                         data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
                         data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
-                        data.getStringExtra(AddExistingChannelsActivity.TYPE)
-                );
+                        data.getStringExtra(AddExistingChannelsActivity.TYPE));
             }
             if (requestCode == REQUEST_CREATE_CHANNEL) {
                 this.setFragmentChat(

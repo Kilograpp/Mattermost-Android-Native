@@ -23,14 +23,16 @@
                     android:layout_width="@dimen/about_big_icon_size"
                     android:layout_height="@dimen/about_big_icon_size"
                     android:layout_gravity="center"
-                    android:src="@mipmap/notification" />
+                    app:srcCompat="@drawable/ic_mm" />
 
                 <ImageView
                     android:layout_width="@dimen/about_small_icon_size"
                     android:layout_height="@dimen/about_small_icon_size"
                     android:layout_gravity="bottom|end"
                     android:layout_marginBottom="@dimen/status_margin_bottom"
-                    android:layout_marginEnd="@dimen/status_margin_end"/>
+                    android:layout_marginEnd="@dimen/status_margin_end"
+                    app:srcCompat="@drawable/ic_logo"
+                    android:visibility="gone"/>
             </FrameLayout>
 
             <LinearLayout

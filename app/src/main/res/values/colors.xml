@@ -40,4 +40,6 @@
     <color name="icon_team_color_shadow">#00658f</color>
     <color name="title_grey">#8798a4</color>
     <color name="title_blue">#007aff</color>
+
+    <color name="notification_blue">#0179fb</color>
 </resources>

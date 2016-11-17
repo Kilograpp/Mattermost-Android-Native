@@ -2,9 +2,15 @@ package com.kilogramm.mattermost.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.RemoteViews;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,7 +21,11 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.NetworkUtil;
+import com.kilogramm.mattermost.view.direct.WholeDirectListHolder;
+import com.kilogramm.mattermost.view.settings.NotificationActivity;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,11 +36,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by Evgeny on 31.08.2016.
  */
 public class ManagerBroadcast {
+    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
 
     public static final String TAG = "ObjectUtil";
 
@@ -85,7 +97,8 @@ public class ManagerBroadcast {
 
                 savePost(data.getPost());
                 if(!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())){
-                    createNotification(data.getPost(), context);
+//                    createNotification(data.getPost(), context);
+                    createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
                 break;
@@ -115,7 +128,7 @@ public class ManagerBroadcast {
 
     private Data getMapStatus(JSONObject dataJSON) {
         return new WebSocketObj.BuilderData()
-                .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(),  new TypeToken<HashMap<String, Object>>() {}.getType()))
+                .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(), new TypeToken<HashMap<String, Object>>() {}.getType()))
                 .build();
     }
 
@@ -131,7 +144,6 @@ public class ManagerBroadcast {
                 .build();
     }
 
-
     private static void createNotification(Post post, Context context) {
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle("New message from " + post.getUser().getUsername())
@@ -141,6 +153,47 @@ public class ManagerBroadcast {
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(1, notification);
+    }
+
+    private static void createNotificationNEW(Post post, Context context) {
+//        Uri avatar = Uri.parse(WholeDirectListHolder.getImageUrl(post.getUser().getId()));
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
+
+        //remoteViews.setImageViewUri(R.id.imagenotileft, avatar);
+//        remoteViews.setImageViewUri(R.id.imagenotileft, Uri.parse("https://"
+//                                                        + MattermostPreference.getInstance().getBaseUrl()
+//                                                        + "/api/v3/users/"
+//                                                        + post.getUser().getId()
+//                                                        + "/image"));
+
+        remoteViews.setImageViewResource(R.id.imagenotileft, R.drawable.ic_person_grey_24dp);
+        remoteViews.setImageViewResource(R.id.imagenotiright, R.drawable.ic_close_notification);
+        remoteViews.setTextViewText(R.id.title, "New message from " +  post.getUser().getUsername());
+        remoteViews.setTextViewText(R.id.text, Html.fromHtml(post.getMessage()));
+
+        int notificationId = new Random().nextInt();
+        Intent closeNotification = new Intent(context, NotificationActivity.class);
+        closeNotification.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        closeNotification.putExtra(NOTIFICATION_ID, notificationId);
+        PendingIntent dismissIntent = PendingIntent.getActivity(context, 0, closeNotification, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Intent intent = new Intent(context, GeneralRxActivity.class);
+        intent.putExtra("title", post.getUser().getUsername());
+        intent.putExtra("text", post.getMessage());
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_mm)
+                .setContentTitle("New message from " + post.getUser().getUsername())
+                .setContentText(Html.fromHtml(post.getMessage()))
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setContent(remoteViews)
+                .setContentIntent(pIntent);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, builder.build());
     }
 
     public static void savePost(Post post){
