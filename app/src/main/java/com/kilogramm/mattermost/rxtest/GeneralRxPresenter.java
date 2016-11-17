@@ -218,7 +218,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             return channel;
                         })
         ), (generalRxActivity, channel) -> {
-            mSaveData.getmSaveData().clear();
+            listPreferences.getmSaveData().clear();
             sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
