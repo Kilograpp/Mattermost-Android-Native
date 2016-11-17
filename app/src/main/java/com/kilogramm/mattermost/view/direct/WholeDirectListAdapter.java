@@ -2,9 +2,14 @@ package com.kilogramm.mattermost.view.direct;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
@@ -15,16 +20,19 @@ import io.realm.RealmResults;
  */
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListHolder> {
 
-    private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
     private RealmResults<UserStatus> userStatuses;
+    private RealmResults<Preferences> preferences;
+
+    Map<String, Boolean> changesMap;
 
     public WholeDirectListAdapter(Context context,
-                                  WholeDirectListAdapter.OnDirectItemClickListener listener,
-                                  RealmResults<UserStatus> statusRealmResults) {
+                                  RealmResults<UserStatus> statusRealmResults,
+                                  RealmResults<Preferences> preferences) {
         super(context, null, true);
         this.userStatuses = statusRealmResults;
         this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
-        this.directItemClickListener = listener;
+        this.changesMap = new HashMap<>();
+        this.preferences = preferences;
     }
 
     @Override
@@ -35,24 +43,32 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     @Override
     public void onBindViewHolder(WholeDirectListHolder holder, int position) {
         User user = getData().get(position);
-
-        UserStatus userStatus = null;
-        RealmQuery<UserStatus> byId = userStatuses.where().equalTo("id", user.getId());
-        if(byId.count()!=0){
-            userStatus = byId.findFirst();
-        }
+        boolean isShow = false;
+        RealmQuery<Preferences> preferencesRealmQuery = preferences.where()
+                .equalTo("name", user.getId());
+        if (preferencesRealmQuery.count() > 0)
+            if (preferencesRealmQuery.findFirst().getValue().equals("true"))
+                isShow = true;
 
         holder.getmBinding().getRoot().setOnClickListener(view -> {
-            if (directItemClickListener != null) {
-                directItemClickListener.onDirectClick(user.getId(), user.getUsername());
-            }
+                holder.getmBinding().selectDirect.setChecked(
+                        !holder.getmBinding().selectDirect.isChecked());
+                setItemChangeMap(user.getId(), holder.getmBinding().selectDirect.isChecked());
         });
 
-        holder.bindTo(context, user, userStatus);
+        holder.getmBinding().selectDirect.setOnClickListener(view ->
+                setItemChangeMap(user.getId(), ((CheckBox) view).isChecked())
+        );
+        holder.bindTo(user, isShow, changesMap.get(user.getId()));
     }
 
-    public interface OnDirectItemClickListener {
-        void onDirectClick(String userTalkToId, String name);
+
+    public Map<String, Boolean> getChangesMap() {
+        return changesMap;
+    }
+
+    public void setItemChangeMap(String id, boolean value) {
+        changesMap.put(id, value);
     }
 
 

@@ -11,9 +11,9 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
-import com.kilogramm.mattermost.model.entity.ListSaveData;
+import com.kilogramm.mattermost.model.entity.ListPreferences;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.RealmString;
-import com.kilogramm.mattermost.model.entity.SaveData;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -58,7 +58,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private ApiMethod service;
 
     @State
-    ListSaveData mSaveData = new ListSaveData();
+    ListPreferences listPreferences = new ListPreferences();
 
     private LogoutData user;
 
@@ -194,6 +194,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
         results.deleteAllFromRealm();
         mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
+        mRealm.copyToRealmOrUpdate(initObject);
         MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
         RealmList<User> directionProfiles = new RealmList<>();
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
@@ -206,7 +207,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
                 () -> Observable.zip(
-                        service.save(mSaveData.getmSaveData())
+                        service.save(listPreferences.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                         service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
@@ -219,14 +220,14 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
                         })), (generalRxActivity, channel) -> {
-            mSaveData.getmSaveData().clear();
+            listPreferences.getmSaveData().clear();
             sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
-    public void requestSaveData(SaveData data, String userId) {
-        mSaveData.getmSaveData().clear();
-        mSaveData.getmSaveData().add(data);
+    public void requestSaveData(Preferences data, String userId) {
+        listPreferences.getmSaveData().clear();
+        listPreferences.getmSaveData().add(data);
         user.setUserId(userId);
         start(REQUEST_SAVE);
     }
@@ -278,6 +279,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             realm1.delete(Post.class);
             realm1.delete(Channel.class);
             realm1.delete(InitObject.class);
+            realm1.delete(Preferences.class);
             realm1.delete(LicenseCfg.class);
             realm1.delete(NotifyProps.class);
             realm1.delete(RealmString.class);

@@ -5,17 +5,13 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -23,7 +19,7 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
-import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -127,7 +123,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
             if (requestCode == MenuDirectListFragment.REQUEST_CODE) {
                 String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
 
-                SaveData saveData = new SaveData(
+                Preferences preferences = new Preferences(
                         userTalkToId,
                         MattermostPreference.getInstance().getMyUserId(),
                         true,
@@ -143,7 +139,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> {
                 realm.close();
 
                 if (channels.size() == 0) {
-                    getPresenter().requestSaveData(saveData, userTalkToId);
+                    getPresenter().requestSaveData(preferences, userTalkToId);
                 } else {
                     this.setFragmentChat(
                             channels.get(0).getId(),

@@ -14,7 +14,7 @@ import android.view.animation.AnimationUtils;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChannelActivityBinding;
-import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -167,13 +167,13 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void startDialog(String userTalkToId) {
-        SaveData saveData = new SaveData(
+        Preferences preferences = new Preferences(
                 userTalkToId,
                 MattermostPreference.getInstance().getMyUserId(),
                 true,
                 "direct_channel_show");
 
-        getPresenter().requestSaveData(saveData, userTalkToId);
+        getPresenter().requestSaveData(preferences, userTalkToId);
 
     }
 

@@ -1,8 +1,6 @@
 package com.kilogramm.mattermost.view.direct;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -10,7 +8,6 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectListBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.squareup.picasso.Picasso;
 
 import io.realm.RealmViewHolder;
@@ -32,7 +29,7 @@ public class WholeDirectListHolder extends RealmViewHolder {
         return new WholeDirectListHolder(DataBindingUtil.inflate(inflater, R.layout.item_direct_list, parent, false));
     }
 
-    public void bindTo(Context context, User user, UserStatus userStatus) {
+    public void bindTo(User user, boolean isShow, Boolean changed) {
 
         directBinding.directProfileName.setText(user.getUsername());
 
@@ -40,11 +37,10 @@ public class WholeDirectListHolder extends RealmViewHolder {
                 user.getFirstName(),
                 user.getLastName()));
 
-        if (userStatus != null) {
-            directBinding.status.setImageDrawable(drawStatusIcon(context, userStatus));
-        } else {
-            directBinding.status.setImageDrawable(context.getResources().getDrawable(R.drawable.status_offline_drawable));
-        }
+        if (changed != null) {
+            directBinding.selectDirect.setChecked(changed);
+        } else
+            directBinding.selectDirect.setChecked(isShow);
 
         Picasso.with(directBinding.avatarDirect.getContext())
                 .load(getImageUrl(user.getId()))
@@ -62,21 +58,6 @@ public class WholeDirectListHolder extends RealmViewHolder {
 
     public ItemDirectListBinding getmBinding() {
         return directBinding;
-    }
-
-    public static Drawable drawStatusIcon(Context context, UserStatus status) {
-        switch (status.getStatus()){
-            case UserStatus.ONLINE:
-                return context.getResources().getDrawable(R.drawable.status_online_drawable);
-            case UserStatus.OFFLINE:
-                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-            case UserStatus.AWAY:
-                return context.getResources().getDrawable(R.drawable.status_away_drawable);
-            case UserStatus.REFRESH:
-                return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
-            default:
-                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-        }
     }
 
     public static String getImageUrl(String userId) {

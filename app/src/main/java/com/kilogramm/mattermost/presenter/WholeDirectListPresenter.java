@@ -2,10 +2,12 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -14,6 +16,10 @@ import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.Sort;
@@ -24,20 +30,18 @@ import rx.schedulers.Schedulers;
  */
 public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListActivity> {
     private static final String TAG = "WholeDirListPresenter";
-    private static final int REQUEST_PROFILE_DM = 1;
-    private static final int REQUEST_DB_USERS = 2;
+    private static final int REQUEST_SAVE_PREFERENCES = 1;
 
     private ApiMethod service;
     @State
     String name;
-
     @State
-    ExtraInfo defaultChannel;
-
+    ExtraInfo defaultChannelInfo;
     @State
     String id;
     @State
     String currentUserId;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -49,41 +53,80 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
 
 
     private void initGetUsers() {
-
-        restartableFirst(REQUEST_PROFILE_DM,
-                () -> service.getProfilesForDMList(MattermostPreference.getInstance().getTeamId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                , (wholeDirectListActivity, stringUserMap) -> {
-                    UserRepository.add(stringUserMap.values());
-                    sendSetRecyclerView();
-                }, (wholeDirectListActivity1, throwable) -> {
-                    Log.d(TAG, "Error load profiles for direct messages list");
+        restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
+                        service.save(preferenceList)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (wholeDirectListActivity, aBoolean) -> {
+                    PreferenceRepository.update(preferenceList);
+                    requestSave(aBoolean);
+                }, (wholeDirectListActivity, throwable) -> {
                     throwable.printStackTrace();
-                });
-
+                }
+        );
     }
 
-    private void sendSetRecyclerView() {
+
+    List<Preferences> preferenceList = new ArrayList<>();
+
+    public void savePreferences(Map<String, Boolean> chouseUser) {
+        for (Map.Entry<String, Boolean> user : chouseUser.entrySet()) {
+            preferenceList.add(new Preferences(
+                    user.getKey(),
+                    currentUserId,
+                    user.getValue(),
+                    "direct_channel_show"));
+        }
+        start(REQUEST_SAVE_PREFERENCES);
+    }
+
+    private void requestSave(boolean isSuccess) {
+        createTemplateObservable(isSuccess).subscribe(split((wholeDirectListActivity, aBoolean) -> {
+            if (aBoolean) {
+                Toast.makeText(wholeDirectListActivity, createToast(), Toast.LENGTH_SHORT).show();
+                wholeDirectListActivity.onBackPressed();
+            } else
+                Toast.makeText(wholeDirectListActivity, "Unable to save", Toast.LENGTH_SHORT).show();
+        }));
+    }
+
+    private String createToast() {
+        int countAdd = 0;
+        int countDelete = 0;
+        if (preferenceList.size() == 1) {
+            return String.format("%s %s %s", "Conversation with" ,
+                    UserRepository.query(
+                    new UserRepository.UserByIdSpecification(preferenceList.get(0).getName()))
+                    .first()
+                    .getUsername(),
+                    preferenceList.get(0).getValue().equals("true") ? "added" : "removed");
+        }
+        for (Preferences preference : preferenceList) {
+            if (preference.getValue().equals("true"))
+                countAdd++;
+            else
+                countDelete++;
+        }
+        return String.format("%s%s",
+                countAdd > 0 ? countAdd + " conversations have been added/n" : "",
+                countDelete > 0 ? countDelete + " conversations have been removed" : "");
+    }
+
+    public void getUsers() {
+        this.id = ChannelRepository.query(new ChannelByHadleSpecification("town-square")).first().getId();
         createTemplateObservable(new Object())
                 .subscribe(split((wholeDirectListActivity, o) -> {
-                            this.defaultChannel = ExtroInfoRepository.query(
+                            this.defaultChannelInfo = ExtroInfoRepository.query(
                                     new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).first();
-                            wholeDirectListActivity.updateDataList(defaultChannel
+                            wholeDirectListActivity.updateDataList(defaultChannelInfo
                                     .getMembers().where().notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
                         }
                 ));
     }
 
-
-    public void getUsers() {
-        this.id = ChannelRepository.query(new ChannelByHadleSpecification("town-square")).first().getId();
-        start(REQUEST_PROFILE_DM);
-    }
-
     public void getSearchUsers(String name) {
         this.name = name;
-        createTemplateObservable(defaultChannel.getMembers())
+        createTemplateObservable(defaultChannelInfo.getMembers())
                 .subscribe(split((wholeDirectListActivity, users) -> {
                     if (name == null)
                         wholeDirectListActivity.updateDataList(

@@ -4,8 +4,8 @@ import android.os.Bundle;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.ListSaveData;
-import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.ListPreferences;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
@@ -37,7 +37,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
     private LogoutData user;
 
     @State
-    ListSaveData mSaveData = new ListSaveData();
+    ListPreferences listPreferences = new ListPreferences();
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -64,7 +64,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
                 () -> Observable.zip(
-                        service.save(mSaveData.getmSaveData())
+                        service.save(listPreferences.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                         service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
@@ -77,15 +77,15 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
                             ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
                             return channel;
                         })), (generalRxActivity, channel) -> {
-            mSaveData.getmSaveData().clear();
+            listPreferences.getmSaveData().clear();
             MattermostPreference.getInstance().setLastChannelId(channel.getId());
             sendSetFragmentChat();
         }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
-    public void requestSaveData(SaveData data, String userId) {
-        mSaveData.getmSaveData().clear();
-        mSaveData.getmSaveData().add(data);
+    public void requestSaveData(Preferences data, String userId) {
+        listPreferences.getmSaveData().clear();
+        listPreferences.getmSaveData().add(data);
         user.setUserId(userId);
         start(REQUEST_SAVE);
     }

@@ -3,7 +3,7 @@ package com.kilogramm.mattermost.network;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
-import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
@@ -194,7 +194,7 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @POST("api/v3/preferences/save")
-    Observable<Boolean> save(@Body List<SaveData> saveData);
+    Observable<Boolean> save(@Body List<Preferences> saveData);
 
     @Headers({
             "Accept: application/json",

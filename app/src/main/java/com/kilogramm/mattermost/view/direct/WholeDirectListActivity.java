@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.view.direct;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +12,8 @@ import android.view.View;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
@@ -28,12 +28,13 @@ import nucleus.factory.RequiresPresenter;
  * Created by melkshake on 14.09.16.
  */
 @RequiresPresenter(WholeDirectListPresenter.class)
-public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> implements WholeDirectListAdapter.OnDirectItemClickListener {
+public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> {
     public static final String USER_ID = "USER_ID";
     public static final String NAME = "NAME";
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +90,12 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     }
 
     public void setRecycleView() {
-        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        adapter = new WholeDirectListAdapter(this, this, statusRealmResults);
+        RealmResults<UserStatus> statusRealmResults = UserStatusRepository
+                .query(new UserStatusRepository.UserStatusAllSpecification());
+        RealmResults<Preferences> preferences = PreferenceRepository
+                .query(new PreferenceRepository
+                        .PreferenceByCategorySpecification("direct_channel_show"));
+        adapter = new WholeDirectListAdapter(this, statusRealmResults, preferences);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
@@ -109,18 +114,9 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 finish();
                 break;
             case R.id.action_done:
-                getPresenter();
+                getPresenter().savePreferences(adapter.getChangesMap());
                 break;
         }
         return true;
-    }
-
-    @Override
-    public void onDirectClick(String userTalkToId, String name) {
-        Intent intent = new Intent(this, WholeDirectListActivity.class)
-                .putExtra(USER_ID, userTalkToId)
-                .putExtra(NAME, name);
-        setResult(Activity.RESULT_OK, intent);
-        finish();
     }
 }

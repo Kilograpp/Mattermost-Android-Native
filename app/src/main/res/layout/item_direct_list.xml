@@ -31,13 +31,13 @@
                    />
 
 
-                <ImageView
-                    android:id="@+id/status"
-                    android:layout_width="@dimen/status_image_size"
-                    android:layout_height="@dimen/status_image_size"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:src="@drawable/status_offline_drawable" />
+                <!--<ImageView-->
+                    <!--android:id="@+id/status"-->
+                    <!--android:layout_width="@dimen/status_image_size"-->
+                    <!--android:layout_height="@dimen/status_image_size"-->
+                    <!--android:layout_alignParentRight="true"-->
+                    <!--android:layout_alignParentBottom="true"-->
+                    <!--android:src="@drawable/status_offline_drawable" />-->
 
             </RelativeLayout>
 
@@ -65,7 +65,7 @@
                 tools:text="test" />
 
             <CheckBox
-                android:id="@+id/selectFirstName"
+                android:id="@+id/selectDirect"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:button="@drawable/checkbox_selector"

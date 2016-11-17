@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 
@@ -31,8 +32,7 @@ public class InitObject extends RealmObject {
         private Map<String, User> mapDerectProfile;
         @SerializedName("preferences")
         @Expose
-        @Ignore
-        private Object preferences;
+        private RealmList<Preferences> preferences;
         @SerializedName("client_cfg")
         @Expose
         private ClientCfg clientCfg;
@@ -113,14 +113,14 @@ public class InitObject extends RealmObject {
         /**
          * @return The preferences
          */
-        public Object getPreferences() {
+        public RealmList<Preferences> getPreferences() {
             return preferences;
         }
 
         /**
          * @param preferences The preferences
          */
-        public void setPreferences(Object preferences) {
+        public void setPreferences(RealmList<Preferences> preferences) {
             this.preferences = preferences;
         }
 
