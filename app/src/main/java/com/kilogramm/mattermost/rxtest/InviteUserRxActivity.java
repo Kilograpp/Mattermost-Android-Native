@@ -1,11 +1,13 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +19,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.InviteUserAdapter;
 import com.kilogramm.mattermost.databinding.ActivityInviteUserBinding;
 import com.kilogramm.mattermost.model.fromnet.InviteObject;
+import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.regex.Matcher;
@@ -33,6 +36,8 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     private ActivityInviteUserBinding mBinding;
     private RecyclerView mRecyclerView;
     private InviteUserAdapter mAdapter;
+
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
         View view = getLayoutInflater().inflate(R.layout.item_invite_list_footer, null);
         view.setOnClickListener(v -> {
+                    mAdapter.setShouldCheckNullFields(false);
                     mAdapter.add(new InviteObject());
                     mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
                 }
@@ -84,22 +90,21 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void onClickInvite() {
-/*        String email = mBinding.lInvite.editEmail.getText().toString();
-        String firstName = mBinding.lInvite.editFirstName.getText().toString();
-        String lastName = mBinding.lInvite.editFirstName.getText().toString();
-        if(isValidEmail(email)){
+        int posotion = mAdapter.isAllValid();
+        if (posotion < 0) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setView(getLayoutInflater().inflate(R.layout.data_processing_progress_layout, null));
+            progressDialog.show();
             ListInviteObj obj = new ListInviteObj();
-            obj.getInvites().add(new InviteObject(email,firstName,lastName));
+            obj.getInvites().addAll(mAdapter.getData());
             getPresenter().requestInvite(obj);
         } else {
-            showError("Email is not valid.");
-        }*/
-    }
-
-    private boolean isValidEmail(String email) {
-        Pattern p = Patterns.EMAIL_ADDRESS;
-        Matcher m = p.matcher(email);
-        return m.matches();
+            if(posotion == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)){
+                posotion += 1;
+            }
+            mRecyclerView.smoothScrollToPosition(posotion);
+            showError(getString(R.string.fields_invalid));
+        }
     }
 
     @Override
@@ -125,6 +130,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     public void onOkInvite() {
-        Toast.makeText(InviteUserRxActivity.this, "on invite ok notify", Toast.LENGTH_SHORT).show();
+        if(progressDialog != null) progressDialog.dismiss();
+        Toast.makeText(InviteUserRxActivity.this, getString(R.string.invitations_were_sended), Toast.LENGTH_SHORT).show();
     }
 }

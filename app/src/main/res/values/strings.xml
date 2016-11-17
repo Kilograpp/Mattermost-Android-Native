@@ -165,6 +165,8 @@
     <string name="password_changed">Password was successfully changed</string>
     <string name="add_another_plus">Add another +</string>
     <string name="member">Member #</string>
+    <string name="fields_invalid">Some fields are invalid</string>
+    <string name="invitations_were_sended">Invitations were successfully sent</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>

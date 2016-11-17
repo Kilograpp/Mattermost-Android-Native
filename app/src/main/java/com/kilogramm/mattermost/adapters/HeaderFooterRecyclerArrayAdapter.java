@@ -77,18 +77,28 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
         if(items == null) items = new ArrayList<T>();
         items.add(item);
         notifyItemInserted(items.size() - 1);
-//        notifyDataSetChanged();
     }
 
     public T getItem(int position){
         return items.get(position);
     }
 
+    public List<T> getData(){
+        return items;
+    }
+
     public void removeItem(int position){
         if(items.size() <= position) return;
         items.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, items.size() - 1);
+    }
+
+    public int getHeaderItemCount(){
+        return headers.size();
+    }
+
+    public int getFooterItemCount(){
+        return footers.size();
     }
 
     private void prepareHeaderFooter(HeaderFooterViewHolder vh, View view){
