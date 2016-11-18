@@ -20,7 +20,14 @@ public class InviteObject implements Parcelable {
     @Expose
     private String lastName;
 
-
+    @Override
+    public String toString() {
+        return "InviteObject{" +
+                "email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
 
     public String getEmail() {
         return email;

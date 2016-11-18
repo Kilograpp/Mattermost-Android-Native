@@ -90,19 +90,20 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void onClickInvite() {
-        int posotion = mAdapter.isAllValid();
-        if (posotion < 0) {
+        int position = mAdapter.isAllValid();
+        if (position < 0) {
             progressDialog = new ProgressDialog(this);
-            progressDialog.setView(getLayoutInflater().inflate(R.layout.data_processing_progress_layout, null));
             progressDialog.show();
+            progressDialog.setContentView(R.layout.data_processing_progress_layout);
+
             ListInviteObj obj = new ListInviteObj();
             obj.getInvites().addAll(mAdapter.getData());
             getPresenter().requestInvite(obj);
         } else {
-            if(posotion == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)){
-                posotion += 1;
+            if(position == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)){
+                position += 1;
             }
-            mRecyclerView.smoothScrollToPosition(posotion);
+            mRecyclerView.smoothScrollToPosition(position);
             showError(getString(R.string.fields_invalid));
         }
     }
@@ -132,5 +133,6 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     public void onOkInvite() {
         if(progressDialog != null) progressDialog.dismiss();
         Toast.makeText(InviteUserRxActivity.this, getString(R.string.invitations_were_sended), Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

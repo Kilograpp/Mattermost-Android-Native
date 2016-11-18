@@ -127,8 +127,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         if (filePath == null) {
             new DownloadFile(getContext(), this).execute(uri);
             progressDialog = new ProgressDialog(getContext());
-            progressDialog.setView(inflate(getContext(), R.layout.data_processing_progress_layout, null));
             progressDialog.show();
+            progressDialog.setContentView(R.layout.data_processing_progress_layout);
         } else {
             uploadFileToServer(uri, filePath, channelId, false);
         }
