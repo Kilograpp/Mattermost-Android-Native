@@ -30,8 +30,23 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
         items = new ArrayList<>();
     }
 
+    /**
+     * Using for creating user custom viewHolder, that will be use for list items
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     public abstract VH onCreateGenericViewHolder(ViewGroup parent, int viewType);
 
+    /**
+     * Called by RecyclerView to display the item at the specified position.
+     *
+     * @param holder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     public abstract void onBindGenericViewHolder(VH holder, int position);
 
     @Override
@@ -73,71 +88,92 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
         return TYPE_ITEM;
     }
 
-    public void add(T item){
-        if(items == null) items = new ArrayList<T>();
+    /**
+     * Add an item of the specified type to the dataset
+     *
+     * @param item adding element
+     */
+    public void add(T item) {
+        if (items == null) items = new ArrayList<T>();
         items.add(item);
         notifyItemInserted(items.size() - 1);
     }
 
-    public T getItem(int position){
+    /**
+     * Get an item of the specified type from the dataset by position
+     *
+     * @return element by position
+     */
+    public T getItem(int position) {
         return items.get(position);
     }
 
-    public List<T> getData(){
+    public List<T> getData() {
         return items;
     }
 
-    public void removeItem(int position){
-        if(items.size() <= position) return;
+    /**
+     * Removes item from the dataset with animation
+     *
+     * @param position the position of removing item in dataset
+     */
+    public void removeItem(int position) {
+        if (items.size() <= position) return;
         items.remove(position);
         notifyItemRemoved(position);
     }
 
-    public int getHeaderItemCount(){
+    public int getHeaderItemCount() {
         return headers.size();
     }
 
-    public int getFooterItemCount(){
+    public int getFooterItemCount() {
         return footers.size();
     }
 
-    private void prepareHeaderFooter(HeaderFooterViewHolder vh, View view){
+    /**
+     * Prepare HeaderFooter viewHolder by removing old views and add specified view to the list
+     *
+     * @param vh   viewHoler for headers o footers
+     * @param view the view that will be added to headers or footers list
+     */
+    private void prepareHeaderFooter(HeaderFooterViewHolder vh, View view) {
         vh.base.removeAllViews();
-        if(view.getParent() != null) {
+        if (view.getParent() != null) {
             ((ViewGroup) view.getParent()).removeView(view);
         }
         vh.base.addView(view);
     }
 
-    public void addHeader(View header){
-        if(!headers.contains(header)){
+    public void addHeader(View header) {
+        if (!headers.contains(header)) {
             headers.add(header);
             notifyItemInserted(headers.size() - 1);
         }
     }
 
-    public void removeHeader(View header){
-        if(headers.contains(header)){
+    public void removeHeader(View header) {
+        if (headers.contains(header)) {
             notifyItemRemoved(headers.indexOf(header));
             headers.remove(header);
-            if(header.getParent() != null) {
+            if (header.getParent() != null) {
                 ((ViewGroup) header.getParent()).removeView(header);
             }
         }
     }
 
-    public void addFooter(View footer){
-        if(!footers.contains(footer)){
+    public void addFooter(View footer) {
+        if (!footers.contains(footer)) {
             footers.add(footer);
-            notifyItemInserted(headers.size()+items.size()+footers.size()-1);
+            notifyItemInserted(headers.size() + items.size() + footers.size() - 1);
         }
     }
 
-    public void removeFooter(View footer){
-        if(footers.contains(footer)) {
-            notifyItemRemoved(headers.size()+items.size()+footers.indexOf(footer));
+    public void removeFooter(View footer) {
+        if (footers.contains(footer)) {
+            notifyItemRemoved(headers.size() + items.size() + footers.indexOf(footer));
             footers.remove(footer);
-            if(footer.getParent() != null) {
+            if (footer.getParent() != null) {
                 ((ViewGroup) footer.getParent()).removeView(footer);
             }
         }
@@ -145,6 +181,7 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
 
     public static class HeaderFooterViewHolder extends RecyclerView.ViewHolder {
         FrameLayout base;
+
         public HeaderFooterViewHolder(View itemView) {
             super(itemView);
             this.base = (FrameLayout) itemView;
