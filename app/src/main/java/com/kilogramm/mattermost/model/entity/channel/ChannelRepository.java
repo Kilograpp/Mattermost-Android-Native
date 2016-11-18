@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.model.entity.channel;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -159,6 +160,26 @@ public class ChannelRepository {
             return realm.where(Channel.class).findAllSorted("username", Sort.ASCENDING);
         }
     }
+
+    public static class ChannelDirectByIdSpecification implements RealmSpecification {
+
+        private String userId;
+
+        public ChannelDirectByIdSpecification(String userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public RealmResults toRealmResults(Realm realm) {
+            String myId = MattermostPreference.getInstance().getMyUserId();
+            return realm.where(Channel.class)
+                    .equalTo("name", myId + "__" + userId)
+                    .or()
+                    .equalTo("name", userId + "__" + myId)
+                    .findAll();
+        }
+    }
+
     //endregion
 }
 

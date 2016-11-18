@@ -361,6 +361,12 @@ public class Channel extends RealmObject implements Parcelable {
     public Channel() {
     }
 
+    public Channel(String id, String type, String name) {
+        this.id = id;
+        this.type = type;
+        this.name = name;
+    }
+
     protected Channel(Parcel in) {
         this.id = in.readString();
         this.createAt = (Long) in.readValue(Long.class.getClassLoader());
