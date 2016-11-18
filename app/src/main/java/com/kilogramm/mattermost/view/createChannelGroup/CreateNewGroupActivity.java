@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.createChannelGroup;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
@@ -122,6 +123,12 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
             getPresenter().sendShowError(getResources().getString(R.string.create_new_group_error));
         }
         BaseActivity.hideKeyboard(this);
+    }
+
+    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
+        Intent starter = new Intent(fragment.getActivity(), CreateNewGroupActivity.class);
+        starter.putExtra(TYPE, groupType);
+        fragment.startActivityForResult(starter, requestCode);
     }
 
     private String makeName(String groupName) {
