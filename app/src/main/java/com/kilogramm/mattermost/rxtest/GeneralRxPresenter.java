@@ -36,7 +36,6 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -160,8 +159,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, "Error logout");
                 });
 
-        initSaveRequest();
-
         restartableFirst(REQUEST_INITLOAD, () ->
                         service.initLoad()
                                 .subscribeOn(Schedulers.io())
@@ -190,28 +187,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
         mRealm.commitTransaction();
         return teams;
-    }
-
-    private void initSaveRequest() {
-        restartableFirst(REQUEST_SAVE, () -> Observable.defer(
-                () -> Observable.zip(
-                        service.save(listPreferences.getmSaveData())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (aBoolean, channel) -> {
-                            if (aBoolean == Boolean.FALSE) {
-                                return null;
-                            }
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
-                            return channel;
-                        })
-        ), (generalRxActivity, channel) -> {
-            listPreferences.getmSaveData().clear();
-            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
     public void requestLoadChannels() {

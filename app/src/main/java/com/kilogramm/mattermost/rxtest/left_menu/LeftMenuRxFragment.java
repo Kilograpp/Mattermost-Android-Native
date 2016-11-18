@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
-import com.kilogramm.mattermost.model.entity.SaveData;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository.ChannelDirectByIdSpecification;
@@ -116,7 +116,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     private void handleRequestJoinDirect(Intent data) {
         String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
-        SaveData saveData = new SaveData(userTalkToId,
+        Preferences saveData = new Preferences(userTalkToId,
                 MattermostPreference.getInstance().getMyUserId(),
                 true,
                 "direct_channel_show");

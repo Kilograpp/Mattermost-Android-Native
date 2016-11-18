@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.view.direct;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -50,7 +49,46 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private void init() {
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-        getPresenter().getProfilesForDirectMessage();
+
+        binding.searchText.addTextChangedListener(getMassageTextWatcher());
+        binding.btnClear.setOnClickListener(view -> {
+            binding.searchText.setText("");
+            hideKeyboard(this);
+        });
+        setRecycleView();
+        getPresenter().getUsers();
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > 0) {
+                    getPresenter().getSearchUsers(charSequence.toString());
+                    binding.btnClear.setVisibility(View.VISIBLE);
+                } else {
+                    getPresenter().getSearchUsers(null);
+                    binding.btnClear.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+    public void updateDataList(OrderedRealmCollection<User> realmResult) {
+        adapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.listEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.listEmpty.setVisibility(View.INVISIBLE);
     }
 
     public void setRecycleView() {
@@ -83,7 +121,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
         return true;
     }
-
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
         Intent starter = new Intent(fragment.getActivity(), WholeDirectListActivity.class);
         fragment.startActivityForResult(starter, requestCode);
