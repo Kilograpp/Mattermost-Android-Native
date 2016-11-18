@@ -40,8 +40,9 @@ public class PreferenceRepository {
     public static void update(List<Preferences> items) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            for(Preferences preferences : items)
-            realm1.insertOrUpdate(preferences);
+            for (Preferences preferences : items) {
+                realm1.insertOrUpdate(preferences);
+            }
         });
     }
 
@@ -64,11 +65,11 @@ public class PreferenceRepository {
         Realm realm = Realm.getDefaultInstance();
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
+
     public static RealmResults<Preferences> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Preferences.class).findAll();
     }
-
 
 
     public static class PreferenceByNameSpecification implements RealmSpecification {
@@ -82,7 +83,7 @@ public class PreferenceRepository {
         @Override
         public RealmResults<Preferences> toRealmResults(Realm realm) {
             return realm.where(Preferences.class)
-                    .equalTo("nane", name)
+                    .equalTo("name", name)
                     .findAll();
         }
     }

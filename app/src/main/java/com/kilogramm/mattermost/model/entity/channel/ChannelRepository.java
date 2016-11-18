@@ -104,6 +104,20 @@ public class ChannelRepository {
         });
     }
 
+    public static void prepareDirectAdd(Collection<Channel> channels) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            for (Channel channel : channels) {
+                channel.setUser(realm1.where(User.class)
+                        .equalTo("id", channel.getName()
+                                .replace(MattermostPreference.getInstance().getMyUserId() + "__", ""))
+                        .findFirst());
+                channel.setUsername(channel.getUser().getUsername());
+                realm.insertOrUpdate(channel);
+            }
+        });
+    }
+
     public static void remove(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
         final RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);

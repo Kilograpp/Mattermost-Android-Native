@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/selector_item_channel_backgroung"
         android:orientation="vertical"
-        android:paddingTop="@dimen/standart_margin"
+        android:paddingTop="5dp"
         android:paddingLeft="@dimen/standart_margin"
         >
 
@@ -17,37 +17,30 @@
             android:layout_height="wrap_content">
 
 
-            <RelativeLayout
-                android:id="@+id/avatar"
-                android:layout_width="@dimen/circle_image_size"
-                android:layout_height="@dimen/circle_image_size"
-                android:layout_marginEnd="@dimen/left_padding"
-                android:layout_marginStart="@dimen/margin_start">
-
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/avatarDirect"
+                    android:layout_centerVertical="true"
                     android:layout_width="@dimen/circle_image_size"
                     android:layout_height="@dimen/circle_image_size"
+
                    />
 
 
-                <!--<ImageView-->
-                    <!--android:id="@+id/status"-->
-                    <!--android:layout_width="@dimen/status_image_size"-->
-                    <!--android:layout_height="@dimen/status_image_size"-->
-                    <!--android:layout_alignParentRight="true"-->
-                    <!--android:layout_alignParentBottom="true"-->
-                    <!--android:src="@drawable/status_offline_drawable" />-->
-
-            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/avatarDirect"
+                android:layout_marginEnd="60dp"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
 
             <TextView
                 android:id="@+id/directProfileName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="60dp"
-                android:layout_marginStart="@dimen/margin_start"
-                android:layout_toRightOf="@+id/avatar"
                 android:textColor="@color/black"
                 tools:text="test" />
 
@@ -55,15 +48,13 @@
                 android:id="@+id/emailProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/directProfileName"
                 android:layout_gravity="center"
-                android:layout_marginEnd="60dp"
-                android:layout_marginStart="@dimen/margin_start"
-                android:layout_toRightOf="@+id/avatar"
+                android:layout_marginTop="@dimen/activity_vertical_text_margin"
                 android:textColor="@color/light_grey"
                 android:maxLines="1"
                 tools:text="test" />
 
+            </LinearLayout>
             <CheckBox
                 android:id="@+id/selectDirect"
                 android:layout_width="wrap_content"
@@ -74,13 +65,15 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="21dp"
+                android:layout_below="@id/avatarDirect"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@+id/avatarDirect"
+                android:background="@color/very_light_grey" />
         </RelativeLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="@dimen/search_margin"
-            android:layout_weight="1"
-            android:background="@color/very_light_grey" />
+
     </com.kilogramm.mattermost.ui.CheckableLinearLayout>
 </layout>

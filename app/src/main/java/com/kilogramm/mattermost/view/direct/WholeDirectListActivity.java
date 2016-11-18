@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
@@ -32,11 +33,11 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(WholeDirectListPresenter.class)
 public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> {
     public static final String USER_ID = "USER_ID";
-    public static final String NAME = "NAME";
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
 
+    private MenuItem doneItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +110,14 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         return true;
     }
 
+    public void failSave() {
+        adapter.getChangesMap().clear();
+        adapter.notifyDataSetChanged();
+        doneItem.setVisible(true);
+        binding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, "Unable to save", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -116,7 +125,13 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 finish();
                 break;
             case R.id.action_done:
-                getPresenter().savePreferences(adapter.getChangesMap());
+                if (adapter.getChangesMap().size() == 0) {
+                    getPresenter().savePreferences(adapter.getChangesMap());
+                    doneItem = item;
+                    doneItem.setVisible(false);
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                } else
+                    getPresenter();
                 break;
         }
         return true;
