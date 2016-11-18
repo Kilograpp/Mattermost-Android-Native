@@ -1,16 +1,22 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.adapters.InviteUserAdapter;
 import com.kilogramm.mattermost.databinding.ActivityInviteUserBinding;
 import com.kilogramm.mattermost.model.fromnet.InviteObject;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
@@ -28,6 +34,10 @@ import nucleus.factory.RequiresPresenter;
 public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
     private ActivityInviteUserBinding mBinding;
+    private RecyclerView mRecyclerView;
+    private InviteUserAdapter mAdapter;
+
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +47,25 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void initView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        mRecyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new InviteUserAdapter(this);
+        mRecyclerView.setAdapter(mAdapter);
+        mAdapter.add(new InviteObject());
+
+        View view = getLayoutInflater().inflate(R.layout.item_invite_list_footer, null);
+        view.setOnClickListener(v -> {
+                    mAdapter.setShouldCheckNullFields(false);
+                    mAdapter.add(new InviteObject());
+                    mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+                }
+        );
+        mAdapter.addFooter(view);
     }
 
     @Override
@@ -48,7 +77,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.invite:
                 onClickInvite();
                 return true;
@@ -61,22 +90,22 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     private void onClickInvite() {
-        String email = mBinding.lInvite.editEmail.getText().toString();
-        String firstName = mBinding.lInvite.editFirstName.getText().toString();
-        String lastName = mBinding.lInvite.editFirstName.getText().toString();
-        if(isValidEmail(email)){
+        int position = mAdapter.isAllValid();
+        if (position < 0) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.show();
+            progressDialog.setContentView(R.layout.data_processing_progress_layout);
+
             ListInviteObj obj = new ListInviteObj();
-            obj.getInvites().add(new InviteObject(email,firstName,lastName));
+            obj.getInvites().addAll(mAdapter.getData());
             getPresenter().requestInvite(obj);
         } else {
-            showError("Email is not valid.");
+            if(position == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)){
+                position += 1;
+            }
+            mRecyclerView.smoothScrollToPosition(position);
+            showError(getString(R.string.fields_invalid));
         }
-    }
-
-    private boolean isValidEmail(String email) {
-        Pattern p = Patterns.EMAIL_ADDRESS;
-        Matcher m = p.matcher(email);
-        return m.matches();
     }
 
     @Override
@@ -88,8 +117,8 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     @Override
     protected void onResume() {
         super.onResume();
-        setupToolbar("Invite",true);
-        setColorScheme(R.color.colorPrimary,R.color.colorPrimaryDark);
+        setupToolbar("Invite", true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     public static void start(Context context) {
@@ -102,6 +131,8 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     public void onOkInvite() {
-        Toast.makeText(InviteUserRxActivity.this, "on invite ok notify", Toast.LENGTH_SHORT).show();
+        if(progressDialog != null) progressDialog.dismiss();
+        Toast.makeText(InviteUserRxActivity.this, getString(R.string.invitations_were_sended), Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

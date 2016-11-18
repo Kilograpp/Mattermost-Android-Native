@@ -170,7 +170,8 @@
                     android:inputType="textCapSentences"
                     android:padding="10dp"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/very_light_grey" />
+                    android:textColorHint="@color/very_light_grey"
+                    android:imeOptions="actionNone"/>
 
                 <TextView
                     android:id="@+id/btnSend"
