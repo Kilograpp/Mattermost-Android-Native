@@ -17,7 +17,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -33,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -101,6 +99,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
     public static final int SEARCH_CODE = 4;
+
+    private boolean isRefreshing = true;
 
     private FragmentChatMvpBinding binding;
 
@@ -182,6 +182,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
         } else {
+            isRefreshing = true;
             getPresenter().requestExtraInfo();
         }
 
@@ -274,7 +275,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     onItemAdded();
                     binding.fab.hide();
                 } else {
-//                    ScrollAwareFabBehavior.animateFabUp(binding.fab);
+                    if(!isRefreshing) {
+                        ScrollAwareFabBehavior.animateFabUp(binding.fab);
+                    }
                 }
             }
         });
@@ -483,7 +486,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setText(getString(R.string.send));
     }
 
-
     public void setErrorLayout(String error) {
         binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.GONE);
         binding.sendingMessageContainer.setVisibility(View.GONE);
@@ -533,7 +535,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
+            isRefreshing = true;
             getPresenter().requestLoadPosts();
+            binding.fab.hide();
         });
     }
 
@@ -545,13 +549,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void OnClickChooseDoc() {
-        /*Intent i = new Intent(getActivity(), FilePickerActivity.class)
-                .putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
-                .putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
-                .putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE)
-                .putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
-
-        startActivityForResult(i, FILE_CODE);*/
         pickFile();
     }
 
@@ -655,11 +652,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void OnClickMakePhoto() {
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
-    }
-
     public void showEmptyList() {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
@@ -668,6 +660,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void showList() {
+        isRefreshing = false;
         Log.d(TAG, "showList()");
         binding.progressBar.setVisibility(View.GONE);
         binding.rev.setVisibility(View.VISIBLE);
@@ -724,32 +717,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            // Create the File where the photo should go
 
-            // Determine Uri of camera image to save.
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             final File root = Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_PICTURES + "/Mattermost");
             root.mkdir();
             final String fname = "img_" + System.currentTimeMillis() + ".jpg";
             final File sdImageMainDirectory = new File(root, fname);
-/*
 
-            File photoFile = null;
-            try {
-                photoFile = FileUtil.getInstance().createTempImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }*/
-            // Continue only if the File was successfully created
-//            if (photoFile != null) {
             fileFromCamera = Uri.fromFile(sdImageMainDirectory);
-//                fileFromCamera = Uri.fromFile(photoFile);
-                Log.d(TAG, fileFromCamera.toString());
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
-                startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
-//            }
+            Log.d(TAG, fileFromCamera.toString());
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
+            startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
         }
     }
 
@@ -822,8 +801,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void showEditView(String message, String type) {
-        Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.edit_card_anim);
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
 
         if (type.equals(REPLY_MESSAGE))

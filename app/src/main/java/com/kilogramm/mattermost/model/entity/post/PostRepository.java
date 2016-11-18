@@ -7,7 +7,9 @@ import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.user.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -53,6 +55,11 @@ public class PostRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static Post query(String id) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Post.class).equalTo("id", id).findFirst();
+    }
+
     public static void removeTempPost(String sendedPostId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -61,10 +68,25 @@ public class PostRepository {
         });
     }
 
+    public static void merge(Collection<Post> posts, Specification specification) {
+        RealmResults realmResults = query(specification);
+        List<Post> deleteFromRealm = new ArrayList<>();
+        List<Post> postsFromServer = new ArrayList<>();
+        postsFromServer.addAll(posts);
+        for (Post post : posts) {
+            if (query(post.getId()) != null) {
+                postsFromServer.remove(post);
+            }
+        }
+        for (Post post : postsFromServer) {
+            prepareAndAddPost(post);
+        }
+    }
+
     public static void prepareAndAddPost(Post post) {
         Realm realm = Realm.getDefaultInstance();
         if (!post.isSystemMessage())
-           post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+            post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);

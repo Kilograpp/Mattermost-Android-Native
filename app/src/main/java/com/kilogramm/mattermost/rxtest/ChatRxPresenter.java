@@ -157,6 +157,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     }
                     PostRepository.remove(new PostByChannelId(channelId));
                     PostRepository.prepareAndAdd(posts);
+//                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
                     if (!isEmpty) {
