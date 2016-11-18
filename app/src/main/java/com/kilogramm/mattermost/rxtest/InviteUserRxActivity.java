@@ -7,8 +7,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
-import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,9 +19,6 @@ import com.kilogramm.mattermost.databinding.ActivityInviteUserBinding;
 import com.kilogramm.mattermost.model.fromnet.InviteObject;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.view.BaseActivity;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import nucleus.factory.RequiresPresenter;
 

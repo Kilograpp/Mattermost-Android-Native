@@ -113,7 +113,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @State
     boolean isMessageTextOpen = false;
     @State
-    private boolean isRefreshing = true;
+    boolean isRefreshing = true;
     @State
     String searchMessageId = null;
 
