@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.view.direct;
 
+import android.app.Fragment;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -133,5 +135,9 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 break;
         }
         return true;
+    }
+    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
+        Intent starter = new Intent(fragment.getActivity(), WholeDirectListActivity.class);
+        fragment.startActivityForResult(starter, requestCode);
     }
 }

@@ -35,12 +35,13 @@
 
         <!-- The navigation drawer -->
         <FrameLayout
+            android:id="@+id/left_container"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:background="@color/colorPrimary">
 
-            <android.support.v4.widget.NestedScrollView
+            <!--<android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -69,7 +70,7 @@
                         android:layout_height="wrap_content"
                         tools:layout="@layout/fragment_menu_direct_list" />
                 </LinearLayout>
-            </android.support.v4.widget.NestedScrollView>
+            </android.support.v4.widget.NestedScrollView>-->
         </FrameLayout>
 
         <FrameLayout

@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.model.entity.channel;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
@@ -18,6 +21,7 @@ import io.realm.Sort;
 public class ChannelRepository {
 
     private static final int LOW_DASH_COUNT = 2;
+    private static final String TAG = "CHANNEL_REPOSITORY";
 
     public static void add(Channel channel) {
         Realm realm = Realm.getDefaultInstance();
@@ -48,11 +52,7 @@ public class ChannelRepository {
             for (Channel channel : items) {
                 String userId;
                 if (channel.getType().equals(Channel.DIRECT)) {
-                    if (channel.getName().startsWith(myId)) {
-                        userId = channel.getName().substring(myId.length() + LOW_DASH_COUNT);
-                    } else {
-                        userId = channel.getName().substring(0, channel.getName().length() - myId.length() - LOW_DASH_COUNT);
-                    }
+                    userId = getUserId(myId, channel);
                     channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                     channel.setUsername(channel.getUser().getUsername());
                 }
@@ -65,8 +65,31 @@ public class ChannelRepository {
             if (channelRealmQuery.findAll().size() > 0)
                 channelRealmQuery.findAll().deleteAllFromRealm();
         });
+    }
 
+    public static void prepareChannelAndAdd(Channel item, String myId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+                String userId;
+                if (item.getType().equals(Channel.DIRECT)) {
+                    userId = getUserId(myId, item);
+                    item.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
+                    item.setUsername(item.getUser().getUsername());
+                }
+            realm1.copyToRealmOrUpdate(item);
+        });
+    }
 
+    @NonNull
+    private static String getUserId(String myId, Channel channel) {
+        Log.d(TAG, channel.getId());
+        String userId;
+        if (channel.getName().startsWith(myId)) {
+            userId = channel.getName().substring(myId.length() + LOW_DASH_COUNT);
+        } else {
+            userId = channel.getName().substring(0, channel.getName().length() - myId.length() - LOW_DASH_COUNT);
+        }
+        return userId;
     }
 
     public static void prepareDirectChannelAndAdd(Channel channel, String userId) {
@@ -76,18 +99,8 @@ public class ChannelRepository {
                 channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                 channel.setUsername(channel.getUser().getUsername());
             }
-        });
-    }
-
-    public static void prepareDirectChannelAndAdd(Collection<Channel> channels, String userId) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            for (Channel channel : channels) {
-                if (channel.getType().equals(Channel.DIRECT)) {
-                    channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
-                    channel.setUsername(channel.getUser().getUsername());
-                }
-            }
+            channel.setTotalMsgCount(channel.getTotalMsgCount());
+            realm1.copyToRealmOrUpdate(channel);
         });
     }
 
@@ -161,6 +174,26 @@ public class ChannelRepository {
             return realm.where(Channel.class).findAllSorted("username", Sort.ASCENDING);
         }
     }
+
+    public static class ChannelDirectByIdSpecification implements RealmSpecification {
+
+        private String userId;
+
+        public ChannelDirectByIdSpecification(String userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public RealmResults toRealmResults(Realm realm) {
+            String myId = MattermostPreference.getInstance().getMyUserId();
+            return realm.where(Channel.class)
+                    .equalTo("name", myId + "__" + userId)
+                    .or()
+                    .equalTo("name", userId + "__" + myId)
+                    .findAll();
+        }
+    }
+
     //endregion
 }
 

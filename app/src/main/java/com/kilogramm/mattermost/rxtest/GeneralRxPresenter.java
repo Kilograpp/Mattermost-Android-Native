@@ -18,7 +18,6 @@ import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -39,7 +38,6 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -56,8 +54,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_INITLOAD = 7;
     private static final int REQUEST_EXTROINFO_DEFAULT_CHANNEL = 8;
 
-    private Realm realm;
-
     private ApiMethod service;
 
     @State
@@ -68,7 +64,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        realm = Realm.getDefaultInstance();
 
         user = new LogoutData();
         MattermostApp application = MattermostApp.getSingleton();
@@ -89,31 +84,25 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         Channel channel;
         if (id != null) {
             try {
-                channel = new ChannelRepository.ChannelByIdSpecification(id).toRealmResults(realm).first();
+                channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(id)).first();
                 if (channel != null)
-                    switch (channel.getType()) {
-                        case "O":
-                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
-                            break;
-                        case "D":
-                            setSelectedMenu(channel.getId(), channel.getUsername(), channel.getType());
-                            break;
-                        case "P":
-                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
-                            break;
+                    if (channel.getType().equals(Channel.DIRECT)) {
+                        sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                    } else {
+                        sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                     }
-                sendSetSelectChannel(id, channel.getType());
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         } else {
-            RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
+            RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN));
             if (channels.size() != 0) {
-                setSelectedMenu(channels.first().getId(), channels.first().getName(), channels.first().getType());
+                sendSetFragmentChat(channels.first().getId(), channels.first().getName(), channels.first().getType());
             } else {
                 channels.addChangeListener(element -> {
-                    if (element.size() != 0)
-                        setSelectedMenu(element.first().getId(), element.first().getName(), channels.first().getType());
+                    if (element.size() != 0) {
+                        sendSetFragmentChat(element.first().getId(), element.first().getName(), element.first().getType());
+                    }
                 });
             }
         }
@@ -152,10 +141,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, stringUserMap) -> {
                     UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O")).first();
-                        sendSetSelectChannel(channel.getId(), channel.getType());
+                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
+                        sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
-                            setSelectedMenu(channel.getId(), channel.getName(), channel.getType());
+                            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         }
                     }
                 }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
@@ -173,8 +162,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     throwable.printStackTrace();
                     Log.d(TAG, "Error logout");
                 });
-
-        initSaveRequest();
 
         restartableFirst(REQUEST_INITLOAD, () ->
                         service.initLoad()
@@ -207,6 +194,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         );
     }
 
+
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();
@@ -221,35 +209,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
         mRealm.commitTransaction();
         return teams;
-    }
-
-    private void initSaveRequest() {
-        restartableFirst(REQUEST_SAVE, () -> Observable.defer(
-                () -> Observable.zip(
-                        service.save(listPreferences.getmSaveData())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (aBoolean, channel) -> {
-                            if (aBoolean == Boolean.FALSE) {
-                                return null;
-                            }
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
-                            return channel;
-                        })
-        ), (generalRxActivity, channel) -> {
-            listPreferences.getmSaveData().clear();
-            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
-    }
-
-    public void requestSaveData(Preferences data, String userId) {
-        listPreferences.getmSaveData().clear();
-        listPreferences.getmSaveData().add(data);
-        user.setUserId(userId);
-        start(REQUEST_SAVE);
     }
 
     public void requestLoadChannels() {
@@ -276,16 +235,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
         //loadChannels(realm.where(Team.class).findFirst().getId());
-    }
-
-    public void setSelectedMenu(String channelId, String name, String type) {
-        if (MattermostPreference.getInstance().getLastChannelId() != null &&
-                !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
-            // For clearing attached files on channel change
-            FileToAttachRepository.getInstance().deleteUploadedFiles();
-        }
-        sendSetFragmentChat(channelId, name, type);
-        MattermostPreference.getInstance().setLastChannelId(channelId);
     }
 
     private void clearPreference() {
@@ -328,64 +277,30 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
-        createTemplateObservable(new OpenChatObject(channelId, name, type))
-                .subscribe(split((generalRxActivity1, openChatObject)
-                        -> generalRxActivity1.setFragmentChat(openChatObject.getChannelId(), name, type)));
+        createTemplateObservable(new Channel(channelId, type, name))
+                .subscribe(split((generalRxActivity, channel)
+                        -> generalRxActivity.setFragmentChat(channel.getId(), channel.getName(), channel.getType())));
     }
 
-    private void sendSetSelectChannel(String channelId, String type) {
-        createTemplateObservable(new OpenChatObject(channelId, type))
-                .subscribe(split((generalRxActivity1, openChatObject)
-                        -> generalRxActivity1.setSelectItemMenu(openChatObject.getChannelId(), type)));
-    }
 
     public void setFirstChannelBeforeLeave() {
-        RealmResults<Channel> channelsOpen = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
+        RealmResults<Channel> channelsOpen = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN));
         if (channelsOpen.size() != 0) {
-            setSelectedMenu(channelsOpen.first().getId(), channelsOpen.first().getName(), channelsOpen.first().getType());
+            sendSetFragmentChat(channelsOpen.first().getId(), channelsOpen.first().getName(), channelsOpen.first().getType());
             return;
         }
-        RealmResults<Channel> channelsPrivate = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
+        RealmResults<Channel> channelsPrivate = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.PRIVATE));
         if (channelsPrivate.size() != 0) {
-            setSelectedMenu(channelsPrivate.first().getId(), channelsPrivate.first().getName(), channelsPrivate.first().getType());
+            sendSetFragmentChat(channelsPrivate.first().getId(), channelsPrivate.first().getName(), channelsPrivate.first().getType());
             return;
         }
 
-        RealmResults<Channel> channelsDirect = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));
+        RealmResults<Channel> channelsDirect = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT));
         if (channelsDirect.size() != 0) {
-            setSelectedMenu(channelsDirect.first().getId(), channelsDirect.first().getName(), channelsDirect.first().getType());
+            sendSetFragmentChat(channelsDirect.first().getId(), channelsDirect.first().getName(), channelsDirect.first().getType());
             return;
         }
 
-    }
-
-    public static class OpenChatObject {
-        private String channelId;
-        private String name;
-        private String type;
-
-        public OpenChatObject(String channelId, String name, String type) {
-            this.channelId = channelId;
-            this.name = name;
-            this.type = type;
-        }
-
-        public OpenChatObject(String channelId, String type) {
-            this.channelId = channelId;
-            this.type = type;
-        }
-
-        public String getChannelId() {
-            return channelId;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getChannel() {
-            return type;
-        }
     }
 
     private void handleErrorLogin(Throwable e) {
