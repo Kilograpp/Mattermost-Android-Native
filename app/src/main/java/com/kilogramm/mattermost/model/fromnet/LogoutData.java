@@ -12,6 +12,13 @@ public class LogoutData {
     @Expose
     private String userId;
 
+    public LogoutData(String userId) {
+        this.userId = userId;
+    }
+
+    public LogoutData() {
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
     }

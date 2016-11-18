@@ -7,6 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by ngers on 16.11.16.
@@ -16,6 +17,7 @@ public class Preferences extends RealmObject implements Parcelable {
     @SerializedName("category")
     @Expose
     private String category;
+    @PrimaryKey
     @SerializedName("name")
     @Expose
     private String name;

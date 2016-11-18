@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.view.direct;
 
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -33,9 +34,13 @@ public class WholeDirectListHolder extends RealmViewHolder {
 
         directBinding.directProfileName.setText(user.getUsername());
 
-        directBinding.emailProfile.setText(String.format("%s %s",
-                user.getFirstName(),
-                user.getLastName()));
+
+        if (user.getFirstName() == null && user.getLastName() == null)
+            directBinding.emailProfile.setVisibility(View.GONE);
+        else
+            directBinding.emailProfile.setText(String.format("%s %s",
+                    user.getFirstName(),
+                    user.getLastName()));
 
         if (changed != null) {
             directBinding.selectDirect.setChecked(changed);

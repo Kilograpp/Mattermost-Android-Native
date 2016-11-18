@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
@@ -25,6 +26,7 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
+import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -52,6 +54,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_LOGOUT = 4;
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_INITLOAD = 7;
+    private static final int REQUEST_EXTROINFO_DEFAULT_CHANNEL = 8;
 
     private Realm realm;
 
@@ -139,6 +142,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             MattermostPreference.getInstance().getMyUserId());
                     MembersRepository.add(channelsWithMembers.getMembers().values());
                     requestUserTeam();
+                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM,
@@ -179,6 +183,24 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, initObject) -> {
                     saveDataAfterLogin(initObject);
                     sendShowChooseTeam();
+                },
+                (generalRxActivity, throwable) ->
+                        handleErrorLogin(throwable)
+        );
+
+        restartableFirst(REQUEST_EXTROINFO_DEFAULT_CHANNEL, () ->
+                        service.getExtraInfoChannel(MattermostPreference.getInstance().getTeamId(),
+                                ChannelRepository.query(
+                                        new ChannelByHadleSpecification("town-square"))
+                                        .first()
+                                        .getId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (generalRxActivity, extraInfo) -> {
+                    RealmList<User> results = new RealmList<>();
+                    results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
+                    extraInfo.setMembers(results);
+                    ExtroInfoRepository.update(extraInfo);
                 },
                 (generalRxActivity, throwable) ->
                         handleErrorLogin(throwable)
@@ -317,7 +339,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         -> generalRxActivity1.setSelectItemMenu(openChatObject.getChannelId(), type)));
     }
 
-    public void setFirstChannelBeforeLeave(){
+    public void setFirstChannelBeforeLeave() {
         RealmResults<Channel> channelsOpen = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         if (channelsOpen.size() != 0) {
             setSelectedMenu(channelsOpen.first().getId(), channelsOpen.first().getName(), channelsOpen.first().getType());

@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.model.entity.channel;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -86,6 +87,20 @@ public class ChannelRepository {
                     channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                     channel.setUsername(channel.getUser().getUsername());
                 }
+            }
+        });
+    }
+
+    public static void prepareDirectAdd(Collection<Channel> channels) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            for (Channel channel : channels) {
+                channel.setUser(realm1.where(User.class)
+                        .equalTo("id", channel.getName()
+                                .replace(MattermostPreference.getInstance().getMyUserId() + "__", ""))
+                        .findFirst());
+                channel.setUsername(channel.getUser().getUsername());
+                realm.insertOrUpdate(channel);
             }
         });
     }

@@ -2,17 +2,20 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
@@ -23,6 +26,8 @@ import java.util.Map;
 
 import icepick.State;
 import io.realm.Sort;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -42,6 +47,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     @State
     String currentUserId;
 
+    List<Preferences> preferenceList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -52,6 +58,40 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     }
 
 
+    public Observable<Channel> addParticipantRx(String name) {
+        LogoutData logoutData = new LogoutData(name);
+        return service.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
+
+    }
+
+    private void sendChanges(boolean aBoolean) {
+        Iterable<Observable<LogoutData>> list = new ArrayList<>();
+        for (Preferences preferences : preferenceList) {
+            if (PreferenceRepository
+                    .query(new PreferenceRepository
+                            .PreferenceByNameSpecification(preferences.getName()))
+                    .size() > 0)
+                ((ArrayList) list).add(addParticipantRx(preferences.getName()));
+        }
+
+        Observable.zip(list, args -> {
+            List<Channel> jsonObjects = new ArrayList<>();
+            for (Object arg : args) {
+                jsonObjects.add((Channel) arg);
+                Log.d(TAG, "sendChanges: arg: " + arg);
+            }
+            return jsonObjects;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(channels -> {
+                    ChannelRepository.prepareDirectAdd(channels);
+                    requestSave(aBoolean);
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    requestSave(aBoolean);
+                });
+    }
+
     private void initGetUsers() {
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
                         service.save(preferenceList)
@@ -59,15 +99,14 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> {
                     PreferenceRepository.update(preferenceList);
-                    requestSave(aBoolean);
+                    sendChanges(aBoolean);
                 }, (wholeDirectListActivity, throwable) -> {
                     throwable.printStackTrace();
+                    requestSave(false);
                 }
         );
     }
 
-
-    List<Preferences> preferenceList = new ArrayList<>();
 
     public void savePreferences(Map<String, Boolean> chouseUser) {
         for (Map.Entry<String, Boolean> user : chouseUser.entrySet()) {
@@ -86,7 +125,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 Toast.makeText(wholeDirectListActivity, createToast(), Toast.LENGTH_SHORT).show();
                 wholeDirectListActivity.onBackPressed();
             } else
-                Toast.makeText(wholeDirectListActivity, "Unable to save", Toast.LENGTH_SHORT).show();
+                wholeDirectListActivity.failSave();
         }));
     }
 
@@ -94,11 +133,11 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         int countAdd = 0;
         int countDelete = 0;
         if (preferenceList.size() == 1) {
-            return String.format("%s %s %s", "Conversation with" ,
+            return String.format("%s %s %s", "Conversation with",
                     UserRepository.query(
-                    new UserRepository.UserByIdSpecification(preferenceList.get(0).getName()))
-                    .first()
-                    .getUsername(),
+                            new UserRepository.UserByIdSpecification(preferenceList.get(0).getName()))
+                            .first()
+                            .getUsername(),
                     preferenceList.get(0).getValue().equals("true") ? "added" : "removed");
         }
         for (Preferences preference : preferenceList) {
@@ -108,7 +147,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 countDelete++;
         }
         return String.format("%s%s",
-                countAdd > 0 ? countAdd + " conversations have been added/n" : "",
+                countAdd > 0 ? countAdd + " conversations have been added\n" : "",
                 countDelete > 0 ? countDelete + " conversations have been removed" : "");
     }
 
