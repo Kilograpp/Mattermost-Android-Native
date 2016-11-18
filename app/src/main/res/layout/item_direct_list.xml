@@ -8,6 +8,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/selector_item_channel_backgroung"
         android:orientation="vertical"
+        android:paddingTop="5dp"
         android:paddingLeft="@dimen/standart_margin"
         >
 
@@ -31,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/avatarDirect"
                 android:layout_marginEnd="60dp"
-                android:layout_marginStart="@dimen/margin_start"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:gravity="center_vertical"
                 android:layout_centerVertical="true"
                 android:orientation="vertical">
@@ -67,8 +68,9 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginTop="21dp"
                 android:layout_below="@id/avatarDirect"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_toRightOf="@+id/avatarDirect"
                 android:background="@color/very_light_grey" />
         </RelativeLayout>
