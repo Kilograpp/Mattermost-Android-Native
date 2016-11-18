@@ -100,8 +100,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int FILE_CODE = 3;
     public static final int SEARCH_CODE = 4;
 
-    private boolean isRefreshing = true;
-
     private FragmentChatMvpBinding binding;
 
     @State
@@ -114,6 +112,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     boolean isOpenedKeyboard = false;
     @State
     boolean isMessageTextOpen = false;
+    @State
+    private boolean isRefreshing = true;
     @State
     String searchMessageId = null;
 
