@@ -16,6 +16,7 @@
                 android:id="@+id/circleFrame"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
+                android:layout_margin="5dp"
                 android:background="@drawable/circle_blue">
 
                 <com.kilogramm.mattermost.ui.DownloadFileControls

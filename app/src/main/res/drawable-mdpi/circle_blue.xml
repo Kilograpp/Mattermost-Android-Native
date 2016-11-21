@@ -1,7 +1,7 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:height="24dp"
-    android:viewportHeight="500.0"
-    android:viewportWidth="500.0"
+    android:viewportHeight="100.0"
+    android:viewportWidth="100.0"
     android:width="24dp">
 
     <group
@@ -13,4 +13,16 @@
             android:fillColor="#2380c2"
             android:pathData="M250,250m-210,0a210,210 0,1 1,420 0a210,210 0,1 1,-420 0" />
     </group>
-</vector>
+</vector>-->
+
+<shape
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:shape="oval">
+
+<solid
+    android:color="#2380c2"/>
+
+<size
+    android:width="24dp"
+    android:height="24dp" />
+</shape>
