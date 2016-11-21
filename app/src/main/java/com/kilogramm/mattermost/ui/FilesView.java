@@ -132,10 +132,10 @@ public class FilesView extends GridLayout {
 //                                    binding.title.getText().toString(),
 //                                    getImageUrl(fileName));
 
-                            ViewPagerWGesturesActivity.start(getContext(),
-                                    binding.title.getText().toString(),
-                                    fileName,
-                                    (ArrayList<String>) fileList)
+                                        ViewPagerWGesturesActivity.start(getContext(),
+                                                binding.title.getText().toString(),
+                                                fileName,
+                                                (ArrayList<String>) fileList)
 
                         );
                         break;
@@ -149,7 +149,7 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName){
+    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName) {
         OnClickListener fileClickListener = v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
@@ -193,8 +193,8 @@ public class FilesView extends GridLayout {
         this.addView(binding.getRoot());
 
         RealmString realmString = RealmStringRepository.getInstance().get(fileName);
-        if(realmString != null) {
-            if(realmString.getFileSize() <= 0) {
+        if (realmString != null) {
+            if (realmString.getFileSize() <= 0) {
                 new Thread(() -> {
                     long fileSize = getRemoteFileSize(url);
                     Log.d(TAG, String.valueOf(fileSize));
@@ -202,7 +202,7 @@ public class FilesView extends GridLayout {
                         binding.fileSize.post(() -> {
                             binding.materialProgressBar.setVisibility(GONE);
                             binding.fileSize.setText(FileUtil.getInstance()
-                                .convertFileSize(fileSize));
+                                    .convertFileSize(fileSize));
                             RealmStringRepository.getInstance().updateFileSize(fileName, fileSize);
                         });
                     }
@@ -214,7 +214,7 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName){
+    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName) {
         binding.title.setOnClickListener(v -> FileUtil.getInstance().
                 startOpenFileIntent(getContext(),
                         FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
@@ -244,9 +244,10 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onError(String fileId) {
-                Toast.makeText(getContext(),
+                binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
                         getContext().getString(R.string.error_during_file_download),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show());
+
             }
         };
     }

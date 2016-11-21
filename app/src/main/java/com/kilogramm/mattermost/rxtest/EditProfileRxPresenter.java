@@ -79,6 +79,9 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                         file = new File(filePath);
                     }
 
+                    if(mimeType == null) {
+                        mimeType = "*/*";
+                    }
                     RequestBody fileBody = RequestBody.create(MediaType.parse(mimeType), file);
                     MultipartBody.Part filePart = MultipartBody.Part.createFormData("image", file.getName(), fileBody);
                     return service.newimage(filePart)

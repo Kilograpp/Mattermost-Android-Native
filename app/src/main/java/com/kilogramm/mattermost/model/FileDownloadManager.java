@@ -125,8 +125,8 @@ public class FileDownloadManager {
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
                     if (fileDownloadListeners.get(fileId) != null) {
-                        fileDownloadListeners.get(fileId).onError(fileId);
                         FileToAttachRepository.getInstance().remove(fileId);
+                        fileDownloadListeners.get(fileId).onError(fileId);
                     }
                     break;
                 }
@@ -158,7 +158,7 @@ public class FileDownloadManager {
     }
 
     public synchronized void stopDownloadCurrentFile(String fileId) {
-        if(this.fileId.equals(fileId)) {
+        if(this.fileId != null && fileId != null && this.fileId.equals(fileId)) {
             manager.remove(downloadId);
             FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + FileUtil.getInstance().getFileNameFromId(fileId));
