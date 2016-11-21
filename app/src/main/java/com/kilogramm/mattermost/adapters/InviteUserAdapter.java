@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,6 @@ import com.kilogramm.mattermost.model.fromnet.InviteObject;
  */
 
 public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUserAdapter.ViewHolder, InviteObject> {
-
-    private static final String TAG = "InviteUserAdapter";
 
     private Context context;
     private boolean shouldCheckNullFields = false;
@@ -135,7 +132,7 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         holder.binding.editLastName.addTextChangedListener(lastNameTextWatcher);
 
         holder.binding.editEmail.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
+            if (!hasFocus && holder.getAdapterPosition() >= 0) {
                 checkEmailField(holder, getData().get(holder.getAdapterPosition()));
             }
         });

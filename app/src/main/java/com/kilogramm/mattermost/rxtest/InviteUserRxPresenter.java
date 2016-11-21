@@ -16,8 +16,6 @@ import rx.schedulers.Schedulers;
  */
 public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity> {
 
-    private static final String TAG = "InviteUserRxPresenter";
-
     private static final int REQUEST_INVITE = 1;
 
     @State

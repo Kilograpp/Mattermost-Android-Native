@@ -14,8 +14,11 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -125,8 +128,6 @@ public class FileUtil {
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-//        return getRealPathFromURI(mContext, uri);
-
         return null;
     }
 
@@ -167,27 +168,6 @@ public class FileUtil {
 
     private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
-    }
-
-    private String getRealPathFromURI(Context context, Uri contentURI) {
-        String result = null;
-        try {
-            Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
-            if (cursor == null) { // Source is Dropbox or other similar local file path
-                result = contentURI.getPath();
-            } else {
-                cursor.moveToFirst();
-//                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                if (idx >= 0) {
-                    result = cursor.getString(idx);
-                }
-                cursor.close();
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 
     public String getFileNameByUri(Uri uri) {
@@ -272,7 +252,7 @@ public class FileUtil {
         return intent;
     }
 
-    public Intent createOpenMattertestFileIntent(String fileName){
+    private Intent createOpenMattertestFileIntent(String fileName) {
         String path = getDownloadedFilesDir() + File.separator + fileName;
         File file = new File(path);
         String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
@@ -283,8 +263,16 @@ public class FileUtil {
         return intent;
     }
 
-    public void startOpenFileIntent(Context context, String fileName){
-        context.startActivity(createOpenMattertestFileIntent(fileName));
+    public void startOpenFileIntent(Context context, String fileName) {
+        Intent intent = createOpenMattertestFileIntent(fileName);
+        if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                .getApplicationContext().getPackageManager(), 0) != null) {
+            context.startActivity(intent);
+        } else {
+            Toast.makeText(context,
+                    context.getString(R.string.no_suitable_app),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     public String convertFileSize(long bytes) {

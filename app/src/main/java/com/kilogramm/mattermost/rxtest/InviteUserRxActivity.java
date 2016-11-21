@@ -28,7 +28,6 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(InviteUserRxPresenter.class)
 public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
-    private ActivityInviteUserBinding mBinding;
     private RecyclerView mRecyclerView;
     private InviteUserAdapter mAdapter;
 
@@ -37,7 +36,6 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_invite_user);
         initView();
     }
 

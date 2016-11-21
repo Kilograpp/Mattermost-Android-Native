@@ -40,12 +40,6 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         this.context = context;
     }
 
-    public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) {
-        super(context, realmResults, true);
-        this.emptyListListener = emptyListListener;
-        this.context = context;
-    }
-
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return MyViewHolder.create(inflater, parent);
@@ -92,12 +86,10 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
             holder.binding.progressWait.setVisibility(View.GONE);
         } else {
-            holder.binding.progressWait.setVisibility(View.GONE);
             holder.binding.progressBar.setVisibility(View.GONE);
             if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
                 holder.binding.progressWait.setVisibility(VISIBLE);
-//                holder.binding.progressWait.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-            } else if (fileToAttach.getUploadState() == UploadState.UPLOADED) {
+            } else {
                 holder.binding.progressWait.setVisibility(View.GONE);
             }
         }

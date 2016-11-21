@@ -145,17 +145,22 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName){
-        binding.icDownloadedFile.setOnClickListener(v -> {
-            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
-                + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-            getContext().startActivity(intent);
-        });
-        binding.title.setOnClickListener(v -> {
+    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName) {
+        OnClickListener fileClickListener = v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-            getContext().startActivity(intent);
-        });
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                getContext().startActivity(intent);
+            } else {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        binding.icDownloadedFile.setOnClickListener(fileClickListener);
+        binding.title.setOnClickListener(fileClickListener);
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
@@ -184,8 +189,8 @@ public class FilesView extends GridLayout {
         this.addView(binding.getRoot());
 
         RealmString realmString = RealmStringRepository.getInstance().get(fileName);
-        if(realmString != null) {
-            if(realmString.getFileSize() <= 0) {
+        if (realmString != null) {
+            if (realmString.getFileSize() <= 0) {
                 new Thread(() -> {
                     long fileSize = getRemoteFileSize(url);
                     Log.d(TAG, String.valueOf(fileSize));
@@ -193,7 +198,7 @@ public class FilesView extends GridLayout {
                         binding.fileSize.post(() -> {
                             binding.materialProgressBar.setVisibility(GONE);
                             binding.fileSize.setText(FileUtil.getInstance()
-                                .convertFileSize(fileSize));
+                                    .convertFileSize(fileSize));
                             RealmStringRepository.getInstance().updateFileSize(fileName, fileSize);
                         });
                     }
@@ -205,7 +210,7 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName){
+    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName) {
         binding.title.setOnClickListener(v -> FileUtil.getInstance().
                 startOpenFileIntent(getContext(),
                         FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
@@ -235,9 +240,10 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onError(String fileId) {
-                Toast.makeText(getContext(),
+                binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
                         getContext().getString(R.string.error_during_file_download),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show());
+
             }
         };
     }

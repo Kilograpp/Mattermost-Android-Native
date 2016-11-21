@@ -359,7 +359,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 Log.d(TAG, "FileFromCamera != null");
                 pickedFiles.add(fileFromCamera);
             } else {
-                // TODO add error message
+                Toast.makeText(getActivity(),
+                        getString(R.string.cannot_attach_photo),
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
             if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
