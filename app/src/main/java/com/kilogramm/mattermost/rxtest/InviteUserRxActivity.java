@@ -28,7 +28,7 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(InviteUserRxPresenter.class)
 public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
-    private ActivityInviteUserBinding mBinding;
+    private ActivityInviteUserBinding mBinding; //TODO не используется
     private RecyclerView mRecyclerView;
     private InviteUserAdapter mAdapter;
 

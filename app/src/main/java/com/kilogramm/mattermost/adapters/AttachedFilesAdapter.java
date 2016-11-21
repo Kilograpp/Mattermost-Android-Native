@@ -2,21 +2,15 @@ package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Debug;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
-import com.squareup.picasso.Picasso;
-
-import java.io.UnsupportedEncodingException;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -40,7 +34,7 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         this.context = context;
     }
 
-    public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) {
+    public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) { //TODO delete?
         super(context, realmResults, true);
         this.emptyListListener = emptyListListener;
         this.context = context;
@@ -92,11 +86,11 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
             holder.binding.progressWait.setVisibility(View.GONE);
         } else {
-            holder.binding.progressWait.setVisibility(View.GONE);
+            holder.binding.progressWait.setVisibility(View.GONE); //TODO fixme progressWait только в одном случае видимо
             holder.binding.progressBar.setVisibility(View.GONE);
             if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
                 holder.binding.progressWait.setVisibility(VISIBLE);
-//                holder.binding.progressWait.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+//                holder.binding.progressWait.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY); TODO delete?
             } else if (fileToAttach.getUploadState() == UploadState.UPLOADED) {
                 holder.binding.progressWait.setVisibility(View.GONE);
             }

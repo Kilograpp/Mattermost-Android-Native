@@ -172,7 +172,7 @@ public class FileUtil {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    private String getRealPathFromURI(Context context, Uri contentURI) {
+    private String getRealPathFromURI(Context context, Uri contentURI) { //TODO delete?
         String result = null;
         try {
             Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
@@ -208,7 +208,7 @@ public class FileUtil {
         return type;
     }
 
-    public File createTempImageFile() throws IOException {
+    public File createTempImageFile() throws IOException {//TODO delete?
         Calendar calendar = Calendar.getInstance();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(calendar.getTimeInMillis()));
         String imageFileName = "JPEG_" + calendar.getTimeInMillis();
