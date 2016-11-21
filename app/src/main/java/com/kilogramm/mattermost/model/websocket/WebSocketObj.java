@@ -25,6 +25,11 @@ public class WebSocketObj implements Parcelable {
 
     public static final String EVENT_POSTED = "posted";
     public static final String EVENT_CHANNEL_VIEWED = "channel_viewed";
+    public static final String EVENT_NEW_USER = "new_user";
+    public static final String EVENT_USER_ADDED = "user_added";
+    public static final String EVENT_USER_REMOVE= "user_removed";
+    public static final String EVENT_DIRECT_ADDED = "direct_added";
+    public static final String EVENT_CHANNEL_DELETED = "channel_deleted";
     public static final String EVENT_TYPING = "typing";
     public static final String EVENT_POST_EDITED = "post_edited";
     public static final String EVENT_POST_DELETED = "post_deleted";
@@ -143,6 +148,7 @@ public class WebSocketObj implements Parcelable {
         private String channelDisplayName;
         private String channelType;
         private String mentions;
+        private String userId;
         private Post post;
         private String senderName;
         private String teamId;
@@ -185,6 +191,11 @@ public class WebSocketObj implements Parcelable {
             return this;
         }
 
+        public BuilderData setUser(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
         public BuilderData setMapUserStatus(Map<String, String> mapUserStatus) {
             this.mapUserStatus = mapUserStatus;
             return this;
@@ -218,8 +229,7 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.channelId);
         dest.writeString(this.userId);
         dest.writeString(this.event);
-        dest.writeString(this.dataJSON);
-        dest.writeParcelable(this.data, flags);
+        dest.writeValue(this.seqReplay);
         dest.writeString(this.channelDisplayName);
         dest.writeString(this.channelType);
         dest.writeString(this.mentions);
@@ -232,8 +242,7 @@ public class WebSocketObj implements Parcelable {
         this.channelId = in.readString();
         this.userId = in.readString();
         this.event = in.readString();
-        this.dataJSON = in.readString();
-        this.data = in.readParcelable(Data.class.getClassLoader());
+        this.seqReplay = (Integer) in.readValue(Integer.class.getClassLoader());
         this.channelDisplayName = in.readString();
         this.channelType = in.readString();
         this.mentions = in.readString();

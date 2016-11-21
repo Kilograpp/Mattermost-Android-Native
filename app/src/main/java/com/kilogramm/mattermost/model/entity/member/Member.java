@@ -12,10 +12,10 @@ import io.realm.annotations.PrimaryKey;
 
 public class Member extends RealmObject {
 
-    @PrimaryKey
     @SerializedName("channel_id")
     @Expose
     private String channelId;
+    @PrimaryKey
     @SerializedName("user_id")
     @Expose
     private String userId;

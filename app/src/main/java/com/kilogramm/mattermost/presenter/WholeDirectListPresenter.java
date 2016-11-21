@@ -84,7 +84,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(channels -> {
-                    ChannelRepository.prepareDirectAdd(channels);
+                    ChannelRepository.prepareDirectAndChannelAdd(channels);
                     requestSave(aBoolean);
                 }, throwable -> {
                     throwable.printStackTrace();

@@ -37,6 +37,29 @@ public class ExtroInfoRepository {
         );
     }
 
+    public static void updateAddUser(String extroId, String userId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+                    ExtraInfo extraInfo = realm.where(ExtraInfo.class).equalTo("id", extroId)
+                            .findFirst();
+                    extraInfo.getMembers().add(realm.where(User.class).equalTo("id", userId).findFirst());
+                    extraInfo.setMember_count(String.valueOf(Integer.parseInt(extraInfo.getMember_count()) + 1));
+                }
+        );
+    }
+
+    public static void updateRemoveUser(String extroId, String userId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+                    ExtraInfo extraInfo = realm.where(ExtraInfo.class).equalTo("id", extroId)
+                            .findFirst();
+                    extraInfo.getMembers().remove(realm.where(User.class).equalTo("id", userId).findFirst());
+                    extraInfo.setMember_count(String.valueOf(Integer.parseInt(extraInfo.getMember_count()) - 1));
+                }
+        );
+    }
+
+
     public static void updateMembers(ExtraInfo item, User user) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {

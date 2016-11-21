@@ -74,6 +74,13 @@ public interface ApiMethod {
     Observable<ChannelWithMember> getChannel(@Path("teamId") String teamId,
                                                   @Path("channel_id") String channelId);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/users/ids/")
+    Observable<List<User>> getUsers(@Body List<String> userIds);
+
 
     @Headers({
             "Accept: application/json",
