@@ -128,8 +128,6 @@ public class FileUtil {
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-//        return getRealPathFromURI(mContext, uri);
-
         return null;
     }
 
@@ -172,27 +170,6 @@ public class FileUtil {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    private String getRealPathFromURI(Context context, Uri contentURI) { //TODO delete?
-        String result = null;
-        try {
-            Cursor cursor = context.getContentResolver().query(contentURI, null, null, null, null);
-            if (cursor == null) { // Source is Dropbox or other similar local file path
-                result = contentURI.getPath();
-            } else {
-                cursor.moveToFirst();
-//                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                if (idx >= 0) {
-                    result = cursor.getString(idx);
-                }
-                cursor.close();
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
     public String getFileNameByUri(Uri uri) {
         Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
         cursor.moveToNext();
@@ -208,7 +185,7 @@ public class FileUtil {
         return type;
     }
 
-    public File createTempImageFile() throws IOException {//TODO delete?
+    public File createTempImageFile() throws IOException {
         Calendar calendar = Calendar.getInstance();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(calendar.getTimeInMillis()));
         String imageFileName = "JPEG_" + calendar.getTimeInMillis();
