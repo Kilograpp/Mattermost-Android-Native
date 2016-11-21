@@ -186,7 +186,6 @@ public class ManagerBroadcast {
 
 
         int apiVersion = Build.VERSION.SDK_INT;
-        CharSequence ticker = "Old build version";
         if (apiVersion < Build.VERSION_CODES.HONEYCOMB) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setContentTitle("New message from " + post.getUser().getUsername())
