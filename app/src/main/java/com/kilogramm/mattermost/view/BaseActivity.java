@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 
@@ -137,19 +138,29 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     public void showErrorText(String text) {
-        Snackbar error = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_SHORT);
-        error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
-        error.setActionTextColor(getResources().getColor(R.color.white));
-        error.setDuration(3000);
-        error.show();
-        //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+        int apiVersion = Build.VERSION.SDK_INT;
+
+        if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
+            Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_SHORT);
+            error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
+            error.setActionTextColor(getResources().getColor(R.color.white));
+            error.setDuration(3000);
+            error.show();
+        } else {
+            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void showGoodText(String text) {
-        Snackbar good = Snackbar.make(getCurrentFocus(),text,Snackbar.LENGTH_LONG);
-        good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
-        good.setActionTextColor(getResources().getColor(R.color.white));
-        good.show();
-        //Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+        int apiVersion = Build.VERSION.SDK_INT;
+
+        if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
+            Snackbar good = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_LONG);
+            good.getView().setBackgroundColor(getResources().getColor(R.color.green_send_massage));
+            good.setActionTextColor(getResources().getColor(R.color.white));
+            good.show();
+        } else {
+            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+        }
     }
 }

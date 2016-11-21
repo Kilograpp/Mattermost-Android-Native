@@ -11,12 +11,16 @@ import java.util.Map;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Evgeny on 25.07.2016.
  */
 public class InitObject extends RealmObject {
 
+        @Expose
+        @PrimaryKey
+        private int id;
         @SerializedName("user")
         @Expose
         private User user;

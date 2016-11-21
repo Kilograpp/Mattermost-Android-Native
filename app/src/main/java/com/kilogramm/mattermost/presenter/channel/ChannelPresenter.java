@@ -113,10 +113,12 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> {
                     RealmResults<Channel> leftChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
-                    String leftChannelName = leftChannel.first().getDisplayName();
-                    ChannelRepository.remove(
-                            new ChannelRepository.ChannelByIdSpecification(channel.getId()));
-                    requestFinish(leftChannelName);
+                    if(leftChannel != null && leftChannel.size() > 0) {
+                        String leftChannelName = leftChannel.first().getDisplayName();
+                        ChannelRepository.remove(
+                                new ChannelRepository.ChannelByIdSpecification(channel.getId()));
+                        requestFinish(leftChannelName);
+                    }
                 }, (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }

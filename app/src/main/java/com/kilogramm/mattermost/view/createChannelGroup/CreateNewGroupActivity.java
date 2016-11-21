@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityCreateChannelGroupBinding;
 import com.kilogramm.mattermost.presenter.CreateNewGroupPresenter;
 import com.kilogramm.mattermost.utils.ColorGenerator;
+import com.kilogramm.mattermost.utils.Transliterator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import nucleus.factory.RequiresPresenter;
@@ -132,6 +133,8 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
     }
 
     private String makeName(String groupName) {
+        groupName = Transliterator.transliterate(groupName);
+
         if (groupName.contains(" ")) {
             return groupName.replaceAll("\\s", "-").toLowerCase();
         } else {
