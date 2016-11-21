@@ -125,13 +125,13 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 finish();
                 break;
             case R.id.action_done:
-                if (adapter.getChangesMap().size() == 0) {
+                if (adapter.getChangesMap().size() > 0) {
                     getPresenter().savePreferences(adapter.getChangesMap());
                     doneItem = item;
                     doneItem.setVisible(false);
                     binding.progressBar.setVisibility(View.VISIBLE);
                 } else
-                    getPresenter();
+                    finish();
                 break;
         }
         return true;
