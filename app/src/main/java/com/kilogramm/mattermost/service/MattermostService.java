@@ -32,7 +32,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG,"onCreate");
+        Log.d(TAG, "onCreate");
         mWebSocketManager = new WebSocketManager(this);
         managerBroadcast = new ManagerBroadcast(this);
         mattermostNotificationManager = new MattermostNotificationManager(this);
@@ -41,19 +41,19 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mWebSocketManager!=null) mWebSocketManager.onDestroy();
-        Log.d(TAG,"onDestroy");
+        if (mWebSocketManager != null) mWebSocketManager.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent==null) return Service.START_STICKY;
-        Log.d(TAG,"onStartCommand action:"+intent.getAction());
-        if(SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())){
+        if (intent == null) return Service.START_STICKY;
+        Log.d(TAG, "onStartCommand action:" + intent.getAction());
+        if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
         }
 
-        if(UPDATE_USER_STATUS.equals(intent.getAction())){
+        if (UPDATE_USER_STATUS.equals(intent.getAction())) {
             mWebSocketManager.updateUserStatusNow();
         }
         return Service.START_STICKY;
@@ -70,14 +70,14 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         Log.d(TAG, message);
         WebSocketObj sendedMessage = managerBroadcast.parseMessage(message);
         mattermostNotificationManager.handleSocket(sendedMessage);
-        if (sendedMessage!=null){
+        if (sendedMessage != null) {
             Intent intent = new Intent(sendedMessage.getEvent());
             intent.putExtra(BROADCAST_MESSAGE, sendedMessage);
             sendBroadcast(intent);
         }
     }
 
-    public static class Helper{
+    public static class Helper {
 
         private Context mContext;
 
@@ -85,31 +85,31 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
             this.mContext = mContext;
         }
 
-        public static Helper create(Context c){
+        public static Helper create(Context c) {
             return new Helper(c);
         }
 
-        public Helper startService(){
-            Intent intent = new Intent(mContext,MattermostService.class);
+        public Helper startService() {
+            Intent intent = new Intent(mContext, MattermostService.class);
             mContext.startService(intent);
             return this;
         }
 
-        public Helper stopService(){
-            Intent intent = new Intent(mContext,MattermostService.class);
+        public Helper stopService() {
+            Intent intent = new Intent(mContext, MattermostService.class);
             mContext.stopService(intent);
             return this;
         }
 
-        public Helper startWebSocket(){
-            Intent intent = new Intent(mContext,MattermostService.class);
+        public Helper startWebSocket() {
+            Intent intent = new Intent(mContext, MattermostService.class);
             intent.setAction(SERVICE_ACTION_START_WEB_SOCKET);
             mContext.startService(intent);
             return this;
         }
 
-        public Helper updateUserStatusNow(){
-            Intent intent = new Intent(mContext,MattermostService.class);
+        public Helper updateUserStatusNow() {
+            Intent intent = new Intent(mContext, MattermostService.class);
             intent.setAction(UPDATE_USER_STATUS);
             mContext.startService(intent);
             return this;
