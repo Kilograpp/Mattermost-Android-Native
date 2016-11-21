@@ -162,16 +162,16 @@
 
                 <EditText
                     android:id="@+id/writingMessage"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/white"
-                    android:hint="@string/type_something"
-                    android:inputType="textCapSentences"
-                    android:padding="10dp"
                     android:textColor="@color/black"
+                    android:background="@color/white"
+                    android:padding="10dp"
+                    android:hint="@string/type_something"
                     android:textColorHint="@color/very_light_grey"
-                    android:imeOptions="actionNone"/>
+                    android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
+                    android:maxLines="5"/>
 
                 <TextView
                     android:id="@+id/btnSend"

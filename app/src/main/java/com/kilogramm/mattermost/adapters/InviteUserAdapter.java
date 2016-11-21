@@ -131,11 +131,11 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         holder.binding.editFirstName.addTextChangedListener(firstNameTextWatcher);
         holder.binding.editLastName.addTextChangedListener(lastNameTextWatcher);
 
-//        holder.binding.editEmail.setOnFocusChangeListener((v, hasFocus) -> { TODO: ArrayIndexOutOfBoundsException: length=12; index=-1
-//            if (!hasFocus) {
-//                checkEmailField(holder, getData().get(holder.getAdapterPosition()));
-//            }
-//        });
+        holder.binding.editEmail.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus && holder.getAdapterPosition() >= 0) {
+                checkEmailField(holder, getData().get(holder.getAdapterPosition()));
+            }
+        });
     }
 
     public void setShouldCheckNullFields(boolean shouldCheckNullFields) {

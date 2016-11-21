@@ -70,6 +70,4 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public void setItemChangeMap(String id, boolean value) {
         changesMap.put(id, value);
     }
-
-
 }
