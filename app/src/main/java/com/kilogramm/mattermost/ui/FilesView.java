@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -127,11 +128,6 @@ public class FilesView extends GridLayout {
                         initAndAddItem(binding, fileName);
 
                         binding.image.setOnClickListener(view ->
-//                            ImageViewerActivity.start(getContext(),
-//                                    binding.image,
-//                                    binding.title.getText().toString(),
-//                                    getImageUrl(fileName));
-
                             ViewPagerWGesturesActivity.start(getContext(),
                                     binding.title.getText().toString(),
                                     fileName,

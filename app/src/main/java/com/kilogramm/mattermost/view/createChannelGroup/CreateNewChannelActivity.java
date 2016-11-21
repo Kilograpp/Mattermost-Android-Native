@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityCreateChannelGroupBinding;
 import com.kilogramm.mattermost.presenter.CreateNewChannelPresenter;
 import com.kilogramm.mattermost.utils.ColorGenerator;
+import com.kilogramm.mattermost.utils.Transliterator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import nucleus.factory.RequiresPresenter;
@@ -135,6 +136,8 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
     }
 
     private String makeName(String channelName) {
+        channelName = Transliterator.transliterate(channelName);
+
         if (channelName.contains(" ")) {
             return channelName.replaceAll("\\s", "-").toLowerCase();
         } else {
