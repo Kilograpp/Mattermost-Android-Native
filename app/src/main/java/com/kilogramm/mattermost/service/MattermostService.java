@@ -68,7 +68,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void receiveMessage(String message) {
         Log.d(TAG, message);
-        WebSocketObj sendedMessage = managerBroadcast.praseMessage(message);
+        WebSocketObj sendedMessage = managerBroadcast.parseMessage(message);
         mattermostNotificationManager.handleSocket(sendedMessage);
         if (sendedMessage!=null){
             Intent intent = new Intent(sendedMessage.getEvent());

@@ -66,7 +66,7 @@ public class ManagerBroadcast {
         gson = NetworkUtil.createGson();
     }
 
-    public WebSocketObj praseMessage(String message) {
+    public WebSocketObj parseMessage(String message) {
         try {
             return parseWebSocketObject(message, mContext);
         } catch (Exception e) {
