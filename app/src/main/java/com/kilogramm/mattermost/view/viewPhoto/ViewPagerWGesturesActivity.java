@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * Created by melkshake on 08.11.16.
  */
 
-public class ViewPagerWGesturesActivity extends BaseActivity {
+public class ViewPagerWGesturesActivity extends BaseActivity implements FileDownloadManager.FileDownloadListener {
 
     public static final String IMAGE_URL = "image_url";
     public static final String TITLE = "title";
@@ -41,7 +41,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
     private ArrayList<String> photosList;
     private String clickedImageUri;
 
-    private Menu menu;
+    Toast errorToast;
 
     public static void start(Context context, String title, String imageUrl, ArrayList<String> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
@@ -74,8 +74,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //String[] parsedName = photosList.get(position).split("/");
-                //setupToolbar(parsedName[parsedName.length - 1], true);
             }
 
             @Override
@@ -165,6 +163,28 @@ public class ViewPagerWGesturesActivity extends BaseActivity {
     private void downloadFile(String fileName) {
         findViewById(R.id.action_download).setVisibility(View.GONE);
 //        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-        FileDownloadManager.getInstance().addItem(fileName);
+        FileDownloadManager.getInstance().addItem(fileName, this);
+    }
+
+    @Override
+    public void onComplete(String fileId) {
+
+    }
+
+    @Override
+    public void onProgress(int percantage) {
+
+    }
+
+    @Override
+    public void onError(String fileId) {
+        binding.viewPager.post(() -> {
+            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+            if(errorToast != null) errorToast.cancel();
+            errorToast = Toast.makeText(this,
+                    this.getString(R.string.error_during_file_download),
+                    Toast.LENGTH_SHORT);
+            errorToast.show();
+        });
     }
 }

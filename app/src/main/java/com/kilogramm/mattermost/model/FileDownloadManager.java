@@ -1,17 +1,12 @@
 package com.kilogramm.mattermost.model;
 
 import android.app.DownloadManager;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Environment;
-import android.provider.SyncStateContract;
-import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -19,28 +14,19 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import okhttp3.ResponseBody;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by kepar on 20.10.16.
  */
 
 public class FileDownloadManager {
+    private static final String TAG = "FileDownloaderManager";
+
     private static FileDownloadManager instance;
 
     private Map<String, FileDownloadListener> fileDownloadListeners;
@@ -76,13 +62,26 @@ public class FileDownloadManager {
             FileToAttach fileToAttach = FileToAttachRepository.getInstance().getUndownloadedFile();
             if (fileToAttach != null && fileToAttach.isValid()) {
                 FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getFileName(), UploadState.DOWNLOADING);
-                dowloadFile(fileToAttach.getFileName());
+                downloadFile(fileToAttach.getFileName());
             }
         }
     }
 
-    private void dowloadFile(String fileId) {
+    private void downloadFile(String fileId) {
         this.fileId = fileId;
+
+        final ConnectivityManager connectivityManager =
+                (ConnectivityManager) MattermostApp.getSingleton()
+                        .getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+        if (ni == null || !ni.isConnectedOrConnecting()) {
+            onDownloadFail(fileId);
+            startDownload();
+            return;
+        }
+
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/"
@@ -124,14 +123,9 @@ public class FileDownloadManager {
 
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
-                    if (fileDownloadListeners.get(fileId) != null) {
-                        FileToAttachRepository.getInstance().remove(fileId);
-                        fileDownloadListeners.get(fileId).onError(fileId);
-                    }
+                    onDownloadFail(fileId);
                     break;
-                }
-
-                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                     downloading = false;
                     if (fileDownloadListeners.get(fileId) != null) {
                         fileDownloadListeners.get(fileId).onComplete(fileId);
@@ -167,6 +161,13 @@ public class FileDownloadManager {
 
     public void addListener(String fileId, FileDownloadListener fileDownloadListener){
         fileDownloadListeners.put(fileId, fileDownloadListener);
+    }
+
+    private void onDownloadFail(String fileId){
+        FileToAttachRepository.getInstance().remove(fileId);
+        if (fileDownloadListeners.get(fileId) != null) {
+            fileDownloadListeners.get(fileId).onError(fileId);
+        }
     }
 
     public interface FileDownloadListener {
