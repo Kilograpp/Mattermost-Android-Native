@@ -78,14 +78,6 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/users/ids/")
-    Observable<List<User>> getUsers(@Body List<String> userIds);
-
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
     @GET("api/v3/users/profiles/{teamId}")
     Observable<Map<String, User>> getTeamUsers(@Path("teamId") String teamId);
 
