@@ -150,16 +150,21 @@ public class FilesView extends GridLayout {
     }
 
     private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName){
-        binding.icDownloadedFile.setOnClickListener(v -> {
-            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
-                + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-            getContext().startActivity(intent);
-        });
-        binding.title.setOnClickListener(v -> {
+        OnClickListener fileClickListener = v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
-            getContext().startActivity(intent);
-        });
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                getContext().startActivity(intent);
+            } else {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        binding.icDownloadedFile.setOnClickListener(fileClickListener);
+        binding.title.setOnClickListener(fileClickListener);
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {

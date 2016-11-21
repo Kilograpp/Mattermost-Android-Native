@@ -14,8 +14,11 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -272,7 +275,7 @@ public class FileUtil {
         return intent;
     }
 
-    public Intent createOpenMattertestFileIntent(String fileName){
+    private Intent createOpenMattertestFileIntent(String fileName) {
         String path = getDownloadedFilesDir() + File.separator + fileName;
         File file = new File(path);
         String mimeType = FileUtil.getInstance().getMimeType(file.getAbsolutePath());
@@ -283,8 +286,16 @@ public class FileUtil {
         return intent;
     }
 
-    public void startOpenFileIntent(Context context, String fileName){
-        context.startActivity(createOpenMattertestFileIntent(fileName));
+    public void startOpenFileIntent(Context context, String fileName) {
+        Intent intent = createOpenMattertestFileIntent(fileName);
+        if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                .getApplicationContext().getPackageManager(), 0) != null) {
+            context.startActivity(intent);
+        } else {
+            Toast.makeText(context,
+                    context.getString(R.string.no_suitable_app),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     public String convertFileSize(long bytes) {
