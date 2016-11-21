@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.presenter.channel;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,6 +34,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LEAVE = 2;
     private static final int REQUEST_SAVE = 3;
+    private static final int REQUEST_CHANNEL = 4;
 
     private ApiMethod service;
 
@@ -86,6 +85,19 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
                     extraInfo.setMembers(results);
                     ExtroInfoRepository.add(extraInfo);
+                    start(REQUEST_CHANNEL);
+                }, (channelActivity, throwable) -> {
+                    sendError("Error loading channel info");
+                    sendCloseActivity();
+                }
+        );
+
+        restartableFirst(REQUEST_CHANNEL,
+                () -> service.getChannel(this.teamId, this.channelId)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (channelActivity, channelWithMember) -> {
+                    ChannelRepository.update(channelWithMember.getChannel());
                     requestMembers();
                 }, (channelActivity, throwable) -> {
                     sendError("Error loading channel info");
@@ -164,7 +176,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-//    private void requestFinish() {
+    //    private void requestFinish() {
 //        createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
 //            channelActivity.setResult(Activity.RESULT_OK, new Intent().putExtra(LEAVED_CHANNEL, channel.getName()));
 //            channelActivity.finish();
@@ -181,7 +193,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                 .subscribe(split((channelActivity, s) -> Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show()));
     }
 
-    private void sendCloseActivity(){
+    private void sendCloseActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((channelActivity, o) -> channelActivity.finish()));
     }

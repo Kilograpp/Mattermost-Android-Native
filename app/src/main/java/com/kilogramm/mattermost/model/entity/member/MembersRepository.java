@@ -5,6 +5,7 @@ import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 
 import java.util.Collection;
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -35,11 +36,19 @@ public class MembersRepository {
         realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
 
+    public static void update(Map<String, Member> items) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            for (Map.Entry<String, Member> item : items.entrySet())
+                realm1.insertOrUpdate(item.getValue());
+        });
+    }
+
 
     public static void remove(Member item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-            UserStatus userStatus = realm1.where(UserStatus.class).equalTo("channelId",item.getChannelId()).findFirst();
+            UserStatus userStatus = realm1.where(UserStatus.class).equalTo("channelId", item.getChannelId()).findFirst();
             userStatus.deleteFromRealm();
         });
     }

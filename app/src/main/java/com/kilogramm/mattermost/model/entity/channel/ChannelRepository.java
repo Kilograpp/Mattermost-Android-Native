@@ -99,20 +99,24 @@ public class ChannelRepository {
                 channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                 channel.setUsername(channel.getUser().getUsername());
             }
-            channel.setTotalMsgCount(channel.getTotalMsgCount());
+            channel.setTotalMsgCount(channel.getTotalMsgCount()); //TODO fix me
             realm1.copyToRealmOrUpdate(channel);
         });
     }
 
-    public static void prepareDirectAdd(Collection<Channel> channels) {
+    public static void prepareDirectAndChannelAdd(Collection<Channel> channels) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             for (Channel channel : channels) {
-                channel.setUser(realm1.where(User.class)
-                        .equalTo("id", channel.getName()
-                                .replace(MattermostPreference.getInstance().getMyUserId() + "__", ""))
-                        .findFirst());
-                channel.setUsername(channel.getUser().getUsername());
+                if(channel.getType().equals(Channel.DIRECT)) {
+                    String name = channel.getName()
+                            .replace(MattermostPreference.getInstance().getMyUserId(), "");
+                    name = name.replace("__", "");
+                    channel.setUser(realm1.where(User.class)
+                            .equalTo("id", name)
+                            .findFirst());
+                    channel.setUsername(channel.getUser().getUsername());
+                }
                 realm.insertOrUpdate(channel);
             }
         });
