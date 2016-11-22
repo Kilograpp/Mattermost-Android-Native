@@ -227,10 +227,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
-    public void requestSwitchTeam() {
-        start(REQUEST_INITLOAD);
-    }
-
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);

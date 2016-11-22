@@ -156,7 +156,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
             switch (item.getItemId()) {
                 case R.id.switch_team:
-                    getPresenter().requestSwitchTeam();
+                    showTeemChoose();
                     break;
                 case R.id.files:
                     showFiles();

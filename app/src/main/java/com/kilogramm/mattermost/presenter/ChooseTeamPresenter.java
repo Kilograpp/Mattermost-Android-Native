@@ -3,7 +3,9 @@ package com.kilogramm.mattermost.presenter;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 
@@ -28,6 +30,8 @@ public class ChooseTeamPresenter extends BaseRxPresenter<ChooseTeamActivity> {
         realm.executeTransaction(realm1 -> {
             realm1.delete(Post.class);
             realm1.delete(Channel.class);
+            realm.delete(Member.class);
+            realm.delete(ExtraInfo.class);
             realm1.delete(RealmString.class);
         });
     }

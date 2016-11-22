@@ -5,12 +5,15 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 
 import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -141,14 +144,17 @@ public class UserRepository {
 
         @Override
         public RealmResults<User> toRealmResults(Realm realm) {
-            RealmQuery realmQuery = realm.where(User.class);
-            realmQuery.isNotNull("createAt");
-            realmQuery.equalTo("deleteAt", 0);
+            RealmList<User> membersTeam =  realm.where(ExtraInfo.class).equalTo("id",
+                    realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
+                    .findFirst().getMembers();
+
+            RealmQuery realmQuery = membersTeam.where();
             if (searchName != null)
                 realmQuery.contains("username", searchName);
             for (User u : users) {
                 realmQuery.notEqualTo("id", u.getId());
             }
+
             return realmQuery.findAllSorted("username", Sort.ASCENDING);
         }
     }
