@@ -275,7 +275,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     onItemAdded();
                     binding.fab.hide();
                 } else {
-                    if(!isRefreshing) {
+                    if(!isRefreshing && results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
                         ScrollAwareFabBehavior.animateFabUp(binding.fab);
                     }
                 }
@@ -301,6 +301,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void setBtnSendOnClickListener() {
         binding.btnSend.setOnClickListener(view -> {
+            isRefreshing = true;
             if (!binding.btnSend.getText().equals("Save"))
                 sendMessage();
             else
@@ -663,12 +664,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void showList() {
-        isRefreshing = false;
         Log.d(TAG, "showList()");
         binding.progressBar.setVisibility(View.GONE);
         binding.rev.setVisibility(View.VISIBLE);
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
+        isRefreshing = false;
     }
 
     public void setRefreshing(boolean b) {
@@ -834,6 +835,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void invalidateAdapter() {
         adapter.notifyDataSetChanged();
+        isRefreshing = false;
     }
 
     public void copyLink(String link) {
