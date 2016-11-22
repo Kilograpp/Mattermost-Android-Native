@@ -130,7 +130,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
     @NonNull
-    private static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
+    public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
         Spanned spanned;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
