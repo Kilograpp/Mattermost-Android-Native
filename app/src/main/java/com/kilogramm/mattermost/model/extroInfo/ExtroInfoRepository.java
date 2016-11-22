@@ -65,7 +65,7 @@ public class ExtroInfoRepository {
         realm.executeTransaction(realm1 -> {
                     item.getMembers().add(user);
                     item.setMember_count(String.valueOf(Integer.parseInt(item.getMember_count()) + 1));
-                    realm1.copyToRealmOrUpdate(item);
+//                    realm1.insertOrUpdate(item);
                 }
         );
     }

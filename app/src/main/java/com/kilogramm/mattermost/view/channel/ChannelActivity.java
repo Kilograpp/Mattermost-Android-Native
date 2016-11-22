@@ -106,12 +106,10 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
             binding.headerDescription.setText(channel.getHeader());
             binding.purposeDescription.setText(channel.getPurpose());
+            binding.countMembers.setText(String.format("%s %s",
+                    extraInfo.getMember_count(),
+                    getString(R.string.channel_info_count_members)));
         });
-
-        extraInfo.addChangeListener(element ->
-                binding.countMembers.setText(String.format("%s %s",
-                extraInfo.getMember_count(),
-                getString(R.string.channel_info_count_members))));
 
         binding.channelName.setText(channel.getDisplayName());
         binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
