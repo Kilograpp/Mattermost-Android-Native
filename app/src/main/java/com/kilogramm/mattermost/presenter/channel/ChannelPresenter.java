@@ -113,7 +113,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> {
                     RealmResults<Channel> leftChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
-                    if(leftChannel != null && leftChannel.size() > 0) {
+                    if (leftChannel != null && leftChannel.size() > 0) {
                         String leftChannelName = leftChannel.first().getDisplayName();
                         ChannelRepository.remove(
                                 new ChannelRepository.ChannelByIdSpecification(channel.getId()));
@@ -176,12 +176,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-    //    private void requestFinish() {
-//        createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
-//            channelActivity.setResult(Activity.RESULT_OK, new Intent().putExtra(LEAVED_CHANNEL, channel.getName()));
-//            channelActivity.finish();
-//        }));
-//    }
+
     private void requestFinish(String leftChannelName) {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
             channelActivity.finishActivity(leftChannelName);
@@ -190,7 +185,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void sendError(String error) {
         createTemplateObservable(error)
-                .subscribe(split((channelActivity, s) -> Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show()));
+                .subscribe(split((channelActivity, s) -> {
+                    Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show();
+                    channelActivity.errorRequest();
+                }));
     }
 
     private void sendCloseActivity() {
