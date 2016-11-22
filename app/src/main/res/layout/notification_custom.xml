@@ -7,34 +7,27 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/imagenotileft"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:id="@+id/avatar"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
         android:layout_marginEnd="15dp"
-        android:layout_marginStart="15dp"
-        android:layout_gravity="center" />
-    <!--<de.hdodenhof.circleimageview.CircleImageView-->
-        <!--android:id="@+id/imagenotileft"-->
-        <!--android:layout_width="50dp"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:layout_marginEnd="15dp"-->
-        <!--android:layout_marginStart="15dp" />-->
+        android:layout_marginStart="15dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="5dp"
         android:layout_gravity="center"
-        android:layout_weight="3">
+        android:layout_marginTop="5dp"
+        android:layout_weight="3"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="test"
             android:layout_gravity="center_vertical"
+            android:text="test"
             android:textColor="@color/white"
             android:textSize="13sp" />
 
@@ -42,21 +35,25 @@
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="3dp"
-            android:layout_gravity="center_vertical"
             android:text="test"
             android:textColor="@color/white"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:maxEms="10"
+            android:maxLength="22"
+            android:ellipsize="end"
+            android:singleLine="true"/>
 
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/imagenotiright"
+        android:id="@+id/closeNotification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
         android:layout_gravity="center"
+        android:layout_marginEnd="20dp"
         android:padding="15dp" />
 
 </LinearLayout>

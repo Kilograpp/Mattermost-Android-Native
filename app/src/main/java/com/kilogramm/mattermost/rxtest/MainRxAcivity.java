@@ -26,7 +26,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
 
     private ActivityMainBinding binding;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
