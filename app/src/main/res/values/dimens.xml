@@ -15,6 +15,10 @@
 
     <dimen name="image_height">250dp</dimen>
 
+    <!--setting-->
+
+    <dimen name="settings_title_margin">24dp</dimen>
+
     <!--Direct list-->
     <dimen name="margin_start">5dp</dimen>
     <dimen name="circle_image_size">40dp</dimen>
