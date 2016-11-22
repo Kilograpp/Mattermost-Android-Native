@@ -74,8 +74,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void updateMembers(String id) {
         createTemplateObservable(new Object())
-                .subscribe(split((addMembersActivity, openChatObject)
-                        -> {
+                .subscribe(split((addMembersActivity, openChatObject) -> {
                     ExtroInfoRepository.updateMembers(extraInfo, UserRepository.query(
                             new UserRepository.UserByIdSpecification(id))
                             .first());
