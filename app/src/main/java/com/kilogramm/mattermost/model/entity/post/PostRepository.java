@@ -90,6 +90,8 @@ public class PostRepository {
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
+        if (post.getProps().getFrom_webhook() == null)
+            post.setProps(null);
         post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         add(post);
     }
@@ -103,6 +105,8 @@ public class PostRepository {
                 post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
             post.setViewed(true);
             post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+            if (post.getProps().getFrom_webhook() == null)
+                post.setProps(null);
         }
         add(posts.getPosts().values());
     }
