@@ -378,8 +378,7 @@ public class Post extends RealmObject implements Parcelable {
         }
         this.pendingPostId = post.getPendingPostId();
         this.user = post.getUser();
-        if (props.getFrom_webhook() != null)
-            this.props = post.getProps();
+        this.props = post.getProps();
         this.viewed = post.getViewed();
     }
 

@@ -44,13 +44,13 @@ public class Prop extends RealmObject implements Parcelable {
         this.override_username = override_username;
     }
 
-//    public RealmList<Attachments> getAttachments() {
-//        return attachments;
-//    }
-//
-//    public void setAttachments(RealmList<Attachments> attachments) {
-//        this.attachments = attachments;
-//    }
+    public RealmList<Attachments> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(RealmList<Attachments> attachments) {
+        this.attachments = attachments;
+    }
 
     public Prop() {
     }
