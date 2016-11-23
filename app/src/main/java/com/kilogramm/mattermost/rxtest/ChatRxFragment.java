@@ -353,12 +353,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ArrayList<Uri> pickedFiles = new ArrayList<>();
-        Log.d(TAG, "OnActivityResult()");
-        if (resultCode != Activity.RESULT_CANCELED) {
-            Log.d(TAG, "RESULT_OK");
-            if (requestCode == CAMERA_PIC_REQUEST ) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == CAMERA_PIC_REQUEST) {
                 if (fileFromCamera != null) {
-                    Log.d(TAG, "FileFromCamera != null");
                     pickedFiles.add(fileFromCamera);
                 } else {
                     Toast.makeText(getActivity(),
@@ -366,8 +363,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                             Toast.LENGTH_SHORT)
                             .show();
                 }
-            }
-            if (requestCode == FILE_CODE) {
+            } else if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         ClipData clip = data.getClipData();
@@ -385,27 +381,25 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         }
                     }
                 }
-            }
-        }
-        if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
-            if (data != null) {
-                if (data.getData() != null) {
-                    Uri uri = data.getData();
-                    List<Uri> uriList = new ArrayList<>();
-                    uriList.add(uri);
-                    attachFiles(uriList);
-                } else if (data.getClipData() != null) {
-                    ClipData clipData = data.getClipData();
-                    for (int i = 0; i < clipData.getItemCount(); i++) {
+            } else if ((requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
+                if (data != null) {
+                    if (data.getData() != null) {
+                        Uri uri = data.getData();
                         List<Uri> uriList = new ArrayList<>();
-                        uriList.add(clipData.getItemAt(i).getUri());
+                        uriList.add(uri);
                         attachFiles(uriList);
+                    } else if (data.getClipData() != null) {
+                        ClipData clipData = data.getClipData();
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            List<Uri> uriList = new ArrayList<>();
+                            uriList.add(clipData.getItemAt(i).getUri());
+                            attachFiles(uriList);
+                        }
                     }
                 }
             }
         }
         if (pickedFiles.size() > 0) {
-            Log.d(TAG, "befor adding uri");
             attachFiles(pickedFiles);
         }
     }
@@ -415,13 +409,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-/*            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openFilePicker();
-                }
-                break;*/
             case PICK_FROM_GALLERY:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
