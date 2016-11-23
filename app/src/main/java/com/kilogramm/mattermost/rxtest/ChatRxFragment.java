@@ -275,7 +275,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     onItemAdded();
                     binding.fab.hide();
                 } else {
-                    if(!isRefreshing && results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
+                    if (!isRefreshing && results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
                         ScrollAwareFabBehavior.animateFabUp(binding.fab);
                     }
                 }
@@ -356,14 +356,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Log.d(TAG, "OnActivityResult()");
         if (resultCode != Activity.RESULT_CANCELED) {
             Log.d(TAG, "RESULT_OK");
-            if (requestCode == CAMERA_PIC_REQUEST && fileFromCamera != null) {
-                Log.d(TAG, "FileFromCamera != null");
-                pickedFiles.add(fileFromCamera);
-            } else {
-                Toast.makeText(getActivity(),
-                        getString(R.string.cannot_attach_photo),
-                        Toast.LENGTH_SHORT)
-                        .show();
+            if (requestCode == CAMERA_PIC_REQUEST ) {
+                if (fileFromCamera != null) {
+                    Log.d(TAG, "FileFromCamera != null");
+                    pickedFiles.add(fileFromCamera);
+                } else {
+                    Toast.makeText(getActivity(),
+                            getString(R.string.cannot_attach_photo),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
             if (requestCode == FILE_CODE) {
                 if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
