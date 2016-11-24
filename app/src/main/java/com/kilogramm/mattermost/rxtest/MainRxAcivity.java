@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -26,22 +27,46 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
 
     private ActivityMainBinding binding;
 
+    //
+    Intent intentService;
+    //
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         MattermostService.Helper.create(this).startService();
         initView();
+
+        //
+        intentService = new Intent(this, MattermostService.class);
+        if (!isMattermostServiceRunning(MattermostService.class)) {
+            startService(intentService);
+        } else {
+            stopService(intentService);
+        }
+        //
+
     }
 
+    //
+    private boolean isMattermostServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //
+
+
     private void initView() {
-
         binding.buttonNext.setOnClickListener(view -> getPresenter().request(getStringUrl()));
-
         binding.urlEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -52,7 +77,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
     }
@@ -92,7 +116,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
     public void hideKeyboard() {
         hideKeyboard(this);
     }
-
 
     public static void start(Context context, Integer flags) {
         Intent starter = new Intent(context, MainRxAcivity.class);

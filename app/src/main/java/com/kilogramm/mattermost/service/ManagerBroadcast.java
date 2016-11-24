@@ -235,7 +235,6 @@ public class ManagerBroadcast {
         //
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
-        //remoteViews.setImageViewResource(R.id.avatar, R.drawable.ic_person_grey_24dp);
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
         remoteViews.setTextViewText(R.id.title, "New message from " + post.getUser().getUsername());
         remoteViews.setTextViewText(R.id.text, receivedPost);
@@ -267,8 +266,6 @@ public class ManagerBroadcast {
 
             notification = builderCompat.build();
             notificationManager.notify(notifyId, notification);
-
-
         }
 
         Handler uiHandler = new Handler(Looper.getMainLooper());

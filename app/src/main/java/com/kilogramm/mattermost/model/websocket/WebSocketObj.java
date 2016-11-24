@@ -35,7 +35,6 @@ public class WebSocketObj implements Parcelable {
     public static final String EVENT_POST_DELETED = "post_deleted";
     public static final String EVENT_STATUS_CHANGE = "status_change";
 
-
     //Posted
     public static final String CHANNEL_DISPLAY_NAME = "channel_display_name";
     public static final String CHANNEL_TYPE = "channel_type";
