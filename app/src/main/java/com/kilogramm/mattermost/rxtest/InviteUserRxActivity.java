@@ -36,6 +36,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_invite_user);
         initView();
     }
 

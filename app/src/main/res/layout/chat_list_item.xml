@@ -84,6 +84,7 @@
                     app:cardBackgroundColor="@color/comment_cardview_Background">
 
                     <View
+                        android:id="@+id/line"
                         android:layout_width="2dp"
                         android:layout_height="fill_parent"
                         android:layout_marginBottom="@dimen/comment_margin_element"
@@ -100,6 +101,7 @@
                         android:orientation="vertical">
 
                         <LinearLayout
+                            android:id="@+id/layUser"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
@@ -122,7 +124,6 @@
                             android:id="@+id/messageRootPost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="rootPost"
                             android:textColor="@color/black" />
 
                         <com.kilogramm.mattermost.ui.FilesView

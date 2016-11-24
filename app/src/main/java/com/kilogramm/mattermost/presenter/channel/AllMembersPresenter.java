@@ -56,7 +56,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
                 () -> ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).asObservable(),
                 (allMembersActivity, o) -> {
                     this.extraInfo = o.first();
-                    allMembersActivity.updateDataList(extraInfo.getMembers());
+                    allMembersActivity.updateDataList(getMembers());
                 });
     }
 

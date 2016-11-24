@@ -109,6 +109,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
+                binding.progressBar.setVisibility(View.VISIBLE);
                 String leftChannel = data.getStringExtra(ChannelActivity.LEAVED_CHANNEL);
                 getPresenter().setFirstChannelBeforeLeave();
                 showGoodText("You`ve just leaved " + leftChannel + " channel");
@@ -156,7 +157,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
             switch (item.getItemId()) {
                 case R.id.switch_team:
-                    getPresenter().requestSwitchTeam();
+                    showTeemChoose();
                     break;
                 case R.id.files:
                     showFiles();

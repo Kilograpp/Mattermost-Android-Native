@@ -106,12 +106,10 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
             binding.headerDescription.setText(channel.getHeader());
             binding.purposeDescription.setText(channel.getPurpose());
+            binding.countMembers.setText(String.format("%s %s",
+                    extraInfo.getMember_count(),
+                    getString(R.string.channel_info_count_members)));
         });
-
-        extraInfo.addChangeListener(element ->
-                binding.countMembers.setText(String.format("%s %s",
-                extraInfo.getMember_count(),
-                getString(R.string.channel_info_count_members))));
 
         binding.channelName.setText(channel.getDisplayName());
         binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
@@ -208,7 +206,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.toolbarText:
-                if (getPresenter().getChannel().getDisplayName().equals(binding.toolbarText.getText()))
+                if (getPresenter().getChannel().getDisplayName().equals(binding.toolbarText.getText())
+                        && binding.progressBar.getVisibility() == View.VISIBLE)
                     NameActivity.start(this, channelId);
                 break;
             case R.id.channel_icon:
@@ -231,6 +230,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 break;
             case R.id.leave:
                 getPresenter().requestLeave();
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.layoutData.setVisibility(View.GONE);
                 break;
         }
     }
@@ -240,6 +241,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         setResult(RESULT_CANCELED, new Intent());
         finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    public void errorRequest(){
+        binding.progressBar.setVisibility(View.GONE);
+        binding.layoutData.setVisibility(View.VISIBLE);
     }
 
     public void finishActivity(String leftChannelName) {

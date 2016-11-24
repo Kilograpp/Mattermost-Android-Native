@@ -90,7 +90,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getControlMenuVisibility() {
-        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE)
+        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE
+                && post.getProps()== null)
             return post.isSystemMessage() ? new ObservableInt(View.GONE) : controlMenuVisibility;
         return new ObservableInt(View.GONE);
     }

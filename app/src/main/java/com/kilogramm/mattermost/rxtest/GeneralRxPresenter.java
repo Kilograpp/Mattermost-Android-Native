@@ -227,10 +227,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_LOGOUT);
     }
 
-    public void requestSwitchTeam() {
-        start(REQUEST_INITLOAD);
-    }
-
     @Override
     protected void onTakeView(GeneralRxActivity generalRxActivity) {
         super.onTakeView(generalRxActivity);
@@ -284,23 +280,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
 
     public void setFirstChannelBeforeLeave() {
-        RealmResults<Channel> channelsOpen = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN));
-        if (channelsOpen.size() != 0) {
-            sendSetFragmentChat(channelsOpen.first().getId(), channelsOpen.first().getName(), channelsOpen.first().getType());
-            return;
-        }
-        RealmResults<Channel> channelsPrivate = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.PRIVATE));
-        if (channelsPrivate.size() != 0) {
-            sendSetFragmentChat(channelsPrivate.first().getId(), channelsPrivate.first().getName(), channelsPrivate.first().getType());
-            return;
-        }
-
-        RealmResults<Channel> channelsDirect = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.DIRECT));
-        if (channelsDirect.size() != 0) {
-            sendSetFragmentChat(channelsDirect.first().getId(), channelsDirect.first().getName(), channelsDirect.first().getType());
-            return;
-        }
-
+        Channel channel = ChannelRepository.query(new ChannelByHadleSpecification("town-square"))
+                .first();
+        sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
     }
 
     private void handleErrorLogin(Throwable e) {
