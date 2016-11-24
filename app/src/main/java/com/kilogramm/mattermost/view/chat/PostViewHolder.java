@@ -78,9 +78,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
         ((ChatListItemBinding) mBinding).avatar.setTag(post);
 
-        if(post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
+        if (post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.VISIBLE);
-            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
+            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context, false, false);
             ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
             ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
@@ -95,7 +95,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
         if (root != null)
             setRootMassage(root);
-        else
+
+        if (post.getProps() != null)
+            setPropMassage(post);
+
+        if (root == null && post.getProps() == null)
             ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.GONE);
 
         if (isTitle) {
@@ -114,29 +118,60 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         mBinding.executePendingBindings();
     }
 
-    public void bindToLoadingTop() { }
+    public void bindToLoadingTop() {
+    }
 
-    public void bindToLoadingBottom() { }
+    public void bindToLoadingBottom() {
+    }
 
-    private void setRootMassage(Post root) {
+    private void setRootMassage(Post post) {
+        ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
+        ((ChatListItemBinding) mBinding).filesViewRoot.setItems(post.getFilenames());
+        ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
+        ((ChatListItemBinding) mBinding).nickRootPost.setText(post.getUser().getUsername());
+        ((ChatListItemBinding) mBinding).getViewModel()
+                .loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
+                        ((ChatListItemBinding) mBinding).getViewModel().getUrl(post));
+        ((ChatListItemBinding) mBinding).messageRootPost.setText(
+                revertSpanned(getSpannableStringBuilder(
+                        post, (mBinding).getRoot().getContext(), false, true)));
+        ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void setPropMassage(Post root) {
         if (root != null) {
-            ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
-            ((ChatListItemBinding) mBinding).filesViewRoot.setItems(root.getFilenames());
             ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
-            ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
-            ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
-            ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, (mBinding).getRoot().getContext())).toString().trim());
+            ((ChatListItemBinding) mBinding).layUser.setVisibility(View.GONE);
+            if (root.getProps().getAttachments().get(0).getColor().equals("good"))
+                ((ChatListItemBinding) mBinding)
+                        .line.setBackgroundColor(
+                        mBinding.getRoot().getContext()
+                                .getResources().getColor(R.color.green_send_massage));
+            else
+                ((ChatListItemBinding) mBinding)
+                        .line.setBackgroundColor(
+                        mBinding.getRoot().getContext()
+                                .getResources().getColor(R.color.red_error_send_massage));
+            ((ChatListItemBinding) mBinding).messageRootPost.setText(
+                    revertSpanned(getSpannableStringBuilder(
+                            root, (mBinding).getRoot().getContext(), true, false)));
+            ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
     @NonNull
-    public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context) {
+    public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context, boolean isProp, boolean isComment) {
         Spanned spanned;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(
+                    isProp ? post.getProps().getAttachments().get(0).getText().trim() : post.getMessage()),
+                    Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
         } else {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(post.getMessage()), null, new MattermostTagHandler());
+            spanned = Html.fromHtml(EmojiParser.parseToUnicode(
+                    isProp ? post.getProps().getAttachments().get(0).getText().trim() : post.getMessage()),
+                    null, new MattermostTagHandler());
         }
+
         SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
         Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
@@ -156,6 +191,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return true;
         }, null);
+        if (isProp || isComment)
+            if(ssb.length() > 2)
+            ssb.delete(ssb.length() - 2, ssb.length());
         return ssb;
     }
 

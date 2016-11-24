@@ -3,9 +3,11 @@ package com.kilogramm.mattermost.model.entity.post;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.Prop;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -68,6 +70,10 @@ public class Post extends RealmObject implements Parcelable {
     @SerializedName("pending_post_id")
     @Expose
     private String pendingPostId;
+    @SerializedName("props")
+    @Expose
+    @NonNull
+    private Prop props;
     private User user;
 
     private Boolean viewed = false;
@@ -264,6 +270,19 @@ public class Post extends RealmObject implements Parcelable {
         this.hashtags = hashtags;
     }
 
+    /**
+     * @return The props
+     */
+    public Prop getProps() {
+        return props;
+    }
+
+    /**
+     * @param props The props
+     */
+    public void setProps(Prop props) {
+        this.props = props;
+    }
 
     /**
      * @return The pendingPostId
@@ -305,9 +324,9 @@ public class Post extends RealmObject implements Parcelable {
         if (attachedFiles == null) {
             return;
         }
-            for (FileToAttach attachedFile : attachedFiles) {
-                this.filenames.add(new RealmString(attachedFile.getFileName()));
-            }
+        for (FileToAttach attachedFile : attachedFiles) {
+            this.filenames.add(new RealmString(attachedFile.getFileName()));
+        }
     }
 
     @Override
@@ -329,6 +348,8 @@ public class Post extends RealmObject implements Parcelable {
         dest.writeString(this.message);
         dest.writeString(this.type);
         dest.writeString(this.hashtags);
+        if (props.getFrom_webhook() != null)
+            dest.writeParcelable(this.props, flags);
         dest.writeList(this.filenames);
         dest.writeString(this.pendingPostId);
         dest.writeParcelable(this.user, flags);
@@ -338,26 +359,27 @@ public class Post extends RealmObject implements Parcelable {
     public Post() {
     }
 
-    public Post(Post post){
-        this.id=post.getId();
-        this.createAt=post.getCreateAt();
-        this.updateAt=post.getUpdateAt();
-        this.deleteAt=post.getDeleteAt();
-        this.userId=post.getUserId();
-        this.channelId=post.getChannelId();
-        this.rootId=post.getRootId();
-        this.parentId=post.getParentId();
-        this.originalId=post.getOriginalId();
-        this.message=post.getMessage();
-        this.type=post.getType();
-        this.hashtags=post.getHashtags();
+    public Post(Post post) {
+        this.id = post.getId();
+        this.createAt = post.getCreateAt();
+        this.updateAt = post.getUpdateAt();
+        this.deleteAt = post.getDeleteAt();
+        this.userId = post.getUserId();
+        this.channelId = post.getChannelId();
+        this.rootId = post.getRootId();
+        this.parentId = post.getParentId();
+        this.originalId = post.getOriginalId();
+        this.message = post.getMessage();
+        this.type = post.getType();
+        this.hashtags = post.getHashtags();
         this.filenames = new RealmList<>();
         for (String s : post.getFilenames()) {
             this.filenames.add(new RealmString(s));
         }
-        this.pendingPostId=post.getPendingPostId();
-        this.user=post.getUser();
-        this.viewed=post.getViewed();
+        this.pendingPostId = post.getPendingPostId();
+        this.user = post.getUser();
+        this.props = post.getProps();
+        this.viewed = post.getViewed();
     }
 
 
@@ -373,6 +395,8 @@ public class Post extends RealmObject implements Parcelable {
         this.originalId = in.readString();
         this.message = in.readString();
         this.type = in.readString();
+        if (props.getFrom_webhook() != null)
+            this.props = in.readParcelable(Prop.class.getClassLoader());
         this.hashtags = in.readString();
         this.filenames = new RealmList<>();
         in.readList(this.filenames, RealmString.class.getClassLoader());
