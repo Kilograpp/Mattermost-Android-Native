@@ -191,7 +191,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return true;
         }, null);
-        if (isProp || isComment)
+        if (isProp || isComment) //TODO JENIKS удалить после нового маркдауна
             if(ssb.length() > 2)
             ssb.delete(ssb.length() - 2, ssb.length());
         return ssb;

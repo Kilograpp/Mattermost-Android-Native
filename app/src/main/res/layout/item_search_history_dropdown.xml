@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.kilogramm.mattermost.utils.CompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="?android:attr/dropDownItemStyle"
     android:id="@+id/previousSearch"
     android:layout_width="match_parent"
@@ -13,5 +14,5 @@
     android:layout_marginStart="10dp"
     android:drawablePadding="30dp"
     android:padding="10dp"
-    android:drawableStart="@drawable/ic_shape"
-    android:background="@color/white"/>
+    app:drawableStart="@drawable/ic_shape"
+    android:background="@color/white" />

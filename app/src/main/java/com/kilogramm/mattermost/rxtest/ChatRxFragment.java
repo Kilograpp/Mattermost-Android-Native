@@ -165,9 +165,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
                 if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
-                    getActivity().runOnUiThread(() -> {
-                        updateEditedPosition(obj.getData().getPost().getId());
-                    });
+//                    getActivity().runOnUiThread(() -> { // TODO зачем эта обработка?
+//                        updateEditedPosition(obj.getData().getPost().getId());
+//                    });
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
                         getActivity().runOnUiThread(() -> showTyping());
