@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -113,8 +114,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @State
     boolean isMessageTextOpen = false;
     @State
-    boolean isRefreshing = true;
-    @State
     String searchMessageId = null;
 
     private Uri fileFromCamera;
@@ -127,6 +126,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+
+    private ScrollAwareFabBehavior fabBehavior;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -166,7 +167,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 Log.d(TAG, obj.getEvent());
                 if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
                     getActivity().runOnUiThread(() -> {
-                        updateEditedPosition(obj.getData().getPost().getId());
+                        if (obj.getData() != null) {
+                            updateEditedPosition(obj.getData().getPost().getId());
+                        }
                     });
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
@@ -179,10 +182,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
+        binding.fab.hide();
+        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+        fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
+        params.setBehavior(fabBehavior);
+        binding.fab.requestLayout();
+
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
         } else {
-            isRefreshing = true;
+            fabBehavior.lockBehavior();
             getPresenter().requestExtraInfo();
         }
 
@@ -194,9 +205,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
-
-        binding.fab.hide();
-        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
     }
 
     private void updateEditedPosition(String id) {
@@ -275,8 +283,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     onItemAdded();
                     binding.fab.hide();
                 } else {
-                    if (!isRefreshing && results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
-                        ScrollAwareFabBehavior.animateFabUp(binding.fab);
+                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
+                        fabBehavior.animateFabUp(binding.fab);
                     }
                 }
             }
@@ -301,7 +309,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void setBtnSendOnClickListener() {
         binding.btnSend.setOnClickListener(view -> {
-            isRefreshing = true;
+            fabBehavior.lockBehavior();
             if (!binding.btnSend.getText().equals("Save"))
                 sendMessage();
             else
@@ -314,10 +322,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
             if (heightDiff > 100) {
-                binding.idRecUser.setVisibility(View.VISIBLE);
                 isOpenedKeyboard = true;
             } else if (isOpenedKeyboard == true) {
-                binding.idRecUser.setVisibility(View.INVISIBLE);
                 isOpenedKeyboard = false;
             }
         });
@@ -333,13 +339,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 int cursorPos = binding.writingMessage.getSelectionStart();
-                if (cursorPos > 0 && charSequence.toString().contains("@"))
-                    if (charSequence.charAt(cursorPos - 1) == '@')
+                if (cursorPos > 0 && charSequence.toString().contains("@")) {
+                    fabBehavior.lockBehavior();
+                    if (charSequence.charAt(cursorPos - 1) == '@') {
                         getPresenter().requestGetUsers(null, 0);
-                    else
+                    } else {
                         getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
-                else
+                    }
+                } else {
+                    fabBehavior.unlockBehavior();
                     setDropDown(null);
+                }
             }
 
             @Override
@@ -509,7 +519,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
-                    ScrollAwareFabBehavior.animateFabDown(binding.fab);
+                    fabBehavior.animateFabDown(binding.fab);
                 } else {
                     binding.swipeRefreshLayout
                             .setEnabled(false);
@@ -528,7 +538,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-            isRefreshing = true;
+            fabBehavior.lockBehavior();
             getPresenter().requestLoadPosts();
             binding.fab.hide();
         });
@@ -658,7 +668,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setVisibility(View.VISIBLE);
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
-        isRefreshing = false;
+        fabBehavior.unlockBehavior();
     }
 
     public void setRefreshing(boolean b) {
@@ -824,7 +834,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void invalidateAdapter() {
         adapter.notifyDataSetChanged();
-        isRefreshing = false;
+        fabBehavior.unlockBehavior();
     }
 
     public void copyLink(String link) {

@@ -13,6 +13,8 @@ import android.view.animation.LinearInterpolator;
  */
 public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
 
+    private boolean isEnabled = true;
+
     public ScrollAwareFabBehavior(Context context, AttributeSet attrs) {
         super();
     }
@@ -37,14 +39,27 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
         }
     }
 
-    public static void animateFabDown(FloatingActionButton child) {
-        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
-        int fab_bottomMargin = layoutParams.bottomMargin;
-        child.animate().translationY(child.getHeight() + fab_bottomMargin + 5).setInterpolator(new LinearInterpolator()).start();
+    public void animateFabDown(FloatingActionButton child) {
+        if(isEnabled){
+            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
+            int fab_bottomMargin = layoutParams.bottomMargin;
+            child.animate().translationY(child.getHeight() + fab_bottomMargin + 5).setInterpolator(new LinearInterpolator()).start();
+        }
     }
 
-    public static void animateFabUp(FloatingActionButton child) {
-        child.show();
-        child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
+    public void animateFabUp(FloatingActionButton child) {
+        if(isEnabled){
+            child.show();
+            child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
+
+        }
+    }
+
+    public void lockBehavior(){
+        isEnabled = false;
+    }
+
+    public void unlockBehavior(){
+        isEnabled = true;
     }
 }
