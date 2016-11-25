@@ -51,15 +51,15 @@ public class WordsTriggerMentionsFragment extends BaseFragment {
 
     private void initTriggers() {
         binding.titleFirstName.setText(binding.titleFirstName.getText()
-                + "\"" + getPresenter().getFirstName() + "\"");
+                + " \"" + getPresenter().getFirstName() + "\"");
         binding.selectFirstName.setChecked(getPresenter().isFirstNameTrigger());
 
         binding.titleUserName.setText(binding.titleUserName.getText()
-                + "\"" + getPresenter().getUserName() + "\"");
+                + " \"" + getPresenter().getUserName() + "\"");
         binding.selectUserName.setChecked(getPresenter().isUserName());
 
         binding.titleUserNameMentioned.setText(binding.titleUserNameMentioned.getText()
-                + "\"" + getPresenter().getUserNameMentioned() + "\"");
+                + " \"" + getPresenter().getUserNameMentioned() + "\"");
         binding.selectUserNameMentioned.setChecked(getPresenter().isUserNameMentioned());
 
         binding.selectChannelMentioned.setChecked(getPresenter().isChannelTrigger());
