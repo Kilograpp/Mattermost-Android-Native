@@ -31,6 +31,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -64,7 +65,6 @@ public class ManagerBroadcast {
     public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
 
     public static final String CLOSE_NOTIFICATION = "close_notification";
-    public static final String OPEN_DIALOG = "open_dialog";
     public static final String CHANNEL_ID = "CHANNEL_ID";
     public static final String CHANNEL_NAME = "CHANNEL_NAME";
     public static final String CHANNEL_TYPE = "CHANNEL_TYPE";
@@ -225,6 +225,10 @@ public class ManagerBroadcast {
     private static void createNotificationNEW(Post post, Context context) {
         Notification notification;
 
+        String userName = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()))
+                .first()
+                .getUsername();
+
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -233,10 +237,19 @@ public class ManagerBroadcast {
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+        PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
+                closeNotificationIntent(context), 0);
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
+        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
+        remoteViews.setTextViewText(R.id.title, userName);
+        remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
+        remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
-                    .setContentTitle("New message from " + post.getUser().getUsername())
+                    .setContentTitle("New message from " + userName)
                     .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(Notification.PRIORITY_HIGH)
@@ -248,12 +261,12 @@ public class ManagerBroadcast {
         } else {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
-                    .setContentTitle("New message from " + post.getUser().getUsername())
+                    .setContentTitle("New message from " + userName)
                     .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pIntent)
-                    .setContent(makeRemoteView(context, post));
+                    .setContent(remoteViews);
 
             notification = builderCompat.build();
             notificationManager.notify(NOTIFY_ID, notification);
@@ -264,19 +277,7 @@ public class ManagerBroadcast {
                 Picasso.with(context.getApplicationContext())
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
-                        .into(makeRemoteView(context, post), R.id.avatar, NOTIFY_ID, notification));
-    }
-
-    private static RemoteViews makeRemoteView(Context context, Post post) {
-        PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
-                closeNotificationIntent(context), 0);
-
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
-        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
-        remoteViews.setTextViewText(R.id.title, "New message from " + post.getUser().getUsername());
-        remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
-        remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
-        return remoteViews;
+                        .into(remoteViews, R.id.avatar, NOTIFY_ID, notification));
     }
 
     private static Intent openDialogIntent(String channelId, Context context) {
