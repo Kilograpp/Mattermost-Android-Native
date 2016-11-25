@@ -46,7 +46,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
             stopService(intentService);
         }
         //
-
     }
 
     //
@@ -60,7 +59,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
         return false;
     }
     //
-
 
     private void initView() {
         binding.buttonNext.setOnClickListener(view -> getPresenter().request(getStringUrl()));

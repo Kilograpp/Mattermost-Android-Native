@@ -8,69 +8,69 @@
         android:layout_height="wrap_content"
         android:background="@drawable/selector_item_channel_backgroung"
         android:orientation="vertical"
-        android:paddingTop="5dp"
         android:paddingLeft="@dimen/standart_margin"
-        >
+        android:paddingTop="5dp">
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/avatarDirect"
-                    android:layout_centerVertical="true"
-                    android:layout_width="@dimen/circle_image_size"
-                    android:layout_height="@dimen/circle_image_size"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/avatarDirect"
+                android:layout_width="@dimen/circle_image_size"
+                android:layout_height="@dimen/circle_image_size"
+                android:layout_centerVertical="true"
 
-                   />
+                />
 
 
             <LinearLayout
                 android:id="@+id/text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/avatarDirect"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="60dp"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@+id/avatarDirect"
                 android:gravity="center_vertical"
-                android:layout_centerVertical="true"
                 android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/directProfileName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                tools:text="test" />
+                <TextView
+                    android:id="@+id/directProfileName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    tools:text="test" />
 
-            <TextView
-                android:id="@+id/emailProfile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/activity_vertical_text_margin"
-                android:textColor="@color/light_grey"
-                android:maxLines="1"
-                tools:text="test" />
+                <TextView
+                    android:id="@+id/emailProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/activity_vertical_text_margin"
+                    android:maxLines="1"
+                    android:textColor="@color/light_grey"
+                    tools:text="test" />
 
             </LinearLayout>
+
             <CheckBox
                 android:id="@+id/selectDirect"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/checkbox_selector"
-                android:layout_marginRight="@dimen/margin_start"
-                android:layout_marginBottom="@dimen/margin_start"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true" />
+                android:layout_marginBottom="@dimen/margin_start"
+                android:layout_marginRight="@dimen/margin_start"
+                android:button="@drawable/checkbox_selector" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="21dp"
                 android:layout_below="@id/avatarDirect"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="21dp"
                 android:layout_toRightOf="@+id/avatarDirect"
                 android:background="@color/very_light_grey" />
         </RelativeLayout>

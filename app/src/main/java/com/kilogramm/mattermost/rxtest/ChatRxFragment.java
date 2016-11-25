@@ -127,6 +127,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+    private BroadcastReceiver brReceiverNotifications;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -175,9 +176,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 }
             }
         };
+
+        brReceiverNotifications = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent intentService = new Intent(context, MattermostService.class);
+                context.startService(intentService);
+            }
+        };
+
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
+
 
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
