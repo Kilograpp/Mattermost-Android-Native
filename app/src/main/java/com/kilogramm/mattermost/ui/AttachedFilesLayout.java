@@ -172,6 +172,11 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         uploadFileToServer(Uri.parse(filePath), filePath, channelId, true);
     }
 
+    @Override
+    public void onError() {
+        if(progressDialog != null) progressDialog.cancel();
+    }
+
     public void showToast(String s) {
         Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
     }

@@ -87,8 +87,10 @@ public class FileUtil {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
+/*                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://<span id=\"IL_AD1\" class=\"IL_AD\">downloads</span>/public_downloads"), Long.valueOf(id));*/
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://<span id=\"IL_AD1\" class=\"IL_AD\">downloads</span>/public_downloads"), Long.valueOf(id));
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
                 return getDataColumn(mContext, contentUri, null, null);
             }

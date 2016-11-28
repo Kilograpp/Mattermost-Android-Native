@@ -211,7 +211,7 @@ public class FileToAttachRepository {
         Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
+            RealmResults<FileToAttach> fileToAttachList = realm1.where(FileToAttach.class)
                     .equalTo("id", item.getId())
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();

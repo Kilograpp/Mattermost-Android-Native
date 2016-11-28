@@ -72,6 +72,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                 file = new File(fileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
+            if(file.exists()){
+                Log.d(TAG, "initRequests: file exists");
+            }
             FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
 
@@ -100,6 +103,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             throwable.printStackTrace();
             sendShowUploadErrorToast("");
             Log.d(TAG, "Error");
+            FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });
     }
