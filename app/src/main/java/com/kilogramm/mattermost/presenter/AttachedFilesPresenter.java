@@ -98,7 +98,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowToast("Error");
+            sendShowUploadErrorToast("");
             Log.d(TAG, "Error");
             startRequest();
         });
@@ -107,6 +107,11 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     public void sendShowToast(String log){
         createTemplateObservable(log)
                 .subscribe(split(AttachedFilesLayout::showToast));
+    }
+
+    public void sendShowUploadErrorToast(String log){
+        createTemplateObservable(log)
+                .subscribe(split(AttachedFilesLayout::showUploadErrorToast));
     }
 
     private void startRequest() {

@@ -237,9 +237,9 @@ public class ManagerBroadcast {
         remoteViews.setTextViewText(R.id.text, receivedPost);
 
         final int notifyId = 1;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             builder = new Notification.Builder(context)
-                    .setSmallIcon(R.drawable.ic_mm)
+                    .setSmallIcon(R.mipmap.icon)
                     .setContentTitle("New message from " + post.getUser().getUsername())
                     .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)

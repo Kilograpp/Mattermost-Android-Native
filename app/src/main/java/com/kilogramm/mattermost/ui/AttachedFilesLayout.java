@@ -175,4 +175,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     public void showToast(String s) {
         Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
     }
+
+    public void showUploadErrorToast(String s) {
+        Toast.makeText(getContext(), getContext().getString(R.string.error_during_file_upload), Toast.LENGTH_SHORT).show();
+    }
 }
