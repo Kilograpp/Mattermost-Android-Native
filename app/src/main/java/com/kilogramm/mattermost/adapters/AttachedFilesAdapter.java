@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import io.realm.RealmRecyclerViewAdapter;
@@ -49,38 +50,31 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileToAttach fileToAttach = getData().get(position);
         holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
-        switch (FileUtil.getInstance().getFileType(fileToAttach.getFileName())) {
-            case FileUtil.PNG:
-            case FileUtil.JPG:
-                holder.binding.imageView.setVisibility(VISIBLE);
+        String extension = FileUtil.getInstance().getMimeType(fileToAttach.getFilePath());
+        if(extension.contains("image")) {
+            holder.binding.imageView.setVisibility(VISIBLE);
+            FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Bitmap>() {
+                        @Override
+                        public void onCompleted() {
 
-                FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Bitmap>() {
-                            @Override
-                            public void onCompleted() {
+                        }
 
-                            }
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
 
-                            @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                            }
-
-                            @Override
-                            public void onNext(Bitmap myBitmap) {
-                                holder.binding.imageView.setImageBitmap(myBitmap);
-                            }
-                        });
-
-                break;
-            default:
-                holder.binding.imageView.setVisibility(View.GONE);
-                break;
+                        @Override
+                        public void onNext(Bitmap myBitmap) {
+                            holder.binding.imageView.setImageBitmap(myBitmap);
+                        }
+                    });
+        } else {
+            holder.binding.imageView.setVisibility(View.GONE);
         }
-
-
         if (fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());

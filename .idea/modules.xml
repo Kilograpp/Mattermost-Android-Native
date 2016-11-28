@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Mattermost-Android-Native.iml" filepath="$PROJECT_DIR$/Mattermost-Android-Native.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/markdown/markdown.iml" filepath="$PROJECT_DIR$/markdown/markdown.iml" />
+      <module fileurl="file://$PROJECT_DIR$/markdown/markdown.iml" filepath="$PROJECT_DIR$/markdown/markdown.iml" />
     </modules>
   </component>
 </project>
