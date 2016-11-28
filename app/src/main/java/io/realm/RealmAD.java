@@ -83,32 +83,32 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
     }
 
     private List getIdsOfRealmResults() {
-        if(this.adapterData != null && this.adapterData.size() != 0) {
+        if (this.adapterData != null && this.adapterData.size() != 0) {
             ArrayList ids;
             int i;
 
-                ids = new ArrayList(this.adapterData.size());
+            ids = new ArrayList(this.adapterData.size());
 
-                for(i = 0; i < this.adapterData.size(); ++i) {
-                    ids.add(this.getRealmRowId(i));
-                }
+            for (i = 0; i < this.adapterData.size(); ++i) {
+                ids.add(this.getRealmRowId(i));
+            }
 
-                return ids;
+            return ids;
         } else {
             return EMPTY_LIST;
         }
     }
 
     private Object getRealmRowId(int realmIndex) {
-        RealmObjectProxy proxy = (RealmObjectProxy)this.adapterData.get(realmIndex);
+        RealmObjectProxy proxy = (RealmObjectProxy) this.adapterData.get(realmIndex);
         Row row = proxy.realmGet$proxyState().getRow$realm();
         Object rowPrimaryId;
 
         animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
-        if(this.animatePrimaryIdType == RealmFieldType.INTEGER) {
+        if (this.animatePrimaryIdType == RealmFieldType.INTEGER) {
             rowPrimaryId = row.getLong(this.animatePrimaryColumnIndex);
         } else {
-            if(this.animatePrimaryIdType != RealmFieldType.STRING) {
+            if (this.animatePrimaryIdType != RealmFieldType.STRING) {
                 throw new IllegalStateException("Unknown animatedIdType");
             }
 
@@ -117,8 +117,8 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         return rowPrimaryId;
     }
 
-    public Object getLastItem(){
-        if(getData()!=null && getData().size()!=0){
+    public Object getLastItem() {
+        if (getData() != null && getData().size() != 0) {
             return getData().last();
         }
         return null;
@@ -132,8 +132,8 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         return adapterData;
     }
 
-    public int getPositionById(String id){
-        if(ids!=null){
+    public int getPositionById(String id) {
+        if (ids != null) {
             return ids.indexOf(id);
         } else {
             return 0;

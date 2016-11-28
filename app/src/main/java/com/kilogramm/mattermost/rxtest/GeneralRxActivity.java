@@ -38,6 +38,10 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
+import static com.kilogramm.mattermost.service.ManagerBroadcast.CHANNEL_ID;
+import static com.kilogramm.mattermost.service.ManagerBroadcast.CHANNEL_NAME;
+import static com.kilogramm.mattermost.service.ManagerBroadcast.CHANNEL_TYPE;
+
 /**
  * Created by Evgeny on 05.10.2016.
  */
@@ -62,6 +66,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     private User user;
     private RealmChangeListener<User> userRealmChangeListener;
 
+    private Boolean isNotification = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +76,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         setupRightMenu();
         showProgressBar();
         MattermostService.Helper.create(this).startWebSocket();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        parceIntent(getIntent());
     }
 
     @Override
@@ -92,7 +104,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         super.onDestroy();
         user.removeChangeListeners();
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -212,9 +223,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        if(currentChannel.equals("")){
+        if (currentChannel.equals("")) {
             replaceFragment(channelId, channelName);
-            leftMenuRxFragment.setSelectItemMenu(channelId,type);
+            leftMenuRxFragment.setSelectItemMenu(channelId, type);
         }
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
@@ -256,6 +267,17 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         context.startActivity(starter);
     }
 
+    private boolean parceIntent(Intent intent) {
+        if (intent.getExtras() != null) {
+            String openChannelId = intent.getStringExtra(CHANNEL_ID);
+            String openChannelName = intent.getStringExtra(CHANNEL_NAME);
+            String openChannelType = intent.getStringExtra(CHANNEL_TYPE);
+            this.setFragmentChat(openChannelId, openChannelName, openChannelType);
+            return true;
+        }
+        return false;
+    }
+
     public void showMainRxActivity() {
         MainRxAcivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
@@ -269,7 +291,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     public void showErrorText(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

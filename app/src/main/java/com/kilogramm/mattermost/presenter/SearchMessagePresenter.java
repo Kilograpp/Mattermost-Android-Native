@@ -64,7 +64,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
                         realm.commitTransaction();
                         realm.close();
 
-                        PostRepository.add(posts.getPosts().values());
+                        PostRepository.prepareAndAdd(posts);
                     }
 
                     if (!isSearchEmpty) {

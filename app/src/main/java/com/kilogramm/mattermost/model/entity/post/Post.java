@@ -348,7 +348,7 @@ public class Post extends RealmObject implements Parcelable {
         dest.writeString(this.message);
         dest.writeString(this.type);
         dest.writeString(this.hashtags);
-        if (props != null && props.getFrom_webhook() != null) {
+        if (props != null){
             dest.writeParcelable(this.props, flags);
         }
         dest.writeList(this.filenames);
@@ -395,7 +395,7 @@ public class Post extends RealmObject implements Parcelable {
         this.originalId = in.readString();
         this.message = in.readString();
         this.type = in.readString();
-        if (props != null && props.getFrom_webhook() != null) {
+        if (props != null) {
             this.props = in.readParcelable(Prop.class.getClassLoader());
         }
         this.hashtags = in.readString();

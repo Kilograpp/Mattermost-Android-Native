@@ -30,35 +30,32 @@ public class UserByNameSearchSpecification implements RealmSpecification {
                     .equalTo("deleteAt", 0L)
                     .findAllSorted("username", Sort.ASCENDING);
         else {
-            int position = 0;
-            int count = 0;
-            String[] username = name.split("@");
-            for (String s : username) {
-                count += s.length() + 1;
-                if (cursorPos < count)
-                    break;
-                position++;
-            }
+            StringBuffer nameBuffer = new StringBuffer(name);
+            if(cursorPos < nameBuffer.length())
+                nameBuffer.delete(cursorPos, nameBuffer.length());
+            String[] username = nameBuffer.toString().split("@");
+            nameBuffer = new StringBuffer(username[username.length - 1]);
+
             return realm.where(User.class)
                     .isNotNull("id")
                     .isNotNull("createAt")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)
-                    .contains("username", username[position].toLowerCase())
+                    .contains("username", nameBuffer.toString().toLowerCase())
                     .or()
                     .isNotNull("id")
                     .isNotNull("createAt")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)
-                    .contains("firstName", username[position].substring(0, 1).toUpperCase()
-                            + username[position].substring(1))
+                    .contains("firstName",nameBuffer.toString().substring(0, 1).toUpperCase()
+                            + nameBuffer.toString().substring(1))
                     .or()
                     .isNotNull("id")
                     .isNotNull("createAt")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)
-                    .contains("lastName", username[position].substring(0, 1).toUpperCase()
-                            + username[position].substring(1))
+                    .contains("lastName", nameBuffer.toString().substring(0, 1).toUpperCase()
+                            + nameBuffer.toString().substring(1))
                     .findAllSorted("username", Sort.ASCENDING);
 
 

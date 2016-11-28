@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -126,6 +127,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+    private BroadcastReceiver brReceiverNotifications;
 
     private ScrollAwareFabBehavior fabBehavior;
 
@@ -166,7 +168,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
                 if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
-                    getActivity().runOnUiThread(() -> {
+                    getActivity().runOnUiThread(() -> {// TODO зачем эта обработка?
                         if (obj.getData() != null) {
                             updateEditedPosition(obj.getData().getPost().getId());
                         }
@@ -178,6 +180,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 }
             }
         };
+
+        brReceiverNotifications = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent intentService = new Intent(context, MattermostService.class);
+                context.startService(intentService);
+            }
+        };
+
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
@@ -259,10 +270,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
         setListenerToRootView();
+        binding.writingMessage.setOnClickListener(view ->
+                getUserList(((EditText) view).getText().toString()));
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.updateData(realmResult);
+        if (binding.writingMessage.getText().length() > 0)
+            dropDownListAdapter.updateData(realmResult);
+        else
+            dropDownListAdapter.updateData(null);
     }
 
     public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
@@ -333,23 +349,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                int cursorPos = binding.writingMessage.getSelectionStart();
-                if (cursorPos > 0 && charSequence.toString().contains("@")) {
-                    fabBehavior.lockBehavior();
-                    if (charSequence.charAt(cursorPos - 1) == '@') {
-                        getPresenter().requestGetUsers(null, 0);
-                    } else {
-                        getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
-                    }
-                } else {
-                    fabBehavior.unlockBehavior();
-                    setDropDown(null);
-                }
+                getUserList(charSequence.toString());
             }
 
             @Override
@@ -357,6 +361,25 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             }
         };
+    }
+
+
+    private void getUserList(String text) {
+        Log.d(TAG, "getUserList: true");
+        int cursorPos = binding.writingMessage.getSelectionStart();
+        if (cursorPos > 0 && text.contains("@")) {
+            fabBehavior.lockBehavior();
+            if (text.charAt(cursorPos - 1) == '@') {
+                getPresenter().requestGetUsers(null, cursorPos);
+            } else {
+                getPresenter().requestGetUsers(
+                        text, cursorPos);
+            }
+        } else {
+            Log.d(TAG, "getUserList: false");
+            setDropDown(null);
+            fabBehavior.unlockBehavior();
+        }
     }
 
     @Override
@@ -697,7 +720,37 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void addUserLinkMessage(String s) {
-        binding.writingMessage.append(s + " ");
+        StringBuffer nameBufferStart = new StringBuffer(binding.writingMessage.getText().toString());
+        int cursorPos = binding.writingMessage.getSelectionStart();
+
+        if (cursorPos != 0 && cursorPos == nameBufferStart.length()
+                && nameBufferStart.charAt(cursorPos - 1) == '@') {
+            binding.writingMessage.append(String.format("%s ", s));
+            binding.writingMessage.setSelection(binding.writingMessage.getText().length());
+            return;
+        }
+        if (cursorPos < nameBufferStart.length())
+            nameBufferStart.delete(cursorPos, nameBufferStart.length());
+        String[] username = nameBufferStart.toString().split("@");
+        nameBufferStart = new StringBuffer();
+        int count = 1;
+        if (username.length == 0) {
+            nameBufferStart.append(String.format("@%s ", s));
+        }
+        for (String element : username) {
+            if (count == username.length)
+                nameBufferStart.append(String.format("%s ", s));
+            else
+                nameBufferStart.append(String.format("%s@", element));
+            count++;
+        }
+
+        StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
+        if (cursorPos < nameBufferStart.length())
+            nameBufferEnd.delete(0, cursorPos);
+
+        binding.writingMessage.setText(nameBufferStart.toString() + nameBufferEnd.toString());
+        binding.writingMessage.setSelection(nameBufferStart.length());
     }
 
     @Override

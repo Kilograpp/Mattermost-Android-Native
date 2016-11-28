@@ -10,8 +10,6 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Map;
 
-import io.realm.annotations.Ignore;
-
 /**
  * Created by Evgeny on 31.08.2016.
  */
@@ -34,7 +32,6 @@ public class WebSocketObj implements Parcelable {
     public static final String EVENT_POST_EDITED = "post_edited";
     public static final String EVENT_POST_DELETED = "post_deleted";
     public static final String EVENT_STATUS_CHANGE = "status_change";
-
 
     //Posted
     public static final String CHANNEL_DISPLAY_NAME = "channel_display_name";
@@ -64,7 +61,8 @@ public class WebSocketObj implements Parcelable {
     @Expose
     private String event;
     private transient String dataJSON;
-    @Ignore
+    @SerializedName("data")
+    @Expose
     private transient Data data;
     @SerializedName("seq_reply")
     @Expose

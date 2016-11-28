@@ -26,6 +26,9 @@ import com.vdurmont.emoji.EmojiParser;
 
 import java.util.regex.Pattern;
 
+import in.uncod.android.bypass.Bypass;
+
+
 /**
  * Created by Evgeny on 31.10.2016.
  */
@@ -80,8 +83,21 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         if (post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.VISIBLE);
-            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context, false, false);
-            ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
+
+//            CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(post.getMessage()));
+//            Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
+//            Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+//
+//            Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+//                spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+//                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                return true;
+//            }, null);
+
+            ((ChatListItemBinding) mBinding).message.setText(getMarkdownPost(
+                    post.getMessage(), context));
+            //SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
+            //((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
             ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
@@ -132,17 +148,15 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         ((ChatListItemBinding) mBinding).getViewModel()
                 .loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
                         ((ChatListItemBinding) mBinding).getViewModel().getUrl(post));
-        ((ChatListItemBinding) mBinding).messageRootPost.setText(
-                revertSpanned(getSpannableStringBuilder(
-                        post, (mBinding).getRoot().getContext(), false, true)));
+        ((ChatListItemBinding) mBinding).messageRootPost.setText(getMarkdownPost(post.getMessage(), mBinding.getRoot().getContext()));
         ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private void setPropMassage(Post root) {
-        if (root != null) {
+    private void setPropMassage(Post post) {
+        if (post != null) {
             ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
             ((ChatListItemBinding) mBinding).layUser.setVisibility(View.GONE);
-            if (root.getProps().getAttachments().get(0).getColor().equals("good"))
+            if (post.getProps().getAttachments().get(0).getColor().equals("good"))
                 ((ChatListItemBinding) mBinding)
                         .line.setBackgroundColor(
                         mBinding.getRoot().getContext()
@@ -153,10 +167,26 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                         mBinding.getRoot().getContext()
                                 .getResources().getColor(R.color.red_error_send_massage));
             ((ChatListItemBinding) mBinding).messageRootPost.setText(
-                    revertSpanned(getSpannableStringBuilder(
-                            root, (mBinding).getRoot().getContext(), true, false)));
+                    getMarkdownPost(post.getProps().getAttachments().get(0).getText(), mBinding.getRoot().getContext())
+            );
             ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
         }
+    }
+
+    @NonNull
+    public static Spannable getMarkdownPost(String postMessage, Context context) {
+
+        CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(postMessage));
+        Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
+        Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+
+        Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+            spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return true;
+        }, null);
+
+        return spannable;
     }
 
     @NonNull
@@ -191,9 +221,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return true;
         }, null);
-        if (isProp || isComment)
-            if(ssb.length() > 2)
-            ssb.delete(ssb.length() - 2, ssb.length());
         return ssb;
     }
 

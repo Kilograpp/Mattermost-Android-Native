@@ -24,9 +24,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     private static String TAG = "MattermostService";
 
     private WebSocketManager mWebSocketManager;
-
     private ManagerBroadcast managerBroadcast;
-
     private MattermostNotificationManager mattermostNotificationManager;
 
     @Override
@@ -47,16 +45,17 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) return Service.START_STICKY;
+//        if (intent == null) return Service.START_STICKY;
+        if (intent == null) return START_REDELIVER_INTENT;
         Log.d(TAG, "onStartCommand action:" + intent.getAction());
         if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
         }
-
         if (UPDATE_USER_STATUS.equals(intent.getAction())) {
             mWebSocketManager.updateUserStatusNow();
         }
-        return Service.START_STICKY;
+        //return Service.START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Nullable
