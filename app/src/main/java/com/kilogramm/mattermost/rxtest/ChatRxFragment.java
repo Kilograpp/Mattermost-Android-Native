@@ -342,7 +342,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 if (cursorPos > 0 && charSequence.toString().contains("@")) {
                     fabBehavior.lockBehavior();
                     if (charSequence.charAt(cursorPos - 1) == '@') {
-                        getPresenter().requestGetUsers(null, 0);
+                        getPresenter().requestGetUsers(null, cursorPos);
                     } else {
                         getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
                     }
@@ -697,6 +697,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void addUserLinkMessage(String s) {
+        int position = 0;
+        int count = 0;
+        int cursorPos = binding.writingMessage.getSelectionStart();
+        String message = binding.writingMessage.getText().toString();
+        String[] username = message.split("@");
+        for (String test : username) {
+            count = count + test.length();
+            if (cursorPos < count)
+                break;
+            position++;
+        }
+        binding.writingMessage.getSelectionStart();
         binding.writingMessage.append(s + " ");
     }
 
