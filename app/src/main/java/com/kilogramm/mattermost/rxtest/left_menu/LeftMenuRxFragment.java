@@ -49,7 +49,6 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
 @RequiresPresenter(LeftMenuRxPresenter.class)
 public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
                                                                             SwipeRefreshLayout.OnRefreshListener {
-
     private static final String TAG = "LEFT_MENU_RX_FRAGMENT";
 
     private static final int NOT_SELECTED = -1;
