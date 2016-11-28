@@ -136,10 +136,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                             return extraInfo;
                         }))
-                , (chatRxFragment, extraInfo) -> {
-
-                    requestLoadPosts();
-                }, (chatRxFragment1, throwable) -> {
+                , (chatRxFragment, extraInfo) -> requestLoadPosts()
+                , (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
                     setErrorLayout(getError(throwable));
                     sendShowList();
@@ -147,7 +145,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initLoadPosts() {
-        restartableFirst(REQUEST_LOAD_POSTS, () -> service.getPosts(teamId, channelId)
+        restartableFirst(REQUEST_LOAD_POSTS, () ->
+                service.getPosts(teamId, channelId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, posts) -> {
@@ -323,30 +322,30 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initLoadBeforeAndAfter() {
         restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
-                Observable.defer(() -> Observable.zip(
-                        service.getExtraInfoChannel(teamId, channelId)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        service.getPostsBefore(teamId, channelId, searchMessageId, limit)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        service.getPost(teamId, channelId, searchMessageId)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        service.getPostsAfter(teamId, channelId, searchMessageId, limit)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        (extraInfo, postsBef, foundPosts, postsAft) -> {
-                            ArrayList<Posts> allPosts = new ArrayList<>();
-                            if (postsAft.getPosts() != null) {
-                                allPosts.add(postsAft);
-                            }
-                            allPosts.add(foundPosts);
-                            if (postsBef.getPosts() != null) {
-                                allPosts.add(postsBef);
-                            }
-                            return allPosts;
-                        }))
+                        Observable.defer(() -> Observable.zip(
+                                service.getExtraInfoChannel(teamId, channelId)
+                                        .observeOn(Schedulers.io())
+                                        .subscribeOn(Schedulers.io()),
+                                service.getPostsBefore(teamId, channelId, searchMessageId, limit)
+                                        .observeOn(Schedulers.io())
+                                        .subscribeOn(Schedulers.io()),
+                                service.getPost(teamId, channelId, searchMessageId)
+                                        .observeOn(Schedulers.io())
+                                        .subscribeOn(Schedulers.io()),
+                                service.getPostsAfter(teamId, channelId, searchMessageId, limit)
+                                        .observeOn(Schedulers.io())
+                                        .subscribeOn(Schedulers.io()),
+                                (extraInfo, postsBef, foundPosts, postsAft) -> {
+                                    ArrayList<Posts> allPosts = new ArrayList<>();
+                                    if (postsAft.getPosts() != null) {
+                                        allPosts.add(postsAft);
+                                    }
+                                    allPosts.add(foundPosts);
+                                    if (postsBef.getPosts() != null) {
+                                        allPosts.add(postsBef);
+                                    }
+                                    return allPosts;
+                                }))
                 , (chatRxFragment, postsAll) -> {
                     PostRepository.remove(new PostByChannelId(channelId));
                     if (postsAll == null) {
@@ -358,7 +357,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         for (Posts posts : postsAll) {
                             PostRepository.prepareAndAdd(posts);
                         }
-                    } catch (Throwable e){
+                    } catch (Throwable e) {
                         e.printStackTrace();
                         sendError(e.getMessage());
                     } finally {
@@ -384,7 +383,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
-        if(isSendingPost) return;
+        if (isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         isSendingPost = true;
         forSendPost = post;
@@ -403,7 +402,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServerError(Post post) {
-        if(isSendingPost) return;
+        if (isSendingPost) return;
         isSendingPost = true;
         forSendPost = post;
         post.setId(null);

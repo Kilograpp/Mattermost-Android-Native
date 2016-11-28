@@ -20,6 +20,8 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository.ChannelDi
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.member.MemberAll;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.team.TeamRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.adapters.ChannelListAdapter;
@@ -195,9 +197,19 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void initView() {
+        initTeamHeader();
         initChannelList();
         initPrivateList();
         initDirectList();
+    }
+
+    private void initTeamHeader() {
+        RealmResults<Team> teams = TeamRepository.query();
+        for (Team item : teams) {
+            if (item.getId().equals(MattermostPreference.getInstance().getTeamId())) {
+                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName().toUpperCase());
+            }
+        }
     }
 
     private void initChannelList() {
@@ -220,7 +232,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void initDirectList() {
-        Log.d(TAG, "initPrivateList");
+        Log.d(TAG, "initDirectList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));

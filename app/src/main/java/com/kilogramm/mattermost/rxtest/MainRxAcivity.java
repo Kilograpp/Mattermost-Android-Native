@@ -27,10 +27,6 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
 
     private ActivityMainBinding binding;
 
-    //
-    Intent intentService;
-    //
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,11 +35,13 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
         initView();
 
         //
-        intentService = new Intent(this, MattermostService.class);
+        Intent intentService = new Intent(this, MattermostService.class);
         if (!isMattermostServiceRunning(MattermostService.class)) {
             startService(intentService);
+            Log.d(TAG, "startService");
         } else {
             stopService(intentService);
+            Log.d(TAG, "stopService");
         }
         //
     }

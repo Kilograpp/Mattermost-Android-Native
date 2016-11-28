@@ -42,14 +42,12 @@ public class SearchMessageAdapter extends RealmRecyclerViewAdapter<Post, SearchM
 
         String messageId = getData().get(position).getId();
         String channelId = getData().get(position).getChannelId();
+        String channelName = holder.getmBinding().chatName.getText().toString();
+        String type = holder.getTypeChannel();
 
         holder.getmBinding().getRoot().setOnClickListener(v -> {
             if (jumpClickListener != null) {
-                jumpClickListener.onJumpClick(
-                        messageId,
-                        channelId,
-                        holder.getmBinding().chatName.getText().toString(),
-                        holder.getTypeChannel());
+                jumpClickListener.onJumpClick(messageId, channelId, channelName, type);
             }
         });
     }
