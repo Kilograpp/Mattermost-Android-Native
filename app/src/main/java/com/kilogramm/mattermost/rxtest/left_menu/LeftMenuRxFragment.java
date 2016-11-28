@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +47,8 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
  */
 
 @RequiresPresenter(LeftMenuRxPresenter.class)
-public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener {
+public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
+                                                                            SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "LEFT_MENU_RX_FRAGMENT";
 
@@ -83,6 +85,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 channelListAdapter.notifyDataSetChanged();
             }
         });
+
+        mBinding.leftSwipeRefresh.setOnRefreshListener(this);
+
         initView();
         return view;
     }
@@ -268,5 +273,11 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 directListAdapter.setSelectedItem(directListAdapter.getPositionById(id));
                 break;
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        getPresenter().requestUpdate();
+        mBinding.leftSwipeRefresh.setRefreshing(false);
     }
 }

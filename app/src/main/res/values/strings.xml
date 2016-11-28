@@ -160,6 +160,7 @@
     <string name="current_email">Current email</string>
     <string name="current_password">Current password</string>
     <string name="edit_email">Edit email</string>
+    <string name="edit_password">Edit password</string>
     <string name="new_password">New password</string>
     <string name="new_password_again">New password again</string>
     <string name="error_in_confirm_password">Incorrect second new password</string>

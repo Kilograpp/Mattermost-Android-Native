@@ -70,12 +70,12 @@ public class ChannelRepository {
     public static void prepareChannelAndAdd(Channel item, String myId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-                String userId;
-                if (item.getType().equals(Channel.DIRECT)) {
-                    userId = getUserId(myId, item);
-                    item.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
-                    item.setUsername(item.getUser().getUsername());
-                }
+            String userId;
+            if (item.getType().equals(Channel.DIRECT)) {
+                userId = getUserId(myId, item);
+                item.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
+                item.setUsername(item.getUser().getUsername());
+            }
             realm1.copyToRealmOrUpdate(item);
         });
     }
@@ -108,7 +108,7 @@ public class ChannelRepository {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             for (Channel channel : channels) {
-                if(channel.getType().equals(Channel.DIRECT)) {
+                if (channel.getType().equals(Channel.DIRECT)) {
                     String name = channel.getName()
                             .replace(MattermostPreference.getInstance().getMyUserId(), "");
                     name = name.replace("__", "");
@@ -146,6 +146,21 @@ public class ChannelRepository {
         public RealmResults<Channel> toRealmResults(Realm realm) {
             return realm.where(Channel.class)
                     .equalTo("id", id)
+                    .findAll();
+        }
+    }
+
+    public static class ChannelByTeamIdSpecification implements RealmSpecification {
+        private final String teamId;
+
+        public ChannelByTeamIdSpecification(String teamId) {
+            this.teamId = teamId;
+        }
+
+        @Override
+        public RealmResults<Channel> toRealmResults(Realm realm) {
+            return realm.where(Channel.class)
+                    .equalTo("team_id", teamId)
                     .findAll();
         }
     }
@@ -197,7 +212,6 @@ public class ChannelRepository {
                     .findAll();
         }
     }
-
     //endregion
 }
 
