@@ -75,6 +75,7 @@
     <string name="file_too_big">File must be less than 50 Mb</string>
     <string name="processing_data">Processing data…</string>
     <string name="no_suitable_app">There is no suitable application on you device</string>
+    <string name="error_retrieving_data">An error occurred while retrieving data</string>
 
     <!--Right MENU-->
 
@@ -109,6 +110,7 @@
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
     <string name="error_during_file_download">Error during file download</string>
+    <string name="error_during_file_upload">Error during file upload</string>
     <string name="file_exists">File exists. Do you want to replace it?</string>
     <string name="replace">Replace</string>
     <string name="open_file">Open file</string>

@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.model.entity.post;
 
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -93,11 +91,11 @@ public class PostRepository {
         if (post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
-            post.getProps().getAttachments().get(0).setText(
+            /*post.getProps().getAttachments().get(0).setText(
                     Processor.process(post.getProps().getAttachments().get(0).getText(),
-                            Configuration.builder().forceExtentedProfile().build()));
+                            Configuration.builder().forceExtentedProfile().build()));*/
         }
-        post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         add(post);
     }
 
@@ -109,13 +107,13 @@ public class PostRepository {
             else
                 post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
             post.setViewed(true);
-            post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+            //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
             if (post.getProps().getFrom_webhook() == null) {
                 post.setProps(null);
-            } else
-                post.getProps().getAttachments().get(0).setText(
+            } else{}
+                /*post.getProps().getAttachments().get(0).setText(
                         Processor.process(post.getProps().getAttachments().get(0).getText(),
-                                Configuration.builder().forceExtentedProfile().build()));
+                                Configuration.builder().forceExtentedProfile().build()));*/
 
         }
         add(posts.getPosts().values());

@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
-import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -37,6 +36,7 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.NetworkUtil;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -232,7 +232,12 @@ public class ManagerBroadcast {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        SpannableStringBuilder receivedPost = getSpannableStringBuilder(post, context, false, false);
+        CharSequence receivedPost;
+        if (post.getProps() != null)
+            receivedPost = PostViewHolder.getMarkdownPost(
+                    post.getProps().getAttachments().get(0).getText(), context);
+        else
+            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);

@@ -72,6 +72,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                 file = new File(fileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
+            if(file.exists()){
+                Log.d(TAG, "initRequests: file exists");
+            }
             FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
 
@@ -98,8 +101,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowToast("Error");
+            sendShowUploadErrorToast("");
             Log.d(TAG, "Error");
+            FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });
     }
@@ -107,6 +111,11 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     public void sendShowToast(String log){
         createTemplateObservable(log)
                 .subscribe(split(AttachedFilesLayout::showToast));
+    }
+
+    public void sendShowUploadErrorToast(String log){
+        createTemplateObservable(log)
+                .subscribe(split(AttachedFilesLayout::showUploadErrorToast));
     }
 
     private void startRequest() {

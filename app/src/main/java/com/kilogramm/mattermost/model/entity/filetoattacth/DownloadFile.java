@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.io.File;
@@ -68,11 +69,14 @@ public class DownloadFile extends AsyncTask<Uri, Void, String> {
         super.onPostExecute(filePath);
         if (!TextUtils.isEmpty(filePath)) {
             downloadFileListener.onDownloadedFile(filePath);
-        } else
-            Toast.makeText(context, "An error occurred while retrieving data", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, context.getString(R.string.error_retrieving_data), Toast.LENGTH_LONG).show();
+            downloadFileListener.onError();
+        }
     }
 
     public interface DownloadFileListener {
         void onDownloadedFile(String filePath);
+        void onError();
     }
 }
