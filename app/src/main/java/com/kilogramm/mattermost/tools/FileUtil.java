@@ -42,9 +42,6 @@ public class FileUtil {
 
     private Context mContext;
 
-    public static final String PNG = "png";
-    public static final String JPG = "jpg";
-
     private static FileUtil ourInstance;
 
     public static FileUtil getInstance() {
@@ -57,12 +54,6 @@ public class FileUtil {
 
     private FileUtil(Context context) {
         this.mContext = context;
-    }
-
-    public String getFileType(String uri) {
-        String filenameArray[] = uri.split("\\.");
-        String extension = filenameArray[filenameArray.length - 1];
-        return extension;
     }
 
     public String getPath(final Uri uri) {
@@ -182,7 +173,7 @@ public class FileUtil {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
         if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         }
         return type;
     }

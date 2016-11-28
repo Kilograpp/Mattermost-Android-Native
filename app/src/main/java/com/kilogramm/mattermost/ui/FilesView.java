@@ -119,25 +119,20 @@ public class FilesView extends GridLayout {
                 for (String fileItem : fileList) {
                     photoUriList.add(getImageUrl(fileItem));
                 }
+                String extension = FileUtil.getInstance().getMimeType(fileName);
+                if(extension.contains("image")) {
+                    binding.image.setVisibility(VISIBLE);
+                    binding.circleFrame.setVisibility(GONE);
+                    initAndAddItem(binding, fileName);
 
-                switch (FileUtil.getInstance().getFileType(fileName)) {
-                    case PNG:
-                    case JPG:
-                        binding.image.setVisibility(VISIBLE);
-                        binding.circleFrame.setVisibility(GONE);
-                        initAndAddItem(binding, fileName);
-
-                        binding.image.setOnClickListener(view ->
+                    binding.image.setOnClickListener(view ->
                             ViewPagerWGesturesActivity.start(getContext(),
                                     binding.title.getText().toString(),
                                     fileName,
                                     (ArrayList<String>) fileList)
-
-                        );
-                        break;
-                    default:
-                        initAndAddItem(binding, fileName);
-                        break;
+                    );
+                } else {
+                    initAndAddItem(binding, fileName);
                 }
             }
         } else {
