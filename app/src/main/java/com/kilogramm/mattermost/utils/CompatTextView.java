@@ -6,8 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
-import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.widget.TextView;
 
 import com.kilogramm.mattermost.R;
 
@@ -16,7 +16,7 @@ import com.kilogramm.mattermost.R;
  */
 
 
-public class CompatTextView extends AppCompatTextView {
+public class CompatTextView extends TextView {
     public CompatTextView(Context context) {
         super(context);
         init(null);
