@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
-import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -31,6 +30,7 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.NetworkUtil;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 import com.squareup.picasso.Picasso;
 
@@ -48,7 +48,6 @@ import java.util.Random;
 import io.realm.RealmList;
 import rx.schedulers.Schedulers;
 
-import static com.kilogramm.mattermost.view.chat.PostViewHolder.getSpannableStringBuilder;
 import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImageUrl;
 
 /**
@@ -216,7 +215,7 @@ public class ManagerBroadcast {
         Notification notification;
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        SpannableStringBuilder receivedPost = getSpannableStringBuilder(post, context, false, false);
+        CharSequence receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(),context);
 
         // intents
         Intent intent = new Intent(context, GeneralRxActivity.class);
