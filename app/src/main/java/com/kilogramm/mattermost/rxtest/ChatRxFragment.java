@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -259,6 +260,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
         setListenerToRootView();
+        binding.writingMessage.setOnClickListener(view ->
+                getUserList(((EditText) view).getText().toString()));
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
@@ -338,18 +341,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                int cursorPos = binding.writingMessage.getSelectionStart();
-                if (cursorPos > 0 && charSequence.toString().contains("@")) {
-                    fabBehavior.lockBehavior();
-                    if (charSequence.charAt(cursorPos - 1) == '@') {
-                        getPresenter().requestGetUsers(null, cursorPos);
-                    } else {
-                        getPresenter().requestGetUsers(charSequence.toString(), cursorPos);
-                    }
-                } else {
-                    fabBehavior.unlockBehavior();
-                    setDropDown(null);
-                }
+                getUserList(charSequence.toString());
             }
 
             @Override
@@ -357,6 +349,23 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             }
         };
+    }
+
+
+    private void getUserList(String text){
+        int cursorPos = binding.writingMessage.getSelectionStart();
+        if (cursorPos > 0 && text.contains("@")) {
+            fabBehavior.lockBehavior();
+            if (text.charAt(cursorPos - 1) == '@') {
+                getPresenter().requestGetUsers(null, cursorPos);
+            } else {
+                getPresenter().requestGetUsers(
+                        text, cursorPos);
+            }
+        } else {
+            fabBehavior.unlockBehavior();
+            setDropDown(null);
+        }
     }
 
     @Override
@@ -697,19 +706,37 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void addUserLinkMessage(String s) {
-        int position = 0;
-        int count = 0;
+        StringBuffer nameBufferStart = new StringBuffer(binding.writingMessage.getText().toString());
         int cursorPos = binding.writingMessage.getSelectionStart();
-        String message = binding.writingMessage.getText().toString();
-        String[] username = message.split("@");
-        for (String test : username) {
-            count = count + test.length();
-            if (cursorPos < count)
-                break;
-            position++;
+
+        if (cursorPos != 0 && cursorPos == nameBufferStart.length()
+                && nameBufferStart.charAt(cursorPos - 1) == '@') {
+            binding.writingMessage.append(String.format("%s ", s));
+            binding.writingMessage.setSelection(binding.writingMessage.getText().length());
+            return;
         }
-        binding.writingMessage.getSelectionStart();
-        binding.writingMessage.append(s + " ");
+        if (cursorPos < nameBufferStart.length())
+            nameBufferStart.delete(cursorPos, nameBufferStart.length());
+        String[] username = nameBufferStart.toString().split("@");
+        nameBufferStart = new StringBuffer();
+        int count = 1;
+        if (username.length == 0) {
+            nameBufferStart.append(String.format("@%s ", s));
+        }
+        for (String element : username) {
+            if (count == username.length)
+                nameBufferStart.append(String.format("%s ", s));
+            else
+                nameBufferStart.append(String.format("%s@", element));
+            count++;
+        }
+
+        StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
+        if (cursorPos < nameBufferStart.length())
+            nameBufferEnd.delete(0, cursorPos);
+
+        binding.writingMessage.setText(nameBufferStart.toString() + nameBufferEnd.toString());
+        binding.writingMessage.setSelection(nameBufferStart.length());
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.kilogramm.mattermost.model.entity.user;
 
-import android.util.Log;
-
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.RealmSpecification;
 
@@ -37,8 +35,6 @@ public class UserByNameSearchSpecification implements RealmSpecification {
                 nameBuffer.delete(cursorPos, nameBuffer.length());
             String[] username = nameBuffer.toString().split("@");
             nameBuffer = new StringBuffer(username[username.length - 1]);
-            Log.d("TEST", "toRealmResults: s = " + nameBuffer.toString());
-
 
             return realm.where(User.class)
                     .isNotNull("id")
