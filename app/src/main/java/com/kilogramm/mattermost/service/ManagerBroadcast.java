@@ -215,7 +215,12 @@ public class ManagerBroadcast {
         Notification notification;
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        CharSequence receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(),context);
+        CharSequence receivedPost;
+        if (post.getProps() != null)
+            receivedPost = PostViewHolder.getMarkdownPost(
+                    post.getProps().getAttachments().get(0).getText(), context);
+        else
+            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
 
         // intents
         Intent intent = new Intent(context, GeneralRxActivity.class);
