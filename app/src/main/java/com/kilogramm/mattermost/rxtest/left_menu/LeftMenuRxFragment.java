@@ -101,7 +101,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 Log.d(TAG, "onActivityResult: REQUEST_JOIN_DIRECT");
                 handleRequestJoinDirect(data);
             }
-            if(requestCode == REQUEST_JOIN_CHANNEL){
+            if (requestCode == REQUEST_JOIN_CHANNEL) {
                 Log.d(TAG, "onActivityResult: REQUEST_JOIN_CHANNEL");
                 handleRequestJoinChannel(data);
             }
@@ -124,7 +124,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         if (channels.size() == 0) {
             getPresenter().requestSaveData(saveData, userTalkToId);
         } else {
-            onChannelClick(channels.get(0).getId(),channels.get(0).getUsername(), channels.get(0).getType());
+            onChannelClick(channels.get(0).getId(), channels.get(0).getUsername(), channels.get(0).getType());
         }
     }
 
@@ -169,7 +169,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 privateListAdapter.setSelectedItem(NOT_SELECTED);
                 break;
         }
-        if(!itemId.equals(MattermostPreference.getInstance().getLastChannelId())){
+        if (!itemId.equals(MattermostPreference.getInstance().getLastChannelId())) {
             sendOnChange(itemId, name);
             MattermostPreference.getInstance().setLastChannelId(itemId);
         }
@@ -234,7 +234,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void openMore(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.btnMoreChannel:
                 AddExistingChannelsActivity.startActivityForResult(this, REQUEST_JOIN_CHANNEL);
                 break;
@@ -245,7 +245,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
-        switch (typeChannel){
+        switch (typeChannel) {
             case Channel.OPEN:
                 channelListAdapter.setSelectedItem(channelListAdapter.getPositionById(id));
                 break;

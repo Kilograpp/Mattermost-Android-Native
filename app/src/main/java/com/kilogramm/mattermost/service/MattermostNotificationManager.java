@@ -25,7 +25,6 @@ public class MattermostNotificationManager {
 
     private MattermostService service;
 
-
     public MattermostNotificationManager(MattermostService service) {
         this.service = service;
     }

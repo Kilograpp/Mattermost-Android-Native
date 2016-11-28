@@ -15,6 +15,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".service.ManagerBroadcast$CloseButtonReceiver">
+            <intent-filter>
+                <action android:name="close_notification"/>
+            </intent-filter>
+        </receiver>
         <receiver android:name=".service.websocket.NetworkStateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -87,7 +92,12 @@
 
         <activity
             android:name=".rxtest.GeneralRxActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="OPEN_DIALOG" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"

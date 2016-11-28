@@ -19,7 +19,7 @@ public class ChannelByHadleSpecification implements RealmSpecification {
     @Override
     public RealmResults toRealmResults(Realm realm) {
         return realm.where(Channel.class)
-                .equalTo("name",id)
+                .equalTo("name", id)
                 .findAll();
     }
 }

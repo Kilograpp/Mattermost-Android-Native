@@ -127,6 +127,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+    private BroadcastReceiver brReceiverNotifications;
 
     private ScrollAwareFabBehavior fabBehavior;
 
@@ -179,6 +180,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 }
             }
         };
+
+        brReceiverNotifications = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent intentService = new Intent(context, MattermostService.class);
+                context.startService(intentService);
+            }
+        };
+
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
@@ -265,7 +275,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.updateData(realmResult);
+        if (binding.writingMessage.getText().length() > 0)
+            dropDownListAdapter.updateData(realmResult);
+        else
+            dropDownListAdapter.updateData(null);
     }
 
     public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
@@ -336,7 +349,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -352,7 +364,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
 
-    private void getUserList(String text){
+    private void getUserList(String text) {
+        Log.d(TAG, "getUserList: true");
         int cursorPos = binding.writingMessage.getSelectionStart();
         if (cursorPos > 0 && text.contains("@")) {
             fabBehavior.lockBehavior();
@@ -363,8 +376,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         text, cursorPos);
             }
         } else {
-            fabBehavior.unlockBehavior();
+            Log.d(TAG, "getUserList: false");
             setDropDown(null);
+            fabBehavior.unlockBehavior();
         }
     }
 
