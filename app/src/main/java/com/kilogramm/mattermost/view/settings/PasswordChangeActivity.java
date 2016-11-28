@@ -42,7 +42,7 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
 
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(getString(R.string.edit_email));
+        getSupportActionBar().setTitle(getString(R.string.edit_password));
     }
 
     @Override

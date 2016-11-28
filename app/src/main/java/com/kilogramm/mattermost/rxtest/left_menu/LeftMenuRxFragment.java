@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository.ChannelDi
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.member.MemberAll;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
+import com.kilogramm.mattermost.model.entity.team.TeamRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.adapters.ChannelListAdapter;
@@ -44,8 +47,8 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
  */
 
 @RequiresPresenter(LeftMenuRxPresenter.class)
-public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener {
-
+public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
+                                                                            SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "LEFT_MENU_RX_FRAGMENT";
 
     private static final int NOT_SELECTED = -1;
@@ -81,6 +84,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 channelListAdapter.notifyDataSetChanged();
             }
         });
+
+        mBinding.leftSwipeRefresh.setOnRefreshListener(this);
+
         initView();
         return view;
     }
@@ -195,9 +201,19 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void initView() {
+        initTeamHeader();
         initChannelList();
         initPrivateList();
         initDirectList();
+    }
+
+    private void initTeamHeader() {
+        RealmResults<Team> teams = TeamRepository.query();
+        for (Team item : teams) {
+            if (item.getId().equals(MattermostPreference.getInstance().getTeamId())) {
+                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName().toUpperCase());
+            }
+        }
     }
 
     private void initChannelList() {
@@ -220,7 +236,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void initDirectList() {
-        Log.d(TAG, "initPrivateList");
+        Log.d(TAG, "initDirectList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -256,5 +272,11 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 directListAdapter.setSelectedItem(directListAdapter.getPositionById(id));
                 break;
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        getPresenter().requestUpdate();
+        mBinding.leftSwipeRefresh.setRefreshing(false);
     }
 }

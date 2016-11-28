@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -16,10 +15,10 @@ import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -108,7 +107,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     channelsList.addAll(channelsWithMembers.getChannels());
                     ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
                     ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-                    String channelName = channel.getDisplayName() == "" ? channel.getName() : channel.getDisplayName();
+                    String channelName = Objects.equals(channel.getDisplayName(), "") ? channel.getName() : channel.getDisplayName();
                     sendSetProgress(false);
                     sendFinish(channelId, channelName, channel.getType());
                 });

@@ -1,14 +1,19 @@
 package com.kilogramm.mattermost.service;
 
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.rxtest.MainRxAcivity;
 import com.kilogramm.mattermost.service.websocket.WebSocketManager;
 
 
@@ -50,10 +55,24 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         Log.d(TAG, "onStartCommand action:" + intent.getAction());
         if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
+
+//            Intent notificationIntent = new Intent(this, MainRxAcivity.class);
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+//                    notificationIntent, 0);
+//            Notification notification = new NotificationCompat.Builder(this)
+//                    .setContentTitle("Truiton Music Player")
+//                    .setTicker("Truiton Music Player")
+//                    .setContentText("My Music")
+//                    .setSmallIcon(R.drawable.attach_doc_icon)
+//                    .setContentIntent(pendingIntent)
+//                    .setOngoing(true)
+//                    .build();
+//            startForeground(101, notification);
         }
         if (UPDATE_USER_STATUS.equals(intent.getAction())) {
             mWebSocketManager.updateUserStatusNow();
         }
+
         //return Service.START_STICKY;
         return START_REDELIVER_INTENT;
     }
