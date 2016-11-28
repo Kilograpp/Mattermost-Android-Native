@@ -66,6 +66,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     private User user;
     private RealmChangeListener<User> userRealmChangeListener;
 
+    private Boolean isNotification = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +76,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         setupRightMenu();
         showProgressBar();
         MattermostService.Helper.create(this).startWebSocket();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         parceIntent(getIntent());
     }
 
@@ -219,11 +225,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     public void setFragmentChat(String channelId, String channelName, String type) {
         if (currentChannel.equals("")) {
             replaceFragment(channelId, channelName);
-//            leftMenuRxFragment.setSelectItemMenu(channelId, type);
+            leftMenuRxFragment.setSelectItemMenu(channelId, type);
         }
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
-//        leftMenuRxFragment.onChannelClick(channelId, channelName, type);
+        leftMenuRxFragment.onChannelClick(channelId, channelName, type);
     }
 
     private void replaceFragment(String channelId, String channelName) {
@@ -267,8 +273,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             String openChannelName = intent.getStringExtra(CHANNEL_NAME);
             String openChannelType = intent.getStringExtra(CHANNEL_TYPE);
             this.setFragmentChat(openChannelId, openChannelName, openChannelType);
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void showMainRxActivity() {

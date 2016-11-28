@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.realm.RealmList;
 import rx.schedulers.Schedulers;
@@ -285,7 +286,11 @@ public class ManagerBroadcast {
         Intent intent = new Intent(context, GeneralRxActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(CHANNEL_ID, channel.getId());
-        intent.putExtra(CHANNEL_NAME, channel.getName());
+        if (Objects.equals(channel.getType(), Channel.DIRECT)) {
+            intent.putExtra(CHANNEL_NAME, channel.getUsername());
+        } else {
+            intent.putExtra(CHANNEL_NAME, channel.getDisplayName());
+        }
         intent.putExtra(CHANNEL_TYPE, channel.getType());
         return intent;
     }
