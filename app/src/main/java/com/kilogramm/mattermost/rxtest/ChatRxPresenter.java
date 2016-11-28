@@ -6,8 +6,6 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Processor;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -177,9 +175,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
                     post.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId())).first());
-                    post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
+                    //TODO markdown cpp
+                    /*post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
                             .forceExtentedProfile()
-                            .build()));
+                            .build()));*/
                     PostRepository.removeTempPost(post.getPendingPostId());
                     PostRepository.add(post);
                     isSendingPost = false;
@@ -396,7 +395,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
                 .first());
-        forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        //TODO markdown cpp
+        //forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
         PostRepository.add(forSavePost);
     }

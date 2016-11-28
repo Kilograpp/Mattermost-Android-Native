@@ -167,7 +167,7 @@
                     android:layout_weight="1"
                     android:background="@color/white"
                     android:hint="@string/type_something"
-                    android:inputType="textCapSentences"
+                    android:inputType="textCapSentences|textMultiLine"
                     android:padding="10dp"
                     android:textColor="@color/black"
                     android:textColorHint="@color/very_light_grey" />

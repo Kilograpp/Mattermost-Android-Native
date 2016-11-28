@@ -26,6 +26,9 @@ import com.vdurmont.emoji.EmojiParser;
 
 import java.util.regex.Pattern;
 
+import in.uncod.android.bypass.Bypass;
+
+
 /**
  * Created by Evgeny on 31.10.2016.
  */
@@ -80,8 +83,20 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         if(post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.VISIBLE);
-            SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
-            ((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
+
+            CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(post.getMessage()));
+            Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
+            Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+
+            Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+                spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return true;
+            }, null);
+
+            ((ChatListItemBinding) mBinding).message.setText(spannable);
+           //SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
+            //((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
             ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
@@ -124,8 +139,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             ((ChatListItemBinding) mBinding).filesViewRoot.setItems(root.getFilenames());
             ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
             ((ChatListItemBinding) mBinding).nickRootPost.setText(root.getUser().getUsername());
-            ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost, ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
-            ((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, (mBinding).getRoot().getContext())).toString().trim());
+            ((ChatListItemBinding) mBinding).getViewModel().loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
+                    ((ChatListItemBinding) mBinding).getViewModel().getUrl(root));
+
+            CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(root.getMessage()));
+            ((ChatListItemBinding) mBinding).message.setText(string);
+            ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
+            //((ChatListItemBinding) mBinding).messageRootPost.setText(revertSpanned(getSpannableStringBuilder(root, (mBinding).getRoot().getContext())).toString().trim());
         }
     }
 
