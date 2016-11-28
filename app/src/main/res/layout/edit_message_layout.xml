@@ -43,14 +43,14 @@
                         android:text="@string/edit_message"
                         android:textColor="@color/colorPrimaryDark" />
 
-                        <TextView
-                            android:id="@+id/editable_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Hello there! How are you? Just testing"
-                            android:maxLines="1"
-                            android:ellipsize="end"
-                            android:textColor="@color/black" />
+                    <TextView
+                        android:id="@+id/editable_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Hello there! How are you? Just testing"
+                        android:textColor="@color/black" />
 
                 </LinearLayout>
 
