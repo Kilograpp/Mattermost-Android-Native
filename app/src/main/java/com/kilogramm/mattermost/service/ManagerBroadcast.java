@@ -251,7 +251,7 @@ public class ManagerBroadcast {
         remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
                     .setContentTitle("New message from " + userName)
