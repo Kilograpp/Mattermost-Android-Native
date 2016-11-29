@@ -72,13 +72,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         requestDirectProfile();
     }
 
-    @Override
-    public void takeView(GeneralRxActivity generalActivity) {
-        super.takeView(generalActivity);
-        setSelectedLast(MattermostPreference.getInstance().getLastChannelId());
-    }
 
-    //TODO review evgenysuetin
+
+    /*//TODO review evgenysuetin
     public void setSelectedLast(String id) {
         Log.d(TAG, "setSelectedLast");
         Channel channel;
@@ -106,7 +102,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 });
             }
         }
-    }
+    }*/
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
@@ -142,9 +138,20 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
                         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
-                        sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                        //sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
                             sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                        }
+                    } else {
+                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(
+                                MattermostPreference.getInstance().getLastChannelId())).first();
+                        switch (channel.getType()){
+                            case Channel.DIRECT:
+                                sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                                break;
+                            default:
+                                sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                                break;
                         }
                     }
                 }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
