@@ -104,26 +104,31 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     }
 
     private void setupDownloadIcon(String fileName) {
-        // TODO нужно для показывания прогрессБара в тулбаре при скачивании. Работает с косяками, потому откатился
-        /*FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(clickedImageUri);
-        if (fileToAttach != null && fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-            findViewById(R.id.progressBar).setVisibility(View.GONE);
-        } else if (fileToAttach != null && (fileToAttach.getUploadState() == UploadState.DOWNLOADING
-                || fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-            findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
-            findViewById(R.id.progressBar).setVisibility(View.GONE);
-        }*/
+        String workingFileUri = fileName != null ? fileName : clickedImageUri;
         FileToAttach fileToAttach = FileToAttachRepository.getInstance().
-                get(fileName != null ? fileName : clickedImageUri);
-        if (fileToAttach != null) {
+                get(workingFileUri);
+        File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                + File.separator
+                + FileUtil.getInstance().getFileNameFromIdDecoded(workingFileUri));
+
+        if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD){
+            findViewById(R.id.action_download).setVisibility(View.GONE);
+        } else if(fileToAttach != null && file.exists()){
             findViewById(R.id.action_download).setVisibility(View.GONE);
         } else {
+            FileToAttachRepository.getInstance().updateUploadStatus(workingFileUri,
+                    UploadState.WAITING_FOR_DOWNLOAD);
             findViewById(R.id.action_download).setVisibility(View.VISIBLE);
         }
+/*
+        if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD
+                || fileToAttach != null && file.exists()) {
+            findViewById(R.id.action_download).setVisibility(View.GONE);
+        } else {
+            FileToAttachRepository.getInstance().updateUploadStatus(workingFileUri,
+                    UploadState.WAITING_FOR_DOWNLOAD);
+            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+        }*/
     }
 
     @Override
