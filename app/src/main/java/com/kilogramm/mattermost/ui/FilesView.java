@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
@@ -102,6 +103,12 @@ public class FilesView extends GridLayout {
                         createControlsClickListener(fileName, fileDownloadListener, binding)
                 );
 
+
+                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator
+                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+
+
                 FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
                 if (fileToAttach != null &&
                         (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
@@ -113,12 +120,13 @@ public class FilesView extends GridLayout {
                     setupFileClickListeners(binding, fileName);
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else if (fileToAttach != null && file.exists()){
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else {
+                    binding.downloadFileControls.hideProgressControls();
                 }
 
-                ArrayList<String> photoUriList = new ArrayList<>();
-                for (String fileItem : fileList) {
-                    photoUriList.add(getImageUrl(fileItem));
-                }
                 String extension = FileUtil.getInstance().getMimeType(fileName);
                 if(extension.contains("image")) {
                     binding.image.setVisibility(VISIBLE);
