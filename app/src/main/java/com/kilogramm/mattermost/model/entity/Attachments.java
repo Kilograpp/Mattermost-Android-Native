@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.model.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -14,11 +13,9 @@ import io.realm.RealmObject;
  */
 
 public class Attachments extends RealmObject implements Parcelable {
-    @NonNull
     @SerializedName("color")
     @Expose
     private String color;
-    @NonNull
     @SerializedName("fallback")
     @Expose
     private String fallback;
@@ -28,7 +25,6 @@ public class Attachments extends RealmObject implements Parcelable {
 //        @SerializedName("mrkdw_in")
 //        @Expose
 //        private RealmList<RealmString> mrkdw_in;
-    @NonNull
     @SerializedName("text")
     @Expose
     private String text;

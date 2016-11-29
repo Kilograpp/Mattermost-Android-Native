@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.model.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -15,17 +14,14 @@ import io.realm.RealmObject;
  */
 
 public class Prop extends RealmObject implements Parcelable {
-    @NonNull
     @SerializedName("from_webhook")
     @Expose
     private String from_webhook;
     @SerializedName("override_username")
     @Expose
-    @NonNull
     private String override_username;
     @SerializedName("attachments")
     @Expose
-    @NonNull
     private RealmList<Attachments> attachments;
 
     public String getFrom_webhook() {

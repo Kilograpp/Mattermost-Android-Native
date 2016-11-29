@@ -8,7 +8,6 @@
         android:layout_height="?android:actionBarSize"
         android:background="@color/colorPrimary">
 
-        <!--TODO почему тут button? и вообще зачем?-->
         <Button
             android:id="@+id/channel_title"
             android:layout_width="wrap_content"
@@ -26,7 +25,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_margin="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="5dp"
             android:clickable="true"
             app:srcCompat="@drawable/ic_search_white_24dp" />
     </android.support.v7.widget.Toolbar>

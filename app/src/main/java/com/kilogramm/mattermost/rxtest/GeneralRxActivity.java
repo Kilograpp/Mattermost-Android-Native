@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -87,8 +88,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == android.R.id.home) {
-            binding.drawerLayout.openDrawer(GravityCompat.START);
+        switch (id){
+            case android.R.id.home:
+                binding.drawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.openMenu:
+                binding.drawerLayout.openDrawer(GravityCompat.END);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -290,6 +295,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     public void showErrorText(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_general, menu);
+        return true;
     }
 
     @Override
