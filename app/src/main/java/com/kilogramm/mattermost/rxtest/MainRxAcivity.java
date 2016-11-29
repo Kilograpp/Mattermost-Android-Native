@@ -39,10 +39,10 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
         if (!isMattermostServiceRunning(MattermostService.class)) {
             startService(intentService);
             Log.d(TAG, "startService");
-        } /*else {
+        } else {
             stopService(intentService);
             Log.d(TAG, "stopService");
-        }*/
+        }
         //
     }
     //

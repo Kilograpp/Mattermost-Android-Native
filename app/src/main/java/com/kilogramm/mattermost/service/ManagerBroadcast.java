@@ -35,6 +35,7 @@ import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
@@ -225,19 +226,34 @@ public class ManagerBroadcast {
     private static void createNotificationNEW(Post post, Context context) {
         Notification notification;
 
+        NotificationManager notificationManager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
         String userName = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()))
                 .first()
                 .getUsername();
 
-        NotificationManager notificationManager = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String notificationTitle = "New message from " + userName;
 
         CharSequence receivedPost;
-        if (post.getProps() != null)
-            receivedPost = PostViewHolder.getMarkdownPost(
-                    post.getProps().getAttachments().get(0).getText(), context);
-        else
-            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
+        if (post.getProps() != null) {
+//            notificationTitle = post.getProps().getOverride_username();
+//            receivedPost = PostViewHolder.getMarkdownPost(
+//                    post.getProps().getAttachments().get(0).getText(), context);
+            receivedPost = context.getResources().getString(R.string.notification_sent_attachment);
+        } else {
+//            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
+            if (post.getFilenames().size() != 0) {
+                String fileType = FileUtil.getInstance().getMimeType(post.getFilenames().get(0));
+                if(fileType.contains("image")) {
+                    receivedPost = context.getResources().getString(R.string.notification_sent_pic);
+                } else {
+                    receivedPost = context.getResources().getString(R.string.notification_sent_file);
+                }
+            } else {
+                receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
+            }
+        }
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);
@@ -247,14 +263,15 @@ public class ManagerBroadcast {
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
-        remoteViews.setTextViewText(R.id.title, userName);
-        remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
+        remoteViews.setTextViewText(R.id.title, notificationTitle);
+        //remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
+        remoteViews.setTextViewText(R.id.text, receivedPost);
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
-                    .setContentTitle("New message from " + userName)
+                    .setContentTitle(notificationTitle)
                     .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(Notification.PRIORITY_HIGH)
@@ -266,7 +283,7 @@ public class ManagerBroadcast {
         } else {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
-                    .setContentTitle("New message from " + userName)
+                    .setContentTitle(notificationTitle)
                     .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(PRIORITY_MAX)
