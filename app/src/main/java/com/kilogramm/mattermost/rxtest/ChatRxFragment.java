@@ -59,6 +59,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -552,6 +553,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (newState == 2)
+                    BaseActivity.hideKeyboard(getActivity());
             }
         });
 
