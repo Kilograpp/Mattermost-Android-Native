@@ -32,6 +32,7 @@ public class MattermostNotificationManager {
     public void handleSocket(WebSocketObj webSocketObj){
         switch (webSocketObj.getEvent()){
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
+                requestGetChannel(webSocketObj);
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 PostRepository.remove(webSocketObj.getData().getPost());

@@ -90,9 +90,12 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
         createTemplateObservable(new Channel(channelId, name, type))
-                .subscribe(split((leftMenuRxFragment, channel) ->
-                        leftMenuRxFragment.onChannelClick(channel.getId(),
-                                channel.getName(),
-                                channel.getType())));
+                .subscribe(split((leftMenuRxFragment, channel) -> {
+                    leftMenuRxFragment.onChannelClick(channel.getId(),
+                            channel.getName(),
+                            channel.getType());
+                    leftMenuRxFragment.setSelectItemMenu(channel.getId(),
+                            channel.getType());
+                }));
     }
 }
