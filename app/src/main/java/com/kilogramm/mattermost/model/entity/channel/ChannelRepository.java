@@ -101,6 +101,7 @@ public class ChannelRepository {
             }
             channel.setTotalMsgCount(channel.getTotalMsgCount()); //TODO fix me
             realm1.copyToRealmOrUpdate(channel);
+            realm1.close();
         });
     }
 

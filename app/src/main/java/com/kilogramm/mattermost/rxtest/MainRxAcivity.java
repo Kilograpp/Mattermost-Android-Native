@@ -39,13 +39,12 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
         if (!isMattermostServiceRunning(MattermostService.class)) {
             startService(intentService);
             Log.d(TAG, "startService");
-        } else {
+        } /*else {
             stopService(intentService);
             Log.d(TAG, "stopService");
-        }
+        }*/
         //
     }
-
     //
     private boolean isMattermostServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
