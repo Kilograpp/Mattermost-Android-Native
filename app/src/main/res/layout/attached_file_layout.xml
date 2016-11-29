@@ -43,7 +43,7 @@
                 app:mpb_progressStyle="circular"
                 app:theme="@style/ProgressWhite" />
 
-            <TextView
+            <com.kilogramm.mattermost.ui.EllipsizingTextView
                 android:id="@+id/fileName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
