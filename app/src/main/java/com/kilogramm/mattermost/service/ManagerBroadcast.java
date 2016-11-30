@@ -35,6 +35,7 @@ import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
@@ -54,7 +55,6 @@ import io.realm.RealmList;
 import rx.schedulers.Schedulers;
 
 import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
-import static com.kilogramm.mattermost.view.chat.PostViewHolder.getSpannableStringBuilder;
 import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImageUrl;
 
 /**
@@ -62,16 +62,15 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImag
  */
 public class ManagerBroadcast {
     public static final String TAG = "ObjectUtil";
-    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
-
-    public static final String CLOSE_NOTIFICATION = "close_notification";
     public static final String CHANNEL_ID = "CHANNEL_ID";
     public static final String CHANNEL_NAME = "CHANNEL_NAME";
     public static final String CHANNEL_TYPE = "CHANNEL_TYPE";
+    private static final String NOTIFICATION_ID = "NOTIFICATION_ID";
+    private static final String CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
 
     private static final int NOTIFY_ID = 1;
 
-    public Context mContext;
+    private Context mContext;
     private ApiMethod service;
 
     private Gson gson;
@@ -114,9 +113,7 @@ public class ManagerBroadcast {
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
-                        .setMentions((mentions != null)
-                                ? mentions
-                                : "")
+                        .setMentions((mentions != null) ? mentions : "")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
                         .setTeamId(dataJSON.getString(WebSocketObj.TEAM_ID))
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
@@ -124,7 +121,6 @@ public class ManagerBroadcast {
 
                 savePost(data.getPost());
                 if (!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
-//                    createNotification(data.getPost(), context);
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
@@ -211,54 +207,35 @@ public class ManagerBroadcast {
                 .build();
     }
 
-//    private static void createNotification(Post post, Context context) {
-//        Notification.Builder builder = new Notification.Builder(context)
-//                .setContentTitle("New message from " + post.getUser().getUsername())
-//                .setContentText(Html.fromHtml(post.getMessage()))
-//                .setSmallIcon(R.mipmap.icon);
-//        Notification notification = builder.build();
-//        notification.flags = Notification.FLAG_AUTO_CANCEL;
-//        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//        manager.notify(1, notification);
-//    }
-
     private static void createNotificationNEW(Post post, Context context) {
         Notification notification;
-
-        String userName = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()))
-                .first()
-                .getUsername();
 
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        CharSequence receivedPost;
-        if (post.getProps() != null)
-            receivedPost = PostViewHolder.getMarkdownPost(
-                    post.getProps().getAttachments().get(0).getText(), context);
-        else
-            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(post.getChannelId())).first();
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);
+                openDialogIntent(context, channel), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
                 closeNotificationIntent(context), 0);
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
+        remoteViews.setTextViewText(R.id.title, setNotificationTitle(channel, post.getUserId()));
+        remoteViews.setTextViewText(R.id.text, displayedMessage(post, context));
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
-        remoteViews.setTextViewText(R.id.title, userName);
-        remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
-                    .setContentTitle("New message from " + userName)
-                    .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent);
+                    .setContentIntent(pIntent)
+                    .setContent(remoteViews)
+                    .setAutoCancel(true);
 
             notification = builder.build();
             notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR;
@@ -266,12 +243,11 @@ public class ManagerBroadcast {
         } else {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
-                    .setContentTitle("New message from " + userName)
-                    .setContentText(receivedPost)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pIntent)
-                    .setContent(remoteViews);
+                    .setContent(remoteViews)
+                    .setAutoCancel(true);
 
             notification = builderCompat.build();
             notificationManager.notify(NOTIFY_ID, notification);
@@ -285,8 +261,36 @@ public class ManagerBroadcast {
                         .into(remoteViews, R.id.avatar, NOTIFY_ID, notification));
     }
 
-    private static Intent openDialogIntent(String channelId, Context context) {
-        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+    private static String setNotificationTitle(Channel channel, String userId) {
+        String userName = UserRepository.query(new UserRepository.UserByIdSpecification(userId))
+                .first()
+                .getUsername();
+
+        if (channel.getType().equals(Channel.DIRECT)) {
+            return "Direct message from " + channel.getUsername();
+        } else {
+            return userName + " in " + channel.getDisplayName();
+        }
+    }
+
+    private static CharSequence displayedMessage(Post post, Context context) {
+        if (post.getProps() != null) {
+            return context.getResources().getString(R.string.notification_sent_attachment);
+        } else {
+            if (post.getFilenames().size() != 0) {
+                String fileType = FileUtil.getInstance().getMimeType(post.getFilenames().get(0));
+                if (fileType.contains("image")) {
+                    return context.getResources().getString(R.string.notification_sent_pic);
+                } else {
+                    return context.getResources().getString(R.string.notification_sent_file);
+                }
+            } else {
+                return PostViewHolder.getMarkdownPost(post.getMessage(), context);
+            }
+        }
+    }
+
+    private static Intent openDialogIntent(Context context, Channel channel) {
         Intent intent = new Intent(context, GeneralRxActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(CHANNEL_ID, channel.getId());
@@ -306,7 +310,7 @@ public class ManagerBroadcast {
         return intent;
     }
 
-    public static void savePost(Post post) {
+    private static void savePost(Post post) {
         PostRepository.prepareAndAddPost(post);
     }
 

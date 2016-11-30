@@ -63,11 +63,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     String currentChannel = "";
 
     private String searchMessageId;
-
     private User user;
     private RealmChangeListener<User> userRealmChangeListener;
-
-    private Boolean isNotification = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,7 +85,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case android.R.id.home:
                 binding.drawerLayout.openDrawer(GravityCompat.START);
                 break;
@@ -118,10 +115,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 ((ChatRxFragment) getFragmentManager()
                         .findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
-                                .query(new ChannelRepository
-                                        .ChannelByIdSpecification(currentChannel))
-                                .first()
-                                .getDisplayName());
+                                .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
+                                        .first()
+                                        .getDisplayName());
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
@@ -155,13 +151,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     private void setupRightMenu() {
         binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
                 MattermostPreference.getInstance().getMyUserId()));
-        RealmResults users = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
+        RealmResults users = UserRepository.query(
+                new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
         if (users != null) {
-            user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-            user.addChangeListener(userRealmChangeListener = element -> {
-                Log.d(TAG, "OnChange users");
-                updateHeaderUserName(element);
-            });
+            user = UserRepository.query(new UserRepository.UserByIdSpecification(
+                    MattermostPreference.getInstance().getMyUserId())).first();
+            user.addChangeListener(userRealmChangeListener = this::updateHeaderUserName);
             updateHeaderUserName(user);
             Picasso.with(this)
                     .load(getAvatarUrl())
@@ -203,7 +198,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void updateHeaderUserName(User user) {
-        binding.headerUsername.setText("@" + user.getUsername());
+        binding.headerUsername.setText(String.format("@ %s", user.getUsername()));
     }
 
     private void showFiles() {
@@ -217,7 +212,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 .replace(binding.leftContainer.getId(), leftMenuRxFragment)
                 .commit();
         leftMenuRxFragment.setOnChannelChangeListener(this);
-
     }
 
     public void closeProgressBar() {
@@ -259,7 +253,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             if (searchMessageId != null) {
                 ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
                 currentChannel = channelId;
-                getFragmentManager().beginTransaction()
+                getFragmentManager()
+                        .beginTransaction()
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
                 MattermostPreference.getInstance().setLastChannelId(channelId);
@@ -267,7 +262,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 this.searchMessageId = null;
             }
         }
-        if(searchMessageId!=null){
+        if (searchMessageId != null) {
             searchMessageId = null;
         }
     }
@@ -292,9 +287,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void showMainRxActivity() {
-        MainRxAcivity.start(this,
-                Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        MainRxActivity.start(this,
+                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
     public void showTeemChoose() {

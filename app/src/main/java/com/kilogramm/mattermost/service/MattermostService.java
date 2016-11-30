@@ -1,19 +1,14 @@
 package com.kilogramm.mattermost.service;
 
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
-import com.kilogramm.mattermost.rxtest.MainRxAcivity;
 import com.kilogramm.mattermost.service.websocket.WebSocketManager;
 
 
@@ -56,7 +51,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
 
-//            Intent notificationIntent = new Intent(this, MainRxAcivity.class);
+//            Intent notificationIntent = new Intent(this, MainRxActivity.class);
 //            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 //                    notificationIntent, 0);
 //            Notification notification = new NotificationCompat.Builder(this)

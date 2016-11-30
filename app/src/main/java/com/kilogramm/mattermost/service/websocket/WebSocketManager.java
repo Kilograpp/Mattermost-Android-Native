@@ -25,11 +25,8 @@ public class WebSocketManager {
 
     private static final String TAG = "Websocket";
 
-    // TODO неюзабельные константы. Удалить?
     private static final String HEADER_WEB_SOCKET = "Cookie";
-    public static final int TIME_REPEAT_CONNEСT = 10 * 1000;
     public static final int TIME_REPEAT_RECONNECT = 30 * 1000;
-    public static final int TIME_REPEAT_UPDATE_USER = 30 * 1000;
 
     private static WebSocket webSocket = null;
 

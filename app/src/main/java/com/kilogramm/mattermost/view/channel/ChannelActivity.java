@@ -34,10 +34,9 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChannelPresenter.class)
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
-    public static final String LEAVED_CHANNEL = "leaved_channel";
-
     private static final String CHANNEL_ID = "channel_id";
     public static final int REQUEST_ID = 201;
+
     ChannelActivityBinding binding;
     String channelId;
     AllMembersAdapter allMembersAdapter;
@@ -52,7 +51,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         setToolbar();
         initClick();
         setCTollBarTitle(getPresenter().getChannel().getDisplayName());
-
     }
 
     public void setCTollBarTitle(final String name) {
@@ -95,9 +93,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void initiationData(ExtraInfo extraInfo) {
         setAdapter(extraInfo);
 
-        binding.countMembers.setText(String.format("%s %s",
-                extraInfo.getMember_count(),
-                getString(R.string.channel_info_count_members)));
+        binding.countMembers.setText(String.format("%s %s", extraInfo.getMember_count(), getString(R.string.channel_info_count_members)));
 
         Channel channel = getPresenter().getChannel();
 
@@ -125,7 +121,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
 
-
     private String getMessageLink(String name) {
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
@@ -141,7 +136,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void setAdapter(ExtraInfo extraInfo) {
         allMembersAdapter = new AllMembersAdapter(
                 this,
-                id -> openDirect(id),
+                this::openDirect,
                 extraInfo.getMembers(), true);
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
@@ -243,14 +238,13 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         return super.onOptionsItemSelected(item);
     }
 
-    public void errorRequest(){
+    public void errorRequest() {
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
     }
 
-    public void finishActivity(String leftChannelName) {
+    public void finishActivity() {
         Intent intent = new Intent(this, ChannelActivity.class);
-        intent.putExtra(LEAVED_CHANNEL, leftChannelName);
         setResult(Activity.RESULT_OK, intent);
         this.finish();
     }

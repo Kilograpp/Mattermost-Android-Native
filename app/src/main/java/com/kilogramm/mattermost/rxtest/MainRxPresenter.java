@@ -22,7 +22,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Evgeny on 03.10.2016.
  */
-public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
+public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
 
     private static final String TAG = "MainRxPresenter";
 
@@ -59,12 +59,11 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
             sendVisibleProgress(false);
             sendShowError(getError(throwable));
         });
-
     }
 
     @Override
-    protected void onTakeView(MainRxAcivity mainRxAcivity) {
-        super.onTakeView(mainRxAcivity);
+    protected void onTakeView(MainRxActivity mainRxActivity) {
+        super.onTakeView(mainRxActivity);
 
         //TODO FIX logic check login
         if (MattermostPreference.getInstance().getAuthToken() != null &&
@@ -116,29 +115,29 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
 
     // to view methods
 
-    private void sendVisibleProgress(Boolean visibility){
+    private void sendVisibleProgress(Boolean visibility) {
         createTemplateObservable(visibility)
-                .subscribe(split(MainRxAcivity::setShowProgress));
+                .subscribe(split(MainRxActivity::setShowProgress));
     }
 
-    private void sendShowLoginActivity(){
+    private void sendShowLoginActivity() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showLoginActivity()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showLoginActivity()));
     }
 
-    private void sendShowError(String error){
+    private void sendShowError(String error) {
         createTemplateObservable(error)
-                .subscribe(split(MainRxAcivity::showErrorText));
+                .subscribe(split(MainRxActivity::showErrorText));
     }
 
-    private void sendShowErrorEditText(){
+    private void sendShowErrorEditText() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showEditTextErrorMessage()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showEditTextErrorMessage()));
     }
 
-    private void sendShowChatActivity(){
+    private void sendShowChatActivity() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity,o) -> mainRxAcivity.showChatActivity()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showChatActivity()));
 
     }
 }

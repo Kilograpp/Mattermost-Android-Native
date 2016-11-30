@@ -48,7 +48,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     private static final int REQUEST_LOGIN = 1;
     private static final int REQUEST_INITLOAD = 2;
 
-
     private Realm mRealm;
 
     @State
@@ -60,7 +59,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     private ObservableField<String> siteName;
     private ObservableInt isVisibleProgress;
 
-
     public void onClickSignIn(View v) {
         requestLogin();
     }
@@ -68,7 +66,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     public void onForgotButtonClick(View v) {
         ForgotPasswordActivity.start(getView());
     }
-
 
     private void handleErrorLogin(Throwable e) {
         if (e instanceof HttpException) {
@@ -153,12 +150,10 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mEditEmail = s.toString();
                 isEnabledSignInButton.set(canClickSignIn());
-
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         };
     }
@@ -167,19 +162,16 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mEditPassword = s.toString();
                 isEnabledSignInButton.set(canClickSignIn());
-
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         };
     }
@@ -233,10 +225,9 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             }
         }, (loginRxActivity1, throwable) -> {
             isVisibleProgress.set(View.GONE);
-            sendShowError(throwable);
+            sendShowError(getError(throwable));
         });
     }
-
 
     private void initRequestLogin() {
         restartableFirst(REQUEST_LOGIN, () -> {
@@ -254,12 +245,11 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             requestInitLoad();
         }, (loginRxActivity1, throwable) -> {
             isVisibleProgress.set(View.GONE);
-            sendShowError(throwable);
+            sendShowError(getError(throwable));
         });
     }
-    private void sendShowError(Throwable throwable) {
-        createTemplateObservable(getError(throwable))
-                .subscribe(split(BaseActivity::showErrorText));
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 }
 

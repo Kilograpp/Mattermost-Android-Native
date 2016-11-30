@@ -38,7 +38,6 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                 .compose(deliverFirst());
     }
 
-
     public String getError(Throwable e) {
         if (e instanceof HttpException) {
             try {

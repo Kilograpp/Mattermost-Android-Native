@@ -27,8 +27,8 @@ public class MattermostRetrofitService {
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
-        headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
+        HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
+        headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
                 // Caused twice writeTo() method call for uploading file
                 //TODO release version comment this line

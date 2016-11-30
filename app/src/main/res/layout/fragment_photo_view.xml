@@ -16,7 +16,7 @@
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:indeterminate="true"
-            android:progressDrawable="@drawable/circular_white_progress_bar"
+            android:progressDrawable="@drawable/circular_blue_progress_bar"
             app:mpb_progressStyle="circular" />
 
         <com.kilogramm.mattermost.ui.TouchImageView

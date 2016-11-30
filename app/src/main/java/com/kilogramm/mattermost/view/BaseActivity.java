@@ -35,7 +35,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         this.toolbar = toolbar;
     }
 
-    //====================== standart toolbar =======================================
+    //====================== standard toolbar =======================================
     public void setTitleActivity(String title) {
         try {
             getSupportActionBar().setTitle(title);
@@ -93,12 +93,12 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Icepick.saveInstanceState(this, outState);
-
     }
 
     //====================== channel toolbar ========================================
 
-    public void setupChannelToolbar(String acrivityTitle, String channelName, View.OnClickListener listenerChannelName,
+    public void setupChannelToolbar(String activityTitle, String channelName,
+                                    View.OnClickListener listenerChannelName,
                                     View.OnClickListener listenerSearch) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         Button channel_name = (Button) toolbar.findViewById(R.id.channel_title);
@@ -112,7 +112,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_dehaze_white_24dp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setTitleActivity(acrivityTitle);
+        setTitleActivity(activityTitle);
     }
 
     public static void hideKeyboard(Activity activity) {

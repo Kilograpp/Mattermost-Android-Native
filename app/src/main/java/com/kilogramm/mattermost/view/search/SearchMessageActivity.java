@@ -134,7 +134,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
             getPresenter().search(terms);
         }
     }
-    //TODO можно было бы сделать один метод и кидать туда view
+
     public void progressBarVisibility(boolean isShow) {
         binding.progressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }

@@ -56,7 +56,7 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                         sendSetProgressVisibility(false);
                     }
                 }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(throwable);
+                    sendShowError(getError(throwable));
                     sendSetProgressVisibility(false);
                 });
     }
@@ -79,7 +79,7 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                     sendFinishActivity(channelId, displayName);
                     sendSetProgressVisibility(false);
                 }, (createNewChGrActivity, throwable) -> {
-                    this.sendShowError(throwable);
+                    this.sendShowError(getError(throwable));
                     sendSetProgressVisibility(false);
                 });
     }
@@ -94,17 +94,12 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
         start(REQUEST_GET_INFO);
     }
 
-    private void sendShowError(Throwable throwable) {
-        createTemplateObservable(getError(throwable))
-                .subscribe(split(BaseActivity::showErrorText));
-    }
-
     public void sendShowError(String error) {
         createTemplateObservable(error)
                 .subscribe(split(BaseActivity::showErrorText));
     }
 
-    public void sendFinishActivity(String createdChannelId, String channelName) {
+    private void sendFinishActivity(String createdChannelId, String channelName) {
         createTemplateObservable(new Object())
                 .subscribe(split((createNewChGrActivity, o) ->
                         createNewChGrActivity.finishActivity(createdChannelId, channelName)));
