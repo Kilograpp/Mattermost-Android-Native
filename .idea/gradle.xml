@@ -10,7 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/markdown" />
+            <option value="$PROJECT_DIR$/lib-release" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
