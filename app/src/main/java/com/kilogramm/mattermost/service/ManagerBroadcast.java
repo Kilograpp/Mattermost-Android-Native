@@ -120,7 +120,9 @@ public class ManagerBroadcast {
                         .build();
 
                 savePost(data.getPost());
-                if (!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+                if(data.getMentions().length() > 0
+                        && !data.getPost().getUserId()
+                        .equals(MattermostPreference.getInstance().getMyUserId())) {
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
