@@ -35,7 +35,7 @@ import in.uncod.android.bypass.Bypass;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
-    private ViewDataBinding mBinding;
+    private ChatListItemBinding mBinding;
 
     public static PostViewHolder createItem(LayoutInflater inflater, ViewGroup parent) {
         ChatListItemBinding binding = ChatListItemBinding
@@ -55,34 +55,34 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     private PostViewHolder(ViewDataBinding binding) {
         super(binding.getRoot());
-        mBinding = binding;
+        mBinding = (ChatListItemBinding) binding;
     }
 
     public void bindToItem(Post post, Context context, Boolean isTitle, Post root, OnItemClickListener listener) {
         if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
-            ((ChatListItemBinding) mBinding).sendStatusError.setOnClickListener(view -> {
+            mBinding.sendStatusError.setOnClickListener(view -> {
                 if (listener != null)
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, post.getId());
+                    listener.OnItemClick(mBinding.sendStatusError, post.getId());
             });
         }
-        ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
+        mBinding.controlMenu.setOnClickListener(view -> {
             if (listener != null) {
-                listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post.getId());
+                listener.OnItemClick(mBinding.controlMenu, post.getId());
             }
         });
         if (!post.isSystemMessage()) {
-            ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
+            mBinding.avatar.setOnClickListener(view -> {
                 if (listener != null) {
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
+                    listener.OnItemClick(mBinding.avatar, post.getId());
                 }
             });
         } else {
-            ((ChatListItemBinding) mBinding).avatar.setOnClickListener(null);
+            mBinding.avatar.setOnClickListener(null);
         }
-        ((ChatListItemBinding) mBinding).avatar.setTag(post);
+        mBinding.avatar.setTag(post);
 
         if (post.getMessage() != null && post.getMessage().length() > 0 || post.isSystemMessage()) {
-            ((ChatListItemBinding) mBinding).message.setVisibility(View.VISIBLE);
+            mBinding.message.setVisibility(View.VISIBLE);
 
 //            CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(post.getMessage()));
 //            Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
@@ -94,19 +94,19 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 //                return true;
 //            }, null);
 
-            ((ChatListItemBinding) mBinding).message.setText(getMarkdownPost(
+            mBinding.message.setText(getMarkdownPost(
                     post.getMessage(), context));
             //SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             //((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
-            ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
+            mBinding.message.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
-            ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
+            mBinding.message.setVisibility(View.GONE);
         }
 
-        if (((ChatListItemBinding) mBinding).getViewModel() == null) {
-            ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(post));
+        if (mBinding.getViewModel() == null) {
+            mBinding.setViewModel(new ItemChatViewModel(post));
         } else {
-            ((ChatListItemBinding) mBinding).getViewModel().setPost(post);
+            mBinding.getViewModel().setPost(post);
 
         }
         if (root != null)
@@ -116,12 +116,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             setPropMassage(post);
 
         if (root == null && post.getProps() == null)
-            ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.GONE);
+            mBinding.linearLayoutRootPost.setVisibility(View.GONE);
 
         if (isTitle) {
-            ((ChatListItemBinding) mBinding).getViewModel().setTitleVisibility(View.VISIBLE);
+            mBinding.getViewModel().setTitleVisibility(View.VISIBLE);
         } else {
-            ((ChatListItemBinding) mBinding).getViewModel().setTitleVisibility(View.GONE);
+            mBinding.getViewModel().setTitleVisibility(View.GONE);
         }
                /* AnimatedVectorDrawableCompat animatedVectorDrawableCompat
                         = AnimatedVectorDrawableCompat.create(context, R.drawable.vector_test_anim);
@@ -140,36 +140,40 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public void bindToLoadingBottom() {
     }
 
+    public ChatListItemBinding getmBinding() {
+        return mBinding;
+    }
+
     private void setRootMassage(Post post) {
-        ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
-        ((ChatListItemBinding) mBinding).filesViewRoot.setItems(post.getFilenames());
-        ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
-        ((ChatListItemBinding) mBinding).nickRootPost.setText(post.getUser().getUsername());
-        ((ChatListItemBinding) mBinding).getViewModel()
-                .loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
-                        ((ChatListItemBinding) mBinding).getViewModel().getUrl(post));
-        ((ChatListItemBinding) mBinding).messageRootPost.setText(getMarkdownPost(post.getMessage(), mBinding.getRoot().getContext()));
-        ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
+        mBinding.filesViewRoot.setBackgroundColorComment();
+        mBinding.filesViewRoot.setItems(post.getFilenames());
+        mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
+        mBinding.nickRootPost.setText(post.getUser().getUsername());
+        mBinding.getViewModel()
+                .loadImage(mBinding.avatarRootPost,
+                        mBinding.getViewModel().getUrl(post));
+        mBinding.messageRootPost.setText(getMarkdownPost(post.getMessage(), mBinding.getRoot().getContext()));
+        mBinding.messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void setPropMassage(Post post) {
         if (post != null) {
-            ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
-            ((ChatListItemBinding) mBinding).layUser.setVisibility(View.GONE);
+            mBinding.linearLayoutRootPost.setVisibility(View.VISIBLE);
+            mBinding.layUser.setVisibility(View.GONE);
             if (post.getProps().getAttachments().get(0).getColor().equals("good"))
-                ((ChatListItemBinding) mBinding)
+                mBinding
                         .line.setBackgroundColor(
                         mBinding.getRoot().getContext()
                                 .getResources().getColor(R.color.green_send_massage));
             else
-                ((ChatListItemBinding) mBinding)
+                mBinding
                         .line.setBackgroundColor(
                         mBinding.getRoot().getContext()
                                 .getResources().getColor(R.color.red_error_send_massage));
-            ((ChatListItemBinding) mBinding).messageRootPost.setText(
+            mBinding.messageRootPost.setText(
                     getMarkdownPost(post.getProps().getAttachments().get(0).getText(), mBinding.getRoot().getContext())
             );
-            ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
+            mBinding.messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
