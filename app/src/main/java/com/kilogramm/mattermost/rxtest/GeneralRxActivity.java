@@ -88,7 +88,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case android.R.id.home:
                 binding.drawerLayout.openDrawer(GravityCompat.START);
                 break;
@@ -120,8 +120,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository
                                         .ChannelByIdSpecification(currentChannel))
-                                .first()
-                                .getDisplayName());
+                                        .first()
+                                        .getDisplayName());
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
@@ -217,7 +217,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 .replace(binding.leftContainer.getId(), leftMenuRxFragment)
                 .commit();
         leftMenuRxFragment.setOnChannelChangeListener(this);
-
     }
 
     public void closeProgressBar() {
@@ -266,7 +265,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 this.searchMessageId = null;
             }
         }
-        if(searchMessageId!=null){
+        if (searchMessageId != null) {
             searchMessageId = null;
         }
     }

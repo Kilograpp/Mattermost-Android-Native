@@ -34,10 +34,9 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChannelPresenter.class)
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
-    public static final String LEAVED_CHANNEL = "leaved_channel";
-
     private static final String CHANNEL_ID = "channel_id";
     public static final int REQUEST_ID = 201;
+
     ChannelActivityBinding binding;
     String channelId;
     AllMembersAdapter allMembersAdapter;
@@ -52,7 +51,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         setToolbar();
         initClick();
         setCTollBarTitle(getPresenter().getChannel().getDisplayName());
-
     }
 
     public void setCTollBarTitle(final String name) {
@@ -123,7 +121,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
     }
-
 
 
     private String getMessageLink(String name) {
@@ -243,14 +240,13 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         return super.onOptionsItemSelected(item);
     }
 
-    public void errorRequest(){
+    public void errorRequest() {
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
     }
 
-    public void finishActivity(String leftChannelName) {
+    public void finishActivity() {
         Intent intent = new Intent(this, ChannelActivity.class);
-        intent.putExtra(LEAVED_CHANNEL, leftChannelName);
         setResult(Activity.RESULT_OK, intent);
         this.finish();
     }
