@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -34,7 +35,10 @@ import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
+import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 import static android.app.Activity.RESULT_OK;
@@ -67,6 +71,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     private OnChannelChangeListener listener;
 
     private RealmResults<Member> members;
+    private RealmResults<Preferences> preferences;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -78,6 +83,11 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_left_menu, container, false);
         View view = mBinding.getRoot();
+        preferences = PreferenceRepository.query(new PreferenceRepository.PreferenceByCategorySpecification("direct_channel_show"))
+                .where()
+                .equalTo("value", "true")
+                .findAll();
+        preferences.addChangeListener(element -> invalidateDirect());
         members = MembersRepository.query(new MemberAll());
         members.addChangeListener(element -> {
             if (channelListAdapter != null) {
@@ -93,6 +103,16 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
         initView();
         return view;
+    }
+
+    private void invalidateDirect() {
+        RealmResults<Channel> channels = getDirectChannelData();
+        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
+        mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
+        directListAdapter = new DirectListAdapter(channels, getActivity(), this, members, statusRealmResults);
+        mBinding.frDirect.recView.swapAdapter(directListAdapter, true);
+        selectLastChannel();
+        mBinding.frDirect.recView.invalidate();
     }
 
     @Override
@@ -169,6 +189,14 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         Log.d(TAG, "Click listener : channelId = " + itemId + "\n" +
                 "name = " + name + "\n" +
                 "type = " + type + "\n");
+        removeSelection(type);
+        if (!itemId.equals(MattermostPreference.getInstance().getLastChannelId())) {
+            sendOnChange(itemId, name);
+            MattermostPreference.getInstance().setLastChannelId(itemId);
+        }
+    }
+
+    private void removeSelection(String type) {
         switch (type) {
             case OPEN:
                 directListAdapter.setSelectedItem(NOT_SELECTED);
@@ -182,10 +210,6 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 channelListAdapter.setSelectedItem(NOT_SELECTED);
                 privateListAdapter.setSelectedItem(NOT_SELECTED);
                 break;
-        }
-        if (!itemId.equals(MattermostPreference.getInstance().getLastChannelId())) {
-            sendOnChange(itemId, name);
-            MattermostPreference.getInstance().setLastChannelId(itemId);
         }
     }
 
@@ -245,7 +269,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     private void initDirectList() {
         Log.d(TAG, "initDirectList");
-        RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));
+        RealmResults<Channel> channels = getDirectChannelData();/*ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));*/
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
@@ -286,5 +310,26 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public void onRefresh() {
         getPresenter().requestUpdate();
         mBinding.leftSwipeRefresh.setRefreshing(false);
+    }
+
+    public RealmResults<Channel> getDirectChannelData() {
+        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(),Channel.class);
+        for (Preferences preference : preferences) {
+            String name = String.format("%s__%s",preference.getName(),preference.getUser_id());
+            String revertName = String.format("%s__%s",preference.getUser_id(),preference.getName());
+            realmQuery.equalTo("name",name).or().equalTo("name",revertName).or();
+        }
+        return realmQuery.findAllSorted("username", Sort.ASCENDING);
+    }
+
+    private void  selectLastChannel(){
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance()
+                        .getLastChannelId())).first();
+        Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId()+ "\n" +
+                "name = " + channel.getUsername()+ "\n" +
+                "type = " + channel.getType() + "\n");
+        //removeSelection(channel.getType());
+        setSelectItemMenu(channel.getId(),channel.getType());
     }
 }
