@@ -43,6 +43,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     private String channelId;
     private List<Uri> uriList;
 
+    private AllUploadedListener allUploadedListener;
+
     private ProgressDialog progressDialog;
 
     AttachedFilesAdapter attachedFilesAdapter;
@@ -181,7 +183,19 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
     }
 
-    public void showUploadErrorToast(String s) {
+    public void showUploadErrorToast() {
         Toast.makeText(getContext(), getContext().getString(R.string.error_during_file_upload), Toast.LENGTH_SHORT).show();
+    }
+
+    public void setAllUploadedListener(AllUploadedListener allUploadedListener) {
+        this.allUploadedListener = allUploadedListener;
+    }
+
+    public void onAllUploaded(){
+        if(allUploadedListener != null) allUploadedListener.onAllUploaded();
+    }
+
+    public interface AllUploadedListener{
+        void onAllUploaded();
     }
 }

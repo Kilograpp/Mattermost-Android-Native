@@ -58,6 +58,7 @@ import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
@@ -82,7 +83,8 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<String>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener {
+        OnItemClickListener<String>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener,
+        AttachedFilesLayout.AllUploadedListener {
 
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
@@ -263,6 +265,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.attachedFilesLayout.setVisibility(View.GONE);
         }
         binding.attachedFilesLayout.setEmptyListListener(this);
+        binding.attachedFilesLayout.setAllUploadedListener(this);
     }
 
     private void setDropDownUserList() {
@@ -354,6 +357,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > 0 ||
+                        (FileToAttachRepository.getInstance().haveFilesToAttach() &&
+                                !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
+                    binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                } else {
+                    binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+                }
                 getUserList(charSequence.toString());
             }
 
@@ -795,6 +805,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Log.d(TAG, "try to attach file");
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
         binding.attachedFilesLayout.addItems(uriList, channelId);
+        binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
     }
 
     private void showErrorSendMenu(View view, Post post) {
@@ -936,15 +947,26 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void hideAttachedFilesLayout() {
+        binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
         binding.attachedFilesLayout.setVisibility(View.GONE);
     }
 
     @Override
     public void onEmptyList() {
         hideAttachedFilesLayout();
+        if (binding.writingMessage.getText().length() > 0) {
+            binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+        }
     }
 
     public void setButtonAddFileOnClickListener() {
         binding.buttonAttachFile.setOnClickListener(view -> pickFile());
+    }
+
+    @Override
+    public void onAllUploaded() {
+        binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 }
