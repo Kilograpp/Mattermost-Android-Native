@@ -88,7 +88,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
             }
         });
 
-
         setupDownloadIcon(null);
         findViewById(R.id.action_download).setOnClickListener(v -> {
             String fileId = photosList.get(binding.viewPager.getCurrentItem());
@@ -173,12 +172,10 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
     @Override
     public void onComplete(String fileId) {
-
     }
 
     @Override
     public void onProgress(int percantage) {
-
     }
 
     @Override
