@@ -55,7 +55,6 @@ import io.realm.RealmList;
 import rx.schedulers.Schedulers;
 
 import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
-import static com.kilogramm.mattermost.view.chat.PostViewHolder.getSpannableStringBuilder;
 import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImageUrl;
 
 /**
@@ -63,16 +62,15 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImag
  */
 public class ManagerBroadcast {
     public static final String TAG = "ObjectUtil";
-    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
-
-    public static final String CLOSE_NOTIFICATION = "close_notification";
     public static final String CHANNEL_ID = "CHANNEL_ID";
     public static final String CHANNEL_NAME = "CHANNEL_NAME";
     public static final String CHANNEL_TYPE = "CHANNEL_TYPE";
+    private static final String NOTIFICATION_ID = "NOTIFICATION_ID";
+    private static final String CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
 
     private static final int NOTIFY_ID = 1;
 
-    public Context mContext;
+    private Context mContext;
     private ApiMethod service;
 
     private Gson gson;
@@ -115,9 +113,7 @@ public class ManagerBroadcast {
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
-                        .setMentions((mentions != null)
-                                ? mentions
-                                : "")
+                        .setMentions((mentions != null) ? mentions : "")
                         .setSenderName(dataJSON.getString(WebSocketObj.SENDER_NAME))
                         .setTeamId(dataJSON.getString(WebSocketObj.TEAM_ID))
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
@@ -125,7 +121,6 @@ public class ManagerBroadcast {
 
                 savePost(data.getPost());
                 if (!data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
-//                    createNotification(data.getPost(), context);
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
@@ -221,28 +216,7 @@ public class ManagerBroadcast {
         String userName = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()))
                 .first()
                 .getUsername();
-
         String notificationTitle = "New message from " + userName;
-
-        CharSequence receivedPost;
-        if (post.getProps() != null) {
-//            notificationTitle = post.getProps().getOverride_username();
-//            receivedPost = PostViewHolder.getMarkdownPost(
-//                    post.getProps().getAttachments().get(0).getText(), context);
-            receivedPost = context.getResources().getString(R.string.notification_sent_attachment);
-        } else {
-//            receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
-            if (post.getFilenames().size() != 0) {
-                String fileType = FileUtil.getInstance().getMimeType(post.getFilenames().get(0));
-                if(fileType.contains("image")) {
-                    receivedPost = context.getResources().getString(R.string.notification_sent_pic);
-                } else {
-                    receivedPost = context.getResources().getString(R.string.notification_sent_file);
-                }
-            } else {
-                receivedPost = PostViewHolder.getMarkdownPost(post.getMessage(), context);
-            }
-        }
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);
@@ -253,15 +227,14 @@ public class ManagerBroadcast {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
         remoteViews.setTextViewText(R.id.title, notificationTitle);
-        //remoteViews.setTextViewText(R.id.text, getSpannableStringBuilder(post, context, false, false));
-        remoteViews.setTextViewText(R.id.text, receivedPost);
+        remoteViews.setTextViewText(R.id.text, displayedMessage(post, context));
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
                     .setContentTitle(notificationTitle)
-                    .setContentText(receivedPost)
+                    .setContentText(displayedMessage(post, context))
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setContentIntent(pIntent);
@@ -273,7 +246,7 @@ public class ManagerBroadcast {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
                     .setContentTitle(notificationTitle)
-                    .setContentText(receivedPost)
+                    .setContentText(displayedMessage(post, context))
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pIntent)
@@ -289,6 +262,23 @@ public class ManagerBroadcast {
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
                         .into(remoteViews, R.id.avatar, NOTIFY_ID, notification));
+    }
+
+    private static CharSequence displayedMessage(Post post, Context context) {
+        if (post.getProps() != null) {
+            return context.getResources().getString(R.string.notification_sent_attachment);
+        } else {
+            if (post.getFilenames().size() != 0) {
+                String fileType = FileUtil.getInstance().getMimeType(post.getFilenames().get(0));
+                if (fileType.contains("image")) {
+                    return context.getResources().getString(R.string.notification_sent_pic);
+                } else {
+                    return context.getResources().getString(R.string.notification_sent_file);
+                }
+            } else {
+                return PostViewHolder.getMarkdownPost(post.getMessage(), context);
+            }
+        }
     }
 
     private static Intent openDialogIntent(String channelId, Context context) {
@@ -312,7 +302,7 @@ public class ManagerBroadcast {
         return intent;
     }
 
-    public static void savePost(Post post) {
+    private static void savePost(Post post) {
         PostRepository.prepareAndAddPost(post);
     }
 

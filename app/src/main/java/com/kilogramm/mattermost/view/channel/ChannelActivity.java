@@ -93,9 +93,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void initiationData(ExtraInfo extraInfo) {
         setAdapter(extraInfo);
 
-        binding.countMembers.setText(String.format("%s %s",
-                extraInfo.getMember_count(),
-                getString(R.string.channel_info_count_members)));
+        binding.countMembers.setText(String.format("%s %s", extraInfo.getMember_count(), getString(R.string.channel_info_count_members)));
 
         Channel channel = getPresenter().getChannel();
 
@@ -138,7 +136,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void setAdapter(ExtraInfo extraInfo) {
         allMembersAdapter = new AllMembersAdapter(
                 this,
-                id -> openDirect(id),
+                this::openDirect,
                 extraInfo.getMembers(), true);
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));

@@ -102,12 +102,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         } else {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
         }
-
         if (((ChatListItemBinding) mBinding).getViewModel() == null) {
             ((ChatListItemBinding) mBinding).setViewModel(new ItemChatViewModel(post));
         } else {
             ((ChatListItemBinding) mBinding).getViewModel().setPost(post);
-
         }
         if (root != null)
             setRootMassage(root);
@@ -167,7 +165,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                         mBinding.getRoot().getContext()
                                 .getResources().getColor(R.color.red_error_send_massage));
             ((ChatListItemBinding) mBinding).messageRootPost.setText(
-                    getMarkdownPost(post.getProps().getAttachments().get(0).getText(), mBinding.getRoot().getContext())
+                    getMarkdownPost(
+                            post.getProps().getAttachments().get(0).getText(), mBinding.getRoot().getContext())
             );
             ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
         }
@@ -175,11 +174,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     @NonNull
     public static Spannable getMarkdownPost(String postMessage, Context context) {
-        if (postMessage!=null) {
+        if (postMessage != null) {
             CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(postMessage));
             Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
-            Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
+            Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
             Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
                 spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
                         start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -192,6 +191,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+    // TODO этот метод не используется, он нужен?
     @NonNull
     public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context, boolean isProp, boolean isComment) {
         Spanned spanned;
