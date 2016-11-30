@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/notification_blue"
     android:orientation="horizontal">
 
     <ImageView
@@ -12,7 +11,7 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center"
-        android:layout_margin="15dp" />
+        android:layout_margin="15dp"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -27,8 +26,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:textColor="@color/white"
-            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:ellipsize="end"
+            android:singleLine="true"
             tools:text="test"/>
 
         <TextView
@@ -37,14 +38,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="5dp"
-            android:layout_marginTop="3dp"
-            tools:text="test"
-            android:textColor="@color/white"
-            android:textSize="15sp"
+            android:textColor="@color/grey"
+            android:textSize="13sp"
             android:maxEms="10"
-            android:maxLength="30"
             android:ellipsize="end"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            tools:text="test"/>
 
     </LinearLayout>
 
@@ -53,7 +52,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginEnd="15dp"
-        android:padding="15dp" />
-
+        android:layout_marginEnd="10dp"
+        android:padding="13dp"/>
 </LinearLayout>

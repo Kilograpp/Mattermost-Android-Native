@@ -21,7 +21,6 @@ import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -111,15 +110,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                 () -> service.leaveChannel(this.teamId, this.channelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
-                (channelActivity, channel) -> {
-                    RealmResults<Channel> leftChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
-                    if (leftChannel != null && leftChannel.size() > 0) {
-                        String leftChannelName = leftChannel.first().getDisplayName();
-                        ChannelRepository.remove(
-                                new ChannelRepository.ChannelByIdSpecification(channel.getId()));
-                        requestFinish(leftChannelName);
-                    }
-                }, (channelActivity, throwable) -> sendError(getError(throwable))
+                (channelActivity, channel) -> requestFinish(),
+                (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }
 
@@ -154,8 +146,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void sendSetFragmentChat() {
         createTemplateObservable(new Object())
-                .subscribe(split((channelActivity, o) ->
-                        channelActivity.startGeneralActivity()));
+                .subscribe(split((channelActivity, o) -> channelActivity.startGeneralActivity()));
     }
 
     public void requestExtraInfo() {
@@ -176,24 +167,27 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-
-    private void requestFinish(String leftChannelName) {
+    private void requestFinish() {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
-            channelActivity.finishActivity(leftChannelName);
+            Toast.makeText(channelActivity,
+                    String.format("You've just leaved %s %s",
+                                this.channel.getDisplayName(),
+                                channel.getType().equals(Channel.OPEN) ? "channel" : "private group"),
+                    Toast.LENGTH_SHORT).show();
+            ChannelRepository.remove(channel);
+            channelActivity.finishActivity();
         }));
     }
 
     private void sendError(String error) {
-        createTemplateObservable(error)
-                .subscribe(split((channelActivity, s) -> {
-                    Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show();
-                    channelActivity.errorRequest();
-                }));
+        createTemplateObservable(error).subscribe(split((channelActivity, s) -> {
+            Toast.makeText(channelActivity, s, Toast.LENGTH_SHORT).show();
+            channelActivity.errorRequest();
+        }));
     }
 
     private void sendCloseActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((channelActivity, o) -> channelActivity.finish()));
     }
-
 }

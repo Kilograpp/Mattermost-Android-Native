@@ -103,14 +103,7 @@ public class EllipsizingTextView extends TextView {
             LINES.setAccessible(true);
             int mLINES = LINES.getInt(this);
             return mMaxMode == mLINES ? mMaximum : -1;
-        } catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
         }
         return -1;

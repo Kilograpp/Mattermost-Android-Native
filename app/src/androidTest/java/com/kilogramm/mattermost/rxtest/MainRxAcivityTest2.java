@@ -52,7 +52,7 @@
 //public class MainRxAcivityTest2 {
 //
 //    @Rule
-//    public ActivityTestRule<MainRxAcivity> mActivityTestRule = new ActivityTestRule<>(MainRxAcivity.class);
+//    public ActivityTestRule<MainRxActivity> mActivityTestRule = new ActivityTestRule<>(MainRxActivity.class);
 //
 //    @BeforeClass
 //    public static void clear(){

@@ -6,11 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatDelegate;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
@@ -26,17 +24,14 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
-import com.kilogramm.mattermost.view.ImageViewerActivity;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -45,8 +40,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
-
-import static com.kilogramm.mattermost.view.ImageViewerActivity.startActivity;
 
 /**
  * Created by Evgeny on 01.09.2016.

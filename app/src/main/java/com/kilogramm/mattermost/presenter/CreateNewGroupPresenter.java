@@ -55,7 +55,7 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
                         sendShowError("\\t Channel is not created \\n");
                     }
                 }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(throwable);
+                    sendShowError(getError(throwable));
                     sendSetProgressVisibility(false);
                 });
     }
@@ -78,7 +78,7 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
                     sendFinishActivity(channelId, displayName);
                     sendSetProgressVisibility(false);
                 }, (createNewChGrActivity, throwable) -> {
-                    this.sendShowError(throwable);
+                    this.sendShowError(getError(throwable));
                     sendSetProgressVisibility(false);
                 });
     }
@@ -91,11 +91,6 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
 
     public void requestGetChannelInfo() {
         start(REQUEST_GET_INFO);
-    }
-
-    private void sendShowError(Throwable throwable) {
-        createTemplateObservable(getError(throwable))
-                .subscribe(split(BaseActivity::showErrorText));
     }
 
     public void sendShowError(String error) {

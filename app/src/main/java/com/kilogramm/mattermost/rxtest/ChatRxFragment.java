@@ -523,11 +523,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setText(getString(R.string.send));
     }
 
-    public void setErrorLayout(String error) {
-        binding.bottomToolbar.bottomToolbarLayout.setVisibility(View.GONE);
-        binding.sendingMessageContainer.setVisibility(View.GONE);
-        binding.line.setVisibility(View.GONE);
+    public void setMasseageLayout(int visible) {
+        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
+        binding.sendingMessageContainer.setVisibility(visible);
+        binding.line.setVisibility(visible);
     }
+
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();

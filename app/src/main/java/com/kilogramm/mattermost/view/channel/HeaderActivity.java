@@ -26,8 +26,8 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
     private static final String CHANNEL_HEADER = "CHANNEL_HEADER";
     private static final String CHANNEL_ID = "channel_id";
     private SetHeaderBinding binding;
-    MenuItem saveItem;
 
+    MenuItem saveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +45,6 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
         binding.header.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override

@@ -1,9 +1,13 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -88,6 +92,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     @State
     String searchMessageId;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
@@ -131,22 +136,28 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
                             MembersRepository.add(channelsWithMembers.getMembers().values());
-
+                            setGoodLayout();
                             return extraInfo;
                         }))
                 , (chatRxFragment, extraInfo) -> requestLoadPosts()
                 , (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
-                    setErrorLayout(getError(throwable));
-                    sendShowList();
+                    final ConnectivityManager connectivityManager =
+                            (ConnectivityManager) MattermostApp.getSingleton()
+                                    .getApplicationContext()
+                                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+                    final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+                    if (ni == null || !ni.isConnectedOrConnecting()) {
+                        sendShowList();
+                    }else setErrorLayout();
                 });
     }
 
     private void initLoadPosts() {
         restartableFirst(REQUEST_LOAD_POSTS, () ->
-                service.getPosts(teamId, channelId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
+                        service.getPosts(teamId, channelId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
@@ -160,10 +171,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     if (!isEmpty) {
                         sendShowList();
                     }
+                    setGoodLayout();
                     Log.d(TAG, "Complete load post");
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
-                    sendShowList();
+//                    sendShowList();
                     sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
@@ -532,9 +544,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG).show()));
     }
 
-    private void setErrorLayout(String error) {
+    private void setErrorLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
-                chatRxFragment.setErrorLayout(error)));
+                chatRxFragment.setMasseageLayout(View.GONE)));
+    }
+
+    private void setGoodLayout() {
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
+                chatRxFragment.setMasseageLayout(View.VISIBLE)));
     }
 
     private void sendSlideDialogToFoundMessage() {

@@ -133,9 +133,7 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
     }
 
     private String makeName(String groupName) {
-        groupName = Transliterator.transliterate(groupName);
-
-        if (groupName.contains(" ")) {
+        if (Transliterator.transliterate(groupName).contains(" ")) {
             return groupName.replaceAll("\\s", "-").toLowerCase();
         } else {
             return groupName.toLowerCase();
