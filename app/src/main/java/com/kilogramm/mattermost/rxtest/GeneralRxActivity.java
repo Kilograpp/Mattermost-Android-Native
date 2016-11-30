@@ -286,7 +286,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void showMainRxActivity() {
-        MainRxAcivity.start(this,
+        MainRxActivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 

@@ -21,9 +21,9 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 03.10.2016.
  */
 @RequiresPresenter(MainRxPresenter.class)
-public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
+public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
-    public static final String TAG = "MainRxAcivity";
+    public static final String TAG = "MainRxActivity";
 
     private ActivityMainBinding binding;
 
@@ -113,7 +113,7 @@ public class MainRxAcivity extends BaseActivity<MainRxPresenter> {
     }
 
     public static void start(Context context, Integer flags) {
-        Intent starter = new Intent(context, MainRxAcivity.class);
+        Intent starter = new Intent(context, MainRxActivity.class);
         if (flags != null) {
             starter.setFlags(flags);
         }

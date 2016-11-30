@@ -22,7 +22,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Evgeny on 03.10.2016.
  */
-public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
+public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
 
     private static final String TAG = "MainRxPresenter";
 
@@ -62,8 +62,8 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
     }
 
     @Override
-    protected void onTakeView(MainRxAcivity mainRxAcivity) {
-        super.onTakeView(mainRxAcivity);
+    protected void onTakeView(MainRxActivity mainRxActivity) {
+        super.onTakeView(mainRxActivity);
 
         //TODO FIX logic check login
         if (MattermostPreference.getInstance().getAuthToken() != null &&
@@ -117,7 +117,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
 
     private void sendVisibleProgress(Boolean visibility) {
         createTemplateObservable(visibility)
-                .subscribe(split(MainRxAcivity::setShowProgress));
+                .subscribe(split(MainRxActivity::setShowProgress));
     }
 
     private void sendShowLoginActivity() {
@@ -127,7 +127,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
 
     private void sendShowError(String error) {
         createTemplateObservable(error)
-                .subscribe(split(MainRxAcivity::showErrorText));
+                .subscribe(split(MainRxActivity::showErrorText));
     }
 
     private void sendShowErrorEditText() {
