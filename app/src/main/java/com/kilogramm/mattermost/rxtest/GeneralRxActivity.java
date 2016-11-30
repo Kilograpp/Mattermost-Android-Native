@@ -240,6 +240,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void replaceFragment(String channelId, String channelName) {
+        closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
             // For clearing attached files on channel change
