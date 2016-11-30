@@ -271,7 +271,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private void sendShowMainRxActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showMainRxActivity()));
-
     }
 
     private void sendShowChooseTeam() {
@@ -284,7 +283,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 .subscribe(split((generalRxActivity, channel)
                         -> generalRxActivity.setFragmentChat(channel.getId(), channel.getName(), channel.getType())));
     }
-
 
     public void setFirstChannelBeforeLeave() {
         Channel channel = ChannelRepository.query(new ChannelByHadleSpecification("town-square"))

@@ -45,7 +45,7 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
                 }, (forgotPasswordActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendShowProgress(false);
-                    sendErrorText(throwable.getMessage());
+                    sendShowErrorText(throwable.getMessage());
                 });
     }
 
@@ -60,10 +60,10 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
         super.onDestroy();
     }
 
-
-    private void sendErrorText(String errorMessage) {
+    private void sendShowErrorText(String errorMessage) {
         createTemplateObservable(errorMessage)
-                .subscribe(split((forgotPasswordActivity, s) -> forgotPasswordActivity.showErrorText(errorMessage)));
+                .subscribe(split((forgotPasswordActivity, s) ->
+                        forgotPasswordActivity.showErrorText(errorMessage)));
     }
 
     private void sendShowProgress(Boolean bool) {
@@ -85,52 +85,4 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
         createTemplateObservable(message)
                 .subscribe(split((forgotPasswordActivity, s) -> forgotPasswordActivity.showMessage(message)));
     }
-
-    /************* before *********************/
-//    @Override
-//    protected void onTakeView(ForgotPasswordActivity forgotPasswordActivity) {
-//        super.onTakeView(forgotPasswordActivity);
-//        getView().showProgress(false);
-//    }
-//
-//    public void sendEmail(String userEmail) {
-//        if (mSubscription != null && !mSubscription.isUnsubscribed()) {
-//            mSubscription.unsubscribe();
-//        }
-//
-//        ApiMethod service;
-//        try {
-//            service = mMattermostApp.getMattermostRetrofitService();
-//        } catch (IllegalArgumentException e) {
-//            e.printStackTrace();
-//            getView().showErrorText("Url is not valid https://");
-//            return;
-//        }
-//
-//        getView().showProgress(true);
-
-//        mSubscription = service.forgotPassword(new ForgotData(userEmail))
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new MattermostHttpSubscriber<ForgotData>() {
-//                    @Override
-//                    public void onCompleted() {
-//                        getView().showProgress(false);
-//                        getView().hideKeyboard();
-//                        getView().finishActivity();
-//                    }
-
-//                    @Override
-//                    public void onErrorMattermost(HttpError httpError, Throwable e) {
-//                        getView().showProgress(false);
-//                        getView().showErrorText(httpError.getMessage());
-//                    }
-
-//                    @Override
-//                    public void onNext(ForgotData forgotData) {
-//                        getView().showMessage(forgotData.email);
-//                    }
-//                });
-
-//    }
 }

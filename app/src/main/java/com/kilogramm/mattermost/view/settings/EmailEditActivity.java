@@ -1,11 +1,9 @@
 package com.kilogramm.mattermost.view.settings;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,14 +12,10 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityChangeEmailBinding;
-import com.kilogramm.mattermost.databinding.ActivitySettingsBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.presenter.settings.EmailEditPresenter;
-import com.kilogramm.mattermost.rxtest.ProfileRxActivity;
-import com.kilogramm.mattermost.rxtest.ProfileRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.squareup.picasso.Picasso;
 
 import nucleus.factory.RequiresPresenter;
 
@@ -74,8 +68,8 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     private void onClickSave() {
         hideKeyboard(this);
         String newEmail = binding.newEmail.getText().toString();
-        if(newEmail !=null && newEmail.length() > 0
-                && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()){
+        if (newEmail != null && newEmail.length() > 0
+                && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
             User editedUser = new User(UserRepository.query(new UserRepository.
                     UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
             editedUser.setEmail(binding.newEmail.getText().toString());
@@ -90,7 +84,7 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
         context.startActivity(starter);
     }
 
-    public void showSuccessMessage(){
+    public void showSuccessMessage() {
         Toast.makeText(this, getString(R.string.verify_email), Toast.LENGTH_SHORT).show();
     }
 }

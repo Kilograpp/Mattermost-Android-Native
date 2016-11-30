@@ -59,7 +59,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
             sendVisibleProgress(false);
             sendShowError(getError(throwable));
         });
-
     }
 
     @Override
@@ -116,29 +115,29 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
 
     // to view methods
 
-    private void sendVisibleProgress(Boolean visibility){
+    private void sendVisibleProgress(Boolean visibility) {
         createTemplateObservable(visibility)
                 .subscribe(split(MainRxAcivity::setShowProgress));
     }
 
-    private void sendShowLoginActivity(){
+    private void sendShowLoginActivity() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showLoginActivity()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showLoginActivity()));
     }
 
-    private void sendShowError(String error){
+    private void sendShowError(String error) {
         createTemplateObservable(error)
                 .subscribe(split(MainRxAcivity::showErrorText));
     }
 
-    private void sendShowErrorEditText(){
+    private void sendShowErrorEditText() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showEditTextErrorMessage()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showEditTextErrorMessage()));
     }
 
-    private void sendShowChatActivity(){
+    private void sendShowChatActivity() {
         createTemplateObservable(new Object())
-                .subscribe(split((mainRxAcivity,o) -> mainRxAcivity.showChatActivity()));
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showChatActivity()));
 
     }
 }
