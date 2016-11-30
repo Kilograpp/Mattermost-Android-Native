@@ -148,7 +148,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/users/"
                 + MattermostPreference.getInstance().getMyUserId()
-                + "/image";
+                + "/image?time="
+                + user.getLastPictureUpdate();
     }
 
     private void setupRightMenu() {
@@ -160,6 +161,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             user.addChangeListener(userRealmChangeListener = element -> {
                 Log.d(TAG, "OnChange users");
                 updateHeaderUserName(element);
+                Picasso.with(this)
+                        .load(getAvatarUrl())
+                        .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                        .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                        .into(binding.headerPicture);
             });
             updateHeaderUserName(user);
             Picasso.with(this)

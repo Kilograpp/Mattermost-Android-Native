@@ -25,6 +25,8 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     private TextWatcher firstNameTextWatcher;
     private TextWatcher lastNameTextWatcher;
 
+    private LastItemFocusListener lastItemFocusListener;
+
     public InviteUserAdapter(Context context) {
         this.context = context;
     }
@@ -140,6 +142,13 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
                 checkEmailField(holder, getData().get(holder.getAdapterPosition()));
             }
         });
+
+        holder.binding.editLastName.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && holder.getAdapterPosition() >= 0
+                    && holder.getAdapterPosition() == getDataCount() - 1) {
+                if (lastItemFocusListener != null) lastItemFocusListener.onGetFocus();
+            }
+        });
     }
 
     public void setShouldCheckNullFields(boolean shouldCheckNullFields) {
@@ -161,6 +170,10 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         }
     }
 
+    public void setLastItemFocusListener(LastItemFocusListener lastItemFocusListener) {
+        this.lastItemFocusListener = lastItemFocusListener;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private InviteMemberItemBinding binding;
 
@@ -173,5 +186,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
             InviteMemberItemBinding binding = InviteMemberItemBinding.inflate(inflater, parent, false);
             return new ViewHolder(binding);
         }
+    }
+
+    public interface LastItemFocusListener{
+        void onGetFocus();
     }
 }
