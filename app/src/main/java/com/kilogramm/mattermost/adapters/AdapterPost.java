@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.adapters;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -137,23 +136,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             if(pos-1==-1){
                 isTitle = true;
             }
-
-
-/*
-            if(position < getItemCount() - 2) {
-                Post abovePost = getItem(position + 1);
-   */
-/*         if(post.getUserId().equals(abovePost.getUserId())){
-                holder.getmBinding().avatar.setVisibility(View.GONE);
-                holder.getmBinding().nick.setVisibility(View.GONE);
-                holder.getmBinding().time.setVisibility(View.GONE);
-            }*//*
-
-            }
-*/
-
-
-
             holder.bindToItem(post, context, isTitle, root, listener);
         } else {
             holder.bindToLoadingBottom();
