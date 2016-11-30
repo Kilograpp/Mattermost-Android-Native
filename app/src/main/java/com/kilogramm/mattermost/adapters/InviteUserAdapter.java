@@ -38,7 +38,7 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     public void onBindGenericViewHolder(ViewHolder holder, int position) {
         InviteObject item = getItem(position);
         holder.binding.memberNumberLabel.setText(String.format("%s%d", context.getString(R.string.member), (position + 1)));
-        if (position == 0) {
+        if (position == 0 && getDataCount() <= 1) {
             holder.binding.delete.setVisibility(View.GONE);
         } else {
             holder.binding.delete.setVisibility(View.VISIBLE);
@@ -57,7 +57,11 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     @Override
     public void removeItem(int position) {
         super.removeItem(position);
-        notifyItemRangeChanged(position, getData().size() - 1);
+        if(getDataCount() > 1) {
+            notifyItemRangeChanged(position, getData().size() - 1);
+        } else if (getDataCount() == 1){
+            notifyItemChanged(position);
+        }
     }
 
     public int isAllValid() {
