@@ -216,4 +216,6 @@
     <string name="channel_display_name_edit">Edit name</string>
     <string name="channel_name_edit">Edit handle</string>
 
+    <string name="ellipsis" msgid="7899829516048813237">"…"</string>
+
 </resources>

@@ -175,18 +175,21 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     @NonNull
     public static Spannable getMarkdownPost(String postMessage, Context context) {
+        if (postMessage!=null) {
+            CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(postMessage));
+            Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
+            Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
 
-        CharSequence string = new Bypass().markdownToSpannable(EmojiParser.parseToUnicode(postMessage));
-        Spannable spannable = Spannable.Factory.getInstance().newSpannable(string);
-        Linkify.addLinks(spannable, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+            Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
+                spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
+                        start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                return true;
+            }, null);
 
-        Linkify.addLinks(spannable, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-            spannable.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
-                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            return true;
-        }, null);
-
-        return spannable;
+            return spannable;
+        } else {
+            return Spannable.Factory.getInstance().newSpannable("");
+        }
     }
 
     @NonNull

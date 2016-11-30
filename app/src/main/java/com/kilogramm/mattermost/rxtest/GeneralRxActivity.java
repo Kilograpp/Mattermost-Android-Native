@@ -131,11 +131,14 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
+                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));/*
                     leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
                     leftMenuRxFragment.onChannelClick(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));*/
                 }
             }
         }
@@ -233,6 +236,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
+        leftMenuRxFragment.setSelectItemMenu(channelId, type);
     }
 
     private void replaceFragment(String channelId, String channelName) {
@@ -248,6 +252,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
+            MattermostPreference.getInstance().setLastChannelId(channelId);
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             if (searchMessageId != null) {
@@ -256,9 +261,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 getFragmentManager().beginTransaction()
                         .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                         .commit();
+                MattermostPreference.getInstance().setLastChannelId(channelId);
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 this.searchMessageId = null;
             }
+        }
+        if(searchMessageId!=null){
+            searchMessageId = null;
         }
     }
 

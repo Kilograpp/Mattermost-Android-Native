@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
 import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -209,7 +210,9 @@ public class FileToAttachRepository {
 
     public void remove(FileToAttach item) {
         Realm realm = Realm.getDefaultInstance();
-
+        if (item != null && item.isTemporary()) {
+            FileUtil.getInstance().removeFile(item.getFilePath());
+        }
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm1.where(FileToAttach.class)
                     .equalTo("id", item.getId())
@@ -247,6 +250,11 @@ public class FileToAttachRepository {
                     .or()
                     .equalTo("uploadState", UploadState.UPLOADED.toString())
                     .findAll();
+            for (FileToAttach fileToAttach : fileToAttachList) {
+                if (fileToAttach != null && fileToAttach.isTemporary()) {
+                    FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+                }
+            }
             fileToAttachList.deleteAllFromRealm();
         });
     }
