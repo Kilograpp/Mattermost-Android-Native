@@ -73,7 +73,8 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                             return channel;
                         })), (generalRxActivity, channel) -> {
                     mListPreferences.getmSaveData().clear();
-                    sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                    if(channel.getId()!=null)
+                        sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                 }, (generalRxActivity, throwable) -> throwable.printStackTrace());
     }
 
