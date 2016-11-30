@@ -213,31 +213,29 @@ public class ManagerBroadcast {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String userName = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()))
-                .first()
-                .getUsername();
-        String notificationTitle = "New message from " + userName;
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(post.getChannelId())).first();
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                openDialogIntent(post.getChannelId(), context), PendingIntent.FLAG_CANCEL_CURRENT);
+                openDialogIntent(context, channel), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
                 closeNotificationIntent(context), 0);
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
-        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
-        remoteViews.setTextViewText(R.id.title, notificationTitle);
+        remoteViews.setTextViewText(R.id.title, setNotificationTitle(channel, post.getUserId()));
         remoteViews.setTextViewText(R.id.text, displayedMessage(post, context));
+        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.icon)
-                    .setContentTitle(notificationTitle)
-                    .setContentText(displayedMessage(post, context))
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent);
+                    .setContentIntent(pIntent)
+                    .setContent(remoteViews)
+                    .setAutoCancel(true);
 
             notification = builder.build();
             notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR;
@@ -245,12 +243,11 @@ public class ManagerBroadcast {
         } else {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
-                    .setContentTitle(notificationTitle)
-                    .setContentText(displayedMessage(post, context))
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pIntent)
-                    .setContent(remoteViews);
+                    .setContent(remoteViews)
+                    .setAutoCancel(true);
 
             notification = builderCompat.build();
             notificationManager.notify(NOTIFY_ID, notification);
@@ -262,6 +259,18 @@ public class ManagerBroadcast {
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
                         .into(remoteViews, R.id.avatar, NOTIFY_ID, notification));
+    }
+
+    private static String setNotificationTitle(Channel channel, String userId) {
+        String userName = UserRepository.query(new UserRepository.UserByIdSpecification(userId))
+                .first()
+                .getUsername();
+
+        if (channel.getType().equals(Channel.DIRECT)) {
+            return "Direct message from " + channel.getUsername();
+        } else {
+            return userName + " in " + channel.getDisplayName();
+        }
     }
 
     private static CharSequence displayedMessage(Post post, Context context) {
@@ -281,8 +290,7 @@ public class ManagerBroadcast {
         }
     }
 
-    private static Intent openDialogIntent(String channelId, Context context) {
-        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+    private static Intent openDialogIntent(Context context, Channel channel) {
         Intent intent = new Intent(context, GeneralRxActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(CHANNEL_ID, channel.getId());

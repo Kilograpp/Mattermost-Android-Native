@@ -36,13 +36,14 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
         //
         Intent intentService = new Intent(this, MattermostService.class);
-        if (!isMattermostServiceRunning(MattermostService.class)) {
-            startService(intentService);
-            Log.d(TAG, "startService");
-        } else {
-            stopService(intentService);
-            Log.d(TAG, "stopService");
-        }
+        startService(intentService);
+//        if (!isMattermostServiceRunning(MattermostService.class)) {
+//            startService(intentService);
+//            Log.d(TAG, "startService");
+//        } else {
+//            stopService(intentService);
+//            Log.d(TAG, "stopService");
+//        }
         //
     }
     //
