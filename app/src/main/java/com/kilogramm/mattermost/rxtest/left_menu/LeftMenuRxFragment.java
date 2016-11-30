@@ -48,7 +48,7 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
 
 @RequiresPresenter(LeftMenuRxPresenter.class)
 public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
-                                                                            SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "LEFT_MENU_RX_FRAGMENT";
 
     private static final int NOT_SELECTED = -1;
@@ -83,10 +83,14 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             if (channelListAdapter != null) {
                 channelListAdapter.notifyDataSetChanged();
             }
+            if (directListAdapter != null) {
+                directListAdapter.notifyDataSetChanged();
+            }
+            if (privateListAdapter != null) {
+                privateListAdapter.notifyDataSetChanged();
+            }
         });
-
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
-
         initView();
         return view;
     }
@@ -118,6 +122,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         onChannelClick(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
                 data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
                 data.getStringExtra(AddExistingChannelsActivity.TYPE));
+        setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
+                data.getStringExtra(AddExistingChannelsActivity.TYPE));
     }
 
     private void handleRequestJoinDirect(Intent data) {
@@ -131,6 +137,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             getPresenter().requestSaveData(saveData, userTalkToId);
         } else {
             onChannelClick(channels.get(0).getId(), channels.get(0).getUsername(), channels.get(0).getType());
+            setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
+                    data.getStringExtra(AddExistingChannelsActivity.TYPE));
         }
     }
 

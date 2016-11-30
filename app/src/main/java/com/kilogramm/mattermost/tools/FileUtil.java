@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -171,7 +172,7 @@ public class FileUtil {
 
     public String getMimeType(String url) {
         String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        String extension = getFileExtensionFromUrl(url);
         if (extension != null) {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         }
@@ -319,11 +320,16 @@ public class FileUtil {
 
     public Observable<Bitmap> getBitmap(String filePath, int inSampleSize) {
         return Observable.create(subscriber -> {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = inSampleSize;
-            final Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
-            subscriber.onNext(bitmap);
-            subscriber.onCompleted();
+            File file = new File(filePath);
+            if(!file.exists()){
+                subscriber.onError(new Throwable("File does not exist"));
+            } else {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = inSampleSize;
+                final Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
+                subscriber.onNext(bitmap);
+                subscriber.onCompleted();
+            }
         });
     }
 
@@ -397,5 +403,39 @@ public class FileUtil {
         } else {
             return "";
         }
+    }
+
+    public String getFileExtensionFromUrl(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            int fragment = url.lastIndexOf('#');
+            if (fragment > 0) {
+                url = url.substring(0, fragment);
+            }
+
+            int query = url.lastIndexOf('?');
+            if (query > 0) {
+                url = url.substring(0, query);
+            }
+
+            int filenamePos = url.lastIndexOf('/');
+            String filename =
+                    0 <= filenamePos ? url.substring(filenamePos + 1) : url;
+
+            // if the filename contains special characters, we don't
+            // consider it valid for our matching purposes:
+
+            if (!filename.isEmpty()) {
+                Pattern pattern = Pattern.compile("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+");
+                Matcher matcher = pattern.matcher(filename);
+                if(matcher.find()) {
+                    int dotPos = filename.lastIndexOf('.');
+                    if (0 <= dotPos) {
+                        return filename.substring(dotPos + 1);
+                    }
+                }
+            }
+        }
+
+        return "";
     }
 }

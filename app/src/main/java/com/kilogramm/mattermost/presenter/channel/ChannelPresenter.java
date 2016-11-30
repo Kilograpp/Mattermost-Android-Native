@@ -21,7 +21,6 @@ import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -112,13 +111,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> {
-                    RealmResults<Channel> leftChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
-                    if (leftChannel != null && leftChannel.size() > 0) {
-                        String leftChannelName = leftChannel.first().getDisplayName();
-                        ChannelRepository.remove(
-                                new ChannelRepository.ChannelByIdSpecification(channel.getId()));
-                        requestFinish(leftChannelName);
-                    }
+                    requestFinish();
                 }, (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }
@@ -177,10 +170,17 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     }
 
 
-    private void requestFinish(String leftChannelName) {
-        createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
-            channelActivity.finishActivity(leftChannelName);
-        }));
+    private void requestFinish() {
+        createTemplateObservable(new Object())
+                .subscribe(split((channelActivity, o) -> {
+                    String leftChannelName = this.channel.getDisplayName();
+                    Toast.makeText(channelActivity, String.format("You've just leaved %s %s",
+                            channel.getName(),
+                            channel.getType().equals("O") ? "channel" : "direct"),
+                            Toast.LENGTH_SHORT).show();
+                    ChannelRepository.remove(channel);
+                    channelActivity.finishActivity(leftChannelName);
+                }));
     }
 
     private void sendError(String error) {

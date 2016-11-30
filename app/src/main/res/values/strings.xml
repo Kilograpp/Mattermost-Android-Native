@@ -220,4 +220,7 @@
     <string name="notification_sent_attachment">"did something new"</string>
     <string name="notification_sent_pic">"sent picture"</string>
     <string name="notification_sent_file">"sent file"</string>
+
+    <string name="ellipsis" msgid="7899829516048813237">"…"</string>
+
 </resources>

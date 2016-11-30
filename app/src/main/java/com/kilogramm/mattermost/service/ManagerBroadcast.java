@@ -212,17 +212,6 @@ public class ManagerBroadcast {
                 .build();
     }
 
-//    private static void createNotification(Post post, Context context) {
-//        Notification.Builder builder = new Notification.Builder(context)
-//                .setContentTitle("New message from " + post.getUser().getUsername())
-//                .setContentText(Html.fromHtml(post.getMessage()))
-//                .setSmallIcon(R.mipmap.icon);
-//        Notification notification = builder.build();
-//        notification.flags = Notification.FLAG_AUTO_CANCEL;
-//        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//        manager.notify(1, notification);
-//    }
-
     private static void createNotificationNEW(Post post, Context context) {
         Notification notification;
 
