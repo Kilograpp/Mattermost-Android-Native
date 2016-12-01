@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -107,6 +108,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private FragmentChatMvpBinding binding;
 
+    public static boolean active = false;
+
     @State
     String channelId;
     @State
@@ -154,6 +157,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         View view = binding.getRoot();
         initView();
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
     }
 
     private void initView() {
@@ -243,6 +258,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             else ChannelActivity.start(getActivity(), channelId);
         }, v -> searchMessage());
         checkNeededPermissions();
+        NotificationManager notificationManager = (NotificationManager)
+                getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(channelId.hashCode());
+        Log.d(TAG, "onResume: channeld" + channelId.hashCode());
     }
 
     private void checkNeededPermissions() {

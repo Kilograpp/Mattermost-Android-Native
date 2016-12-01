@@ -68,12 +68,14 @@
                             android:text="@string/notification_mob_push" />
 
                         <TextView
+                            android:id="@+id/descriptionMobPush"
                             style="@style/textVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_horizontal_text_margin"
                             android:maxLines="1"
-                            android:text="@string/notification_mob_push_description" />
+                            android:singleLine="true"
+                           />
 
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
@@ -105,7 +107,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_horizontal_text_margin"
-                            android:maxLines="1"/>
+                            android:maxLines="1"
+                            android:singleLine="true"/>
 
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
