@@ -44,9 +44,41 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
                 ((NotificationActivity) getActivity()).openEmailNotification());
 
         binding.descriptionWordsTrigger.setText(getPresenter().getMentionsAll());
+        binding.descriptionMobPush.setText(getMobPushNotificationDescriptions());
         binding.emailSetting.setText(getPresenter().getEmailSetting().toString());
 
         return view;
+    }
+
+    public String getMobPushNotificationDescriptions() {
+        String pushSetting = null;
+        switch (getPresenter().getPushSetting()) {
+            case "all":
+                pushSetting = getString(R.string.mob_push_all);
+                break;
+            case "mention":
+                pushSetting = getString(R.string.mob_push_mentions_direct);
+                break;
+            case "none":
+                pushSetting = getString(R.string.mob_push_never);
+                break;
+        }
+        String pushStatus = null;
+        switch (getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting()) {
+            case "online":
+                pushStatus = getString(R.string.mob_push_on_away_off);
+                break;
+            case "away":
+                pushStatus = getString(R.string.mob_push_away_off);
+                break;
+            case "offline":
+                pushStatus = getString(R.string.mob_push_off);
+                break;
+            case "":
+                break;
+        }
+
+        return String.format("%s when %s", pushSetting, pushStatus.toLowerCase());
     }
 
     @Override
