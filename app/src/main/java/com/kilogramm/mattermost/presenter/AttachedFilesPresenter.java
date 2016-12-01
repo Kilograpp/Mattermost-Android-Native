@@ -72,7 +72,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                 file = new File(fileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
-            if(file.exists()){
+            if (file.exists()) {
                 Log.d(TAG, "initRequests: file exists");
             }
             FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
@@ -87,7 +87,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
-            if (fileUploadResponse.getFilenames()!=null
+            if (fileUploadResponse.getFilenames() != null
                     && fileUploadResponse.getFilenames().size() != 0) {
 //                sendShowToast("Loading complete");
                 Log.d(TAG, fileUploadResponse.toString());
@@ -99,26 +99,33 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowUploadErrorToast("");
+            sendShowUploadErrorToast();
             Log.d(TAG, "Error");
             FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });
     }
 
-    public void sendShowToast(String log){
-        createTemplateObservable(log)
-                .subscribe(split(AttachedFilesLayout::showToast));
+    private void sendShowUploadErrorToast() {
+        createTemplateObservable(new Object())
+                .subscribe(split((attachedFilesLayout, o)
+                        -> attachedFilesLayout.showUploadErrorToast()));
     }
 
-    public void sendShowUploadErrorToast(String log){
-        createTemplateObservable(log)
-                .subscribe(split(AttachedFilesLayout::showUploadErrorToast));
+    private void sendAllUploaded() {
+        createTemplateObservable(new Object())
+                .subscribe(split((attachedFilesLayout, o)
+                        -> attachedFilesLayout.onAllUploaded()));
     }
 
     private void startRequest() {
         fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
-        if (fileToAttach == null || channelId == null) return;
+        if (fileToAttach == null || channelId == null) {
+            if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
+                sendAllUploaded();
+            }
+            return;
+        }
         start(REQUEST_UPLOAD_TO_SERVER);
     }
 }

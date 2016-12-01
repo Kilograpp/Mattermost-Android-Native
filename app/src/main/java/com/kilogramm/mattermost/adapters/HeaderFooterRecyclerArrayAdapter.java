@@ -88,15 +88,22 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
         return TYPE_ITEM;
     }
 
+    public int getDataCount() {
+        return items.size();
+    }
+
+
     /**
      * Add an item of the specified type to the dataset
      *
      * @param item adding element
      */
     public void add(T item) {
+        // TODO прочекать, как будет работать при наличии хедеров
         if (items == null) items = new ArrayList<T>();
         items.add(item);
         notifyItemInserted(items.size() - 1);
+        notifyItemChanged(0);
     }
 
     /**

@@ -94,6 +94,16 @@ public class UserRepository {
         realm.commitTransaction();
     }
 
+
+    public static void updateUserAvataTime(String userId, long time){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        User me = realm.where(User.class).equalTo("id", userId).findAll().first();
+        me.setLastPictureUpdate(time);
+        realm.copyToRealmOrUpdate(me);
+        realm.commitTransaction();
+    }
+
     public static class UserByIdSpecification implements RealmSpecification {
 
         private final String id;

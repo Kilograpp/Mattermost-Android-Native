@@ -121,7 +121,7 @@ public class FilesView extends GridLayout {
                 }
 
                 String extension = FileUtil.getInstance().getMimeType(fileName);
-                if( extension!=null && extension.contains("image")) {
+                if(extension != null && extension.contains("image")) {
                     binding.image.setVisibility(VISIBLE);
                     binding.circleFrame.setVisibility(GONE);
                     initAndAddItem(binding, fileName);
@@ -179,8 +179,8 @@ public class FilesView extends GridLayout {
                 .load(url)
                 .resize(300, 300)
                 .centerCrop()
-                .placeholder(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
-                .error(getContext().getResources().getDrawable(R.drawable.ic_attachment_grey_24dp))
+                .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
+                .error(getContext().getResources().getDrawable(R.drawable.slices))
                 .into(binding.image);
         this.addView(binding.getRoot());
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -13,6 +14,7 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.io.File;
+import java.util.Calendar;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -89,11 +91,19 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                             .subscribeOn(Schedulers.io());
                 },(editProfileRxActivity, result) -> {
                     sendGood(editProfileRxActivity.getString(R.string.avatar_updated));
+                    updateAvatarTime();
                     imageUri = null;
                     sendUriNull();
                 },(editProfileRxActivity, throwable) -> {
                     sendError(getError(throwable));
                 });
+    }
+
+    private void updateAvatarTime(){
+        User user = UserRepository.query(new UserRepository.
+                UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        Calendar ca = Calendar.getInstance();
+        UserRepository.updateUserAvataTime(user.getId(), ca.getTimeInMillis());
     }
 
     private void sendUriNull() {

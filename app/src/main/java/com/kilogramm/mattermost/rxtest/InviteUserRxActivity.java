@@ -4,9 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,12 +30,15 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 18.10.2016.
  */
 @RequiresPresenter(InviteUserRxPresenter.class)
-public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
+public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter>
+        implements InviteUserAdapter.LastItemFocusListener {
 
     private RecyclerView mRecyclerView;
     private InviteUserAdapter mAdapter;
 
     ProgressDialog progressDialog;
+
+    RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +52,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
 
         mRecyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new InviteUserAdapter(this);
@@ -60,6 +67,8 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
                 }
         );
         mAdapter.addFooter(view);
+        mAdapter.setLastItemFocusListener(this);
+
     }
 
     @Override
@@ -94,7 +103,7 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
             obj.getInvites().addAll(mAdapter.getData());
             getPresenter().requestInvite(obj);
         } else {
-            if(position == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)){
+            if (position == (mAdapter.getItemCount() - mAdapter.getFooterItemCount() - 1)) {
                 position += 1;
             }
             mRecyclerView.smoothScrollToPosition(position);
@@ -125,8 +134,27 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter> {
     }
 
     public void onOkInvite() {
-        if(progressDialog != null) progressDialog.dismiss();
+        if (progressDialog != null) progressDialog.dismiss();
         Toast.makeText(InviteUserRxActivity.this, getString(R.string.invitations_were_sended), Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    @Override
+    public void onGetFocus() {
+        final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(mRecyclerView.getContext()) {
+
+            @Override
+            public PointF computeScrollVectorForPosition(int targetPosition) {
+                return ((LinearLayoutManager) getLayoutManager()).computeScrollVectorForPosition(targetPosition);
+            }
+
+            @Override
+            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                return 200f / displayMetrics.densityDpi;
+            }
+        };
+
+        linearSmoothScroller.setTargetPosition(mAdapter.getItemCount() - 1);
+        mLayoutManager.startSmoothScroll(linearSmoothScroller);
     }
 }

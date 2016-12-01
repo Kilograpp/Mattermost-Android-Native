@@ -1,13 +1,19 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,6 +52,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
     private static final String TAG = "EditProfileRxActivity";
     private static final int YOUR_SELECT_PICTURE_REQUEST_CODE = 1;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 7;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -146,8 +153,21 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         }
     }
 
-    private void openImageIntent() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openImageIntent();
+                }
+                break;
+        }
+    }
 
+    private void openImageIntent() {
         // Determine Uri of camera image to save.
         final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
         root.mkdir();
@@ -182,7 +202,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
     private void onClickSave() {
         boolean save = false;
-        if(selectedImageUri != null){
+        if (selectedImageUri != null) {
             getPresenter().requestNewImage(selectedImageUri);
             save = true;
         }
@@ -195,7 +215,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             getPresenter().requestSave(editedUser);
             save = true;
         }
-        if(!save){
+        if (!save) {
             Toast.makeText(this, "No changes.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -217,7 +237,22 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
         mBinding.changePassword.setOnClickListener(v -> PasswordChangeActivity.start(this));
 
-        mBinding.changeAvatar.setOnClickListener(v -> openImageIntent());
+        mBinding.changeAvatar.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            CAMERA_PERMISSION_REQUEST_CODE);
+                } else {
+                    openImageIntent();
+                }
+            } else {
+                openImageIntent();
+            }
+        });
 
         Picasso.with(this)
                 .load(getAvatarUrl())

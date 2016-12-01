@@ -178,7 +178,7 @@
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
                     android:text="Send"
-                    android:textColor="@color/colorPrimary" />
+                    android:textColor="@color/grey" />
                 <!--<ImageView
                     android:id="@+id/btnSend"
                     android:layout_width="wrap_content"

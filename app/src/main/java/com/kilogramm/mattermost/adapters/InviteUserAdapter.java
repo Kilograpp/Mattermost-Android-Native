@@ -25,6 +25,8 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     private TextWatcher firstNameTextWatcher;
     private TextWatcher lastNameTextWatcher;
 
+    private LastItemFocusListener lastItemFocusListener;
+
     public InviteUserAdapter(Context context) {
         this.context = context;
     }
@@ -38,7 +40,7 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     public void onBindGenericViewHolder(ViewHolder holder, int position) {
         InviteObject item = getItem(position);
         holder.binding.memberNumberLabel.setText(String.format("%s%d", context.getString(R.string.member), (position + 1)));
-        if (position == 0) {
+        if (position == 0 && getDataCount() <= 1) {
             holder.binding.delete.setVisibility(View.GONE);
         } else {
             holder.binding.delete.setVisibility(View.VISIBLE);
@@ -57,7 +59,11 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     @Override
     public void removeItem(int position) {
         super.removeItem(position);
-        notifyItemRangeChanged(position, getData().size() - 1);
+        if(getDataCount() > 1) {
+            notifyItemRangeChanged(position, getData().size() - 1);
+        } else if (getDataCount() == 1){
+            notifyItemChanged(position);
+        }
     }
 
     public int isAllValid() {
@@ -136,6 +142,13 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
                 checkEmailField(holder, getData().get(holder.getAdapterPosition()));
             }
         });
+
+        holder.binding.editLastName.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && holder.getAdapterPosition() >= 0
+                    && holder.getAdapterPosition() == getDataCount() - 1) {
+                if (lastItemFocusListener != null) lastItemFocusListener.onGetFocus();
+            }
+        });
     }
 
     public void setShouldCheckNullFields(boolean shouldCheckNullFields) {
@@ -157,6 +170,10 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         }
     }
 
+    public void setLastItemFocusListener(LastItemFocusListener lastItemFocusListener) {
+        this.lastItemFocusListener = lastItemFocusListener;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private InviteMemberItemBinding binding;
 
@@ -169,5 +186,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
             InviteMemberItemBinding binding = InviteMemberItemBinding.inflate(inflater, parent, false);
             return new ViewHolder(binding);
         }
+    }
+
+    public interface LastItemFocusListener{
+        void onGetFocus();
     }
 }
