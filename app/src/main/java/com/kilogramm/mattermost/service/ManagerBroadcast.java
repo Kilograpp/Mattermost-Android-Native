@@ -120,7 +120,7 @@ public class ManagerBroadcast {
                         .build();
 
                 savePost(data.getPost());
-                if(data.getMentions().length() > 0
+                if (data.getMentions().length() > 0
                         && !data.getPost().getUserId()
                         .equals(MattermostPreference.getInstance().getMyUserId())) {
                     createNotificationNEW(data.getPost(), context);
@@ -210,9 +210,10 @@ public class ManagerBroadcast {
     }
 
     private static void createNotificationNEW(Post post, Context context) {
-        if(ChatRxFragment.active&&MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())){
+        if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())) {
             return;
         }
+
         Notification notification;
 
         NotificationManager notificationManager = (NotificationManager)
@@ -225,7 +226,7 @@ public class ManagerBroadcast {
                 openDialogIntent(context, channel), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
-                closeNotificationIntent(context), 0);
+                closeNotificationIntent(context, post.getChannelId().hashCode()), 0);
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
         remoteViews.setTextViewText(R.id.title, setNotificationTitle(channel, post.getUserId()));
@@ -310,9 +311,10 @@ public class ManagerBroadcast {
         return intent;
     }
 
-    private static Intent closeNotificationIntent(Context context) {
+    private static Intent closeNotificationIntent(Context context, int id) {
         Intent intent = new Intent(context.getApplicationContext(), CloseButtonReceiver.class);
         intent.putExtra(NOTIFICATION_ID, NOTIFY_ID);
+//        intent.putExtra(NOTIFICATION_ID, id);
         intent.setAction(CLOSE_NOTIFICATION);
         return intent;
     }
@@ -359,7 +361,8 @@ public class ManagerBroadcast {
             int notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
             NotificationManager manager = (NotificationManager)
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.cancel(notificationId);
+//            manager.cancel(notificationId);
+            manager.cancelAll();
         }
     }
 
