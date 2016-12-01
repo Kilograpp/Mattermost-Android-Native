@@ -252,6 +252,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         Log.d(TAG, "initChannelList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         mBinding.frChannel.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.frChannel.recView.setNestedScrollingEnabled(false);
         mBinding.frChannel.addChannel.setOnClickListener(this::onCreateChannelClick);
         mBinding.frChannel.btnMoreChannel.setOnClickListener(this::openMore);
         channelListAdapter = new ChannelListAdapter(channels, getActivity(), members, this);
@@ -262,6 +263,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         Log.d(TAG, "initPrivateList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
         mBinding.frPrivate.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.frPrivate.recView.setNestedScrollingEnabled(false);
         mBinding.frPrivate.addGroup.setOnClickListener(this::onCreateChannelClick);
         privateListAdapter = new PrivateListAdapter(channels, getActivity(), members, this);
         mBinding.frPrivate.recView.setAdapter(privateListAdapter);
@@ -272,6 +274,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         RealmResults<Channel> channels = getDirectChannelData();/*ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));*/
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.frDirect.recView.setNestedScrollingEnabled(false);
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
         directListAdapter = new DirectListAdapter(channels, getActivity(), this, members, statusRealmResults);
         mBinding.frDirect.recView.setAdapter(directListAdapter);
