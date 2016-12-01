@@ -36,6 +36,7 @@ public class FileToAttachRepository {
                 primaryKeyValue = new AtomicLong(0);
             }
             item.setId(primaryKeyValue.incrementAndGet());
+            item.setProgress(0);
             realm1.copyToRealm(item);
         });
     }
@@ -56,6 +57,7 @@ public class FileToAttachRepository {
                     primaryKeyValue = new AtomicLong(0);
                 }
                 fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.WAITING_FOR_DOWNLOAD);
+                fileToAttach.setProgress(0);
                 realm1.copyToRealm(fileToAttach);
             }
         });
@@ -219,7 +221,7 @@ public class FileToAttachRepository {
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-        realm.close();
+//        realm.close();
     }
 
     public void remove(String fileName) {

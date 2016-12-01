@@ -48,10 +48,10 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        FileToAttach fileToAttach = getData().get(position);
+        FileToAttach fileToAttach = getData().get(holder.getAdapterPosition());
         holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
         String mimeType = FileUtil.getInstance().getMimeType(fileToAttach.getFilePath());
-        if(mimeType != null && mimeType.contains("image")) {
+        if (mimeType != null && mimeType.contains("image")) {
             holder.binding.imageView.setVisibility(VISIBLE);
             FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
                     .subscribeOn(Schedulers.computation())
@@ -75,21 +75,22 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
         } else {
             holder.binding.imageView.setVisibility(View.GONE);
         }
-        if (fileToAttach.getProgress() < 100) {
+        if (fileToAttach.getProgress() > 0 && fileToAttach.getProgress() < 100) {
             holder.binding.progressBar.setVisibility(VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
             holder.binding.progressWait.setVisibility(View.GONE);
         } else {
             holder.binding.progressBar.setVisibility(View.GONE);
-            if (fileToAttach.getUploadState() == UploadState.UPLOADING) {
+            if (fileToAttach.getUploadState() == UploadState.UPLOADING
+                    || fileToAttach.getUploadState() == UploadState.WAITING_FOR_UPLOAD) {
                 holder.binding.progressWait.setVisibility(VISIBLE);
             } else {
                 holder.binding.progressWait.setVisibility(View.GONE);
             }
         }
         holder.binding.close.setOnClickListener(v -> {
-            if (fileToAttach.isValid()) {
-                FileToAttachRepository.getInstance().remove(fileToAttach);
+            if (getItem(holder.getAdapterPosition()).isValid()) {
+                FileToAttachRepository.getInstance().remove(getItem(holder.getAdapterPosition()));
                 if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                     emptyListListener.onEmptyList();
                 }
