@@ -25,7 +25,7 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
     private FragmentPhotoViewBinding photoBinding;
     private String imageUri;
 
-    static PhotoViewFragment newInstance(String imageUri/*, VerticalSwipeListener listener*/) {
+    static PhotoViewFragment newInstance(String imageUri) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
 
         Bundle arguments = new Bundle();
@@ -41,8 +41,6 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
         if (getArguments() != null) {
             this.imageUri = getArguments().getString(IMAGE_URI);
         }
-
-
     }
 
     @Nullable
@@ -72,13 +70,10 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
                     }
                 });
 
-        photoBinding.image.setVerticalSwipeListener(() -> {
-            getActivity().finish();
-        });
+        photoBinding.image.setVerticalSwipeListener(() -> getActivity().finish());
     }
 
     @Override
     public void onSwipe() {
-
     }
 }
