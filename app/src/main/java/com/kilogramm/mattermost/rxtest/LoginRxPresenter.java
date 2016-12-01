@@ -181,6 +181,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     private Boolean isOpenChatScreen = false;
 
     public void requestLogin() {
+        isEnabledSignInButton.set(false);
         start(REQUEST_LOGIN);
     }
 
@@ -217,6 +218,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isOpenChatScreen = (teams.size() == 1);
             Log.d(TAG, "Complete");
             isVisibleProgress.set(View.GONE);
+            isEnabledSignInButton.set(true);
             if (isOpenChatScreen) {
                 loginRxActivity.showChatActivity();
                 MattermostPreference.getInstance().setTeamId(teams.get(0).getId());
@@ -224,6 +226,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                 loginRxActivity.showTeamChoose();
             }
         }, (loginRxActivity1, throwable) -> {
+            isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
             sendShowError(getError(throwable));
         });
@@ -244,6 +247,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             mRealm.executeTransaction(realm -> realm.copyToRealmOrUpdate(user));
             requestInitLoad();
         }, (loginRxActivity1, throwable) -> {
+            isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
             sendShowError(getError(throwable));
         });

@@ -138,6 +138,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     public void bindToLoadingBottom() {
     }
 
+    public ViewDataBinding getmBinding() {
+        return mBinding;
+    }
+
     private void setRootMassage(Post post) {
         ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
         ((ChatListItemBinding) mBinding).filesViewRoot.setItems(post.getFilenames());

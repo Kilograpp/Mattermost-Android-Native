@@ -53,6 +53,9 @@ public class ProgressRequestBody extends RequestBody {
         long uploaded = 0;
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
+            if (fileLength == 0) {
+                fileToAttachRepository.updateProgress(mFile.getName(), 100);
+            }
             while ((read = in.read(buffer)) != -1) {
                 // updateMembers progress on UI thread
 //                handler.post(new ProgressUpdater(uploaded, fileLength));

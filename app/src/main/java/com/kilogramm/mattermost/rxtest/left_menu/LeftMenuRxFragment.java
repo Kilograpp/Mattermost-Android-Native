@@ -326,13 +326,19 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void  selectLastChannel(){
-        Channel channel = ChannelRepository.query(
-                new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance()
-                        .getLastChannelId())).first();
-        Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId()+ "\n" +
-                "name = " + channel.getUsername()+ "\n" +
-                "type = " + channel.getType() + "\n");
-        //removeSelection(channel.getType());
-        setSelectItemMenu(channel.getId(),channel.getType());
+
+        RealmResults<Channel> channels = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
+        if(channels.size() <= 0){
+            return;
+        } else {
+            Channel channel = channels.first();
+            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId()+ "\n" +
+                    "name = " + channel.getUsername()+ "\n" +
+                    "type = " + channel.getType() + "\n");
+            //removeSelection(channel.getType());
+            setSelectItemMenu(channel.getId(),channel.getType());
+        }
+
     }
 }
