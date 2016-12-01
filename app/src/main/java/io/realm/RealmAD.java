@@ -33,6 +33,9 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         this.adapterData.addChangeListener(getRealmChangeListener());
         this.animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
         this.animatePrimaryIdType = adapterData.getTable().getColumnType(this.animatePrimaryColumnIndex);
+        if (adapterData.size() > 0) {
+            ids = getIdsOfRealmResults();
+        }
     }
 
 

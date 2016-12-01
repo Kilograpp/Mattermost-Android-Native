@@ -34,6 +34,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
@@ -54,7 +55,6 @@ import java.util.Objects;
 import io.realm.RealmList;
 import rx.schedulers.Schedulers;
 
-import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
 import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImageUrl;
 
 /**
@@ -210,6 +210,9 @@ public class ManagerBroadcast {
     }
 
     private static void createNotificationNEW(Post post, Context context) {
+        if(ChatRxFragment.active&&MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())){
+            return;
+        }
         Notification notification;
 
         NotificationManager notificationManager = (NotificationManager)
@@ -240,19 +243,21 @@ public class ManagerBroadcast {
                     .setAutoCancel(true);
 
             notification = builder.build();
-            notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR;
-            notificationManager.notify(NOTIFY_ID, notification);
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(post.getChannelId().hashCode(), notification);
+            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
         } else {
             NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.drawable.ic_mm)
                     .setDefaults(Notification.DEFAULT_ALL)
-                    .setPriority(PRIORITY_MAX)
+                    .setPriority(Notification.PRIORITY_HIGH)
                     .setContentIntent(pIntent)
                     .setContent(remoteViews)
                     .setAutoCancel(true);
 
             notification = builderCompat.build();
-            notificationManager.notify(NOTIFY_ID, notification);
+            notificationManager.notify(post.getChannelId().hashCode(), notification);
+            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
         }
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -260,7 +265,7 @@ public class ManagerBroadcast {
                 Picasso.with(context.getApplicationContext())
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
-                        .into(remoteViews, R.id.avatar, NOTIFY_ID, notification));
+                        .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notification));
     }
 
     private static String setNotificationTitle(Channel channel, String userId) {
