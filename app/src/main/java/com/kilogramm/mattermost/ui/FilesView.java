@@ -5,7 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.renderscript.RenderScript;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +28,16 @@ import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.decode.ImageDecoder;
+import com.nostra13.universalimageloader.core.decode.ImageDecodingInfo;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +47,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,8 +62,7 @@ public class FilesView extends GridLayout {
 
     private static final String TAG = "FileDownloadManager";
 
-    private static final String PNG = "png";
-    private static final String JPG = "jpg";
+    private DisplayImageOptions options;
 
     private List<String> fileList = new ArrayList<>();
     private Drawable backgroundColorId;
@@ -77,6 +90,29 @@ public class FilesView extends GridLayout {
 
     private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
+//        setUpImageloader(context);
+    }
+
+    private void setUpImageloader(Context context) {
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+
+        options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .cacheOnDisc(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .diskCacheExtraOptions(300, 300, bitmap -> null)
+                .memoryCacheExtraOptions(300, 300)
+                .defaultDisplayImageOptions(options)
+                .imageDownloader(new AuthDownloader(context))
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 
     public void setBackgroundColorComment() {
@@ -192,6 +228,8 @@ public class FilesView extends GridLayout {
                 .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
                 .error(getContext().getResources().getDrawable(R.drawable.slices))
                 .into(binding.image);
+//        ImageLoader.getInstance().displayImage(url, binding.image, options);
+
         this.addView(binding.getRoot());
 
         RealmString realmString = RealmStringRepository.getInstance().get(fileName);
@@ -357,5 +395,24 @@ public class FilesView extends GridLayout {
     private void clearView() {
         fileList.clear();
         this.removeAllViews();
+    }
+
+    public class AuthDownloader extends BaseImageDownloader {
+
+        public AuthDownloader(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
+            HttpURLConnection conn = super.createConnection(url, extra);
+            Map<String, String> headers = (Map<String, String>) extra;
+            if (headers != null) {
+                for (Map.Entry<String, String> header : headers.entrySet()) {
+                    conn.setRequestProperty(header.getKey(), header.getValue());
+                }
+            }
+            return conn;
+        }
     }
 }

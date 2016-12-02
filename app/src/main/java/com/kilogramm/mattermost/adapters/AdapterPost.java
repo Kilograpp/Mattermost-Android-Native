@@ -135,13 +135,13 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
                     root = getData().where().equalTo("id", post.getRootId()).findFirst();
                 }
             }
-            if(pos-1==-1){
+            if (pos - 1 == -1) {
                 isTitle = true;
             }
 
-            if(holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
+            if (holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
                 Post postAbove = getItem(holder.getAdapterPosition() - 1);
-                if(postAbove.getUser().getId().equals(post.getUser().getId()) && !post.isSystemMessage()) {
+                if (postAbove.getUser().getId().equals(post.getUser().getId())) {
                     ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
                     ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
@@ -150,9 +150,14 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                     ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
                 }
+            } else if(post.isSystemMessage()){
+                ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+                ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+                ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
             }
 
             holder.bindToItem(post, context, isTitle, root, listener);
+
         } else {
             holder.bindToLoadingBottom();
         }
@@ -165,6 +170,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     public Boolean getBottomLoading() {
         return isBottomLoading;
     }
+
 
     public int getPositionById(String id) {
         int count = super.getPositionById(id);

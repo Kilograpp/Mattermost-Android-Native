@@ -76,5 +76,6 @@ public class MattermostApp extends Application{
                                 .databaseNamePattern(Pattern.compile(".+\\.realm"))
                                 .build())
                         .build());
+
     }
 }
