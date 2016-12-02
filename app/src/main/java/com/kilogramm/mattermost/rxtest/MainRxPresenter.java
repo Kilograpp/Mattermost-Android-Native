@@ -26,11 +26,12 @@ import rx.schedulers.Schedulers;
  * Created by Evgeny on 03.10.2016.
  */
 public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
-
-    private static final String TAG = "MainRxPresenter";
+    private final String ERROR_NO_CONNECTION = "No connection to the internet";
+    private final String URI_STRING = "https://mattermost.kilograpp.com";
+    private final String URL_NOT_VALID = "Url is not valid https://";
 
     private static final int REQUEST_CHECK = 1;
-    //TODO pattern url null fix
+
     private static Pattern mPatternUrl = Patterns.WEB_URL;
 
     private MattermostApp mMattermostApp;
@@ -73,60 +74,49 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             sendShowChatActivity();
         }
 
-        if (BuildConfig.DEBUG && getView().getStringUrl().length() == 0)
-            getView().setTextUrl("https://mattermost.kilograpp.com");
+        if (BuildConfig.DEBUG && getView().getStringUrl().length() == 0) {
+            sendSetUrlString(URI_STRING);
+        }
     }
 
-    //TODO метод не используется
-    public void checkEnterUrl(String url) {
-        //getView().setShowNextButton(isValidUrl(url));
-    }
-
-    private boolean isValidUrl(String url) {
+    public boolean isValidUrl(String url) {
         Matcher m = mPatternUrl.matcher(url);
         return m.matches();
     }
 
     void request(String url) {
-        if (!isValidUrl(url)) {
-            sendShowErrorEditText();
-            return;
-        }
-
-        URI newUrl = URI.create(url);
-        String s = newUrl.getAuthority();
-        if (s == null) {
-            s = url;
+        String authorisedUri = URI.create(url).getAuthority();
+        if (authorisedUri == null) {
+            authorisedUri = url;
         }
 
         //TODO FIX logic
-        MattermostPreference.getInstance().setBaseUrl(s);
+        MattermostPreference.getInstance().setBaseUrl(authorisedUri);
         mMattermostApp.refreshMattermostRetrofitService();
 
         try {
             mMattermostApp.getMattermostRetrofitService();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            sendShowError("Url is not valid https://");
+            sendShowError(URL_NOT_VALID);
             return;
         }
 
-        this.url = url;
+//        this.url = url;
 
         final ConnectivityManager connectivityManager = (
                 ConnectivityManager) MattermostApp.getSingleton()
-                        .getApplicationContext()
-                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+                .getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
         if (ni == null || !ni.isConnectedOrConnecting()) {
-            sendShowError("No connection to the internet");
+            sendShowError(ERROR_NO_CONNECTION);
         } else {
             start(REQUEST_CHECK);
         }
     }
 
     // to view methods
-
     private void sendVisibleProgress(Boolean visibility) {
         createTemplateObservable(visibility)
                 .subscribe(split(MainRxActivity::setShowProgress));
@@ -142,14 +132,14 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
                 .subscribe(split(MainRxActivity::showErrorText));
     }
 
-    private void sendShowErrorEditText() {
-        createTemplateObservable(new Object())
-                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showEditTextErrorMessage()));
-    }
-
     private void sendShowChatActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((mainRxActivity, o) -> mainRxActivity.showChatActivity()));
 
+    }
+
+    private void sendSetUrlString(String uri) {
+        createTemplateObservable(uri)
+                .subscribe(split((mainRxActivity, s) -> mainRxActivity.setTextUrl(uri)));
     }
 }

@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -25,6 +24,8 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     public static final String TAG = "MainRxActivity";
 
+    private final int DELAY = 2500;
+
     private ActivityMainBinding binding;
 
     @Override
@@ -39,28 +40,40 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
     }
 
     private void initView() {
-        binding.buttonNext.setOnClickListener(view -> getPresenter().request(getStringUrl()));
-
-        //TODO Check use case
-        binding.urlEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                getPresenter().checkEnterUrl(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
+        binding.buttonNext.setOnClickListener(view -> {
+            getPresenter().request(getStringUrl());
+            hideKeyboard();
         });
+        binding.urlEditText.addTextChangedListener(textWatcher);
     }
 
-    public String getStringUrl() {
-        return binding.urlEditText.getText().toString();
-    }
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            setShowNextButton(false);
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            binding.urlEditText.postDelayed(() -> {
+                if (checkEnteredUrl(getStringUrl())) {
+                    hideEditTextErrorMessage();
+                } else {
+                    showEditTextErrorMessage();
+                    setShowNextButton(false);
+                }
+            }, DELAY);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (checkEnteredUrl(getStringUrl())) {
+                setShowNextButton(true);
+            }
+        }
+    };
+
+    // presenter methods
 
     public void showLoginActivity() {
         Log.d(TAG, "showLoginActivity");
@@ -77,20 +90,34 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    public void setShowNextButton(boolean show) {
-        binding.buttonNext.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
     public void setTextUrl(String url) {
         binding.urlEditText.setText(url);
         binding.urlEditText.setSelection(binding.urlEditText.length());
+    }
+
+    //
+
+    public String getStringUrl() {
+        return binding.urlEditText.getText().toString();
     }
 
     public void showEditTextErrorMessage() {
         binding.editTextInputLayout.setError(getString(R.string.main_url_error));
     }
 
-    public void hideKeyboard() {
+    private boolean checkEnteredUrl(String url) {
+        return getPresenter().isValidUrl(url);
+    }
+
+    private void setShowNextButton(boolean show) {
+        binding.buttonNext.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void hideEditTextErrorMessage() {
+        binding.editTextInputLayout.setError("");
+    }
+
+    private void hideKeyboard() {
         hideKeyboard(this);
     }
 

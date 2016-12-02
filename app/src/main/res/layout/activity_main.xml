@@ -88,7 +88,8 @@
                 android:background="@drawable/touch_selector"
                 android:stateListAnimator="@null"
                 android:text="@string/main_next_button"
-                android:textColor="@color/colorPrimary" />
+                android:textColor="@color/colorPrimary"
+                android:visibility="gone"/>
         </LinearLayout>
     </ScrollView>
 </layout>
