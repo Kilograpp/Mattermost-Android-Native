@@ -149,7 +149,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
                     if (ni == null || !ni.isConnectedOrConnecting()) {
                         sendShowList();
-                    }else setErrorLayout();
+                    } else setErrorLayout();
                 });
     }
 
@@ -163,8 +163,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         isEmpty = true;
                         sendShowEmptyList();
                     }
-                    PostRepository.remove(new PostByChannelId(channelId));
-                    PostRepository.prepareAndAdd(posts);
+//                    PostRepository.remove(new PostByChannelId(channelId));
+//                    PostRepository.prepareAndAdd(posts);
+                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
 //                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
@@ -180,28 +181,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     throwable.printStackTrace();
                 });
     }
-
-//    private void initSendToServerError() {
-//        restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(Schedulers.io()),
-//                (chatRxFragment, post) -> {
-//                    PostRepository.merge(post);
-//                    isSendingPost = false;
-//                    requestUpdateLastViewedAt();
-//                    sendOnItemAdded();
-//                    sendShowList();
-//                    sendHideFileAttachLayout();
-//                    FileToAttachRepository.getInstance().deleteUploadedFiles();
-//                    Log.d(TAG, "Complete create post");
-//                }, (chatRxFragment1, throwable) -> {
-//                    isSendingPost = false;
-//                    sendError(getError(throwable));
-//                    setErrorPost(forSendPost.getPendingPostId());
-//                    throwable.printStackTrace();
-//                    Log.d(TAG, "Error create post " + throwable.getMessage());
-//                });
-//    }
 
     private void initSendToServer() {
         restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
