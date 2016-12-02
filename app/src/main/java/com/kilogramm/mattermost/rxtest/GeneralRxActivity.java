@@ -300,6 +300,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void showTeemChoose() {
+        FileToAttachRepository.getInstance().deleteUploadedFiles();
         ChooseTeamActivity.start(this);
     }
 

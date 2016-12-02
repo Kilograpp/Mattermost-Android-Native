@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.network;
 
+import com.facebook.stetho.okhttp3.BuildConfig;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -29,45 +30,54 @@ public class MattermostRetrofitService {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
         headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder()
-                // Caused twice writeTo() method call for uploading file
-                //TODO release version comment this line
-//                .addInterceptor(logging)
-                .addInterceptor(getAuthInterceptor())
+        OkHttpClient client = null;
+        if (BuildConfig.DEBUG) {
+            client = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .addInterceptor(getAuthInterceptor())
+                    .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .addNetworkInterceptor(new StethoInterceptor())
+                    .cookieJar(NetworkUtil.getCookieJar())
+                    .build();
+        } else {
+            client = new OkHttpClient.Builder()
+                    .addInterceptor(getAuthInterceptor())
+                    .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .addNetworkInterceptor(new StethoInterceptor())
+                    .cookieJar(NetworkUtil.getCookieJar())
+                    .build();
 
-                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT,TimeUnit.SECONDS)
-                .addNetworkInterceptor(new StethoInterceptor())
-                .cookieJar(NetworkUtil.getCookieJar())
-                .build();
+        }
 
         Gson gson = NetworkUtil.createGson();
 
         try {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://"+MattermostPreference.getInstance().getBaseUrl() + "/")
+                    .baseUrl("https://" + MattermostPreference.getInstance().getBaseUrl() + "/")
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
             return retrofit.create(ApiMethod.class);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw e;
         }
     }
 
-    public static ApiMethod refreshRetrofitService(){
+    public static ApiMethod refreshRetrofitService() {
         return create();
     }
 
 
-    public static Interceptor getAuthInterceptor(){
+    public static Interceptor getAuthInterceptor() {
         return chain -> {
             Request original = chain.request();
             String token;
-            if((token = MattermostPreference.getInstance().getAuthToken())!=null){
+            if ((token = MattermostPreference.getInstance().getAuthToken()) != null) {
                 Request request = original.newBuilder()
-                        .addHeader("Authorization","Bearer " + token)
+                        .addHeader("Authorization", "Bearer " + token)
                         .build();
                 return chain.proceed(request);
             } else {

@@ -145,7 +145,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     } else {
                         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(
                                 MattermostPreference.getInstance().getLastChannelId())).first();
-                        switch (channel.getType()){
+                        switch (channel.getType()) {
                             case Channel.DIRECT:
                                 sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                                 break;

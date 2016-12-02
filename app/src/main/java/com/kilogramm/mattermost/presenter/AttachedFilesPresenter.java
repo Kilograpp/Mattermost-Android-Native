@@ -76,7 +76,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                 Log.d(TAG, "initRequests: file exists");
             }
             FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
-            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, fileToAttach.getId());
 
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
 

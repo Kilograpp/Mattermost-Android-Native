@@ -3,8 +3,10 @@ package com.kilogramm.mattermost.adapters;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
@@ -136,6 +138,20 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             if(pos-1==-1){
                 isTitle = true;
             }
+
+            if(holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
+                Post postAbove = getItem(holder.getAdapterPosition() - 1);
+                if(postAbove.getUser().getId().equals(post.getUser().getId())) {
+                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
+                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
+                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
+                } else {
+                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                }
+            }
+
             holder.bindToItem(post, context, isTitle, root, listener);
         } else {
             holder.bindToLoadingBottom();
