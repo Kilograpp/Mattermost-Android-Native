@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.view.channel;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -66,6 +67,10 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
             } else {
                 holder.binding.status.setText("");
             }
+
+            if(position == getItemCount() -1){
+                holder.binding.line.setVisibility(View.INVISIBLE);
+            } else holder.binding.line.setVisibility(View.VISIBLE);
 
             Picasso.with(holder.binding.getRoot().getContext())
                     .load(getImageUrl(user))
