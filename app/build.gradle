@@ -145,4 +145,5 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
     compile project(':lib-release')
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
 }
