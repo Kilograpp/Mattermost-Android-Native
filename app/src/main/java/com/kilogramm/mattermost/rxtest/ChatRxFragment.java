@@ -583,7 +583,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == 2)
+                if (newState == 1)
                     BaseActivity.hideKeyboard(getActivity());
             }
         });

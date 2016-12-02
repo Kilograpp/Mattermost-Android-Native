@@ -119,7 +119,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initLoadAfter();
         initLoadBefore();
         initGetUsers();
-        initSendToServerError();
+//        initSendToServerError();
         initLoadBeforeAndAfter();
     }
 
@@ -181,41 +181,34 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void initSendToServerError() {
-        restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                (chatRxFragment, post) -> {
-                    post.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId())).first());
-                    //TODO markdown cpp
-                    /*post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
-                            .forceExtentedProfile()
-                            .build()));*/
-                    PostRepository.removeTempPost(post.getPendingPostId());
-                    PostRepository.add(post);
-                    isSendingPost = false;
-                    requestUpdateLastViewedAt();
-                    sendOnItemAdded();
-                    sendShowList();
-                    sendHideFileAttachLayout();
-                    FileToAttachRepository.getInstance().deleteUploadedFiles();
-                    Log.d(TAG, "Complete create post");
-                }, (chatRxFragment1, throwable) -> {
-                    isSendingPost = false;
-                    sendError(throwable.getMessage());
-                    setErrorPost(forSendPost.getPendingPostId());
-                    throwable.printStackTrace();
-                    Log.d(TAG, "Error create post " + throwable.getMessage());
-                });
-    }
+//    private void initSendToServerError() {
+//        restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(Schedulers.io()),
+//                (chatRxFragment, post) -> {
+//                    PostRepository.merge(post);
+//                    isSendingPost = false;
+//                    requestUpdateLastViewedAt();
+//                    sendOnItemAdded();
+//                    sendShowList();
+//                    sendHideFileAttachLayout();
+//                    FileToAttachRepository.getInstance().deleteUploadedFiles();
+//                    Log.d(TAG, "Complete create post");
+//                }, (chatRxFragment1, throwable) -> {
+//                    isSendingPost = false;
+//                    sendError(getError(throwable));
+//                    setErrorPost(forSendPost.getPendingPostId());
+//                    throwable.printStackTrace();
+//                    Log.d(TAG, "Error create post " + throwable.getMessage());
+//                });
+//    }
 
     private void initSendToServer() {
         restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
-                    PostRepository.removeTempPost(post.getPendingPostId());
-                    PostRepository.prepareAndAddPost(post);
+                    PostRepository.merge(post);
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
@@ -249,7 +242,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
-//                    PostRepository.remove(new PostByRootIdSpecification(post1.getId()));
                     sendOnDeleteItem(post1);
                 },
                 (chatRxFragment1, throwable) -> {
@@ -420,7 +412,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         post.setId(null);
         post.setUser(null);
         post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());
-        start(REQUEST_SEND_TO_SERVER_ERROR);
+        start(REQUEST_SEND_TO_SERVER);
     }
 
     public void requestDeletePost(Post post) {
