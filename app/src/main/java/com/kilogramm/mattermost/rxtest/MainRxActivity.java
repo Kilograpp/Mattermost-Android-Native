@@ -34,32 +34,14 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         MattermostService.Helper.create(this).startService();
         initView();
 
-        //
         Intent intentService = new Intent(this, MattermostService.class);
         startService(intentService);
-//        if (!isMattermostServiceRunning(MattermostService.class)) {
-//            startService(intentService);
-//            Log.d(TAG, "startService");
-//        } else {
-//            stopService(intentService);
-//            Log.d(TAG, "stopService");
-//        }
-        //
     }
-    //
-    private boolean isMattermostServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-    //
 
     private void initView() {
         binding.buttonNext.setOnClickListener(view -> getPresenter().request(getStringUrl()));
+
+        //TODO Check use case
         binding.urlEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -67,7 +49,6 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                //TODO Check use case
                 getPresenter().checkEnterUrl(charSequence.toString());
             }
 

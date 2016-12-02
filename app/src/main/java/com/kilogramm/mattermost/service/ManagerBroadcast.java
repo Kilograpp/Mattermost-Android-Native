@@ -271,6 +271,7 @@ public class ManagerBroadcast {
         Notification.Builder notificationBuilder = showNotification(context);
         notificationBuilder.setContent(remoteViews);
         notificationBuilder.setContentIntent(pIntent);
+        notificationBuilder.build().flags = Notification.FLAG_AUTO_CANCEL;
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() ->
@@ -280,16 +281,6 @@ public class ManagerBroadcast {
                         .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notificationBuilder.build()));
 
         notificationManager.notify(post.getChannelId().hashCode(), notificationBuilder.build());
-
-
-
-//        NotificationTarget notificationTarget = new NotificationTarget(
-//                context, remoteViews, R.id.avatar, notificationBuilder.build(), NOTIFY_ID);
-//        Glide
-//                .with(context.getApplicationContext())
-//                .load(getImageUrl(post.getUserId()))
-//                .asBitmap()
-//                .into(notificationTarget);
     }
 
     private static Notification.Builder showNotification(Context context) {

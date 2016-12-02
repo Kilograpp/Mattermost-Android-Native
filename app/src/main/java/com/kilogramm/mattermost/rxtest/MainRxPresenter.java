@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Patterns;
@@ -52,7 +55,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
                 results.deleteAllFromRealm();
                 realm.copyToRealmOrUpdate(initObject.getClientCfg());
             });
-
             sendVisibleProgress(false);
             sendShowLoginActivity();
         }, (mainActivity, throwable) -> {
@@ -75,8 +77,8 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             getView().setTextUrl("https://mattermost.kilograpp.com");
     }
 
+    //TODO метод не используется
     public void checkEnterUrl(String url) {
-        //TODO check logic url
         //getView().setShowNextButton(isValidUrl(url));
     }
 
@@ -110,7 +112,17 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         }
 
         this.url = url;
-        start(REQUEST_CHECK);
+
+        final ConnectivityManager connectivityManager = (
+                ConnectivityManager) MattermostApp.getSingleton()
+                        .getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+        if (ni == null || !ni.isConnectedOrConnecting()) {
+            sendShowError("No connection to the internet");
+        } else {
+            start(REQUEST_CHECK);
+        }
     }
 
     // to view methods

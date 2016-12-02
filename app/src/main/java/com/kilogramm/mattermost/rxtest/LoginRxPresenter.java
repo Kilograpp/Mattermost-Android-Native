@@ -90,8 +90,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     }
 
     private boolean canClickSignIn() {
-        return mEditEmail.length() != 0 &&
-                mEditPassword.length() != 0 && isValidEmail(mEditEmail);
+        return mEditEmail.length() != 0 && mEditPassword.length() != 0 && isValidEmail(mEditEmail);
     }
 
     private boolean isValidEmail(String email) {
