@@ -113,7 +113,7 @@ public class FilesView extends GridLayout {
                     setupFileClickListeners(binding, fileName);
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
-                } else if (fileToAttach != null && file.exists()){
+                } else if (fileToAttach != null && file.exists()) {
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
                 } else {
@@ -121,9 +121,19 @@ public class FilesView extends GridLayout {
                 }
 
                 String extension = FileUtil.getInstance().getMimeType(fileName);
-                if(extension != null && extension.contains("image")) {
+                if (extension != null && extension.contains("image")) {
                     binding.image.setVisibility(VISIBLE);
                     binding.circleFrame.setVisibility(GONE);
+
+                    binding.title.setOnClickListener(v -> {
+                        if (file.exists()) {
+                            createDialog(fileName, binding);
+                        } else {
+                            downloadFile(fileName, createDownloadListener(binding));
+                        }
+                    });
+
+
                     initAndAddItem(binding, fileName);
 
                     binding.image.setOnClickListener(view ->

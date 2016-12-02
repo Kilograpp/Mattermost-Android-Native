@@ -141,7 +141,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
             if(holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
                 Post postAbove = getItem(holder.getAdapterPosition() - 1);
-                if(postAbove.getUser().getId().equals(post.getUser().getId())) {
+                if(postAbove.getUser().getId().equals(post.getUser().getId()) && !post.isSystemMessage()) {
                     ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
                     ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
@@ -165,7 +165,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     public Boolean getBottomLoading() {
         return isBottomLoading;
     }
-
 
     public int getPositionById(String id) {
         int count = super.getPositionById(id);
