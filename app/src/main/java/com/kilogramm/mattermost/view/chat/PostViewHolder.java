@@ -143,7 +143,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void setRootMassage(Post post) {
-        ((ChatListItemBinding) mBinding).filesViewRoot.setBackgroundColorComment();
         ((ChatListItemBinding) mBinding).filesViewRoot.setItems(post.getFilenames());
         ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
         ((ChatListItemBinding) mBinding).nickRootPost.setText(post.getUser().getUsername());
