@@ -713,7 +713,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void showEmptyList(String channelId) {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
-        //binding.emptyList.setVisibility(View.VISIBLE);
 
         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
         switch (channel.getType()) {
@@ -751,7 +750,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
 
         binding.emptyList.setVisibility(View.VISIBLE);
-
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
 
