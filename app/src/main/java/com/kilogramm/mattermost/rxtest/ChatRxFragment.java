@@ -226,7 +226,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             getPresenter().requestExtraInfo();
         }
 
-        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+//        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView()); TODO перенес в другое место
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (v == binding.writingMessage && !hasFocus) {
@@ -885,7 +885,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     break;
                 case R.id.reply:
                     rootPost = post;
-                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
+                    showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -894,6 +894,20 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void showEditView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> {
+            binding.writingMessage.setText(null);
+            closeEditView();});
+        binding.writingMessage.setText(rootPost.getMessage());
+        binding.writingMessage.setSelection(rootPost.getMessage().length());
+    }
+
+    private void showReplayView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    private void showView(String message, String type) {
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
 
         if (type.equals(REPLY_MESSAGE))
@@ -908,6 +922,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
         binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
+
+
+
 
     private String getMessageLink(String postId) {
         return "https://"
