@@ -43,6 +43,7 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
 
     private void init() {
         binding.tvChannelName.setHint(getResources().getString(R.string.create_new_group_name_hint));
+        binding.privateGroupHint.setVisibility(View.VISIBLE);
         setupToolbar(getString(R.string.create_new_ch_gr_toolbar_gr), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 

@@ -46,6 +46,8 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -244,7 +246,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
 
-
     public void setChannelName(String channelName) {
         this.channelName = channelName;
     }
@@ -392,7 +393,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-
 
     private void getUserList(String text) {
         Log.d(TAG, "getUserList: true");
@@ -547,7 +547,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
     }
-
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
@@ -711,10 +710,48 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void showEmptyList() {
+    public void showEmptyList(String channelId) {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
+        //binding.emptyList.setVisibility(View.VISIBLE);
+
+        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+        switch (channel.getType()) {
+            case Channel.DIRECT:
+                binding.emptyListTitle.setText(channel.getUsername());
+                binding.emptyListMessage.setText("This is the start of your direct message history with " + channel.getUsername()
+                        + "." + "\n\n" + "Direct messages and files shared here are not shown to people outside this area.");
+                binding.emptyListTitle.setVisibility(View.VISIBLE);
+                binding.emptyListMessage.setVisibility(View.VISIBLE);
+                break;
+            case Channel.OPEN:
+                binding.emptyListTitle.setText("Beginning of " + channel.getDisplayName());
+                binding.emptyListMessage.setText("This is the start of the " + channel.getDisplayName() + " channel, created on "
+                + channel.getCreateAt() + ". Any member can join and read this channel.");
+                binding.emptyListInviteOthers.setText("+ Invite others to this channel");
+                binding.emptyListInviteOthers.setOnClickListener(v ->
+                        InviteUserRxActivity.start(getActivity()));
+
+                binding.emptyListTitle.setVisibility(View.VISIBLE);
+                binding.emptyListMessage.setVisibility(View.VISIBLE);
+                binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
+                break;
+            case Channel.PRIVATE:
+                binding.emptyListTitle.setText("Beginning of " + channel.getDisplayName());
+                binding.emptyListMessage.setText("This is the start of the " + channel.getDisplayName() + " private group, created on "
+                        + channel.getCreateAt() + ". Only invited members can see this private group.");
+                binding.emptyListInviteOthers.setText("+ Invite others to this private group");
+                binding.emptyListInviteOthers.setOnClickListener(v ->
+                        InviteUserRxActivity.start(getActivity()));
+
+                binding.emptyListTitle.setVisibility(View.VISIBLE);
+                binding.emptyListMessage.setVisibility(View.VISIBLE);
+                binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
+                break;
+        }
+
         binding.emptyList.setVisibility(View.VISIBLE);
+
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
 

@@ -161,7 +161,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
-                        sendShowEmptyList();
+                        sendShowEmptyList(channelId);
                     }
                     PostRepository.remove(new PostByChannelId(channelId));
                     PostRepository.prepareAndAdd(posts);
@@ -235,7 +235,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () -> service.updatelastViewedAt(teamId, channelId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-
                 (chatRxFragment, post) -> {
                 }, (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
@@ -467,10 +466,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     //endregion
 
     // region To View
-    private void sendShowEmptyList() {
-        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
-                chatRxFragment.showEmptyList()));
-
+    private void sendShowEmptyList(String channelId) {
+        createTemplateObservable(channelId).subscribe(split(
+                (chatRxFragment, string) -> chatRxFragment.showEmptyList(channelId)));
     }
 
     private void sendRefreshing(Boolean isShow) {
@@ -492,7 +490,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         createTemplateObservable(post).subscribe(split((chatRxFragment, o) ->
                 PostRepository.remove(post)));
     }
-
 
     private void sendIvalidateAdapter() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
