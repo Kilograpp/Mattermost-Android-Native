@@ -48,9 +48,12 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        FileToAttach fileToAttach = getData().get(holder.getAdapterPosition());
+        FileToAttach fileToAttach = getItem(holder.getAdapterPosition());
+
         holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
+
         String mimeType = FileUtil.getInstance().getMimeType(fileToAttach.getFilePath());
+
         if (mimeType != null && mimeType.contains("image")) {
             holder.binding.imageView.setVisibility(VISIBLE);
             FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
@@ -89,7 +92,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             }
         }
         holder.binding.close.setOnClickListener(v -> {
-            if (getItem(holder.getAdapterPosition()).isValid()) {
+            int p = position;
+            if (getItem(p).isValid()) {
                 FileToAttachRepository.getInstance().remove(getItem(holder.getAdapterPosition()));
                 if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                     emptyListListener.onEmptyList();
