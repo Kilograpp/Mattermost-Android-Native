@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,9 +16,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -161,7 +165,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             case CAMERA_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openImageIntent();
+                    showDialog();
                 }
                 break;
         }
@@ -195,6 +199,48 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         startActivityForResult(chooserIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
     }
 
+    private void showDialog() {
+        View view = getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(this, R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
+            root.mkdir();
+            final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+            outputFileUri = Uri.fromFile(sdImageMainDirectory);
+
+            // Camera.
+            final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+            startActivityForResult(captureIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            mBottomSheetDialog.cancel();
+        });
+
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            mBottomSheetDialog.cancel();
+        });
+
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            // Filesystem.
+            final Intent galleryIntent = new Intent();
+            galleryIntent.setType("image/*");
+            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+            // Chooser of filesystem options.
+            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+            startActivityForResult(chooserIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            mBottomSheetDialog.cancel();
+        });
+    }
 
     private RealmChangeListener<User> getUserListener() {
         return element -> invalidateView();
@@ -247,11 +293,13 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             CAMERA_PERMISSION_REQUEST_CODE);
                 } else {
-                    openImageIntent();
+                    showDialog();
                 }
             } else {
-                openImageIntent();
+                showDialog();
             }
+
+
         });
 
         Picasso.with(this)

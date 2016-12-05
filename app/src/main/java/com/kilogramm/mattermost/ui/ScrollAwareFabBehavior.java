@@ -34,7 +34,7 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
                 dyUnconsumed);
         if (dyConsumed < 0) {
             animateFabDown(child);
-        } else if (dyConsumed > 0) {
+        } else if (dyConsumed > 20) {
             animateFabUp(child);
         }
     }

@@ -175,6 +175,9 @@
     <string name="member">Member #</string>
     <string name="fields_invalid">Some fields are invalid</string>
     <string name="invitations_were_sended">Invitations were successfully sent</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="file">File</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>
