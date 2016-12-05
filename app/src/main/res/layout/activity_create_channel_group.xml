@@ -47,7 +47,7 @@
                         android:maxLines="1"
                         android:singleLine="true"
                         android:textColor="@color/black"
-                        android:textColorHint="@color/hint_grey"
+                        android:textColorHint="@color/grey"
                         android:textSize="27sp" />
                 </LinearLayout>
 
