@@ -352,8 +352,6 @@ public class FilesView extends GridLayout {
     }
 
     private String getImageUrl(String id) {
-        Realm realm = Realm.getDefaultInstance();
-//        String s = realm.where(Team.class).findFirst().getId();
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()

@@ -59,6 +59,8 @@
     <string name="title_direct_list">Direct list</string>
     <string name="title_existing_channels">More channels</string>
 
+    <string name="cannot_load_photo">We cannot load photo. Try to download it on your device and look through any installed app</string>
+
     <!--Search posts-->
     <string name="search_hint">Search</string>
     <string name="default_text"> If you\'re searching a partial phrase (ex. searching "real", looking

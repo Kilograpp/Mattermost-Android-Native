@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
@@ -55,6 +56,8 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
         super.onViewCreated(view, savedInstanceState);
         Picasso.with(getContext())
                 .load(FileUtil.getInstance().getImageUrl(imageUri))
+                .resize(700, 700)
+                .centerCrop()
                 .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
                 .into(photoBinding.image, new Callback() {
                     @Override
@@ -67,6 +70,11 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
 
                     @Override
                     public void onError() {
+                        if (photoBinding.progressBar != null) {
+                            photoBinding.progressBar.setVisibility(View.GONE);
+                        }
+                        photoBinding.image.setVisibility(View.VISIBLE);
+                        photoBinding.errorText.setVisibility(View.VISIBLE);
                     }
                 });
 

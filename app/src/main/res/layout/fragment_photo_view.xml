@@ -17,13 +17,28 @@
             android:layout_margin="5dp"
             android:indeterminate="true"
             app:mpb_progressStyle="circular" />
-        <!--android:progressDrawable="@drawable/circular_blue_progress_bar"-->
 
-        <com.kilogramm.mattermost.ui.TouchImageView
-            android:id="@+id/image"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:orientation="vertical">
 
+            <com.kilogramm.mattermost.ui.TouchImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="invisible"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/errorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="100dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/cannot_load_photo"
+                android:visibility="gone" />
+        </LinearLayout>
     </FrameLayout>
 </layout>
