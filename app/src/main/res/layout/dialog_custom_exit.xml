@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/dialog_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:text="WOW!"
+        android:textColor="@color/grey"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/dialog_title"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="WOW!"
-            android:textColor="@color/grey"
-            android:layout_margin="15dp"/>
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:text="Do you really want to log out?"
+        android:textColor="@color/grey" />
 
-        <TextView
-            android:id="@+id/dialog_message"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Do you really want to log out?"
-            android:textColor="@color/grey"
-            android:layout_margin="15dp"/>
-
-        <TextView
-            android:id="@+id/log_out"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:text="LOG OUT"
-            android:layout_marginTop="15dp"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/log_out"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="LOG OUT"
+        android:textStyle="bold" />
 
 </LinearLayout>
