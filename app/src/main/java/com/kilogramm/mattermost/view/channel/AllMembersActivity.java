@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -51,12 +52,35 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
         binding.list.setAdapter(allMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
+    }
 
-        binding.searchText.addTextChangedListener(getMassageTextWatcher());
-        binding.btnClear.setOnClickListener(view -> {
-            binding.searchText.setText("");
-            hideKeyboard(this);
-        });
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        initSearchView(menu, getMassageTextWatcher());
+        return true;
+    }
+
+    private TextWatcher getMassageTextWatcher(){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() > 0) {
+                    updateDataList(getPresenter().getMembers(charSequence.toString()));
+                } else {
+                    updateDataList(getPresenter().getMembers());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        };
     }
 
     private void openDirect(String id) {
@@ -87,30 +111,6 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
 
     }
 
-
-    public TextWatcher getMassageTextWatcher() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.length() > 0) {
-                    updateDataList(getPresenter().getMembers(charSequence.toString()));
-                    binding.btnClear.setVisibility(View.VISIBLE);
-                } else {
-                    updateDataList(getPresenter().getMembers());
-                    binding.btnClear.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-    }
 
     public void updateDataList(OrderedRealmCollection<User> realmResult) {
         allMembersAdapter.updateData(realmResult);
