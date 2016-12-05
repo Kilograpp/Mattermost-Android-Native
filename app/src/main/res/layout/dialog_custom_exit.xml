@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:gravity="center"
-        android:text="WOW!"
+        android:text="@string/logout_dialog_title"
         android:textColor="@color/grey"
         android:textStyle="bold" />
 
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
         android:gravity="center"
-        android:text="Do you really want to log out?"
+        android:text="@string/logout_dialog_message"
         android:textColor="@color/grey" />
 
     <TextView
@@ -30,7 +30,7 @@
         android:layout_marginTop="15dp"
         android:background="@color/colorPrimary"
         android:gravity="center"
-        android:text="LOG OUT"
+        android:text="@string/logout_dialog_button"
         android:textColor="@color/white"
         android:textStyle="bold" />
 
