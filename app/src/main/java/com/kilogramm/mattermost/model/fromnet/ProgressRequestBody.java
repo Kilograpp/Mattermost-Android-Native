@@ -22,7 +22,7 @@ public class ProgressRequestBody extends RequestBody {
     private long fileId;
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
-    private static final int UPDATE_TIME_PROGRESS_MS = 500;
+    private static final int UPDATE_TIME_PROGRESS_MS = 300;
 
     public ProgressRequestBody(final File file, String mediaType, final UploadCallbacks listener) {
         this(file, mediaType, -1);
@@ -69,6 +69,7 @@ public class ProgressRequestBody extends RequestBody {
                 }
                 sink.write(buffer, 0, read);
             }
+            FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
         }
     }
 
