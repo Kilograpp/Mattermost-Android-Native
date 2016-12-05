@@ -182,6 +182,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public void onDestroy() {
         super.onDestroy();
         members.removeChangeListeners();
+        preferences.removeChangeListeners();
+
     }
 
     @Override

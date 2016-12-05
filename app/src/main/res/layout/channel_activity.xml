@@ -178,6 +178,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:paddingRight="@dimen/activity_horizontal_text_margin"
                         android:orientation="vertical">
 
                         <TextView
@@ -195,6 +196,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
                             android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:singleLine="true"
                             android:layout_marginTop="@dimen/activity_vertical_text_margin" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
@@ -314,6 +316,7 @@
                     app:theme="@style/CardView.Light.Blue">
 
                     <TextView
+                        android:id="@+id/textLeaveDelete"
                         style="@style/textRed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

@@ -62,6 +62,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         if(getDataCount() > 1) {
             notifyItemRangeChanged(position, getData().size() - 1);
         } else if (getDataCount() == 1){
+            if(position == 1) {     // For make Delete button invisible at first item
+                notifyItemChanged(0);
+            }
             notifyItemChanged(position);
         }
     }

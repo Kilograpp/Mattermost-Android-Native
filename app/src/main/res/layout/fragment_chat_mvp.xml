@@ -99,7 +99,7 @@
                         android:layout_margin="10dp"
                         app:layout_anchor="@id/rev"
                         app:layout_anchorGravity="bottom|right|end"
-                        app:srcCompat="@drawable/ic_arrow_down"
+                        app:srcCompat="@drawable/ic_arrow"
                         app:backgroundTint="@color/white"/>
 
                 </android.support.design.widget.CoordinatorLayout>

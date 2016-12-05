@@ -335,6 +335,14 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/delete")
+    Observable<Channel> deleteChannel(@Path("teamId") String teamId,
+                                      @Path("channelId") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @POST("api/v3/users/newpassword")
     Observable<ResponseBody> changePassword(@Body PasswordChangePresenter.NewPassword newPassword);
 
