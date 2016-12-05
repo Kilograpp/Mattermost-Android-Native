@@ -191,7 +191,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
             Toast.makeText(channelActivity,
-                    String.format("You've %s leaved %s %s",
+                    String.format("You've %s %s %s",
                                 s,
                                 this.channel.getDisplayName(),
                                 channel.getType().equals(Channel.OPEN) ? "channel" : "private group"),
