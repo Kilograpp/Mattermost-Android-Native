@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.Context;
@@ -204,32 +205,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 case R.id.logout:
                     //getPresenter().requestLogout();
 
-//                    showDialog(1);
-
-//                    LayoutInflater layoutInflater = LayoutInflater.from(this);
-//                    View customView = layoutInflater.inflate(R.layout.dialog_custom_exit, null);
-//
-//                    TextView exit = (TextView) customView.findViewById(R.id.log_out);
-//                    exit.setOnClickListener(v -> getPresenter().requestLogout());
-//
-//                    android.support.v7.app.AlertDialog.Builder exitDialog =
-//                            new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-//                    exitDialog.setView(R.layout.dialog_custom_exit);
-//                    exitDialog.show();
-
-                    LayoutInflater inflater = LayoutInflater.from(this);
-                    View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
-                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-                    dialogBuilder.setView(dialogView);
-                    AlertDialog dialogDetails = dialogBuilder.create();
-
-                    final AlertDialog alertDialog = (AlertDialog) dialogDetails;
-                    TextView cancelbutton = (TextView) alertDialog.findViewById(R.id.log_out);
-                    if (cancelbutton != null) {
-                        cancelbutton.setOnClickListener(v -> Toast.makeText(getApplicationContext(),
-                                "fdhglidfhsngtvhdsfugh", Toast.LENGTH_SHORT).show());
-                    }
-
+                    showDialog(1);
 
                     break;
             }
@@ -237,32 +213,33 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         });
     }
 
-//    @Override
-//    protected Dialog onCreateDialog(int id) {
-//        AlertDialog dialogDetails = null;
-//
-//        LayoutInflater inflater = LayoutInflater.from(this);
-//        View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
-//        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-//        dialogBuilder.setView(dialogView);
-//        dialogDetails = dialogBuilder.create();
-//
-//        return dialogDetails;
-//    }
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog dialogDetails = null;
 
-//    @Override
-//    protected void onPrepareDialog(int id, Dialog dialog) {
-//        switch (id) {
-//            case 1:
-//                final AlertDialog alertDialog = (AlertDialog) dialog;
-//                TextView cancelbutton = (TextView) alertDialog.findViewById(R.id.log_out);
-//                if (cancelbutton != null) {
-//                    cancelbutton.setOnClickListener(v -> Toast.makeText(getApplicationContext(),
-//                            "fdhglidfhsngtvhdsfugh", Toast.LENGTH_SHORT).show());
-//                }
-//                break;
-//        }
-//    }
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(dialogView);
+        dialogDetails = dialogBuilder.create();
+
+        return dialogDetails;
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case 1:
+                final AlertDialog alertDialog = (AlertDialog) dialog;
+                TextView cancelButton = (TextView) alertDialog.findViewById(R.id.log_out);
+                if (cancelButton != null) {
+                    cancelButton.setOnClickListener(v -> getPresenter().requestLogout());
+                }
+
+                break;
+        }
+    }
 
     private void updateHeaderUserName(User user) {
         binding.headerUsername.setText(String.format("@ %s", user.getUsername()));

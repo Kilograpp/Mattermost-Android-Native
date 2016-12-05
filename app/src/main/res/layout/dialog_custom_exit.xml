@@ -31,6 +31,7 @@
         android:background="@color/colorPrimary"
         android:gravity="center"
         android:text="LOG OUT"
+        android:textColor="@color/white"
         android:textStyle="bold" />
 
 </LinearLayout>
