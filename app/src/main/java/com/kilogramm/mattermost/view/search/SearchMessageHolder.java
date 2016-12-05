@@ -55,12 +55,19 @@ public class SearchMessageHolder extends RealmViewHolder {
 
         String chName = channel.first().getName();
 
-        if (Pattern.matches(".+\\w[_].+\\w", chName)) {
+//        if (Pattern.matches(".+\\w[_].+\\w", chName)) {
+//            binding.chatName.setText(this.getChatName(chName));
+//            typeChannel = channel.first().getType();
+//        } else {
+//            binding.chatName.setText(chName);
+//            typeChannel = channel.first().getType();
+//        }
+
+        typeChannel = channel.first().getType();
+        if (typeChannel.equals(Channel.DIRECT)) {
             binding.chatName.setText(this.getChatName(chName));
-            typeChannel = channel.first().getType();
         } else {
-            binding.chatName.setText(chName);
-            typeChannel = channel.first().getType();
+            binding.chatName.setText(channel.first().getDisplayName());
         }
 
         binding.userName.setText(user.first().getUsername());
