@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
@@ -85,6 +86,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         });
     }
 
+    private void copyText(String s) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setText(s);
+    }
+
     private void initView() {
         getPresenter().initPresenter(MattermostPreference.getInstance().getTeamId(), channelId);
         getPresenter().requestExtraInfo();
@@ -116,10 +122,15 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 extraInfo.getMember_count(),
                 getString(R.string.channel_info_count_members)));
 
-        if(extraInfo.getMember_count().equals("1")){
+        if (Integer.parseInt(extraInfo.getMember_count()) > 5)
+            binding.seeAll.setVisibility(View.VISIBLE);
+        else
+            binding.seeAll.setVisibility(View.INVISIBLE);
+
+        if (extraInfo.getMember_count().equals("1")) {
             binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
         } else {
-            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+            binding.textLeaveDelete.setText(getString(R.string.channel_info_leave_channel));
         }
     }
 
@@ -186,6 +197,10 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.seeAll.setOnClickListener(this);
         binding.addMembers.setOnClickListener(this);
         binding.toolbarText.setOnClickListener(this);
+        binding.url.setOnLongClickListener(view -> {
+            copyText(getMessageLink(getPresenter().getChannel().getName()));
+            return true;
+        });
     }
 
     private void setToolbar() {
@@ -227,13 +242,13 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AddMembersActivity.start(this, channelId);
                 break;
             case R.id.leave:
-                if(getPresenter().getMemberCount() == 1){
+                if (getPresenter().getMemberCount() == 1) {
                     getPresenter().requestDelete();
                 } else {
                     getPresenter().requestLeave();
                 }
-                    binding.progressBar.setVisibility(View.VISIBLE);
-                    binding.layoutData.setVisibility(View.GONE);
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.layoutData.setVisibility(View.GONE);
                 break;
         }
     }

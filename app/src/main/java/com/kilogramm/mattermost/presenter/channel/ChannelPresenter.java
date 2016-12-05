@@ -13,7 +13,6 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
-import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -43,8 +42,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     @State
     ListPreferences listPreferences = new ListPreferences();
 
-    @State
-    ExtraInfo extraInfo;
     @State
     String teamId;
     @State
@@ -82,7 +79,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
-                    this.extraInfo = extraInfo;
                     RealmList<User> results = new RealmList<>();
                     results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
                     extraInfo.setMembers(results);
@@ -178,7 +174,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
         return channel;
     }
     public int getMemberCount() {
-        return Integer.parseInt(extraInfo.getMember_count());
+        return Integer.parseInt(ExtroInfoRepository.query(
+                new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId))
+                .first()
+                .getMember_count());
     }
 
 
