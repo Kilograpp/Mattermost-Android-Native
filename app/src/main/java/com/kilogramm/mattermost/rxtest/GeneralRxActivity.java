@@ -5,16 +5,20 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -79,7 +83,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     protected void onStart() {
         super.onStart();
-        parceIntent(getIntent());
     }
 
     @Override
@@ -116,8 +119,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                         .findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
-                                        .first()
-                                        .getDisplayName());
+                                .first()
+                                .getDisplayName());
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
@@ -188,22 +191,78 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 case R.id.invite_new_member:
                     InviteUserRxActivity.start(this);
                     break;
-                case R.id.help:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.report_a_problem:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
+                // TODO раскомментировать когда появится дизайн
+//                case R.id.help:
+//                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+//                    break;
+//                case R.id.report_a_problem:
+//                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+//                    break;
                 case R.id.about_mattermost:
                     RightMenuAboutAppActivity.start(this);
                     break;
                 case R.id.logout:
-                    getPresenter().requestLogout();
+                    //getPresenter().requestLogout();
+
+//                    showDialog(1);
+
+//                    LayoutInflater layoutInflater = LayoutInflater.from(this);
+//                    View customView = layoutInflater.inflate(R.layout.dialog_custom_exit, null);
+//
+//                    TextView exit = (TextView) customView.findViewById(R.id.log_out);
+//                    exit.setOnClickListener(v -> getPresenter().requestLogout());
+//
+//                    android.support.v7.app.AlertDialog.Builder exitDialog =
+//                            new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+//                    exitDialog.setView(R.layout.dialog_custom_exit);
+//                    exitDialog.show();
+
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                    dialogBuilder.setView(dialogView);
+                    AlertDialog dialogDetails = dialogBuilder.create();
+
+                    final AlertDialog alertDialog = (AlertDialog) dialogDetails;
+                    TextView cancelbutton = (TextView) alertDialog.findViewById(R.id.log_out);
+                    if (cancelbutton != null) {
+                        cancelbutton.setOnClickListener(v -> Toast.makeText(getApplicationContext(),
+                                "fdhglidfhsngtvhdsfugh", Toast.LENGTH_SHORT).show());
+                    }
+
+
                     break;
             }
             return false;
         });
     }
+
+//    @Override
+//    protected Dialog onCreateDialog(int id) {
+//        AlertDialog dialogDetails = null;
+//
+//        LayoutInflater inflater = LayoutInflater.from(this);
+//        View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
+//        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+//        dialogBuilder.setView(dialogView);
+//        dialogDetails = dialogBuilder.create();
+//
+//        return dialogDetails;
+//    }
+
+//    @Override
+//    protected void onPrepareDialog(int id, Dialog dialog) {
+//        switch (id) {
+//            case 1:
+//                final AlertDialog alertDialog = (AlertDialog) dialog;
+//                TextView cancelbutton = (TextView) alertDialog.findViewById(R.id.log_out);
+//                if (cancelbutton != null) {
+//                    cancelbutton.setOnClickListener(v -> Toast.makeText(getApplicationContext(),
+//                            "fdhglidfhsngtvhdsfugh", Toast.LENGTH_SHORT).show());
+//                }
+//                break;
+//        }
+//    }
 
     private void updateHeaderUserName(User user) {
         binding.headerUsername.setText(String.format("@ %s", user.getUsername()));
@@ -316,7 +375,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
@@ -328,5 +388,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     public void onChange(String channelId, String name) {
         replaceFragment(channelId, name);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 }

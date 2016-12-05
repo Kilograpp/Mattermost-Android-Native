@@ -54,6 +54,7 @@ public class ChannelListAdapter extends RealmAD<Channel, ChannelHolder> {
 
         holder.setClickListener(v -> {
             Log.d(TAG, "onClickItem() holder");
+            Log.d(TAG, "TYPE = " + channel.getType());
             if (channelItemClickListener != null) {
                 channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName(),
                         channel.getType());
