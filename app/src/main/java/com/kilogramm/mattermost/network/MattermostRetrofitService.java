@@ -30,7 +30,7 @@ public class MattermostRetrofitService {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
         headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = null;
+        OkHttpClient client;
         if (BuildConfig.DEBUG) {
             client = new OkHttpClient.Builder()
                     .addInterceptor(logging)

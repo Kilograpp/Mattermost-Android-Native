@@ -32,7 +32,8 @@
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:visibility="gone"
-                    app:srcCompat="@drawable/ic_downloaded_file" />
+                    app:srcCompat="@drawable/ic_downloaded_file"
+                    android:scaleType="centerCrop"/>
 
             </FrameLayout>
 
