@@ -8,8 +8,4 @@
         android:title="@string/search_hint"
         app:showAsAction="ifRoom"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
-    <item
-        android:id="@+id/action_done"
-        android:title="@string/done"
-        app:showAsAction="ifRoom"/>
 </menu>

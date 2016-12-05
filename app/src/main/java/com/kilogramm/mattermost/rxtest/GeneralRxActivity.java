@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
@@ -239,7 +240,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private void showFiles() {
         Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-        startActivity(intent);
+        if (intent.resolveActivityInfo(MattermostApp.getSingleton()
+                .getApplicationContext().getPackageManager(), 0) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this,
+                    getString(R.string.no_suitable_app),
+                    Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     private void setupMenu() {

@@ -2,13 +2,13 @@ package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Debug;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
@@ -16,8 +16,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepositor
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -48,10 +47,14 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        FileToAttach fileToAttach = getData().get(holder.getAdapterPosition());
+        FileToAttach fileToAttach = getItem(holder.getAdapterPosition());
+
         holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
+
         String mimeType = FileUtil.getInstance().getMimeType(fileToAttach.getFilePath());
+
         if (mimeType != null && mimeType.contains("image")) {
+
             holder.binding.imageView.setVisibility(VISIBLE);
             FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
                     .subscribeOn(Schedulers.computation())
@@ -69,6 +72,24 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
                         @Override
                         public void onNext(Bitmap myBitmap) {
+                            ExifInterface exif;
+                            try {
+                                exif = new ExifInterface(fileToAttach.getFilePath());
+                                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                                Log.d("ORIENTATION", "" + orientation);
+                                Matrix matrix = new Matrix();
+                                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                                    matrix.postRotate(90);
+                                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                                    matrix.postRotate(180);
+                                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                                    matrix.postRotate(270);
+                                }
+                                myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             holder.binding.imageView.setImageBitmap(myBitmap);
                         }
                     });
@@ -89,7 +110,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
             }
         }
         holder.binding.close.setOnClickListener(v -> {
-            if (getItem(holder.getAdapterPosition()).isValid()) {
+            int p = position;
+            if (getItem(p).isValid()) {
                 FileToAttachRepository.getInstance().remove(getItem(holder.getAdapterPosition()));
                 if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                     emptyListListener.onEmptyList();

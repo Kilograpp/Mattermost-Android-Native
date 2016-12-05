@@ -38,6 +38,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private WholeDirectListAdapter adapter;
 
     private MenuItem doneItem;
+    private MenuItem searchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +52,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
-        binding.searchText.addTextChangedListener(getMassageTextWatcher());
-        binding.btnClear.setOnClickListener(view -> {
-            binding.searchText.setText("");
-            hideKeyboard(this);
-        });
         setRecycleView();
         getPresenter().getUsers();
     }
@@ -70,10 +66,8 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > 0) {
                     getPresenter().getSearchUsers(charSequence.toString());
-                    binding.btnClear.setVisibility(View.VISIBLE);
                 } else {
                     getPresenter().getSearchUsers(null);
-                    binding.btnClear.setVisibility(View.GONE);
                 }
             }
 
@@ -107,6 +101,8 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.done, menu);
+        searchItem = menu.findItem(R.id.action_search);
+        initSearchView(menu, getMassageTextWatcher());
         return true;
     }
 
@@ -114,6 +110,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         adapter.getChangesMap().clear();
         adapter.notifyDataSetChanged();
         doneItem.setVisible(true);
+        searchItem.setVisible(true);
         binding.progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(this, "Unable to save", Toast.LENGTH_SHORT).show();
     }
@@ -129,6 +126,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                     getPresenter().savePreferences(adapter.getChangesMap());
                     doneItem = item;
                     doneItem.setVisible(false);
+                    searchItem.setVisible(false);
                     binding.progressBar.setVisibility(View.VISIBLE);
                 } else
                     finish();
