@@ -72,8 +72,10 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import icepick.State;
@@ -714,39 +716,41 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
 
-        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
-        switch (channel.getType()) {
-            case Channel.DIRECT:
-                binding.emptyListTitle.setText(channel.getUsername());
-                binding.emptyListMessage.setText("This is the start of your direct message history with " + channel.getUsername()
-                        + "." + "\n\n" + "Direct messages and files shared here are not shown to people outside this area.");
-                binding.emptyListTitle.setVisibility(View.VISIBLE);
-                binding.emptyListMessage.setVisibility(View.VISIBLE);
-                break;
-            case Channel.OPEN:
-                binding.emptyListTitle.setText("Beginning of " + channel.getDisplayName());
-                binding.emptyListMessage.setText("This is the start of the " + channel.getDisplayName() + " channel, created on "
-                + channel.getCreateAt() + ". Any member can join and read this channel.");
-                binding.emptyListInviteOthers.setText("+ Invite others to this channel");
-                binding.emptyListInviteOthers.setOnClickListener(v ->
-                        InviteUserRxActivity.start(getActivity()));
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
 
-                binding.emptyListTitle.setVisibility(View.VISIBLE);
-                binding.emptyListMessage.setVisibility(View.VISIBLE);
-                binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
-                break;
-            case Channel.PRIVATE:
-                binding.emptyListTitle.setText("Beginning of " + channel.getDisplayName());
-                binding.emptyListMessage.setText("This is the start of the " + channel.getDisplayName() + " private group, created on "
-                        + channel.getCreateAt() + ". Only invited members can see this private group.");
-                binding.emptyListInviteOthers.setText("+ Invite others to this private group");
-                binding.emptyListInviteOthers.setOnClickListener(v ->
-                        InviteUserRxActivity.start(getActivity()));
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy")
+                .format(new Date(channel.getCreateAt()));
 
-                binding.emptyListTitle.setVisibility(View.VISIBLE);
-                binding.emptyListMessage.setVisibility(View.VISIBLE);
-                binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
-                break;
+        if (channel.getType().equals(Channel.DIRECT)) {
+            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListMessage.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.emptyListTitle.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
+
+            String emptyListMessage = String.format(
+                    getResources().getString(R.string.empty_dialog_beginning_message),
+                    channel.getDisplayName(), createAtDate);
+
+            if (channel.getType().equals(Channel.OPEN)) {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + getResources().getString(R.string.empty_dialog_group_message)));
+            } else {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + getResources().getString(R.string.empty_dialog_private_message)));
+            }
+
+            binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
+            binding.emptyListInviteOthers.setOnClickListener(
+                    v -> InviteUserRxActivity.start(getActivity()));
+
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+            binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
         }
 
         binding.emptyList.setVisibility(View.VISIBLE);

@@ -184,6 +184,14 @@
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
 
+    <string name="empty_dialog_invite">+ Invite others to this channel</string>
+    <string name="empty_dialog_title">Beginning of %1$s</string>
+    <string name="empty_dialog_beginning_message">This is the start of the %1$s channel, created on %2$s. </string>
+    <string name="empty_dialog_private_message">Only invited members can see this private group.</string>
+    <string name="empty_dialog_group_message">Any member can join and read this channel.</string>
+    <string name="empty_dialog_direct_message">This is the start of your direct message history with %1$s.
+        \n\nDirect messages and files shared here are not shown to people outside this area.</string>
+
                     <!--About-->
     <string name="about_team_edition">Mattermost Team Edition</string>
     <string name="about_long_text">All your team communication in one place, instantly searchable and accessible anywhere.</string>
