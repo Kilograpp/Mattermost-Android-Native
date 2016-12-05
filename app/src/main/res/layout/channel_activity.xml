@@ -314,6 +314,7 @@
                     app:theme="@style/CardView.Light.Blue">
 
                     <TextView
+                        android:id="@+id/textLeaveDelete"
                         style="@style/textRed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

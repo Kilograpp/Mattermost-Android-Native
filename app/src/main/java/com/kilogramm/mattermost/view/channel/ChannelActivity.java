@@ -93,31 +93,34 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void initiationData(ExtraInfo extraInfo) {
         setAdapter(extraInfo);
 
-        binding.countMembers.setText(String.format("%s %s", extraInfo.getMember_count(), getString(R.string.channel_info_count_members)));
-
         Channel channel = getPresenter().getChannel();
+        channel.addChangeListener(element -> setMutableData(extraInfo, channel));
 
-        channel.addChangeListener(element -> {
-            binding.channelName.setText(channel.getDisplayName());
-            binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
-            binding.headerDescription.setText(channel.getHeader());
-            binding.purposeDescription.setText(channel.getPurpose());
-            binding.countMembers.setText(String.format("%s %s",
-                    extraInfo.getMember_count(),
-                    getString(R.string.channel_info_count_members)));
-        });
-
-        binding.channelName.setText(channel.getDisplayName());
-        binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
         binding.channelIcon.getBackground()
                 .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
-        binding.headerDescription.setText(channel.getHeader());
-        binding.purposeDescription.setText(channel.getPurpose());
         binding.urlDescription.setText(getMessageLink(channel.getName()));
         binding.idDescription.setText(channel.getId());
 
+        setMutableData(extraInfo, channel);
+
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
+    }
+
+    private void setMutableData(ExtraInfo extraInfo, Channel channel) {
+        binding.channelName.setText(channel.getDisplayName());
+        binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
+        binding.headerDescription.setText(channel.getHeader());
+        binding.purposeDescription.setText(channel.getPurpose());
+        binding.countMembers.setText(String.format("%s %s",
+                extraInfo.getMember_count(),
+                getString(R.string.channel_info_count_members)));
+
+        if(extraInfo.getMember_count().equals("1")){
+            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+        } else {
+            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+        }
     }
 
 
@@ -224,9 +227,13 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AddMembersActivity.start(this, channelId);
                 break;
             case R.id.leave:
-                getPresenter().requestLeave();
-                binding.progressBar.setVisibility(View.VISIBLE);
-                binding.layoutData.setVisibility(View.GONE);
+                if(getPresenter().getMemberCount() == 1){
+                    getPresenter().requestDelete();
+                } else {
+                    getPresenter().requestLeave();
+                }
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    binding.layoutData.setVisibility(View.GONE);
                 break;
         }
     }

@@ -34,6 +34,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_LEAVE = 2;
     private static final int REQUEST_SAVE = 3;
     private static final int REQUEST_CHANNEL = 4;
+    private static final int REQUEST_DELETE = 5;
 
     private ApiMethod service;
 
@@ -71,6 +72,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void initRequests() {
         initExtraInfo();
         leaveChannel();
+        deleteChannel();
         initSaveRequest();
     }
 
@@ -80,6 +82,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
+                    this.extraInfo = extraInfo;
                     RealmList<User> results = new RealmList<>();
                     results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
                     extraInfo.setMembers(results);
@@ -110,7 +113,17 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                 () -> service.leaveChannel(this.teamId, this.channelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
-                (channelActivity, channel) -> requestFinish(),
+                (channelActivity, channel) -> requestFinish("leaved"),
+                (channelActivity, throwable) -> sendError(getError(throwable))
+        );
+    }
+
+    private void deleteChannel() {
+        restartableFirst(REQUEST_DELETE,
+                () -> service.deleteChannel(this.teamId, this.channelId)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (channelActivity, channel) -> requestFinish("deleted"),
                 (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }
@@ -157,9 +170,17 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
         start(REQUEST_LEAVE);
     }
 
+    public void requestDelete() {
+        start(REQUEST_DELETE);
+    }
+
     public Channel getChannel() {
         return channel;
     }
+    public int getMemberCount() {
+        return Integer.parseInt(extraInfo.getMember_count());
+    }
+
 
     private void requestMembers() {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) ->
@@ -167,10 +188,11 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-    private void requestFinish() {
+    private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
             Toast.makeText(channelActivity,
-                    String.format("You've just leaved %s %s",
+                    String.format("You've %s leaved %s %s",
+                                s,
                                 this.channel.getDisplayName(),
                                 channel.getType().equals(Channel.OPEN) ? "channel" : "private group"),
                     Toast.LENGTH_SHORT).show();
