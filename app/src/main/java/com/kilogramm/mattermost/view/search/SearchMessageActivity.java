@@ -43,9 +43,9 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
-                                   implements TextView.OnEditorActionListener,
-                                   SearchMessageAdapter.OnJumpClickListener,
-                                   TextWatcher {
+        implements TextView.OnEditorActionListener,
+        SearchMessageAdapter.OnJumpClickListener,
+        TextWatcher {
 
     private static final String TEAM_ID = "team_id";
     public static final String MESSAGE_ID = "message_id";

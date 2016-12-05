@@ -141,13 +141,13 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         int apiVersion = Build.VERSION.SDK_INT;
 
         if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
-            Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_SHORT);
+            Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_LONG);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
             error.setActionTextColor(getResources().getColor(R.color.white));
             error.setDuration(3000);
             error.show();
         } else {
-            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -160,7 +160,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
             good.setActionTextColor(getResources().getColor(R.color.white));
             good.show();
         } else {
-            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
         }
     }
 }

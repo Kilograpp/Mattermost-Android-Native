@@ -316,29 +316,27 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     public RealmResults<Channel> getDirectChannelData() {
-        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(),Channel.class);
+        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
         for (Preferences preference : preferences) {
-            String name = String.format("%s__%s",preference.getName(),preference.getUser_id());
-            String revertName = String.format("%s__%s",preference.getUser_id(),preference.getName());
-            realmQuery.equalTo("name",name).or().equalTo("name",revertName).or();
+            String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
+            String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
+            realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
         }
         return realmQuery.findAllSorted("username", Sort.ASCENDING);
     }
 
-    private void  selectLastChannel(){
-
+    private void selectLastChannel() {
         RealmResults<Channel> channels = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
-        if(channels.size() <= 0){
+        if (channels.size() <= 0) {
             return;
         } else {
             Channel channel = channels.first();
-            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId()+ "\n" +
-                    "name = " + channel.getUsername()+ "\n" +
+            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId() + "\n" +
+                    "name = " + channel.getUsername() + "\n" +
                     "type = " + channel.getType() + "\n");
             //removeSelection(channel.getType());
-            setSelectItemMenu(channel.getId(),channel.getType());
+            setSelectItemMenu(channel.getId(), channel.getType());
         }
-
     }
 }

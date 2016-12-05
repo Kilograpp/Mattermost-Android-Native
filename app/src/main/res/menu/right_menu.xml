@@ -19,15 +19,15 @@
         android:id="@+id/invite_new_member"
         android:title="@string/invite_new_member" />
 
-    <item
-        android:icon="@drawable/menu_help_icon"
-        android:id="@+id/help"
-        android:title="@string/help"/>
+    <!--<item-->
+        <!--android:icon="@drawable/menu_help_icon"-->
+        <!--android:id="@+id/help"-->
+        <!--android:title="@string/help"/>-->
 
-    <item
-        android:icon="@drawable/menu_report_icon"
-        android:id="@+id/report_a_problem"
-        android:title="@string/report_a_problem"/>
+    <!--<item-->
+        <!--android:icon="@drawable/menu_report_icon"-->
+        <!--android:id="@+id/report_a_problem"-->
+        <!--android:title="@string/report_a_problem"/>-->
 
     <item
         android:icon="@drawable/menu_question_icon"

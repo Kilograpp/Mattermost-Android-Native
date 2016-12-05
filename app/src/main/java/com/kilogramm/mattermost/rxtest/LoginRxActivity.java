@@ -29,13 +29,11 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         setupToolbar("Sign In", true);
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
-
 
     public void showChatActivity() {
         GeneralRxActivity.start(this,
@@ -47,7 +45,6 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         ChooseTeamActivity.start(this);
     }
 
-
     public static void startActivity(Context context, Integer flags) {
         Intent intent = new Intent(context, LoginRxActivity.class);
         if (flags != null) {
@@ -58,8 +55,13 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
+        if (item.getItemId() == android.R.id.home) {
             finish();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void hideKeyboard() {
+        hideKeyboard(this);
     }
 }

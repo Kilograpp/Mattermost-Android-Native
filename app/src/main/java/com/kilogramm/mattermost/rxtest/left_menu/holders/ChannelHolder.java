@@ -30,23 +30,23 @@ public class ChannelHolder extends BaseLeftHolder {
         return new ChannelHolder(binding);
     }
 
-    public void setChecked(Boolean bool){
+    public void setChecked(Boolean bool) {
         ((CheckableLinearLayout) mBinding.getRoot()).setChecked(bool);
     }
 
     public void bindTo(Channel channel, Context context, Member member) {
         mBinding.channelName.setText(channel.getDisplayName());
-        if(member != null){
-            mBinding.unreadedMessage.setText(member.getMentionCount()!=0
+        if (member != null) {
+            mBinding.unreadedMessage.setText(member.getMentionCount() != 0
                     ? member.getMentionCount().toString()
                     : "");
-            if(!member.getMsgCount().equals(channel.getTotalMsgCount())){
+            if (!member.getMsgCount().equals(channel.getTotalMsgCount())) {
                 setBold(context, mBinding.channelName, mBinding.unreadedMessage);
             } else {
                 setDefault(context, mBinding.channelName, mBinding.unreadedMessage);
             }
         }
-        if(mBinding.linearLayout.isChecked()){
+        if (mBinding.linearLayout.isChecked()) {
             setTextBlack(context, mBinding.channelName, mBinding.unreadedMessage);
         } else {
             setTextWhite(context, mBinding.channelName, mBinding.unreadedMessage);
