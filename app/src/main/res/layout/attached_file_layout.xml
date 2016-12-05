@@ -32,15 +32,17 @@
                 android:progressDrawable="@drawable/circular_white_progress_bar"
                 android:visibility="invisible" />
 
-            <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            <com.pnikosis.materialishprogress.ProgressWheel
                 android:id="@+id/progressWait"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="5dp"
                 android:indeterminate="true"
+                app:matProg_barColor="#FFFFFF"
+                app:matProg_fillRadius="true"
+                app:matProg_progressIndeterminate="true"
                 android:visibility="gone"
-                app:mpb_progressStyle="circular"
                 app:theme="@style/ProgressWhite" />
 
             <com.kilogramm.mattermost.ui.EllipsizingTextView
