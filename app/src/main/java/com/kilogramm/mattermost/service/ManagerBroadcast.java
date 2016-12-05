@@ -12,13 +12,19 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.ImageVideoModelLoader;
+import com.bumptech.glide.request.target.NotificationTarget;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.kilogramm.mattermost.MattermostApp;
@@ -39,7 +45,9 @@ import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -121,8 +129,8 @@ public class ManagerBroadcast {
 
                 savePost(data.getPost());
                 if (data.getMentions().length() > 0
-                        && !data.getPost().getUserId()
-                        .equals(MattermostPreference.getInstance().getMyUserId())) {
+                        && !data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
@@ -214,8 +222,6 @@ public class ManagerBroadcast {
             return;
         }
 
-        Notification notification;
-
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -233,40 +239,57 @@ public class ManagerBroadcast {
         remoteViews.setTextViewText(R.id.text, displayedMessage(post, context));
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
+//
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+//            Notification.Builder builder = new Notification.Builder(context)
+//                    .setSmallIcon(R.mipmap.icon)
+//                    .setDefaults(Notification.DEFAULT_ALL)
+//                    .setPriority(Notification.PRIORITY_HIGH)
+//                    .setContentIntent(pIntent)
+//                    .setContent(remoteViews)
+//                    .setAutoCancel(true);
+//
+//            notification = builder.build();
+//            notification.flags = Notification.FLAG_AUTO_CANCEL;
+//            notificationManager.notify(post.getChannelId().hashCode(), notification);
+//            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
+//        } else {
+//            NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
+//                    .setSmallIcon(R.drawable.ic_mm)
+//                    .setDefaults(Notification.DEFAULT_ALL)
+//                    .setPriority(Notification.PRIORITY_HIGH)
+//                    .setContentIntent(pIntent)
+//                    .setContent(remoteViews)
+//                    .setAutoCancel(true);
+//
+//            notification = builderCompat.build();
+//            notificationManager.notify(post.getChannelId().hashCode(), notification);
+//            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
+//        }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Notification.Builder builder = new Notification.Builder(context)
-                    .setSmallIcon(R.mipmap.icon)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent)
-                    .setContent(remoteViews)
-                    .setAutoCancel(true);
 
-            notification = builder.build();
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(post.getChannelId().hashCode(), notification);
-            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
-        } else {
-            NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.ic_mm)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent)
-                    .setContent(remoteViews)
-                    .setAutoCancel(true);
-
-            notification = builderCompat.build();
-            notificationManager.notify(post.getChannelId().hashCode(), notification);
-            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
-        }
+        Notification.Builder notificationBuilder = showNotification(context);
+        notificationBuilder.setContent(remoteViews);
+        notificationBuilder.setContentIntent(pIntent);
+        notificationBuilder.build().flags = Notification.FLAG_AUTO_CANCEL;
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() ->
                 Picasso.with(context.getApplicationContext())
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
-                        .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notification));
+                        .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notificationBuilder.build()));
+
+        notificationManager.notify(post.getChannelId().hashCode(), notificationBuilder.build());
+    }
+
+    private static Notification.Builder showNotification(Context context) {
+        return new Notification.Builder(context)
+                .setSmallIcon(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
+                        R.mipmap.icon : R.drawable.ic_mm)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setAutoCancel(true);
     }
 
     private static String setNotificationTitle(Channel channel, String userId) {

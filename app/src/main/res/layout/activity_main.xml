@@ -1,92 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:paddingBottom="@dimen/activity_vertical_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin">
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/standart_margin">
+                android:layout_marginBottom="@dimen/standart_margin"
+                android:orientation="vertical">
 
                 <TextView
                     style="@style/TitleBlackTextStyle"
-                    android:text="@string/app_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name" />
 
                 <TextView
-                    android:layout_marginTop="@dimen/standart_margin"
                     style="@style/DescriptionBlackTextStyle"
-                    android:text="@string/main_discription"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standart_margin"
+                    android:text="@string/main_discription" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_marginTop="30dp"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="30dp"
+                android:orientation="vertical">
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/editTextInputLayout"
-                    android:hint="@string/main_title_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:hintTextAppearance="@style/HintTextStyle"
-                    app:hintEnabled="true"
+                    android:hint="@string/main_title_url"
+                    app:errorEnabled="true"
                     app:hintAnimationEnabled="true"
-                    app:errorEnabled="true">
+                    app:hintEnabled="true"
+                    app:hintTextAppearance="@style/HintTextStyle">
 
                     <EditText
                         android:id="@+id/urlEditText"
-                        android:maxLines="1"
                         style="@style/DescriptionBlackTextStyle"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
 
                 <TextView
                     style="@style/HintTextStyle"
-                    android:text="@string/main_example_url"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@string/main_example_url" />
             </LinearLayout>
 
             <me.zhanghai.android.materialprogressbar.MaterialProgressBar
                 android:id="@+id/progressBar"
-                android:layout_margin="5dp"
-                android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="5dp"
                 android:indeterminate="true"
                 android:visibility="gone"
                 app:mpb_progressStyle="circular" />
 
-
             <Button
                 android:id="@+id/buttonNext"
-                android:stateListAnimator="@null"
-                android:background="@drawable/touch_selector"
-                android:textColor="@color/colorPrimary"
-                android:text="@string/main_next_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/touch_selector"
+                android:stateListAnimator="@null"
+                android:text="@string/main_next_button"
+                android:textColor="@color/colorPrimary"
+                android:visibility="gone"/>
         </LinearLayout>
     </ScrollView>
 </layout>
