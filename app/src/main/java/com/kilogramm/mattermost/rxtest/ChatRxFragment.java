@@ -764,20 +764,23 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         if (cursorPos < nameBufferStart.length())
             nameBufferStart.delete(cursorPos, nameBufferStart.length());
-        String[] username = nameBufferStart.toString().split("@");
-        nameBufferStart = new StringBuffer();
-        int count = 1;
-        if (username.length == 0) {
-            nameBufferStart.append(String.format("@%s ", s));
+        if (nameBufferStart.charAt(cursorPos - 1) == '@') {
+            nameBufferStart.append(String.format("%s ", s));
+        } else {
+            String[] username = nameBufferStart.toString().split("@");
+            nameBufferStart = new StringBuffer();
+            int count = 1;
+            if (username.length == 0) {
+                nameBufferStart.append(String.format("@%s ", s));
+            }
+            for (String element : username) {
+                if (count == username.length)
+                    nameBufferStart.append(String.format("%s ", s));
+                else
+                    nameBufferStart.append(String.format("%s@", element));
+                count++;
+            }
         }
-        for (String element : username) {
-            if (count == username.length)
-                nameBufferStart.append(String.format("%s ", s));
-            else
-                nameBufferStart.append(String.format("%s@", element));
-            count++;
-        }
-
         StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
         if (cursorPos < nameBufferStart.length())
             nameBufferEnd.delete(0, cursorPos);
