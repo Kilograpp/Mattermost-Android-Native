@@ -18,7 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -226,7 +226,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         switch (id) {
             case 1:
                 final AlertDialog alertDialog = (AlertDialog) dialog;
-                TextView cancelButton = (TextView) alertDialog.findViewById(R.id.log_out);
+                Button cancelButton = (Button) alertDialog.findViewById(R.id.log_out);
                 if (cancelButton != null) {
                     cancelButton.setOnClickListener(v -> getPresenter().requestLogout());
                 }
