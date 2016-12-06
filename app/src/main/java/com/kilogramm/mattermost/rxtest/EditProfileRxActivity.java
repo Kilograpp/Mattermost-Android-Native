@@ -171,6 +171,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         }
     }
 
+    // TODO в ближайшее время можно будет удалить, если не вернемся к старому варианту
     private void openImageIntent() {
         // Determine Uri of camera image to save.
         final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
@@ -216,7 +217,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             final File sdImageMainDirectory = new File(root, fname);
             outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
-            // Camera.
             final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
             startActivityForResult(captureIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
@@ -230,12 +230,10 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         });
 
         view.findViewById(R.id.layFile).setOnClickListener(v -> {
-            // Filesystem.
             final Intent galleryIntent = new Intent();
             galleryIntent.setType("image/*");
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
-            // Chooser of filesystem options.
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
             startActivityForResult(chooserIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
             mBottomSheetDialog.cancel();

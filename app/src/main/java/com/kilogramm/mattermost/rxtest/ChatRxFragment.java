@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -36,6 +37,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -175,7 +177,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-        setBottomToolbarOnClickListeners();
+        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
+//        setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
         setAttachedFilesLayout();
@@ -543,7 +546,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setMasseageLayout(int visible) {
-        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
+//        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
     }
@@ -709,6 +712,30 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(context, "No suitable File Manager was found.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showDialog() {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            makePhoto();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            openGallery();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            pickFile();
+            mBottomSheetDialog.cancel();
+        });
     }
 
     public void showEmptyList() {
@@ -982,7 +1009,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setButtonAddFileOnClickListener() {
-        binding.buttonAttachFile.setOnClickListener(view -> pickFile());
+        binding.buttonAttachFile.setOnClickListener(view -> showDialog());
     }
 
     @Override
