@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.viewPhoto;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,11 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by melkshake on 09.11.16.
@@ -53,7 +63,7 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Picasso.with(getContext())
+        /*Picasso.with(getContext())
                 .load(FileUtil.getInstance().getImageUrl(imageUri))
                 .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
                 .into(photoBinding.image, new Callback() {
@@ -68,7 +78,45 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
                     @Override
                     public void onError() {
                     }
-                });
+                });*/
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .showImageOnLoading(R.drawable.slices)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+
+        ImageLoader.getInstance().loadImage(FileUtil.getInstance().getImageUrl(imageUri), options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                if(photoBinding.image!=null) photoBinding.image.setImageBitmap(loadedImage);
+                if (photoBinding.progressBar != null) {
+                    photoBinding.progressBar.setVisibility(View.GONE);
+                    photoBinding.image.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+
+            }
+        });
+
 
         photoBinding.image.setVerticalSwipeListener(() -> getActivity().finish());
     }

@@ -88,6 +88,7 @@ public class MattermostApp extends Application{
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .diskCacheExtraOptions(300, 300, bitmap -> null)
                 .memoryCacheExtraOptions(300, 300)
+                .memoryCacheSize(1024*1024*20)
                 .imageDownloader(new FilesView.AuthDownloader(this))
                 .build();
         ImageLoader.getInstance().init(config);

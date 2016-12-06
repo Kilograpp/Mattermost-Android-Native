@@ -205,6 +205,7 @@ public class FilesView extends GridLayout {
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.EXACTLY)
                 .showImageOnLoading(R.drawable.slices)
+                .showImageOnFail(R.drawable.slices)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
