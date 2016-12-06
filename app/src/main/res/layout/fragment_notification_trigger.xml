@@ -131,8 +131,8 @@
                     android:layout_marginTop="@dimen/activity_vertical_text_margin">
 
                     <EditText
-                        android:id="@+id/otherMention"
-                        style="@style/textNormalBlack"
+                        android:id="@+id/textVeryBigBlack"
+                        style="@style/textVeryBigBlack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"
