@@ -48,6 +48,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         channelId = getIntent().getStringExtra(CHANNEL_ID);
 
         binding = DataBindingUtil.setContentView(this, R.layout.channel_activity);
+
         initView();
         setToolbar();
         initClick();
@@ -130,7 +131,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         if (extraInfo.getMember_count().equals("1")) {
             binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
         } else {
-            binding.textLeaveDelete.setText(getString(R.string.channel_info_leave_channel));
+            binding.textLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
+                    ? getResources().getString(R.string.channel_info_leave_channel)
+                    : getResources().getString(R.string.channel_info_leave_private));
         }
     }
 
@@ -213,7 +216,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         starter.putExtra(CHANNEL_ID, channelId);
         activity.startActivityForResult(starter, REQUEST_ID);
     }
-
 
     @Override
     public void onClick(View view) {
