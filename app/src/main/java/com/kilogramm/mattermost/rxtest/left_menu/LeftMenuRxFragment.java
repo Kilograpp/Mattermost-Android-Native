@@ -331,7 +331,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         return realmQuery.findAllSorted("username", Sort.ASCENDING);
     }
 
-    private void selectLastChannel() {
+    public void selectLastChannel() {
         RealmResults<Channel> channels = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
         if (channels.size() <= 0) {

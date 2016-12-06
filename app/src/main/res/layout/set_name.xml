@@ -18,8 +18,8 @@
                 android:id="@+id/progressBar"
                 android:layout_width="@dimen/image_comment_size"
                 android:layout_height="@dimen/image_comment_size"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
                 android:indeterminateTintMode="src_atop"
@@ -39,7 +39,7 @@
                     style="@style/textBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_start"
                     android:text="@string/channel_display_name" />
 
@@ -61,7 +61,7 @@
                         <EditText
                             android:id="@+id/displayName"
                             style="@style/textBlack"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:background="@null"
@@ -87,8 +87,8 @@
                     style="@style/textBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/standart_margin"
+                    android:layout_marginEnd="@dimen/standart_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_start"
                     android:text="@string/channel_handle_name" />
 
@@ -110,14 +110,13 @@
                         <EditText
                             android:id="@+id/name"
                             style="@style/textBlack"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:background="@null"
                             android:hint="@string/channel_name_edit"
                             android:maxLength="22"
                             android:padding="@dimen/activity_horizontal_margin" />
-
 
                         <ImageView
                             android:id="@+id/btnClearName"
@@ -135,10 +134,11 @@
                     style="@style/textGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_vertical_margin"
+                    android:layout_marginStart="@dimen/activity_vertical_margin"
                     android:layout_marginTop="@dimen/standart_margin"
-                    android:text="The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name. Must use only valid URL inputs"
-                    android:textSize="10sp" />
+                    android:text="@string/channel_info_handle_info"
+                    android:textSize="12sp" />
 
             </LinearLayout>
         </ScrollView>

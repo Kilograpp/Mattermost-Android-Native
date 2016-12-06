@@ -212,6 +212,8 @@
     <string name="channel_info_see_all">SEE ALL</string>
     <string name="channel_info_leave_channel">Leave Channel</string>
     <string name="channel_info_delete_channel">Delete Channel</string>
+    <string name="channel_info_handle_info">The name of the subdirectory used to navigate to a
+        channel using the site URL appended with the handle name. Must use only valid URL inputs</string>
 
     <string name="all_members_toolbar">All Members</string>
     <string name="add_members_toolbar">Add Members</string>

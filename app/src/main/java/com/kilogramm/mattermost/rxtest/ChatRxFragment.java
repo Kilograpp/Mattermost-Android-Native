@@ -64,6 +64,7 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -747,7 +748,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
-                    v -> InviteUserRxActivity.start(getActivity()));
+                    v -> AddMembersActivity.start(getActivity(), channelId));
 
             binding.emptyListTitle.setVisibility(View.VISIBLE);
             binding.emptyListMessage.setVisibility(View.VISIBLE);
@@ -962,9 +963,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
         binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
-
-
-
 
     private String getMessageLink(String postId) {
         return "https://"

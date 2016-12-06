@@ -58,6 +58,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
                     sendSetRefreshAnimation(false);
                     sendUpdateMenuView();
+                    sendSelectLastChannel();
                 }, (leftMenuRxFragment, throwable) -> {
                     throwable.printStackTrace();
                     sendSetRefreshAnimation(false);
@@ -110,11 +111,17 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void sendSetRefreshAnimation(Boolean bool) {
-        createTemplateObservable(bool).subscribe(split((leftMenuRxFragment, aBoolean) ->
-                leftMenuRxFragment.setRefreshAnimation(bool)));
+        createTemplateObservable(bool).subscribe(split(
+                (leftMenuRxFragment, aBoolean) -> leftMenuRxFragment.setRefreshAnimation(bool)));
     }
 
     private void sendUpdateMenuView() {
-        createTemplateObservable(new Object()).subscribe(split((leftMenuRxFragment, o) -> leftMenuRxFragment.initView()));
+        createTemplateObservable(new Object()).subscribe(split(
+                (leftMenuRxFragment, o) -> leftMenuRxFragment.initView()));
+    }
+
+    private void sendSelectLastChannel() {
+        createTemplateObservable(new Object()).subscribe(split(
+                (leftMenuRxFragment, o) -> leftMenuRxFragment.selectLastChannel()));
     }
 }
