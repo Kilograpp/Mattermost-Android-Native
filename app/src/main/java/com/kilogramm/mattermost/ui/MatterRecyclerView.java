@@ -36,7 +36,7 @@ public class MatterRecyclerView extends RecyclerView {
 
     public MatterRecyclerView(Context context) {
         super(context);
-        this.init(context, (AttributeSet) null);
+        this.init(context, null);
     }
 
     public MatterRecyclerView(Context context, @Nullable AttributeSet attrs) {
@@ -76,7 +76,9 @@ public class MatterRecyclerView extends RecyclerView {
         if (isCanPagination()) {
             if (canPaginationTop) {
                 if (!showShowLoadMoreTop && !((AdapterPost) getAdapter()).getTopLoading()) {
-                    int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstVisibleItemPosition();
+                   // int firstvisibleItem = ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    //Log.d(TAG, "firstNoCompleteItem = " + firstNoCompleteItem + "\nfirstvisibleItem = " + firstvisibleItem);
                     if (firstvisibleItem < 1
                             && firstvisibleItem != -1) {
                         Log.d(TAG, "Log scrolling recyclerview: \n" +

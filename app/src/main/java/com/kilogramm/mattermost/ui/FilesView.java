@@ -1,24 +1,55 @@
 package com.kilogramm.mattermost.ui;
 
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.renderscript.RenderScript;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.FileDownloadManager;
+import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
-import com.kilogramm.mattermost.view.ImageViewerActivity;
+import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.decode.ImageDecoder;
+import com.nostra13.universalimageloader.core.decode.ImageDecodingInfo;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,73 +60,330 @@ import io.realm.Realm;
  */
 public class FilesView extends GridLayout {
 
-    private static final String TAG = "FilesView";
+    private static final String TAG = "FileDownloadManager";
 
-    private static final String PNG = "png";
-    private static final String JPG = "jpg";
+    private DisplayImageOptions options;
 
     private List<String> fileList = new ArrayList<>();
+    private Drawable backgroundColorId;
 
     public FilesView(Context context) {
         super(context);
-        init(context, null);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context);
     }
 
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context);
     }
 
+    @TargetApi(21)
     public FilesView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs);
+        init(context);
     }
 
-    private void init(Context context, AttributeSet attrs){
+    private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
+//        setUpImageloader(context);
+    }
+
+    private void setUpImageloader(Context context) {
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+
+        options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .cacheOnDisc(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .diskCacheExtraOptions(300, 300, bitmap -> null)
+                .memoryCacheExtraOptions(300, 300)
+                .defaultDisplayImageOptions(options)
+                .imageDownloader(new AuthDownloader(context))
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 
     public void setItems(List<String> items) {
         clearView();
-        if(items!=null && items.size()!=0) {
+        if (items != null && items.size() != 0) {
             fileList = items;
-            for (String s : items) {
-                FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.files_item_layout, this,false);
-                switch (FileUtil.getInstance().getFileType(s)) {
-                    case PNG:
-                        initAndAddItem(binding,getImageUrl(s));
-                        binding.image.setOnClickListener(view -> {
-                            Toast.makeText(getContext(), "image open", Toast.LENGTH_SHORT).show();
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(s));
+            for (String fileName : items) {
+                FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.
+                        from(getContext()), R.layout.files_item_layout, this, false);
+                FileDownloadManager.FileDownloadListener fileDownloadListener =
+                        createDownloadListener(binding);
+                binding.downloadFileControls.setControlsClickListener(
+                        createControlsClickListener(fileName, fileDownloadListener, binding)
+                );
 
-                        });
-                        break;
-                    case JPG:
-                        initAndAddItem(binding,getImageUrl(s));
-                        binding.image.setOnClickListener(view -> {
-                            ImageViewerActivity.start(getContext(),
-                                    binding.image,
-                                    binding.title.getText().toString(),
-                                    getImageUrl(s));
 
-                        });
-                        break;
-                    default:
-                        initAndAddItem(binding,getImageUrl(s));
-                        break;
+                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator
+                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+
+
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+                if (fileToAttach != null &&
+                        (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                                fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
+                    binding.downloadFileControls.showProgressControls();
+                    FileDownloadManager.getInstance().addListener(fileName, fileDownloadListener);
+                } else if (fileToAttach != null &&
+                        fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+                    setupFileClickListeners(binding, fileName);
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else if (fileToAttach != null && file.exists()) {
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else {
+                    binding.downloadFileControls.hideProgressControls();
                 }
-            };
+
+                String extension = FileUtil.getInstance().getMimeType(fileName);
+                if (extension != null && extension.contains("image")) {
+                    binding.image.setVisibility(VISIBLE);
+                    binding.circleFrame.setVisibility(GONE);
+
+                    binding.title.setOnClickListener(v -> {
+                        if (file.exists()) {
+                            createDialog(fileName, binding);
+                        } else {
+                            downloadFile(fileName, createDownloadListener(binding));
+                        }
+                    });
+
+
+                    initAndAddItem(binding, fileName);
+
+                    binding.image.setOnClickListener(view ->
+                            ViewPagerWGesturesActivity.start(getContext(),
+                                    binding.title.getText().toString(),
+                                    fileName,
+                                    (ArrayList<String>) fileList)
+                    );
+                } else {
+                    initAndAddItem(binding, fileName);
+                }
+            }
         } else {
             clearView();
         }
+    }
+
+    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName) {
+        OnClickListener fileClickListener = v -> {
+            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
+                    + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                getContext().startActivity(intent);
+            } else {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        binding.icDownloadedFile.setOnClickListener(fileClickListener);
+        binding.title.setOnClickListener(fileClickListener);
+    }
+
+    private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
+        if (backgroundColorId != null)
+            binding.root.setBackground(backgroundColorId);
+        String url = getImageUrl(fileName);
+        Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
+        Matcher matcher = pattern.matcher(url);
+        String title = "";
+        if (matcher.find()) {
+            title = matcher.group(1);
+        }
+        try {
+            binding.title.setText(URLDecoder.decode(title, "utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            binding.title.setText(title);
+        }
+
+        Picasso.with(getContext())
+                .load(url)
+                .resize(300, 300)
+                .centerCrop()
+                .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
+                .error(getContext().getResources().getDrawable(R.drawable.slices))
+                .into(binding.image);
+//        ImageLoader.getInstance().displayImage(url, binding.image, options);
+
+        this.addView(binding.getRoot());
+
+        RealmString realmString = RealmStringRepository.getInstance().get(fileName);
+        if (realmString != null) {
+            if (realmString.getFileSize() <= 0) {
+                new Thread(() -> {
+                    long fileSize = getRemoteFileSize(url);
+                    Log.d(TAG, String.valueOf(fileSize));
+                    if (fileSize > 0) {
+                        binding.fileSize.post(() -> {
+                            binding.materialProgressBar.setVisibility(GONE);
+                            binding.fileSize.setText(FileUtil.getInstance()
+                                    .convertFileSize(fileSize));
+                            RealmStringRepository.getInstance().updateFileSize(fileName, fileSize);
+                        });
+                    }
+                }).start();
+            } else {
+                binding.materialProgressBar.setVisibility(GONE);
+                binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
+            }
+        }
+    }
+
+    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName) {
+        binding.title.setOnClickListener(v -> FileUtil.getInstance().
+                startOpenFileIntent(getContext(),
+                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
+        );
+        binding.icDownloadedFile.setOnClickListener(v -> FileUtil.getInstance().
+                startOpenFileIntent(getContext(),
+                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
+        );
+    }
+
+    private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
+        return new FileDownloadManager.FileDownloadListener() {
+            @Override
+            public void onComplete(String fileId) {
+                binding.downloadFileControls.post(() -> {
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                    setupFileClickListeners(binding, fileId);
+                });
+            }
+
+            @Override
+            public void onProgress(int percantage) {
+                binding.downloadFileControls.post(() ->
+                        binding.downloadFileControls.setProgress(percantage));
+            }
+
+            @Override
+            public void onError(String fileId) {
+                binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
+                        getContext().getString(R.string.error_during_file_download),
+                        Toast.LENGTH_SHORT).show());
+
+            }
+        };
+    }
+
+    private DownloadFileControls.ControlsClickListener createControlsClickListener(String fileName,
+                                                                                   FileDownloadManager.FileDownloadListener fileDownloadListener,
+                                                                                   FilesItemLayoutBinding binding) {
+        return new DownloadFileControls.ControlsClickListener() {
+            @Override
+            public void onClickDownload() {
+                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator
+                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                if (file.exists()) {
+                    binding.downloadFileControls.post(() -> createDialog(fileName, binding));
+                } else {
+                    downloadFile(fileName, fileDownloadListener);
+                }
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+                if (fileToAttach != null) {
+                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                        binding.downloadFileControls.showProgressControls();
+                    }
+                }
+            }
+
+            @Override
+            public void onClickCancel() {
+                FileToAttachRepository.getInstance().remove(fileName);
+                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
+            }
+        };
+    }
+
+    private void createDialog(String fileName, FilesItemLayoutBinding binding) {
+
+        FileDownloadManager.FileDownloadListener fileDownloadListener = createDownloadListener(binding);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(getContext().getString(R.string.file_exists));
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            binding.downloadFileControls.hideProgressControls();
+            dialog.dismiss();
+        });
+        builder.setPositiveButton(R.string.replace, (dialog, which) ->
+                downloadFile(fileName, fileDownloadListener));
+        builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
+            Intent intent = null;
+            intent = FileUtil.getInstance().
+                    createOpenFileIntent(
+                            FileUtil.getInstance().getDownloadedFilesDir()
+                                    + File.separator
+                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                getContext().startActivity(intent);
+            } else {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+            binding.downloadFileControls.hideProgressControls();
+        });
+        builder.show();
+    }
+
+    private String getImageUrl(String id) {
+        if (id != null) {
+            return "https://"
+                    + MattermostPreference.getInstance().getBaseUrl()
+                    + "/api/v3/teams/"
+                    + MattermostPreference.getInstance().getTeamId()
+                    + "/files/get" + id;
+        } else {
+            return "";
+        }
+    }
+
+    private long getRemoteFileSize(String fileUrl) {
+        try {
+            Log.d(TAG, fileUrl);
+            URL url = new URL(fileUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+            Log.d(TAG, urlConnection.getResponseMessage());
+            final long file_size = Long.parseLong(urlConnection.getHeaderField("Content-Length"));
+            urlConnection.disconnect();
+            return file_size;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return 0L;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0L;
+        }
+    }
+
+    private void downloadFile(String fileName, FileDownloadManager.FileDownloadListener fileDownloadListener) {
+        FileDownloadManager.getInstance().addItem(fileName, fileDownloadListener);
     }
 
     private void clearView() {
@@ -103,42 +391,22 @@ public class FilesView extends GridLayout {
         this.removeAllViews();
     }
 
-    private void initAndAddItem(FilesItemLayoutBinding binding, String url) {
-        //Log.d(TAG, url);
-        Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
-        Matcher matcher = pattern.matcher(url);
-        String title = "";
-        if(matcher.find()){
-            title = matcher.group(1);
-        }
-        try {
-            binding.title.setText(URLDecoder.decode(title,"utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            binding.title.setText(title);
-        }
-        Glide.with(getContext())
-                .load(url)
-                .override(150,150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
-                .thumbnail(0.1f)
-                .into(binding.image);
-        this.addView(binding.getRoot());
-    }
+    public class AuthDownloader extends BaseImageDownloader {
 
-    private String getImageUrl(String id){
-        Realm realm = Realm.getDefaultInstance();
-        String s = new String(realm.where(Team.class).findFirst().getId());
-        realm.close();
-        if(id!=null){
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/teams/"
-                    + s
-                    + "/files/get" +  id;
-        } else {
-            return "";
+        public AuthDownloader(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
+            HttpURLConnection conn = super.createConnection(url, extra);
+            Map<String, String> headers = (Map<String, String>) extra;
+            if (headers != null) {
+                for (Map.Entry<String, String> header : headers.entrySet()) {
+                    conn.setRequestProperty(header.getKey(), header.getValue());
+                }
+            }
+            return conn;
         }
     }
-
 }

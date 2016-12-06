@@ -54,7 +54,7 @@ public class OkHttpUrlLoader implements ModelLoader<GlideUrl, InputStream> {
 
         @Override
         public void teardown() {
-            // Do nothing, this instance doesn't own the client.
+            // Do nothing, this MATERIAL doesn't own the client.
         }
     }
 

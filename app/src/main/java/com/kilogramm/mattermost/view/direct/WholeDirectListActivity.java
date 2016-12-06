@@ -1,22 +1,29 @@
 package com.kilogramm.mattermost.view.direct;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import java.util.ArrayList;
-
-import io.realm.Realm;
+import io.realm.OrderedRealmCollection;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -24,19 +31,18 @@ import nucleus.factory.RequiresPresenter;
  * Created by melkshake on 14.09.16.
  */
 @RequiresPresenter(WholeDirectListPresenter.class)
-public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> implements WholeDirectListAdapter.OnDirectItemClickListener {
+public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> {
     public static final String USER_ID = "USER_ID";
-    public static final String NAME = "NAME";
 
     private ActivityWholeDirectListBinding binding;
     private WholeDirectListAdapter adapter;
-    private Realm realm;
+
+    private MenuItem doneItem;
+    private MenuItem searchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.realm = Realm.getDefaultInstance();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         init();
         setRecycleView();
@@ -45,40 +51,91 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private void init() {
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-        getPresenter().getProfilesForDirectMessage();
+
+        setRecycleView();
+        getPresenter().getUsers();
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > 0) {
+                    getPresenter().getSearchUsers(charSequence.toString());
+                } else {
+                    getPresenter().getSearchUsers(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+    public void updateDataList(OrderedRealmCollection<User> realmResult) {
+        adapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.listEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.listEmpty.setVisibility(View.INVISIBLE);
     }
 
     public void setRecycleView() {
-        RealmResults<User> users = realm.where(User.class).isNotNull("id").isNotNull("email").findAllSorted("username");
-        ArrayList<String> usersIds = new ArrayList<>();
-        for (User user : users) {
-            usersIds.add(user.getId());
-        }
-
-        // TODO говорят, не хорошо передавать ссылку на презентер внутрь адаптера
-        adapter = new WholeDirectListAdapter(this, users, usersIds, getPresenter(), this);
+        RealmResults<UserStatus> statusRealmResults = UserStatusRepository
+                .query(new UserStatusRepository.UserStatusAllSpecification());
+        RealmResults<Preferences> preferences = PreferenceRepository
+                .query(new PreferenceRepository
+                        .PreferenceByCategorySpecification("direct_channel_show"));
+        adapter = new WholeDirectListAdapter(this, statusRealmResults, preferences);
         binding.recViewDirect.setAdapter(adapter);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
         binding.recViewDirect.setLayoutManager(manager);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.done, menu);
+        searchItem = menu.findItem(R.id.action_search);
+        initSearchView(menu, getMassageTextWatcher());
+        return true;
     }
 
-    public void finishActivity() {
-        finish();
+    public void failSave() {
+        adapter.getChangesMap().clear();
+        adapter.notifyDataSetChanged();
+        doneItem.setVisible(true);
+        searchItem.setVisible(true);
+        binding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, "Unable to save", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onDirectClick(String itemId, String name) {
-        Intent intent = new Intent(this, WholeDirectListActivity.class)
-                .putExtra(USER_ID, "")
-                .putExtra(NAME, itemId);
-        setResult(Activity.RESULT_OK, intent);
-        //finishActivity();
-        finish();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.action_done:
+                if (adapter.getChangesMap().size() > 0) {
+                    getPresenter().savePreferences(adapter.getChangesMap());
+                    doneItem = item;
+                    doneItem.setVisible(false);
+                    searchItem.setVisible(false);
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                } else
+                    finish();
+                break;
+        }
+        return true;
+    }
+    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
+        Intent starter = new Intent(fragment.getActivity(), WholeDirectListActivity.class);
+        fragment.startActivityForResult(starter, requestCode);
     }
 }

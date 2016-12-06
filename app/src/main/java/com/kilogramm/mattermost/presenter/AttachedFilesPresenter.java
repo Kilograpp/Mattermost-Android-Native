@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
@@ -26,7 +28,6 @@ import rx.schedulers.Schedulers;
 /**
  * Created by kepar on 30.9.16.
  */
-
 public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout> {
     private static final String TAG = "AttachedFilesPresenter";
 
@@ -35,20 +36,20 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     private ApiMethod service;
 
     @State
-    String teamId;
-    @State
     String channelId;
     @State
-    String uri;
-    @State
     String fileName;
+    FileToAttach fileToAttach;
 
     private RequestBody channel_Id;
     private RequestBody clientId;
 
     FileUtil fileUtil;
 
-
+    public void requestUploadFileToServer(String channelId) {
+        this.channelId = channelId;
+        startRequest();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -58,37 +59,73 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         initRequests();
     }
 
-    private void initRequests(){
-        restartableFirst(REQUEST_UPLOAD_TO_SERVER,() -> {
-            String filePath = fileUtil.getPath(Uri.parse(uri));
+    private void initRequests() {
+        restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
+//            sendShowToast("Loading start");
+            String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
             String mimeType = fileUtil.getMimeType(filePath);
 
-            File file = new File(filePath);
+            File file;
+            if (filePath != null) {
+                file = new File(filePath);
+            } else {
+                file = new File(fileToAttach.getUriAsString());
+            }
             this.fileName = file.getName();
-            FileToAttachRepository.getInstance().add(new FileToAttach(filePath, file.getName()));
-            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType);
+            if (file.exists()) {
+                Log.d(TAG, "initRequests: file exists");
+            }
+            FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, fileToAttach.getId());
+
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
+
             channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
             clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
-            return service.uploadFile(teamId, filePart, channel_Id, clientId)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(Schedulers.io());
+            return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
-            Log.d(TAG, fileUploadResponse.toString());
-            FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
-            FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), true);
+            if (fileUploadResponse.getFilenames() != null
+                    && fileUploadResponse.getFilenames().size() != 0) {
+//                sendShowToast("Loading complete");
+                Log.d(TAG, fileUploadResponse.toString());
+                FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
+                FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
+                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
+
+            }
+            startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
+            sendShowUploadErrorToast();
             Log.d(TAG, "Error");
+            FileToAttachRepository.getInstance().remove(fileName);
+            startRequest();
         });
     }
 
-    public void requestUploadFileToServer(String teamId, String channelId, String uri){
-        this.teamId = teamId;
-        this.channelId = channelId;
-        this.uri = uri;
-        start(REQUEST_UPLOAD_TO_SERVER);
+    private void sendShowUploadErrorToast() {
+        createTemplateObservable(new Object())
+                .subscribe(split((attachedFilesLayout, o)
+                        -> attachedFilesLayout.showUploadErrorToast()));
     }
 
+    private void sendAllUploaded() {
+        createTemplateObservable(new Object())
+                .subscribe(split((attachedFilesLayout, o)
+                        -> attachedFilesLayout.onAllUploaded()));
+    }
+
+    private void startRequest() {
+        fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
+        if (fileToAttach == null || channelId == null) {
+            if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
+                sendAllUploaded();
+            }
+            return;
+        }
+        start(REQUEST_UPLOAD_TO_SERVER);
+    }
 }

@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -26,11 +25,8 @@ public class WebSocketManager {
 
     private static final String TAG = "Websocket";
 
-    // TODO неюзабельные константы. Удалить?
     private static final String HEADER_WEB_SOCKET = "Cookie";
-    public static final int TIME_REPEAT_CONNEСT = 10 * 1000;
     public static final int TIME_REPEAT_RECONNECT = 30 * 1000;
-    public static final int TIME_REPEAT_UPDATE_USER = 30 * 1000;
 
     private static WebSocket webSocket = null;
 
@@ -43,8 +39,6 @@ public class WebSocketManager {
     private CheckStatusSocket mCheckStatusSocket;
 
     private UpdateStatusUser mUpdateStatusUser;
-
-    private ChannelRepository channelRepository;
 
 
     public WebSocketManager(WebSocketMessage webSocketMessage) {
@@ -156,7 +150,7 @@ public class WebSocketManager {
     }
 
     private boolean hasWebsocket() {
-        return ((webSocket != null) && (!(webSocket.getState() == WebSocketState.CLOSED))) ? true : false;
+        return ((webSocket != null) && (!(webSocket.getState() == WebSocketState.CLOSED)));
     }
 
     public void reconnect() throws WebSocketException {
@@ -202,7 +196,6 @@ public class WebSocketManager {
         }
     }
     //TODO Review code
-    // TODO Kepar: сделал ревью, но логику не трогал
     public class UpdateStatusUser implements Runnable {
 
         @Override

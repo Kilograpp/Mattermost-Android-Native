@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <!--<data>-->
-        <!--<variable-->
-            <!--name="menuDirectListPresenter"-->
-            <!--type="com.kilogramm.mattermost.presenter.MenuDirectListPresenter"/>-->
-    <!--</data>-->
+<layout xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
-        android:padding="@dimen/left_padding"
+        android:paddingLeft="@dimen/left_padding"
+        android:paddingBottom="@dimen/left_padding"
+        android:paddingRight="@dimen/left_padding"
         android:layout_width="240dp"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:textColor="@color/white"
@@ -30,7 +26,6 @@
             tools:listitem="@layout/item_direction_profile_channel"/>
 
         <TextView
-            android:visibility="gone"
             android:id="@+id/btnMore"
             android:textColor="@color/white"
             android:layout_width="match_parent"

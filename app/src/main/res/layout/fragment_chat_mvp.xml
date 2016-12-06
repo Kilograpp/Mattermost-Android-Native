@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -21,7 +22,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -29,62 +30,105 @@
                 android:id="@+id/emptyList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="gone">
+                android:gravity="center_vertical"
+                android:visibility="gone" >
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:text="@string/you_have_no_messages"-->
+                    <!--android:textColor="@color/black" />-->
+                <!--<Button-->
+                    <!--android:id="@+id/buttonRetry"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:background="@drawable/touch_selector"-->
+                    <!--android:stateListAnimator="@null"-->
+                    <!--android:text="@string/retry"-->
+                    <!--android:textColor="@color/colorPrimary" />-->
+                <TextView
+                    android:id="@+id/empty_list_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/black"
+                    android:textSize="22sp"
+                    android:visibility="gone"/>
 
                 <TextView
+                    android:id="@+id/empty_list_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/you_have_no_messages"
-                    android:textColor="@color/black" />
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/grey"
+                    android:visibility="gone"/>
 
-                <Button
-                    android:id="@+id/buttonRetry"
+                <TextView
+                    android:id="@+id/empty_list_invite_others"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:background="@drawable/touch_selector"
-                    android:stateListAnimator="@null"
-                    android:text="@string/retry"
-                    android:textColor="@color/colorPrimary" />
+                    android:layout_marginStart="15dp"
+                    android:textColor="@color/notification_blue"
+                    android:visibility="gone"/>
+
             </LinearLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
-                    android:id="@+id/swipeRefreshLayout"
+
+                <android.support.design.widget.CoordinatorLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:srl_direction="bottom"
-                    tools:visibility="visible">
+                    android:layout_height="match_parent">
 
-                    <com.kilogramm.mattermost.ui.MatterRecyclerView
-                        android:id="@+id/rev"
+                    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+                        android:id="@+id/swipeRefreshLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="400dp"
-                        android:scrollbars="vertical"
-                        android:visibility="gone"/>
-                   <!--<com.kilogramm.mattermost.ui.MRealmRecyclerView
-                        android:id="@+id/rev"
+                        android:layout_height="match_parent"
+                        app:srl_direction="bottom"
+                        tools:visibility="visible">
+
+                        <com.kilogramm.mattermost.ui.MatterRecyclerView
+                            android:id="@+id/rev"
+                            style="@style/scrollbar_shape_style"
+                            android:layout_width="match_parent"
+                            android:layout_height="400dp"
+                            android:scrollbars="vertical"
+                            android:visibility="gone" />
+                    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+
+                    <android.support.v7.widget.CardView
+                        style="@style/CardView.Light"
                         android:layout_width="match_parent"
-                        android:layout_height="400dp"
-                        android:visibility="gone"
-                        app:rrvLayoutType="LinearLayout">
-                    </com.kilogramm.mattermost.ui.MRealmRecyclerView>-->
-                </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="0dp"
+                        android:layout_gravity="bottom">
 
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/idRecUser"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </android.support.v7.widget.CardView>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/idRecUser"
-                    android:layout_weight="1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:background="@color/white"/>
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_margin="10dp"
+                        app:layout_anchor="@id/rev"
+                        app:layout_anchorGravity="bottom|right|end"
+                        app:srcCompat="@drawable/ic_arrow"
+                        app:backgroundTint="@color/white"/>
+
+                </android.support.design.widget.CoordinatorLayout>
+
             </FrameLayout>
 
         </LinearLayout>
@@ -113,23 +157,23 @@
                 android:id="@+id/attachedFilesLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <View
+                android:id="@+id/line"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="2dp"
                 android:background="@color/very_light_grey" />
 
             <LinearLayout
                 android:id="@+id/sendingMessageContainer"
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
-                android:animateLayoutChanges="true">
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal"
+                android:visibility="visible">
 
                 <ImageView
                     android:id="@+id/buttonAttachFile"
@@ -137,27 +181,29 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    app:srcCompat="@drawable/ic_attachment_grey_24dp"/>
+                    app:srcCompat="@drawable/ic_attachment_grey_24dp" />
 
                 <EditText
                     android:id="@+id/writingMessage"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/white"
-                    android:hint="@string/type_something"
-                    android:padding="10dp"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/very_light_grey"/>
+                    android:background="@color/white"
+                    android:padding="10dp"
+                    android:hint="@string/type_something"
+                    android:textColorHint="@color/very_light_grey"
+                    android:inputType="textCapSentences|textNoSuggestions|textMultiLine"
+                    android:maxLines="5"/>
 
                 <TextView
                     android:id="@+id/btnSend"
-                    android:text="Send"
-                    android:textColor="@color/colorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:padding="10dp"/>
+                    android:padding="10dp"
+                    android:text="Send"
+                    android:textColor="@color/grey" />
                 <!--<ImageView
                     android:id="@+id/btnSend"
                     android:layout_width="wrap_content"
@@ -168,9 +214,9 @@
             </LinearLayout>
         </LinearLayout>
 
-       <include
-           android:id="@+id/bottomToolbar"
-           layout="@layout/bottom_toolbar_layout" />
+        <include
+            android:id="@+id/bottomToolbar"
+            layout="@layout/bottom_toolbar_layout" />
 
-</LinearLayout>
+    </LinearLayout>
 </layout>

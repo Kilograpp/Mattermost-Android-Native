@@ -11,6 +11,7 @@ import io.realm.RealmObject;
 public class RealmString extends RealmObject implements Parcelable {
 
     private String string;
+    private long fileSize;
 
     public RealmString(String s) {
         super();
@@ -29,6 +30,13 @@ public class RealmString extends RealmObject implements Parcelable {
         this.string = string;
     }
 
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
 
     @Override
     public int describeContents() {
@@ -38,13 +46,15 @@ public class RealmString extends RealmObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.string);
+        dest.writeLong(this.fileSize);
     }
 
     protected RealmString(Parcel in) {
         this.string = in.readString();
+        this.fileSize = in.readLong();
     }
 
-    public static final Parcelable.Creator<RealmString> CREATOR = new Parcelable.Creator<RealmString>() {
+    public static final Creator<RealmString> CREATOR = new Creator<RealmString>() {
         @Override
         public RealmString createFromParcel(Parcel source) {
             return new RealmString(source);

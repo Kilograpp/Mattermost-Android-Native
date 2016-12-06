@@ -4,7 +4,6 @@ import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -66,7 +65,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                     + post.getUser().getId()
                     + "/image";
         } else {
-            return "";
+            return null;
         }
     }
 
@@ -91,7 +90,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getControlMenuVisibility() {
-        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE)
+        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE
+                && post.getProps()== null)
             return post.isSystemMessage() ? new ObservableInt(View.GONE) : controlMenuVisibility;
         return new ObservableInt(View.GONE);
     }
@@ -113,10 +113,12 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter("bind:items")
     public static void setItems(FilesView v, Post post){
-        for (String s : post.getFilenames()) {
-            Log.d(TAG, "post "+ post.getMessage() +"\n"+ s);
+        if(post!=null) {
+            /*for (String s : post.getFilenames()) {
+                Log.d(TAG, "post " + post.getMessage() + "\n" + s);
+            }*/
+            v.setItems(post.getFilenames());
         }
-        v.setItems(post.getFilenames());
     }
 
     @Override
@@ -145,7 +147,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        if (imageUrl != null && imageUrl != "") {
+        if (imageUrl != null) {
             view.setRotation(0);
             Picasso.with(view.getContext())
                     .load(imageUrl)

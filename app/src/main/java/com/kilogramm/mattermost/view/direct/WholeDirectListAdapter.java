@@ -1,141 +1,73 @@
 package com.kilogramm.mattermost.view.direct;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 
-import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ItemDirectListBinding;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
-import com.squareup.picasso.Picasso;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import io.realm.RealmQuery;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
-import io.realm.RealmViewHolder;
 
 /**
  * Created by melkshake on 14.09.16.
  */
-public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListAdapter.MyViewHolder> {
-    static WholeDirectListPresenter mWholeDirectListPresenter;
-    // TODO иметь статическую ссылку на контекст очень плохо. Поправь. Или я могу поправить, если хошь =) (Kepar)
-    private Context context;
+public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListHolder> {
 
-    private WholeDirectListAdapter.OnDirectItemClickListener directItemClickListener;
-    private ArrayList<String> mUsersIds;
+    private RealmResults<UserStatus> userStatuses;
+    private RealmResults<Preferences> preferences;
 
-    public WholeDirectListAdapter(Context context, RealmResults<User> realmResults, ArrayList<String> usersIds,
-                                  WholeDirectListPresenter wholeDirectListPresenter,
-                                  WholeDirectListAdapter.OnDirectItemClickListener listener) {
-        super(context, realmResults, true);
-        this.mUsersIds = usersIds;
-        this.context = context;
-        mWholeDirectListPresenter = wholeDirectListPresenter;
-        this.directItemClickListener = listener;
+    Map<String, Boolean> changesMap;
+
+    public WholeDirectListAdapter(Context context,
+                                  RealmResults<UserStatus> statusRealmResults,
+                                  RealmResults<Preferences> preferences) {
+        super(context, null, true);
+        this.userStatuses = statusRealmResults;
+        this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
+        this.changesMap = new HashMap<>();
+        this.preferences = preferences;
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return MyViewHolder.create(inflater, parent);
+    public WholeDirectListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return WholeDirectListHolder.create(inflater, parent);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(WholeDirectListHolder holder, int position) {
         User user = getData().get(position);
-
-        holder.bindTo(context,user);
+        boolean isShow = false;
+        RealmQuery<Preferences> preferencesRealmQuery = preferences.where()
+                .equalTo("name", user.getId());
+        if (preferencesRealmQuery.count() > 0)
+            if (preferencesRealmQuery.findFirst().getValue().equals("true"))
+                isShow = true;
 
         holder.getmBinding().getRoot().setOnClickListener(view -> {
-            if (directItemClickListener != null) {
-                directItemClickListener.onDirectClick(user.getId(), user.getUsername());
-            }
+                holder.getmBinding().selectDirect.setChecked(
+                        !holder.getmBinding().selectDirect.isChecked());
+                setItemChangeMap(user.getId(), holder.getmBinding().selectDirect.isChecked());
         });
+
+        holder.getmBinding().selectDirect.setOnClickListener(view ->
+                setItemChangeMap(user.getId(), ((CheckBox) view).isChecked())
+        );
+        holder.bindTo(user, isShow, changesMap.get(user.getId()));
     }
 
-    public static class MyViewHolder extends RealmViewHolder {
 
-        private ItemDirectListBinding directBinding;
-
-
-        private MyViewHolder(ItemDirectListBinding binding) {
-            super(binding.getRoot());
-            directBinding = binding;
-        }
-
-        public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {
-            ItemDirectListBinding binding = ItemDirectListBinding.inflate(inflater, parent, false);
-            return new MyViewHolder(binding);
-        }
-
-        public void bindTo(Context context, User user) {
-
-            directBinding.directProfileName.setText(user.getUsername());
-
-            StringBuilder stringBuilder = new StringBuilder("(" + user.getEmail() + ")");
-            directBinding.emailProfile.setText(stringBuilder);
-
-            if (user.getStatus() != null) {
-                directBinding.status.setImageDrawable(drawStatusIcon(context,user.getStatus()));
-            } else {
-                directBinding.status.setImageDrawable(drawStatusIcon(context,User.OFFLINE));
-            }
-
-            Picasso.with(directBinding.avatarDirect.getContext())
-                    .load(getImageUrl(user.getId()))
-                    .resize(60, 60)
-                    .error(directBinding.avatarDirect.getContext()
-                            .getResources()
-                            .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .placeholder(directBinding.avatarDirect.getContext()
-                            .getResources()
-                            .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(directBinding.avatarDirect);
-
-        }
-
-        public ItemDirectListBinding getmBinding() {
-            return directBinding;
-        }
+    public Map<String, Boolean> getChangesMap() {
+        return changesMap;
     }
 
-    public static Drawable drawStatusIcon(Context context, String status) {
-        if (status == null) {
-            return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-        }
-
-        switch (status) {
-            case User.ONLINE:
-                return context.getResources().getDrawable(R.drawable.status_online_drawable);
-            case User.OFFLINE:
-                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-            case User.AWAY:
-                return context.getResources().getDrawable(R.drawable.status_away_drawable);
-            case User.REFRESH:
-                return context.getResources().getDrawable(R.drawable.status_refresh_drawable);
-            default:
-                return context.getResources().getDrawable(R.drawable.status_offline_drawable);
-        }
-    }
-
-    public static String getImageUrl(String userId) {
-        if (userId != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/users/"
-                    + userId
-                    + "/image";
-        } else {
-            return "";
-        }
-    }
-
-    public interface OnDirectItemClickListener {
-        void onDirectClick(String itemId, String name);
+    public void setItemChangeMap(String id, boolean value) {
+        changesMap.put(id, value);
     }
 }

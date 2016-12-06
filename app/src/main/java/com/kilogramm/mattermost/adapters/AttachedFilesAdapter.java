@@ -1,40 +1,43 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
+import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.tools.FileUtil;
+import com.squareup.picasso.Picasso;
 
-import io.realm.Realm;
+import java.io.IOException;
+
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.RealmViewHolder;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Created by kepar on 7.10.16.
  */
 public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach, AttachedFilesAdapter.MyViewHolder> {
-    private static final String TAG = "AttachedFilesAdapter";
-    private Context context;
 
     private EmptyListListener emptyListListener;
+    Context context;
 
     public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults) {
         super(context, realmResults, true);
         this.context = context;
-    }
-
-    public AttachedFilesAdapter(Context context, RealmResults<FileToAttach> realmResults, EmptyListListener emptyListListener) {
-        super(context, realmResults, true);
-        this.context = context;
-        this.emptyListListener = emptyListListener;
     }
 
     @Override
@@ -44,35 +47,77 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        FileToAttach fileToAttach = getData().get(position);
+        FileToAttach fileToAttach = getItem(holder.getAdapterPosition());
 
-        Glide.with(context)
-                .load(fileToAttach.getFilePath())
-                .override(150, 150)
-                .placeholder(R.drawable.ic_attachment_grey_24dp)
-                .error(R.drawable.ic_attachment_grey_24dp)
-                .thumbnail(0.1f)
-                .centerCrop()
-                .into(holder.binding.imageView);
-        if (fileToAttach.getProgress() < 100) {
-            holder.binding.progressBar.setVisibility(View.VISIBLE);
+        holder.binding.fileName.setText(FileUtil.getInstance().getFileNameFromIdDecoded(fileToAttach.getFileName()));
+
+        String mimeType = FileUtil.getInstance().getMimeType(fileToAttach.getFilePath());
+
+        if (mimeType != null && mimeType.contains("image")) {
+
+            holder.binding.imageView.setVisibility(VISIBLE);
+            FileUtil.getInstance().getBitmap(fileToAttach.getFilePath(), 16)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Bitmap>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onNext(Bitmap myBitmap) {
+                            ExifInterface exif;
+                            try {
+                                exif = new ExifInterface(fileToAttach.getFilePath());
+                                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                                Log.d("ORIENTATION", "" + orientation);
+                                Matrix matrix = new Matrix();
+                                if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                                    matrix.postRotate(90);
+                                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                                    matrix.postRotate(180);
+                                } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                                    matrix.postRotate(270);
+                                }
+                                myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            holder.binding.imageView.setImageBitmap(myBitmap);
+                        }
+                    });
+        } else {
+            holder.binding.imageView.setVisibility(View.GONE);
+        }
+        if (fileToAttach.getProgress() > 0 && fileToAttach.getProgress() < 100) {
+            holder.binding.progressBar.setVisibility(VISIBLE);
             holder.binding.progressBar.setProgress(fileToAttach.getProgress());
+            holder.binding.progressWait.setVisibility(View.GONE);
         } else {
             holder.binding.progressBar.setVisibility(View.GONE);
+            if (fileToAttach.getUploadState() == UploadState.UPLOADING
+                    || fileToAttach.getUploadState() == UploadState.WAITING_FOR_UPLOAD) {
+                holder.binding.progressWait.setVisibility(VISIBLE);
+            } else {
+                holder.binding.progressWait.setVisibility(View.GONE);
+            }
         }
-        if (!holder.binding.close.hasOnClickListeners()) {
-            Log.d(TAG, "hasOnClickListeners = fasle");
-            holder.binding.close.setOnClickListener(v -> {
-                Log.d(TAG, "setOnClickListener");
-                // TODO при удалении во время загрузки объект может стать невалидным и удалить его будет невозможно
-                if (fileToAttach.isValid()) {
-                    FileToAttachRepository.getInstance().remove(fileToAttach);
-                    if (emptyListListener != null && Realm.getDefaultInstance().where(FileToAttach.class).findAll().isEmpty()) {
-                        emptyListListener.onEmptyList();
-                    }
+        holder.binding.close.setOnClickListener(v -> {
+            int p = position;
+            if (getItem(p).isValid()) {
+                FileToAttachRepository.getInstance().remove(getItem(holder.getAdapterPosition()));
+                if (emptyListListener != null && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                    emptyListListener.onEmptyList();
                 }
-            });
-        }
+            }
+        });
     }
 
     public static class MyViewHolder extends RealmViewHolder {

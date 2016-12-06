@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityRxLoginBinding;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 
-import icepick.Icepick;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -27,9 +26,8 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_rx_login);
         binding.setLoginPresenter(getPresenter());
-        setupToolbar("SignIn", true);
+        setupToolbar("Sign In", true);
     }
-
 
     @Override
     protected void onResume() {
@@ -37,13 +35,15 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
-
     public void showChatActivity() {
         GeneralRxActivity.start(this,
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }
 
+    public void showTeamChoose() {
+        ChooseTeamActivity.start(this);
+    }
 
     public static void startActivity(Context context, Integer flags) {
         Intent intent = new Intent(context, LoginRxActivity.class);
@@ -55,8 +55,13 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
+        if (item.getItemId() == android.R.id.home) {
             finish();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void hideKeyboard() {
+        hideKeyboard(this);
     }
 }

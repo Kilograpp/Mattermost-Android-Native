@@ -2,6 +2,8 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -17,10 +19,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -33,6 +35,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -43,15 +48,26 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
-import com.kilogramm.mattermost.model.entity.Team;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.ui.AttachedFilesLayout;
+import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
+import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.channel.AddMembersActivity;
+import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
@@ -59,12 +75,12 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import icepick.State;
 import io.realm.Realm;
@@ -76,15 +92,13 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChatRxPresenter.class)
 public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnItemAddedListener,
-        OnItemClickListener<Post>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener  {
-
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
+        OnItemClickListener<String>, OnMoreLoadListener, AttachedFilesAdapter.EmptyListListener,
+        AttachedFilesLayout.AllUploadedListener {
 
     private static final String TAG = "ChatRxFragment";
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
+    private static final String CHANNEL_IS_SEARCH = "isSearch";
 
     private static final String REPLY_MESSAGE = "reply_message";
     private static final String EDIT_MESSAGE = "edit_message";
@@ -98,9 +112,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private static final int PICK_FROM_GALLERY = 8;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
-    private static final int SEARCH_CODE = 4;
+    public static final int SEARCH_CODE = 4;
 
     private FragmentChatMvpBinding binding;
+
+    public static boolean active = false;
 
     @State
     String channelId;
@@ -112,6 +128,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     boolean isOpenedKeyboard = false;
     @State
     boolean isMessageTextOpen = false;
+    @State
+    String searchMessageId = null;
 
     private Uri fileFromCamera;
 
@@ -119,24 +137,22 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Realm realm;
 
-
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
-    private PostRepository postRepository;
-    private UserRepository userRepository;
-
     private BroadcastReceiver brReceiverTyping;
+    private BroadcastReceiver brReceiverNotifications;
+
+    private ScrollAwareFabBehavior fabBehavior;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
+        this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
         this.realm = Realm.getDefaultInstance();
-        this.teamId = realm.where(Team.class).findFirst().getId();
-        this.postRepository = new PostRepository();
-        this.userRepository = new UserRepository();
+        this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
 
@@ -151,21 +167,39 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        active = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
+    }
+
     private void initView() {
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-        setBottomToolbarOnClickListeners();
+        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
+//        setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
-        binding.attachedFilesLayout.setEmptyListListener(this);
+        setAttachedFilesLayout();
+
         brReceiverTyping = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
-                    getActivity().runOnUiThread(() -> invalidateAdapter());
+                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
+                    getActivity().runOnUiThread(() -> {// TODO зачем эта обработка?
+                        if (obj.getData() != null) {
+                            updateEditedPosition(obj.getData().getPost().getId());
+                        }
+                    });
                 } else {
                     if (obj.getChannelId().equals(channelId)) {
                         getActivity().runOnUiThread(() -> showTyping());
@@ -173,18 +207,92 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 }
             }
         };
+
+        brReceiverNotifications = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent intentService = new Intent(context, MattermostService.class);
+                context.startService(intentService);
+            }
+        };
+
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
+        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
-        getPresenter().requestExtraInfo();
-        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+
+        binding.fab.hide();
+        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+        fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
+        params.setBehavior(fabBehavior);
+        binding.fab.requestLayout();
+
+        if (searchMessageId != null) {
+            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
+        } else {
+            fabBehavior.lockBehavior();
+            getPresenter().requestExtraInfo();
+        }
+
+//        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView()); TODO перенес в другое место
+
+        binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
+            if (v == binding.writingMessage && !hasFocus) {
+                InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
+        });
+    }
+
+    private void updateEditedPosition(String id) {
+        invalidateByPosition(adapter.getPositionById(id));
+    }
+
+    public void slideToMessageById() {
+        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getPresenter().initPresenter(teamId, channelId);
-        setupToolbar("", channelName, v -> Toast.makeText(getActivity().getApplicationContext(),
-                "In development", Toast.LENGTH_SHORT).show(), v -> searchMessage());
+        setupToolbar("", channelName, v -> {
+            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
+            if (users != null) ProfileRxActivity.start(getActivity(), users.first().getId());
+            else ChannelActivity.start(getActivity(), channelId);
+        }, v -> searchMessage());
+        checkNeededPermissions();
+        NotificationManager notificationManager = (NotificationManager)
+                getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(channelId.hashCode());
+        Log.d(TAG, "onResume: channeld" + channelId.hashCode());
+    }
+
+    private void checkNeededPermissions() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    private void setAttachedFilesLayout() {
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
+        if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
+            binding.attachedFilesLayout.setVisibility(View.VISIBLE);
+        } else {
+            binding.attachedFilesLayout.setVisibility(View.GONE);
+        }
+        binding.attachedFilesLayout.setEmptyListListener(this);
+        binding.attachedFilesLayout.setAllUploadedListener(this);
     }
 
     private void setDropDownUserList() {
@@ -193,32 +301,42 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
         setListenerToRootView();
+        binding.writingMessage.setOnClickListener(view ->
+                getUserList(((EditText) view).getText().toString()));
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        dropDownListAdapter.updateData(realmResult);
+        if (binding.writingMessage.getText().length() > 0)
+            dropDownListAdapter.updateData(realmResult);
+        else
+            dropDownListAdapter.updateData(null);
     }
 
-    public static ChatRxFragment createFragment(String channelId, String channelName) {
+    public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
         ChatRxFragment chatFragment = new ChatRxFragment();
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
         bundle.putString(CHANNEL_NAME, channelName);
+        bundle.putString(CHANNEL_IS_SEARCH, searchMessageId);
         chatFragment.setArguments(bundle);
         return chatFragment;
     }
 
     private void setupListChat(String channelId) {
-        RealmResults<Post> results = postRepository.query(new PostByChannelId(channelId));
+        RealmResults<Post> results = PostRepository.query(new PostByChannelId(channelId));
         results.addChangeListener(element -> {
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
+                    binding.fab.hide();
+                } else {
+                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
+                        fabBehavior.animateFabUp(binding.fab);
+                    }
                 }
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
-        //adapter = new NewChatListAdapter(getActivity(), results, true, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
@@ -227,12 +345,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.realm.close();
         Log.d(TAG, "onDestroy()");
         channelId = null;
         getActivity().unregisterReceiver(brReceiverTyping);
     }
-
 
     public String getChId() {
         return this.channelId;
@@ -240,6 +356,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void setBtnSendOnClickListener() {
         binding.btnSend.setOnClickListener(view -> {
+            fabBehavior.lockBehavior();
             if (!binding.btnSend.getText().equals("Save"))
                 sendMessage();
             else
@@ -252,10 +369,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
             if (heightDiff > 100) {
-                binding.idRecUser.setVisibility(View.VISIBLE);
                 isOpenedKeyboard = true;
-            } else if (isOpenedKeyboard == true) {
-                binding.idRecUser.setVisibility(View.INVISIBLE);
+            } else if (isOpenedKeyboard) {
                 isOpenedKeyboard = false;
             }
         });
@@ -265,18 +380,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.toString().contains("@"))
-                    if (charSequence.charAt((count > 1 ? count : start) - before) == '@')
-                        getPresenter().requestGetUsers(null);
-                    else
-                        getPresenter().requestGetUsers(charSequence.toString());
-                else
-                    setDropDown(null);
+                if (charSequence.length() > 0 ||
+                        (FileToAttachRepository.getInstance().haveFilesToAttach() &&
+                                !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
+                    binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                } else {
+                    binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+                }
+                getUserList(charSequence.toString());
             }
 
             @Override
@@ -285,8 +400,101 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-    //==========================MVP methods==================================================
 
+    private void getUserList(String text) {
+        Log.d(TAG, "getUserList: true");
+        int cursorPos = binding.writingMessage.getSelectionStart();
+        if (cursorPos > 0 && text.contains("@")) {
+            fabBehavior.lockBehavior();
+            if (text.charAt(cursorPos - 1) == '@') {
+                getPresenter().requestGetUsers(null, cursorPos);
+            } else {
+                getPresenter().requestGetUsers(
+                        text, cursorPos);
+            }
+        } else {
+            Log.d(TAG, "getUserList: false");
+            setDropDown(null);
+            fabBehavior.unlockBehavior();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<Uri> pickedFiles = new ArrayList<>();
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == CAMERA_PIC_REQUEST) {
+                if (fileFromCamera != null) {
+                    pickedFiles.add(fileFromCamera);
+                } else {
+                    Toast.makeText(getActivity(),
+                            getString(R.string.cannot_attach_photo),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
+            } else if (requestCode == FILE_CODE) {
+                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        ClipData clip = data.getClipData();
+                        if (clip != null) {
+                            for (int i = 0; i < clip.getItemCount(); i++) {
+                                pickedFiles.add(clip.getItemAt(i).getUri());
+                            }
+                        }
+                    } else {
+                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
+                        if (paths != null) {
+                            for (String path : paths) {
+                                pickedFiles.add(Uri.parse(path));
+                            }
+                        }
+                    }
+                }
+            } else if ((requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
+                if (data != null) {
+                    if (data.getData() != null) {
+                        Uri uri = data.getData();
+                        List<Uri> uriList = new ArrayList<>();
+                        uriList.add(uri);
+                        attachFiles(uriList);
+                    } else if (data.getClipData() != null) {
+                        ClipData clipData = data.getClipData();
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            List<Uri> uriList = new ArrayList<>();
+                            uriList.add(clipData.getItemAt(i).getUri());
+                            attachFiles(uriList);
+                        }
+                    }
+                }
+            }
+        }
+        if (pickedFiles.size() > 0) {
+            attachFiles(pickedFiles);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PICK_FROM_GALLERY:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openGallery();
+                }
+                break;
+            case CAMERA_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    dispatchTakePictureIntent();
+                }
+                break;
+        }
+    }
+
+    //==========================MVP methods==================================================
 
     private void sendMessage() {
         Post post = new Post();
@@ -298,16 +506,25 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-       // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        setMessage("");
-        if (post.getMessage().length() != 0) {
+        if (
+                post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                ) {
             getPresenter().requestSendToServer(post);
+            hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
-            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+            if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
+            } else if (post.getMessage().length() <= 0) {
+                Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
+            }
         }
     } // +
 
@@ -321,7 +538,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             setMessage("");
             getPresenter().requestEditPost(postEdit);
         } else {
-            Toast.makeText(getActivity(), "Message is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
         }
     } // +
 
@@ -329,17 +546,27 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.editableText.setText(null);
         binding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
         rootPost = null;
-        binding.btnSend.setText("Send");
+        binding.btnSend.setText(getString(R.string.send));
+    }
+
+    public void setMasseageLayout(int visible) {
+//        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
+        binding.sendingMessageContainer.setVisibility(visible);
+        binding.line.setVisibility(visible);
     }
 
     private Long getTimePost() {
-        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
         Long currentTime = Calendar.getInstance().getTimeInMillis();
-        if ((currentTime / 10000 * 10000) < lastTime)
+        if (adapter.getLastItem() == null) {
+            return currentTime;
+        }
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+        if (currentTime > lastTime)
             return currentTime;
         else
             return lastTime + 1;
     }
+
     private void setupRefreshListener() {
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -348,33 +575,34 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
-
                 if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
+                    fabBehavior.animateFabDown(binding.fab);
                 } else {
                     binding.swipeRefreshLayout
                             .setEnabled(false);
                 }
-
-
             }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (newState == 1)
+                    BaseActivity.hideKeyboard(getActivity());
             }
         });
+
         binding.swipeRefreshLayout.setOnRefreshListener(direction -> {
             //getPresenter().initLoadNext();
             Log.d("DISABLE", "disable loading");
             binding.rev.disableShowLoadMoreTop();
             binding.rev.disableShowLoadMoreBot();
             binding.rev.setCanPagination(false);
-
-            postRepository.remove(new PostByChannelId(channelId));
+            fabBehavior.lockBehavior();
             getPresenter().requestLoadPosts();
+            binding.fab.hide();
         });
     }
 
@@ -386,13 +614,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void OnClickChooseDoc() {
-        /*Intent i = new Intent(getActivity(), FilePickerActivity.class)
-                .putExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
-                .putExtra(FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
-                .putExtra(FilePickerActivity.EXTRA_MODE, FilePickerActivity.MODE_FILE)
-                .putExtra(FilePickerActivity.EXTRA_START_PATH, Environment.getExternalStorageDirectory().getPath());
-
-        startActivityForResult(i, FILE_CODE);*/
         pickFile();
     }
 
@@ -496,14 +717,71 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void OnClickMakePhoto() {
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
+    private void showDialog() {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            makePhoto();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            openGallery();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            pickFile();
+            mBottomSheetDialog.cancel();
+        });
     }
 
-    public void showEmptyList() {
+    public void showEmptyList(String channelId) {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
+
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
+                .format(new Date(channel.getCreateAt()));
+
+        if (channel.getType().equals(Channel.DIRECT)) {
+            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListMessage.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.emptyListTitle.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
+
+            String emptyListMessage = String.format(
+                    getResources().getString(R.string.empty_dialog_beginning_message),
+                    channel.getDisplayName(), createAtDate);
+
+            if (channel.getType().equals(Channel.OPEN)) {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + " " + getResources().getString(R.string.empty_dialog_group_message)));
+            } else {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + " " + getResources().getString(R.string.empty_dialog_private_message)));
+            }
+
+            binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
+            binding.emptyListInviteOthers.setOnClickListener(
+                    v -> AddMembersActivity.start(getActivity(), channelId));
+
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+            binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
+        }
+
         binding.emptyList.setVisibility(View.VISIBLE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
@@ -512,7 +790,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Log.d(TAG, "showList()");
         binding.progressBar.setVisibility(View.GONE);
         binding.rev.setVisibility(View.VISIBLE);
+        binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
+        fabBehavior.unlockBehavior();
     }
 
     public void setRefreshing(boolean b) {
@@ -535,68 +815,88 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.writingMessage.setText(s);
     }
 
-
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getAdapter().getItemCount() - 1);
     }
 
     public void addUserLinkMessage(String s) {
-        binding.writingMessage.append(s + " ");
+        StringBuffer nameBufferStart = new StringBuffer(binding.writingMessage.getText().toString());
+        int cursorPos = binding.writingMessage.getSelectionStart();
+
+        if (cursorPos != 0 && cursorPos == nameBufferStart.length()
+                && nameBufferStart.charAt(cursorPos - 1) == '@') {
+            binding.writingMessage.append(String.format("%s ", s));
+            binding.writingMessage.setSelection(binding.writingMessage.getText().length());
+            return;
+        }
+        if (cursorPos < nameBufferStart.length())
+            nameBufferStart.delete(cursorPos, nameBufferStart.length());
+        if (nameBufferStart.charAt(cursorPos - 1) == '@') {
+            nameBufferStart.append(String.format("%s ", s));
+        } else {
+            String[] username = nameBufferStart.toString().split("@");
+            nameBufferStart = new StringBuffer();
+            int count = 1;
+            if (username.length == 0) {
+                nameBufferStart.append(String.format("@%s ", s));
+            }
+            for (String element : username) {
+                if (count == username.length)
+                    nameBufferStart.append(String.format("%s ", s));
+                else
+                    nameBufferStart.append(String.format("%s@", element));
+                count++;
+            }
+        }
+        StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
+        if (cursorPos < nameBufferStart.length())
+            nameBufferEnd.delete(0, cursorPos);
+
+        binding.writingMessage.setText(nameBufferStart.toString() + nameBufferEnd.toString());
+        binding.writingMessage.setSelection(nameBufferStart.length());
     }
 
     @Override
-    public void OnItemClick(View view, Post item) {
-        switch (view.getId()) {
-            case R.id.sendStatusError:
-                showErrorSendMenu(view, item);
-                break;
-            case R.id.controlMenu:
-                showPopupMenu(view, item);
-                break;
+    public void OnItemClick(View view, String item) {
+        if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
+            Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
+            switch (view.getId()) {
+                case R.id.sendStatusError:
+                    showErrorSendMenu(view, post);
+                    break;
+                case R.id.controlMenu:
+                    showPopupMenu(view, post);
+                    break;
+                case R.id.avatar:
+                    ProfileRxActivity.start(getActivity(), post.getUserId());
+                    break;
+            }
         }
     }
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createTempImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                fileFromCamera = Uri.fromFile(photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
-                startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
-            }
-        }
-    }
 
-    public File createTempImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            final File root = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES + "/Mattermost");
+            root.mkdir();
+            final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+
+            fileFromCamera = Uri.fromFile(sdImageMainDirectory);
+            Log.d(TAG, fileFromCamera.toString());
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
+            startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
         }
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
     }
 
     private void attachFiles(List<Uri> uriList) {
+        Log.d(TAG, "try to attach file");
         binding.attachedFilesLayout.setVisibility(View.VISIBLE);
-        binding.attachedFilesLayout.addItem(uriList, teamId, channelId);
+        binding.attachedFilesLayout.addItems(uriList, channelId);
+        binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
     }
 
     private void showErrorSendMenu(View view, Post post) {
@@ -609,7 +909,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     getPresenter().requestSendToServerError(p);
                     break;
                 case R.id.delete:
-                    postRepository.remove(post);
+                    PostRepository.remove(post);
                     break;
             }
             return true;
@@ -619,14 +919,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void showPopupMenu(View view, Post post) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+
         if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
             popupMenu.inflate(R.menu.my_chat_item_popupmenu);
         } else {
             popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
         }
+
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
                     R.layout.edit_dialog_layout, null, false);
+
             switch (menuItem.getItemId()) {
                 case R.id.edit:
                     rootPost = post;
@@ -635,12 +938,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 case R.id.delete:
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.confirm_post_delete))
-                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                            })
-                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> {
-                                getPresenter().requestDeletePost(post);
-                            })
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> getPresenter().requestDeletePost(post))
                             .show();
                     break;
                 case R.id.permalink:
@@ -648,17 +947,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                             .setTitle(getString(R.string.copy_permalink))
                             .setView(binding.getRoot())
-                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                                dialogInterface.dismiss();
-                            })
-                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> {
-                                copyLink(binding.edit.getText().toString());
-                            })
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
                             .show();
                     break;
                 case R.id.reply:
                     rootPost = post;
-                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
+                    showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -667,15 +962,29 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void showEditView(String message, String type) {
-        Animation fallingAnimation = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.edit_card_anim);
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> {
+            binding.writingMessage.setText(null);
+            closeEditView();});
+        binding.writingMessage.setText(rootPost.getMessage());
+        binding.writingMessage.setSelection(rootPost.getMessage().length());
+    }
+
+    private void showReplayView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    private void showView(String message, String type) {
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
+
         if (type.equals(REPLY_MESSAGE))
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.reply_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
         else {
-            binding.editReplyMessageLayout.editableText.setText(getResources().getString(R.string.edit_message));
+            binding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
             binding.btnSend.setText(R.string.save);
         }
+
         binding.editReplyMessageLayout.editableText.setText(message);
         binding.editReplyMessageLayout.root.startAnimation(upAnim);
         //binding.editMessageLayout.card.startAnimation(fallingAnimation);
@@ -691,8 +1000,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 + postId;
     }
 
+    public void invalidateByPosition(int position) {
+        adapter.notifyItemChanged(position);
+    }
+
     public void invalidateAdapter() {
         adapter.notifyDataSetChanged();
+        fabBehavior.unlockBehavior();
     }
 
     public void copyLink(String link) {
@@ -702,7 +1016,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void searchMessage() {
-        SearchMessageActivity.startForResult(getActivity(),teamId,SEARCH_CODE);
+        SearchMessageActivity.startForResult(getActivity(), teamId, SEARCH_CODE);
     }
 
     @Override
@@ -728,110 +1042,36 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setCanPaginationTop(Boolean aBoolean) {
-        disableShowLoadMoreTop();
         binding.rev.setCanPaginationTop(aBoolean);
+        disableShowLoadMoreTop();
     }
 
     public void setCanPaginationBot(Boolean aBoolean) {
-        disableShowLoadMoreBot();
         binding.rev.setCanPaginationBot(aBoolean);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ArrayList<Uri> pickedFiles = new ArrayList<>();
-        Uri pickedImage;
-
-        if (resultCode != Activity.RESULT_CANCELED) {
-            if (requestCode == CAMERA_PIC_REQUEST) {
-                pickedFiles.add(fileFromCamera);
-            }
-            if (requestCode == FILE_CODE) {
-                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        ClipData clip = data.getClipData();
-                        if (clip != null) {
-                            for (int i = 0; i < clip.getItemCount(); i++) {
-//                                Uri uri = clip.getItemAt(i).getUri();
-                                pickedFiles.add(clip.getItemAt(i).getUri());
-                            }
-                        }
-                    } else {
-                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
-                        if (paths != null) {
-                            for (String path : paths) {
-//                                Uri uri = Uri.parse(path);
-                                pickedFiles.add(Uri.parse(path));
-                            }
-                        }
-                    }
-                } else {
-                    pickedImage = data.getData();
-                }
-            }
-        }
-        if (resultCode == Activity.RESULT_OK && (requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
-            if (data != null) {
-                if (data.getData() != null) {
-                    Uri uri = data.getData();
-                    List<Uri> uriList = new ArrayList<>();
-                    uriList.add(uri);
-                    attachFiles(uriList);
-                } else if (data.getClipData() != null) {
-                    ClipData clipData = data.getClipData();
-                    for (int i = 0; i < clipData.getItemCount(); i++) {
-                        List<Uri> uriList = new ArrayList<>();
-                        uriList.add(clipData.getItemAt(i).getUri());
-                        attachFiles(uriList);
-                    }
-                }
-            }
-        }
-        if (pickedFiles.size() > 0) {
-            attachFiles(pickedFiles);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case WRITE_STORAGE_PERMISSION_REQUEST_CODE:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openFilePicker();
-                }
-                break;
-            case PICK_FROM_GALLERY:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openGallery();
-                }
-                break;
-            case CAMERA_PERMISSION_REQUEST_CODE:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
-                }
-                break;
-        }
+        disableShowLoadMoreBot();
     }
 
     public void hideAttachedFilesLayout() {
+        binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
         binding.attachedFilesLayout.setVisibility(View.GONE);
     }
 
     @Override
     public void onEmptyList() {
         hideAttachedFilesLayout();
+        if (binding.writingMessage.getText().length() > 0) {
+            binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+        }
     }
 
     public void setButtonAddFileOnClickListener() {
-        binding.buttonAttachFile.setOnClickListener(view -> pickFile());
+        binding.buttonAttachFile.setOnClickListener(view -> showDialog());
+    }
+
+    @Override
+    public void onAllUploaded() {
+        binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 }

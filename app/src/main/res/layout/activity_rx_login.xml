@@ -1,127 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
-        <import type="android.view.View" alias="view"/>
+
+        <import
+            alias="view"
+            type="android.view.View" />
+
         <variable
             name="loginPresenter"
-            type="com.kilogramm.mattermost.rxtest.LoginRxPresenter"/>
+            type="com.kilogramm.mattermost.rxtest.LoginRxPresenter" />
     </data>
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar_layout"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar_layout" />
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:context = ".view.authorization.LoginRxActivity">
-
+                tools:context=".view.authorization.LoginRxActivity">
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                     <TextView
                         style="@style/TitleBlackTextStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{loginPresenter.siteName}"/>
+                        android:text="@{loginPresenter.siteName}" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_marginTop="30dp"
-                    android:orientation="vertical"
-                    android:layout_gravity="center_vertical"
+                    android:id="@+id/linearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/linearLayout">
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="30dp"
+                    android:orientation="vertical">
 
                     <android.support.design.widget.TextInputLayout
-                        android:layout_marginTop="@dimen/standart_margin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:hintTextAppearance="@style/HintTextStyle"
+                        android:layout_marginTop="@dimen/standart_margin"
+                        app:hintAnimationEnabled="true"
                         app:hintEnabled="true"
-                        app:hintAnimationEnabled="true">
+                        app:hintTextAppearance="@style/HintTextStyle">
 
                         <EditText
-                            android:hint="@string/login_hint_email"
                             android:id="@+id/editEmail"
                             style="@style/DescriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:addTextChangedListener = "@{loginPresenter.emailTextWatcher}"
-                            android:inputType="textEmailAddress" />
+                            android:hint="@string/login_hint_email"
+                            android:inputType="textEmailAddress"
+                            app:addTextChangedListener="@{loginPresenter.emailTextWatcher}" />
 
                     </android.support.design.widget.TextInputLayout>
 
                     <android.support.design.widget.TextInputLayout
-                        android:layout_marginTop="@dimen/standart_margin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:hintTextAppearance="@style/HintTextStyle"
+                        android:layout_marginTop="@dimen/standart_margin"
+                        app:hintAnimationEnabled="true"
                         app:hintEnabled="true"
-                        app:hintAnimationEnabled="true">
+                        app:hintTextAppearance="@style/HintTextStyle">
 
                         <EditText
-                            android:hint="@string/login_hint_password"
                             android:id="@+id/editPassword"
                             style="@style/DescriptionBlackTextStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:addTextChangedListener = "@{loginPresenter.passwordTextWatcher}"
-                            android:inputType="textPassword" />
+                            android:hint="@string/login_hint_password"
+                            android:inputType="textPassword"
+                            app:addTextChangedListener="@{loginPresenter.passwordTextWatcher}" />
 
                     </android.support.design.widget.TextInputLayout>
 
                     <Button
-                        android:id="@+id/buttonForgot"
-                        android:layout_gravity="center_horizontal"
-                        android:stateListAnimator="@null"
-                        android:background="@drawable/touch_selector"
-                        android:textColor="@color/colorAccent"
-                        android:text="@string/login_forgot_password"
+                        android:id="@+id/buttonNext"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="@{loginPresenter.onForgotButtonClick}"/>
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:background="@drawable/touch_selector"
+                        android:enabled="@{loginPresenter.isEnabledSignInButton}"
+                        android:onClick="@{loginPresenter.onClickSignIn}"
+                        android:stateListAnimator="@null"
+                        android:text="@string/login_sign_in"
+                        android:textColor="@drawable/selector_button_sign_in_color" />
+
+                    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="5dp"
+                        android:indeterminate="true"
+                        android:visibility="@{loginPresenter.isVisibleProgress}"
+                        app:mpb_progressStyle="circular" />
+
+                    <!--<Button-->
+                    <!--android:id="@+id/buttonForgot"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:stateListAnimator="@null"-->
+                    <!--android:background="@drawable/touch_selector"-->
+                    <!--android:textColor="@color/error_color"-->
+                    <!--android:text="@string/login_forgot_password"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:onClick="@{loginPresenter.onForgotButtonClick}"/>-->
 
                 </LinearLayout>
 
-                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-                    android:visibility="@{loginPresenter.isVisibleProgress}"
-                    android:layout_margin="5dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    app:mpb_progressStyle="circular" />
-
                 <Button
-                    android:layout_weight="1"
-                    android:id="@+id/buttonNext"
-                    android:stateListAnimator="@null"
-                    android:background="@drawable/touch_selector"
-                    android:textColor="@drawable/selector_button_sign_in_color"
-                    android:text="@string/login_sign_in"
+                    android:id="@+id/buttonForgot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:enabled="@{loginPresenter.isEnabledSignInButton}"
-                    android:onClick="@{loginPresenter.onClickSignIn}"/>
+                    android:background="@drawable/touch_selector"
+                    android:onClick="@{loginPresenter.onForgotButtonClick}"
+                    android:stateListAnimator="@null"
+                    android:text="@string/login_forgot_password"
+                    android:textColor="@color/error_color" />
+
+                <!--<me.zhanghai.android.materialprogressbar.MaterialProgressBar-->
+                <!--android:visibility="@{loginPresenter.isVisibleProgress}"-->
+                <!--android:layout_margin="5dp"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:indeterminate="true"-->
+                <!--app:mpb_progressStyle="circular" />-->
+
+                <!--<Button-->
+                <!--android:layout_weight="1"-->
+                <!--android:id="@+id/buttonNext"-->
+                <!--android:stateListAnimator="@null"-->
+                <!--android:background="@drawable/touch_selector"-->
+                <!--android:textColor="@drawable/selector_button_sign_in_color"-->
+                <!--android:text="@string/login_sign_in"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--android:enabled="@{loginPresenter.isEnabledSignInButton}"-->
+                <!--android:onClick="@{loginPresenter.onClickSignIn}"/>-->
 
             </LinearLayout>
         </ScrollView>

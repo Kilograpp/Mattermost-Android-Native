@@ -7,11 +7,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Map;
-
-import io.realm.annotations.Ignore;
 
 /**
  * Created by Evgeny on 31.08.2016.
@@ -26,11 +23,15 @@ public class WebSocketObj implements Parcelable {
 
     public static final String EVENT_POSTED = "posted";
     public static final String EVENT_CHANNEL_VIEWED = "channel_viewed";
+    public static final String EVENT_NEW_USER = "new_user";
+    public static final String EVENT_USER_ADDED = "user_added";
+    public static final String EVENT_USER_REMOVE= "user_removed";
+    public static final String EVENT_DIRECT_ADDED = "direct_added";
+    public static final String EVENT_CHANNEL_DELETED = "channel_deleted";
     public static final String EVENT_TYPING = "typing";
     public static final String EVENT_POST_EDITED = "post_edited";
     public static final String EVENT_POST_DELETED = "post_deleted";
     public static final String EVENT_STATUS_CHANGE = "status_change";
-
 
     //Posted
     public static final String CHANNEL_DISPLAY_NAME = "channel_display_name";
@@ -59,13 +60,12 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("event")
     @Expose
     private String event;
+    private transient String dataJSON;
     @SerializedName("data")
     @Expose
-    private String dataJSON;
-    @Ignore
-    private Data data;
-
-    @SerializedName("seq_replay")
+    private transient Data data;
+    @SerializedName("seq_reply")
+    @Expose
     private Integer seqReplay;
 
 
@@ -87,12 +87,12 @@ public class WebSocketObj implements Parcelable {
     private String senderName;
 
 
-    public Integer getSeqReplay() {
-        return seqReplay;
+    public void setDataJSON(String dataJSON) {
+        this.dataJSON = dataJSON;
     }
 
-    public void setSeqReplay(Integer seqReplay) {
-        this.seqReplay = seqReplay;
+    public Integer getSeqReplay() {
+        return seqReplay;
     }
 
     public String getTeamId() {
@@ -115,10 +115,6 @@ public class WebSocketObj implements Parcelable {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public String getEvent() {
         return event;
     }
@@ -127,52 +123,12 @@ public class WebSocketObj implements Parcelable {
         this.event = event;
     }
 
-    public String getDataJSON() {
-        return dataJSON;
-    }
-
-    public void setDataJSON(String dataJSON) {
-        this.dataJSON = dataJSON;
-    }
-
-    public String getChannelDisplayName() {
-        return channelDisplayName;
-    }
-
-    public void setChannelDisplayName(String channelDisplayName) {
-        this.channelDisplayName = channelDisplayName;
-    }
-
-    public String getChannelType() {
-        return channelType;
-    }
-
-    public void setChannelType(String channelType) {
-        this.channelType = channelType;
-    }
-
-    public String getMentions() {
-        return mentions;
-    }
-
-    public void setMentions(String mentions) {
-        this.mentions = mentions;
-    }
-
     public Post getPost() {
         return post;
     }
 
     public void setPost(Post post) {
         this.post = post;
-    }
-
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
     }
 
     public Data getData() {
@@ -190,6 +146,7 @@ public class WebSocketObj implements Parcelable {
         private String channelDisplayName;
         private String channelType;
         private String mentions;
+        private String userId;
         private Post post;
         private String senderName;
         private String teamId;
@@ -212,11 +169,7 @@ public class WebSocketObj implements Parcelable {
             return this;
         }
 
-        public BuilderData setPost(Post post, String userId) {
-            User user = new User();
-            user.setId(userId);
-            user.setUsername(senderName);
-            post.setUser(user);
+        public BuilderData setPost(Post post) {
             this.post = post;
             return this;
         }
@@ -233,6 +186,11 @@ public class WebSocketObj implements Parcelable {
 
         public BuilderData setParentId(String parentId){
             this.parentId = parentId;
+            return this;
+        }
+
+        public BuilderData setUser(String userId) {
+            this.userId = userId;
             return this;
         }
 
@@ -269,8 +227,7 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.channelId);
         dest.writeString(this.userId);
         dest.writeString(this.event);
-        dest.writeString(this.dataJSON);
-        dest.writeParcelable(this.data, flags);
+        dest.writeValue(this.seqReplay);
         dest.writeString(this.channelDisplayName);
         dest.writeString(this.channelType);
         dest.writeString(this.mentions);
@@ -283,8 +240,7 @@ public class WebSocketObj implements Parcelable {
         this.channelId = in.readString();
         this.userId = in.readString();
         this.event = in.readString();
-        this.dataJSON = in.readString();
-        this.data = in.readParcelable(Data.class.getClassLoader());
+        this.seqReplay = (Integer) in.readValue(Integer.class.getClassLoader());
         this.channelDisplayName = in.readString();
         this.channelType = in.readString();
         this.mentions = in.readString();

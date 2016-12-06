@@ -2,101 +2,130 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
-import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 
+import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmList;
-import nucleus.presenter.Presenter;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by melkshake on 03.10.16.
  */
 
-public class SearchMessagePresenter extends Presenter<SearchMessageActivity> {
+public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivity> {
+
+    public static final int REQUEST_SEARCH = 1;
 
     private MattermostApp mMattermostApp;
-    private Subscription mSubscription;
     private ApiMethod service;
 
-    private PostRepository postRepository;
     private boolean isSearchEmpty;
+    private boolean isOrSearch = true; //was by default
+
+    @State
+    String terms;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
+
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
-        postRepository = new PostRepository();
+
+        restartableFirst(REQUEST_SEARCH,
+                () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (searchMessageActivity, posts) -> {
+                    if (posts.getPosts() == null) {
+                        sendShowDefaultVisibility(true);
+                        sendShowProgressBarVisibility(false);
+                        isSearchEmpty = true;
+                    } else {
+                        RealmList<FoundMessagesIds> list = new RealmList<>();
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        for (String s : posts.getPosts().keySet()) {
+                            list.add(new FoundMessagesIds(s));
+                        }
+                        realm.where(FoundMessagesIds.class).findAll().deleteAllFromRealm();
+                        realm.insertOrUpdate(list);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        PostRepository.prepareAndAdd(posts);
+                    }
+
+                    if (!isSearchEmpty) {
+                        sendSetRecyclerView(terms);
+                        sendShowProgressBarVisibility(false);
+                    }
+                }, (searchMessageActivity1, throwable) -> {
+                    sendShowProgressBarVisibility(false);
+                    sendError(getError(throwable));
+                    throwable.printStackTrace();
+                });
     }
 
-    @Override
-    protected void onTakeView(SearchMessageActivity searchMessageActivity) {
-        super.onTakeView(searchMessageActivity);
+    private void sendShowProgressBarVisibility(Boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((searchMessageActivity, aBoolean) -> searchMessageActivity.progressBarVisibility(bool)));
     }
 
-    public void search(String teamId, String terms) {
-        if (mSubscription != null && !mSubscription.isUnsubscribed()) {
-            mSubscription.unsubscribe();
+    private void sendShowSearchResultVisibility(Boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((searchMessageActivity, aBoolean) -> searchMessageActivity.searchResultVisibility(bool)));
+    }
+
+    private void sendShowDefaultVisibility(Boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((searchMessageActivity, aBoolean) -> searchMessageActivity.defaultVisibility(bool)));
+    }
+
+    private void sendShowDefaultMessageVisibility(Boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split((searchMessageActivity, aBoolean) -> searchMessageActivity.defaultMessageVisibility(bool)));
+    }
+
+    private void sendHideKeyboard() {
+        createTemplateObservable(new Object())
+                .subscribe(split((searchMessageActivity, o) -> BaseActivity.hideKeyboard(searchMessageActivity)));
+    }
+
+    private void sendSetRecyclerView(String terms) {
+        createTemplateObservable(terms)
+                .subscribe(split(SearchMessageActivity::setRecycleView));
+    }
+
+    private void sendError(String error) {
+        createTemplateObservable(error).subscribe(split((messageActivity, s) ->
+                Toast.makeText(messageActivity, s, Toast.LENGTH_SHORT).show()));
+    }
+
+    public void search(String terms) {
+        this.terms = terms;
+        if (terms.contains(" ")) {
+            isOrSearch = false;
         }
-
         this.isSearchEmpty = false;
 
-        SearchParams params = new SearchParams(terms, true);
-        getView().hideKeyboard(getView());
-        getView().ProgressBarVisibility(true);
-        getView().SearchResultVisibility(false);
-        getView().DefaultVisibility(false);
-        getView().DefaultMessageVisibility(false);
+        sendHideKeyboard();
+        sendShowProgressBarVisibility(true);
+        sendShowSearchResultVisibility(false);
+        sendShowDefaultVisibility(false);
+        sendShowDefaultMessageVisibility(false);
 
-        mSubscription = service.searchForPosts(teamId, params)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Posts>() {
-                    @Override
-                    public void onCompleted() {
-                        getView().ProgressBarVisibility(false);
-                        if (!isSearchEmpty) {
-                            getView().setRecycleView(terms);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        getView().ProgressBarVisibility(false);
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onNext(Posts searchResult) {
-                        if (searchResult.getPosts() == null) {
-                            getView().DefaultVisibility(true);
-                            isSearchEmpty = true;
-                        } else {
-                            Realm realm = Realm.getDefaultInstance();
-                            RealmList<FoundMessagesIds> list = new RealmList<>();
-                            realm.beginTransaction();
-                            for (String s : searchResult.getPosts().keySet()) {
-                                list.add(new FoundMessagesIds(s));
-                            }
-                            realm.where(FoundMessagesIds.class).findAll().deleteAllFromRealm();
-                            realm.insertOrUpdate(list);
-                            realm.commitTransaction();
-                            realm.close();
-
-                            postRepository.add(searchResult.getPosts().values());
-                        }
-                    }
-                });
+        start(REQUEST_SEARCH);
     }
 }

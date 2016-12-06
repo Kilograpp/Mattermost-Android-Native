@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.model.entity;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -7,7 +10,11 @@ import java.util.List;
  */
 
 public class FileUploadResponse {
+    @SerializedName("filenames")
+    @Expose
     List<String> filenames;
+    @SerializedName("client_ids")
+    @Expose
     List<String> client_ids;
 
     public List<String> getFilenames() {

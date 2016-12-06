@@ -19,6 +19,16 @@ public class HttpError {
     private Integer statusCode;
     @SerializedName("is_oauth")
     private Boolean isOauth;
+    @SerializedName("error")
+    private String error;
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
 
     public String getId() {
         return id;

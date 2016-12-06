@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.model.entity.channel;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -11,11 +14,12 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Evgeny on 03.08.2016.
  */
-public class Channel extends RealmObject {
+public class Channel extends RealmObject implements Parcelable {
 
 
     public static final String DIRECT = "D";
     public static final String OPEN = "O";
+    public static final String PRIVATE = "P";
 
     @PrimaryKey
     @SerializedName("id")
@@ -68,6 +72,9 @@ public class Channel extends RealmObject {
 
     private Integer unreadedMessage = 0;
 
+    public void setTotalMsgCount(Integer totalMsgCount) {
+        this.totalMsgCount = totalMsgCount;
+    }
 
     public Integer getUnreadedMessage() {
         return unreadedMessage;
@@ -140,29 +147,11 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @param updateAt
-     * The update_at
-     */
-    public void setUpdateAt(Long updateAt) {
-        this.updateAt = updateAt;
-    }
-
-    /**
-     *
      * @return
      * The deleteAt
      */
     public Long getDeleteAt() {
         return deleteAt;
-    }
-
-    /**
-     *
-     * @param deleteAt
-     * The delete_at
-     */
-    public void setDeleteAt(Long deleteAt) {
-        this.deleteAt = deleteAt;
     }
 
     /**
@@ -212,15 +201,6 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @param displayName
-     * The display_name
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     *
      * @return
      * The name
      */
@@ -239,11 +219,20 @@ public class Channel extends RealmObject {
 
     /**
      *
-     * @return
-     * The header
+     * @param displayName
+     * The displayName
      */
-    public String getHeader() {
-        return header;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     *
+     * @param purpose
+     * The purpose
+     */
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
     }
 
     /**
@@ -258,19 +247,19 @@ public class Channel extends RealmObject {
     /**
      *
      * @return
-     * The purpose
+     * The header
      */
-    public String getPurpose() {
-        return purpose;
+    public String getHeader() {
+        return header;
     }
 
     /**
      *
-     * @param purpose
+     * @return
      * The purpose
      */
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
+    public String getPurpose() {
+        return purpose;
     }
 
     /**
@@ -282,14 +271,6 @@ public class Channel extends RealmObject {
         return lastPostAt;
     }
 
-    /**
-     *
-     * @param lastPostAt
-     * The last_post_at
-     */
-    public void setLastPostAt(Long lastPostAt) {
-        this.lastPostAt = lastPostAt;
-    }
 
     /**
      *
@@ -300,14 +281,7 @@ public class Channel extends RealmObject {
         return totalMsgCount;
     }
 
-    /**
-     *
-     * @param totalMsgCount
-     * The total_msg_count
-     */
-    public void setTotalMsgCount(Integer totalMsgCount) {
-        this.totalMsgCount = totalMsgCount;
-    }
+
 
     /**
      *
@@ -318,14 +292,6 @@ public class Channel extends RealmObject {
         return extraUpdateAt;
     }
 
-    /**
-     *
-     * @param extraUpdateAt
-     * The extra_update_at
-     */
-    public void setExtraUpdateAt(Long extraUpdateAt) {
-        this.extraUpdateAt = extraUpdateAt;
-    }
 
     /**
      *
@@ -336,12 +302,100 @@ public class Channel extends RealmObject {
         return creatorId;
     }
 
-    /**
-     *
-     * @param creatorId
-     * The creator_id
-     */
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
+
+    public void setAttributesToCreate(String name, String displayName,
+                                      String purpose, String header, String type) {
+        setName(name);
+        setDisplayName(displayName);
+        setPurpose(purpose);
+        setHeader(header);
+        setType(type);
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public Channel(Channel channel) {
+        this.id = channel.getId();
+        this.createAt = channel.getCreateAt();
+        this.updateAt = channel.getUpdateAt();
+        this.deleteAt = channel.getDeleteAt();
+        this.teamId = channel.getTeamId();
+        this.type = channel.getType();
+        this.displayName = channel.getDisplayName();
+        this.name = channel.getName();
+        this.header = channel.getHeader();
+        this.purpose = channel.getPurpose();
+        this.lastPostAt = channel.getLastPostAt();
+        this.totalMsgCount = channel.getTotalMsgCount();
+        this.extraUpdateAt = channel.getExtraUpdateAt();
+        this.creatorId = channel.getCreatorId();
+        this.username = channel.getUsername();
+        this.user = channel.getUser();
+        this.unreadedMessage = channel.getUnreadedMessage();
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeValue(this.createAt);
+        dest.writeValue(this.updateAt);
+        dest.writeValue(this.deleteAt);
+        dest.writeString(this.teamId);
+        dest.writeString(this.type);
+        dest.writeString(this.displayName);
+        dest.writeString(this.name);
+        dest.writeString(this.header);
+        dest.writeString(this.purpose);
+        dest.writeValue(this.lastPostAt);
+        dest.writeValue(this.totalMsgCount);
+        dest.writeValue(this.extraUpdateAt);
+        dest.writeString(this.creatorId);
+        dest.writeString(this.username);
+        dest.writeParcelable(this.user, flags);
+        dest.writeValue(this.unreadedMessage);
+    }
+
+    public Channel() {
+    }
+
+    public Channel(String id, String type, String name) {
+        this.id = id;
+        this.type = type;
+        this.name = name;
+    }
+
+    protected Channel(Parcel in) {
+        this.id = in.readString();
+        this.createAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.updateAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.deleteAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.teamId = in.readString();
+        this.type = in.readString();
+        this.displayName = in.readString();
+        this.name = in.readString();
+        this.header = in.readString();
+        this.purpose = in.readString();
+        this.lastPostAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.totalMsgCount = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.extraUpdateAt = (Long) in.readValue(Long.class.getClassLoader());
+        this.creatorId = in.readString();
+        this.username = in.readString();
+        this.user = in.readParcelable(User.class.getClassLoader());
+        this.unreadedMessage = (Integer) in.readValue(Integer.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Channel> CREATOR = new Parcelable.Creator<Channel>() {
+        @Override
+        public Channel createFromParcel(Parcel source) {
+            return new Channel(source);
+        }
+
+        @Override
+        public Channel[] newArray(int size) {
+            return new Channel[size];
+        }
+    };
 }

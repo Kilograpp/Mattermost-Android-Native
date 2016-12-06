@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar_layout" />
+
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:visibility="gone"
+            android:id="@+id/circProgressBar"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:mpb_progressStyle="circular" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recViewMoreChannels"
+            style="@style/scrollbar_shape_style"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/noMoreChannels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:text="@string/add_channels_no_more"
+                android:layout_margin="10dp"
+                android:layout_gravity="center" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_channels_no_more_additional"
+                android:layout_margin="10dp"
+                android:textColor="@color/hint_grey"
+                android:textSize="13sp"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

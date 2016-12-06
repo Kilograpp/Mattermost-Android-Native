@@ -6,7 +6,6 @@ import android.graphics.RectF;
 import android.os.Parcel;
 import android.text.Layout;
 import android.text.style.QuoteSpan;
-import android.util.Log;
 
 /**
  * Created by Evgeny on 15.09.2016.

@@ -13,9 +13,11 @@ import io.realm.Sort;
 public class UserByNameSearchSpecification implements RealmSpecification {
 
     private final String name;
+    private final int cursorPos;
 
-    public UserByNameSearchSpecification(String name) {
+    public UserByNameSearchSpecification(String name, int cursorPos) {
         this.name = name;
+        this.cursorPos = cursorPos;
     }
 
     @Override
@@ -25,16 +27,38 @@ public class UserByNameSearchSpecification implements RealmSpecification {
             return realm.where(User.class)
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
-                    .equalTo("deleteAt", 0l)
+                    .equalTo("deleteAt", 0L)
                     .findAllSorted("username", Sort.ASCENDING);
         else {
-            String[] username = name.split("@");
+            StringBuffer nameBuffer = new StringBuffer(name);
+            if(cursorPos < nameBuffer.length())
+                nameBuffer.delete(cursorPos, nameBuffer.length());
+            String[] username = nameBuffer.toString().split("@");
+            nameBuffer = new StringBuffer(username[username.length - 1]);
+
             return realm.where(User.class)
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
-                    .equalTo("deleteAt", 0l)
-                    .contains("username", username[username.length - 1])
+                    .notEqualTo("id", "System")
+                    .equalTo("deleteAt", 0L)
+                    .contains("username", nameBuffer.toString().toLowerCase())
+                    .or()
+                    .isNotNull("id")
+                    .notEqualTo("id", "System")
+                    .notEqualTo("id", currentUser)
+                    .equalTo("deleteAt", 0L)
+                    .contains("firstName",nameBuffer.toString().substring(0, 1).toUpperCase()
+                            + nameBuffer.toString().substring(1))
+                    .or()
+                    .isNotNull("id")
+                    .notEqualTo("id", "System")
+                    .notEqualTo("id", currentUser)
+                    .equalTo("deleteAt", 0L)
+                    .contains("lastName", nameBuffer.toString().substring(0, 1).toUpperCase()
+                            + nameBuffer.toString().substring(1))
                     .findAllSorted("username", Sort.ASCENDING);
+
+
         }
     }
 }

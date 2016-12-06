@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Patterns;
@@ -7,7 +10,6 @@ import android.util.Patterns;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.network.ApiMethod;
 
@@ -18,64 +20,53 @@ import java.util.regex.Pattern;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 03.10.2016.
  */
-public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
-
-    private static final String TAG = "MainRxPresenter";
+public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
+    private final String ERROR_NO_CONNECTION = "No connection to the internet";
+    private final String URI_STRING = "https://mattermost.kilograpp.com";
+    private final String URL_NOT_VALID = "Url is not valid https://";
 
     private static final int REQUEST_CHECK = 1;
-    private static final int REQUEST_ACTIVITY = 2;
-    //TODO pattern url null fix
-    private static Pattern mPatternUrl = Patterns.WEB_URL;
 
-    private Realm mRealm;
+    private static Pattern mPatternUrl = Patterns.WEB_URL;
 
     private MattermostApp mMattermostApp;
 
     @State
     String url;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
-        mRealm = Realm.getDefaultInstance();
 
         restartableFirst(REQUEST_CHECK, () -> {
             ApiMethod service = mMattermostApp.getMattermostRetrofitService();
             sendVisibleProgress(true);
             return service.initLoad()
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io());
         }, (mainActivity, initObject) -> {
-            mRealm.executeTransaction(realm -> {
+            Realm.getDefaultInstance().executeTransaction(realm -> {
                 RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
                 results.deleteAllFromRealm();
+                realm.copyToRealmOrUpdate(initObject.getClientCfg());
             });
-            mRealm.executeTransaction(realm1 -> {
-                ClientCfg cfg = realm1.copyToRealm(initObject.getClientCfg());
-                realm1.copyToRealm(cfg);
-            });
-
             sendVisibleProgress(false);
             sendShowLoginActivity();
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
-            mainActivity.showErrorText(throwable.getMessage());
+            sendShowError(getError(throwable));
         });
-
     }
 
     @Override
-    protected void onTakeView(MainRxAcivity mainRxAcivityActivity) {
-        super.onTakeView(mainRxAcivityActivity);
+    protected void onTakeView(MainRxActivity mainRxActivity) {
+        super.onTakeView(mainRxActivity);
 
         //TODO FIX logic check login
         if (MattermostPreference.getInstance().getAuthToken() != null &&
@@ -83,88 +74,72 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxAcivity> {
             sendShowChatActivity();
         }
 
-        if (BuildConfig.DEBUG && getView().getStringUrl().length() == 0)
-            getView().setTextUrl("https://mattermost.kilograpp.com");
+        if (BuildConfig.DEBUG && getView().getStringUrl().length() == 0) {
+            sendSetUrlString(URI_STRING);
+        }
     }
 
-    public void checkEnterUrl(String url) {
-        //TODO check logic url
-        //getView().setShowNextButton(isValidUrl(url));
-    }
-
-    private boolean isValidUrl(String url) {
+    public boolean isValidUrl(String url) {
         Matcher m = mPatternUrl.matcher(url);
         return m.matches();
     }
 
     void request(String url) {
-        if (!isValidUrl(url)) {
-            sendShowErrorEditText();
-            return;
-        }
-
-        URI newUrl = URI.create(url);
-        String s = newUrl.getAuthority();
-        if (s == null) {
-            s = url.toString();
+        String authorisedUri = URI.create(url).getAuthority();
+        if (authorisedUri == null) {
+            authorisedUri = url;
         }
 
         //TODO FIX logic
-        MattermostPreference.getInstance().setBaseUrl(s);
+        MattermostPreference.getInstance().setBaseUrl(authorisedUri);
         mMattermostApp.refreshMattermostRetrofitService();
 
         try {
             mMattermostApp.getMattermostRetrofitService();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            sendShowError("Url is not valid https://");
+            sendShowError(URL_NOT_VALID);
             return;
         }
 
-        this.url = url;
-        start(REQUEST_CHECK);
+//        this.url = url;
+
+        final ConnectivityManager connectivityManager = (
+                ConnectivityManager) MattermostApp.getSingleton()
+                .getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+        if (ni == null || !ni.isConnectedOrConnecting()) {
+            sendShowError(ERROR_NO_CONNECTION);
+        } else {
+            start(REQUEST_CHECK);
+        }
     }
 
     // to view methods
-
-    private void sendVisibleProgress(Boolean visibility){
-        Observable.just(visibility)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(MainRxAcivity::setShowProgress));
+    private void sendVisibleProgress(Boolean visibility) {
+        createTemplateObservable(visibility)
+                .subscribe(split(MainRxActivity::setShowProgress));
     }
 
-    private void sendShowLoginActivity(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showLoginActivity()));
+    private void sendShowLoginActivity() {
+        createTemplateObservable(new Object())
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showLoginActivity()));
     }
 
-    private void sendShowError(String error){
-        Observable.just(error)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split(MainRxAcivity::showErrorText));
+    private void sendShowError(String error) {
+        createTemplateObservable(error)
+                .subscribe(split(MainRxActivity::showErrorText));
     }
 
-    private void sendShowErrorEditText(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((mainRxAcivity, o) -> mainRxAcivity.showEditTextErrorMessage()));
+    private void sendShowChatActivity() {
+        createTemplateObservable(new Object())
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showChatActivity()));
+
     }
 
-    private void sendShowChatActivity(){
-        Observable.just(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(deliverFirst())
-                .subscribe(split((mainRxAcivity,o) -> mainRxAcivity.showChatActivity()));
-
+    private void sendSetUrlString(String uri) {
+        createTemplateObservable(uri)
+                .subscribe(split((mainRxActivity, s) -> mainRxActivity.setTextUrl(uri)));
     }
 }

@@ -1,9 +1,9 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
-import com.kilogramm.mattermost.model.Repository;
-import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.tools.FileUtil;
 
-import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -11,164 +11,265 @@ import io.realm.RealmResults;
 /**
  * Created by kepar on 7.10.16.
  */
-
-public class FileToAttachRepository implements Repository<FileToAttach>{
+public class FileToAttachRepository {
 
     private static FileToAttachRepository instance;
-/*
-    public static void saveAttachedFile(Context context, Uri uri){
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        FileToAttach fileToAttach = realm.createObject(FileToAttach.class);
-        fileToAttach.setFilePath(FileUtils.getPath(context, uri));
-        realm.commitTransaction();
-    }*/
 
-    public static FileToAttachRepository getInstance(){
-        if(instance == null){
+    public static FileToAttachRepository getInstance() {
+        if (instance == null) {
             instance = new FileToAttachRepository();
         }
         return instance;
     }
 
-    @Override
+    //region Add methods
+
     public void add(FileToAttach item) {
-        final Realm realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(realm1 -> realm.copyToRealm(item));
-        realm.close();
-    }
-
-    public void add(String fileName, String filePath) {
-        final Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm1.createObject(FileToAttach.class);
-            fileToAttach.setFileName(fileName);
-            fileToAttach.setFilePath(filePath);
+            Number id = realm1.where(FileToAttach.class).max("id");
+            AtomicLong primaryKeyValue;
+            if (id != null) {
+                primaryKeyValue = new AtomicLong(id.longValue());
+            } else {
+                primaryKeyValue = new AtomicLong(0);
+            }
+            item.setId(primaryKeyValue.incrementAndGet());
+            item.setProgress(0);
+            realm1.copyToRealm(item);
         });
-        realm.close();
     }
 
-
-    @Override
-    public void add(Collection<FileToAttach> items) {
-
+    public void addForDownload(String fileName) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm
+                    .where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
+                    .findFirst();
+            if(fileToAttach == null || !fileToAttach.isValid()) {
+                Number id = realm1.where(FileToAttach.class).max("id");
+                AtomicLong primaryKeyValue;
+                if (id != null) {
+                    primaryKeyValue = new AtomicLong(id.longValue());
+                } else {
+                    primaryKeyValue = new AtomicLong(0);
+                }
+                fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.WAITING_FOR_DOWNLOAD);
+                fileToAttach.setProgress(0);
+                realm1.copyToRealm(fileToAttach);
+            }
+        });
     }
 
-    @Override
-    public void update(FileToAttach item) {
+    //endregion
 
-    }
+    // region Update methods
 
-    public void updateName(String oldName, String fileName){
-        final Realm realm = Realm.getDefaultInstance();
-
+    public void updateName(String oldName, String fileName) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", oldName)
                     .findFirst();
-            if(fileToAttach != null) {
+            if (fileToAttach != null) {
                 fileToAttach.setFileName(fileName);
             }
         });
-
-        realm.close();
     }
 
-    public void updateUploadStatus(String fileName, boolean status){
-        final Realm realm = Realm.getDefaultInstance();
-
+    public void updateUploadStatus(String fileName, UploadState status) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", fileName)
                     .findFirst();
-            if(fileToAttach != null) {
-                fileToAttach.setUploaded(status);
+            if (fileToAttach != null) {
+                fileToAttach.setUploadState(status);
             }
         });
-
-        realm.close();
     }
 
-    public void updateProgress(String fileName, int progress){
-        final Realm realm = Realm.getDefaultInstance();
+    public void updateUploadStatus(long id, UploadState status) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("id", id)
+                    .findFirst();
+            if (fileToAttach != null) {
+                fileToAttach.setUploadState(status);
+            }
+        });
+    }
 
+    public void updateProgress(String fileName, int progress) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
                     .equalTo("fileName", fileName)
                     .findFirst();
-            if(fileToAttach != null && fileToAttach.isValid()) {
+            if (fileToAttach != null && fileToAttach.isValid()) {
                 fileToAttach.setProgress(progress);
             }
         });
-
-        realm.close();
     }
 
-    public void updateProgress(Realm realm, String fileName, int progress){
-        realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
-                    .findFirst();
-            if(fileToAttach != null && fileToAttach.isValid()) {
-                fileToAttach.setProgress(progress);
-            }
-        });
+    // endregion
 
-    }
+    //region Get methods
 
-    @Override
-    public void remove(FileToAttach item) {
-        final Realm realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(realm1 -> {
-            RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
-                    .equalTo("fileName", item.getFileName())
-                    .findAll();
-            fileToAttachList.deleteAllFromRealm();
-        });
-
-        realm.close();
-    }
-
-    @Override
-    public void remove(Specification specification) {
-
-    }
-
-    @Override
-    public RealmResults<FileToAttach> query(Specification specification) {
-        return null;
-    }
-
-    public void clearData(){
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.delete(FileToAttach.class);
-        realm.commitTransaction();
-        realm.close();
-    }
-
-    public RealmResults<FileToAttach> query(){
+    public RealmResults<FileToAttach> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class).findAll();
     }
 
-    public boolean haveUnloadedFiles(){
+    public FileToAttach get(long id) {
         final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
+        return realm.where(FileToAttach.class)
+                .equalTo("id", id)
+                .findFirst();
+    }
 
-        RealmResults<FileToAttach> fileToAttachRealmResults =  realm.where(FileToAttach.class).findAll();
+    public FileToAttach get(String fileName) {
+        final Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("fileName", fileName)
+                .findFirst();
+    }
+
+    public RealmResults<FileToAttach> getFilesForAttach() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.name())
+                .or()
+                .equalTo("uploadState", UploadState.UPLOADING.name())
+                .or()
+                .equalTo("uploadState", UploadState.UPLOADED.name())
+                .findAllSorted("id");
+    }
+
+    public FileToAttach getUnloadedFile() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.name())
+                .or()
+                .equalTo("uploadState", UploadState.UPLOADING.name())
+                .findFirst();
+    }
+
+    public FileToAttach getUndownloadedFile() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.WAITING_FOR_DOWNLOAD.name())
+                .findFirst();
+    }
+    // endregion
+
+    // region Check methods
+
+    public boolean haveUploadingFile() {
+        Realm realm = Realm.getDefaultInstance();
+        FileToAttach fileToAttach = realm.where(FileToAttach.class).equalTo("uploadState", UploadState.UPLOADING.name()).findFirst();
+        return fileToAttach != null && fileToAttach.isValid();
+    }
+
+    public boolean haveUnloadedFiles() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults<FileToAttach> fileToAttachRealmResults = realm.where(FileToAttach.class).findAll();
         for (FileToAttach fileToAttachRealmResult : fileToAttachRealmResults) {
-            if(!fileToAttachRealmResult.isUploaded){
+            if (fileToAttachRealmResult.getUploadState() == UploadState.WAITING_FOR_UPLOAD ||
+                    fileToAttachRealmResult.getUploadState() == UploadState.UPLOADING) {
                 realm.commitTransaction();
                 realm.close();
                 return true;
             }
         }
         realm.commitTransaction();
-        realm.close();
         return false;
     }
+
+    public boolean haveFilesToAttach(){
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        RealmResults<FileToAttach> fileToAttachRealmResults = realm.where(FileToAttach.class).findAll();
+        realm.commitTransaction();
+        return fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0;
+    }
+
+    public boolean haveDownloadingFile() {
+        Realm realm = Realm.getDefaultInstance();
+        FileToAttach fileToAttach = realm.where(FileToAttach.class)
+                .equalTo("uploadState", UploadState.DOWNLOADING.name())
+                .findFirst();
+        return fileToAttach != null && fileToAttach.isValid();
+    }
+
+    // endregion
+
+    // region Delete methods
+
+    public void remove(FileToAttach item) {
+        Realm realm = Realm.getDefaultInstance();
+        if (item != null && item.isTemporary()) {
+            FileUtil.getInstance().removeFile(item.getFilePath());
+        }
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileToAttach> fileToAttachList = realm1.where(FileToAttach.class)
+                    .equalTo("id", item.getId())
+                    .findAll();
+            fileToAttachList.deleteFirstFromRealm();
+        });
+//        realm.close();
+    }
+
+    public void remove(String fileName) {
+        final Realm realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
+                    .findAll();
+            fileToAttachList.deleteFirstFromRealm();
+        });
+    }
+
+    public void clearData() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.delete(FileToAttach.class);
+        realm.commitTransaction();
+    }
+
+    public void deleteUploadedFiles() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
+                    .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.toString())
+                    .or()
+                    .equalTo("uploadState", UploadState.UPLOADING.toString())
+                    .or()
+                    .equalTo("uploadState", UploadState.UPLOADED.toString())
+                    .findAll();
+            for (FileToAttach fileToAttach : fileToAttachList) {
+                if (fileToAttach != null && fileToAttach.isTemporary()) {
+                    FileUtil.getInstance().removeFile(fileToAttach.getFilePath());
+                }
+            }
+            fileToAttachList.deleteAllFromRealm();
+        });
+    }
+
+    // endregion
+
+/*
+    private void decodeFileName(String fileName){
+        try {
+            fileName = URLDecoder.decode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+    }*/
 }
