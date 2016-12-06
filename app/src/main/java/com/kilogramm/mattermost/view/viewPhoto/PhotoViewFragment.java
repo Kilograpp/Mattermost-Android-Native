@@ -63,22 +63,6 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        /*Picasso.with(getContext())
-                .load(FileUtil.getInstance().getImageUrl(imageUri))
-                .error(getContext().getResources().getDrawable(R.drawable.ic_error_red_24dp))
-                .into(photoBinding.image, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        if (photoBinding.progressBar != null) {
-                            photoBinding.progressBar.setVisibility(View.GONE);
-                            photoBinding.image.setVisibility(View.VISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onError() {
-                    }
-                });*/
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()

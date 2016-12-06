@@ -82,12 +82,8 @@ public class FilesView extends GridLayout {
 
     private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
-//        setUpImageloader(context);
     }
 
-    private void setUpImageloader(Context context) {
-
-    }
 
     public void setItems(List<String> items) {
         clearView();
@@ -190,15 +186,6 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
-
-
-        /*Picasso.with(getContext())
-                .load(url)
-                .resize(300, 300)
-                .centerCrop()
-                .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
-                .error(getContext().getResources().getDrawable(R.drawable.slices))
-                .into(binding.image);*/
 
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
