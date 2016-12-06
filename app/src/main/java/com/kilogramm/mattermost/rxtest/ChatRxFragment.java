@@ -370,7 +370,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
             if (heightDiff > 100) {
                 isOpenedKeyboard = true;
-            } else if (isOpenedKeyboard == true) {
+            } else if (isOpenedKeyboard) {
                 isOpenedKeyboard = false;
             }
         });
