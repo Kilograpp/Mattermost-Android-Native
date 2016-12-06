@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -29,6 +31,7 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
 
     MembersListBinding binding;
     AddMembersAdapter addMembersAdapter;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +51,6 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
                 });
         binding.list.setAdapter(addMembersAdapter);
         binding.list.setLayoutManager(new LinearLayoutManager(this));
-        binding.searchText.addTextChangedListener(getMassageTextWatcher());
-
-        binding.btnClear.setOnClickListener(view -> {
-            binding.searchText.setText("");
-            hideKeyboard(this);
-        });
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
     }
 
@@ -68,10 +65,8 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > 0) {
                     updateDataList(getPresenter().getMembers(charSequence.toString()));
-                    binding.btnClear.setVisibility(View.VISIBLE);
                 } else {
                     updateDataList(getPresenter().getMembers());
-                    binding.btnClear.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -85,7 +80,7 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     public void requestMember(String s) {
         binding.list.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
-        binding.searchText.setText("");
+        searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
@@ -100,6 +95,13 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     private void setToolbar() {
         setupToolbar(getString(R.string.add_members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        searchView = initSearchView(menu, getMassageTextWatcher());
+        return true;
     }
 
     public static void start(Context context, String channelId) {

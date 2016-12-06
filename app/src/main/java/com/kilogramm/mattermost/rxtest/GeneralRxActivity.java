@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -204,10 +203,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                     RightMenuAboutAppActivity.start(this);
                     break;
                 case R.id.logout:
-                    //getPresenter().requestLogout();
-
                     showDialog(1);
-
                     break;
             }
             return false;
@@ -216,16 +212,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        AlertDialog dialogDetails = null;
-
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         dialogBuilder.setView(dialogView);
-        dialogDetails = dialogBuilder.create();
 
-        return dialogDetails;
+        return dialogBuilder.create();
     }
 
     @Override
@@ -237,7 +230,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 if (cancelButton != null) {
                     cancelButton.setOnClickListener(v -> getPresenter().requestLogout());
                 }
-
                 break;
         }
     }

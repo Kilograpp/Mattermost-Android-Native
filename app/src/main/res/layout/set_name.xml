@@ -137,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/activity_vertical_margin"
                     android:layout_marginTop="@dimen/standart_margin"
-                    android:text="Must be lowercase alphanumeric characters"
+                    android:text="The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name. Must use only valid URL inputs"
                     android:textSize="10sp" />
 
             </LinearLayout>

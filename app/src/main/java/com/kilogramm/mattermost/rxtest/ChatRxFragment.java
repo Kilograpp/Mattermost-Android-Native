@@ -48,6 +48,8 @@ import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -72,8 +74,10 @@ import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import icepick.State;
@@ -229,7 +233,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             getPresenter().requestExtraInfo();
         }
 
-        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+//        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView()); TODO перенес в другое место
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (v == binding.writingMessage && !hasFocus) {
@@ -246,7 +250,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void slideToMessageById() {
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
     }
-
 
     public void setChannelName(String channelName) {
         this.channelName = channelName;
@@ -395,7 +398,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-
 
     private void getUserList(String text) {
         Log.d(TAG, "getUserList: true");
@@ -551,7 +553,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.line.setVisibility(visible);
     }
 
-
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
         if (adapter.getLastItem() == null) {
@@ -586,7 +587,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == 2)
+                if (newState == 1)
                     BaseActivity.hideKeyboard(getActivity());
             }
         });
@@ -738,9 +739,47 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
     }
 
-    public void showEmptyList() {
+    public void showEmptyList(String channelId) {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
+
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy")
+                .format(new Date(channel.getCreateAt()));
+
+        if (channel.getType().equals(Channel.DIRECT)) {
+            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListMessage.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.emptyListTitle.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
+
+            String emptyListMessage = String.format(
+                    getResources().getString(R.string.empty_dialog_beginning_message),
+                    channel.getDisplayName(), createAtDate);
+
+            if (channel.getType().equals(Channel.OPEN)) {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + getResources().getString(R.string.empty_dialog_group_message)));
+            } else {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + getResources().getString(R.string.empty_dialog_private_message)));
+            }
+
+            binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
+            binding.emptyListInviteOthers.setOnClickListener(
+                    v -> InviteUserRxActivity.start(getActivity()));
+
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+            binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
+        }
+
         binding.emptyList.setVisibility(View.VISIBLE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
@@ -791,20 +830,23 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         if (cursorPos < nameBufferStart.length())
             nameBufferStart.delete(cursorPos, nameBufferStart.length());
-        String[] username = nameBufferStart.toString().split("@");
-        nameBufferStart = new StringBuffer();
-        int count = 1;
-        if (username.length == 0) {
-            nameBufferStart.append(String.format("@%s ", s));
+        if (nameBufferStart.charAt(cursorPos - 1) == '@') {
+            nameBufferStart.append(String.format("%s ", s));
+        } else {
+            String[] username = nameBufferStart.toString().split("@");
+            nameBufferStart = new StringBuffer();
+            int count = 1;
+            if (username.length == 0) {
+                nameBufferStart.append(String.format("@%s ", s));
+            }
+            for (String element : username) {
+                if (count == username.length)
+                    nameBufferStart.append(String.format("%s ", s));
+                else
+                    nameBufferStart.append(String.format("%s@", element));
+                count++;
+            }
         }
-        for (String element : username) {
-            if (count == username.length)
-                nameBufferStart.append(String.format("%s ", s));
-            else
-                nameBufferStart.append(String.format("%s@", element));
-            count++;
-        }
-
         StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
         if (cursorPos < nameBufferStart.length())
             nameBufferEnd.delete(0, cursorPos);
@@ -909,7 +951,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     break;
                 case R.id.reply:
                     rootPost = post;
-                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
+                    showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -918,6 +960,20 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void showEditView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> {
+            binding.writingMessage.setText(null);
+            closeEditView();});
+        binding.writingMessage.setText(rootPost.getMessage());
+        binding.writingMessage.setSelection(rootPost.getMessage().length());
+    }
+
+    private void showReplayView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    private void showView(String message, String type) {
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
 
         if (type.equals(REPLY_MESSAGE))

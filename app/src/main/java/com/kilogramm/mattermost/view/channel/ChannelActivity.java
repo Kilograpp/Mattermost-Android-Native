@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
@@ -85,6 +86,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         });
     }
 
+    private void copyText(String s) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setText(s);
+    }
+
     private void initView() {
         getPresenter().initPresenter(MattermostPreference.getInstance().getTeamId(), channelId);
         getPresenter().requestExtraInfo();
@@ -93,31 +99,39 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void initiationData(ExtraInfo extraInfo) {
         setAdapter(extraInfo);
 
-        binding.countMembers.setText(String.format("%s %s", extraInfo.getMember_count(), getString(R.string.channel_info_count_members)));
-
         Channel channel = getPresenter().getChannel();
+        channel.addChangeListener(element -> setMutableData(extraInfo, channel));
 
-        channel.addChangeListener(element -> {
-            binding.channelName.setText(channel.getDisplayName());
-            binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
-            binding.headerDescription.setText(channel.getHeader());
-            binding.purposeDescription.setText(channel.getPurpose());
-            binding.countMembers.setText(String.format("%s %s",
-                    extraInfo.getMember_count(),
-                    getString(R.string.channel_info_count_members)));
-        });
-
-        binding.channelName.setText(channel.getDisplayName());
-        binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
         binding.channelIcon.getBackground()
                 .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
-        binding.headerDescription.setText(channel.getHeader());
-        binding.purposeDescription.setText(channel.getPurpose());
         binding.urlDescription.setText(getMessageLink(channel.getName()));
         binding.idDescription.setText(channel.getId());
 
+        setMutableData(extraInfo, channel);
+
         binding.progressBar.setVisibility(View.GONE);
         binding.layoutData.setVisibility(View.VISIBLE);
+    }
+
+    private void setMutableData(ExtraInfo extraInfo, Channel channel) {
+        binding.channelName.setText(channel.getDisplayName());
+        binding.channelIcon.setText(String.valueOf(channel.getDisplayName().charAt(0)));
+        binding.headerDescription.setText(channel.getHeader());
+        binding.purposeDescription.setText(channel.getPurpose());
+        binding.countMembers.setText(String.format("%s %s",
+                extraInfo.getMember_count(),
+                getString(R.string.channel_info_count_members)));
+
+        if (Integer.parseInt(extraInfo.getMember_count()) > 5)
+            binding.seeAll.setVisibility(View.VISIBLE);
+        else
+            binding.seeAll.setVisibility(View.INVISIBLE);
+
+        if (extraInfo.getMember_count().equals("1")) {
+            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+        } else {
+            binding.textLeaveDelete.setText(getString(R.string.channel_info_leave_channel));
+        }
     }
 
 
@@ -183,6 +197,10 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.seeAll.setOnClickListener(this);
         binding.addMembers.setOnClickListener(this);
         binding.toolbarText.setOnClickListener(this);
+        binding.url.setOnLongClickListener(view -> {
+            copyText(getMessageLink(getPresenter().getChannel().getName()));
+            return true;
+        });
     }
 
     private void setToolbar() {
@@ -224,7 +242,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AddMembersActivity.start(this, channelId);
                 break;
             case R.id.leave:
-                getPresenter().requestLeave();
+                if (getPresenter().getMemberCount() == 1) {
+                    getPresenter().requestDelete();
+                } else {
+                    getPresenter().requestLeave();
+                }
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.layoutData.setVisibility(View.GONE);
                 break;

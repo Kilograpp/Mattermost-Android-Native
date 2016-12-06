@@ -119,7 +119,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initLoadAfter();
         initLoadBefore();
         initGetUsers();
-        initSendToServerError();
+//        initSendToServerError();
         initLoadBeforeAndAfter();
     }
 
@@ -149,7 +149,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
                     if (ni == null || !ni.isConnectedOrConnecting()) {
                         sendShowList();
-                    }else setErrorLayout();
+                    } else setErrorLayout();
                 });
     }
 
@@ -161,10 +161,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
-                        sendShowEmptyList();
+                        sendShowEmptyList(channelId);
                     }
-                    PostRepository.remove(new PostByChannelId(channelId));
-                    PostRepository.prepareAndAdd(posts);
+//                    PostRepository.remove(new PostByChannelId(channelId));
+//                    PostRepository.prepareAndAdd(posts);
+                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
 //                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
@@ -181,41 +182,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void initSendToServerError() {
-        restartableFirst(REQUEST_SEND_TO_SERVER_ERROR, () -> service.sendPost(teamId, channelId, forSendPost)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                (chatRxFragment, post) -> {
-                    post.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId())).first());
-                    //TODO markdown cpp
-                    /*post.setMessage(Processor.process(post.getMessage(), Configuration.builder()
-                            .forceExtentedProfile()
-                            .build()));*/
-                    PostRepository.removeTempPost(post.getPendingPostId());
-                    PostRepository.add(post);
-                    isSendingPost = false;
-                    requestUpdateLastViewedAt();
-                    sendOnItemAdded();
-                    sendShowList();
-                    sendHideFileAttachLayout();
-                    FileToAttachRepository.getInstance().deleteUploadedFiles();
-                    Log.d(TAG, "Complete create post");
-                }, (chatRxFragment1, throwable) -> {
-                    isSendingPost = false;
-                    sendError(throwable.getMessage());
-                    setErrorPost(forSendPost.getPendingPostId());
-                    throwable.printStackTrace();
-                    Log.d(TAG, "Error create post " + throwable.getMessage());
-                });
-    }
-
     private void initSendToServer() {
         restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
-                    PostRepository.removeTempPost(post.getPendingPostId());
-                    PostRepository.prepareAndAddPost(post);
+                    PostRepository.merge(post);
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
@@ -235,7 +207,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () -> service.updatelastViewedAt(teamId, channelId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-
                 (chatRxFragment, post) -> {
                 }, (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
@@ -249,7 +220,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
-//                    PostRepository.remove(new PostByRootIdSpecification(post1.getId()));
                     sendOnDeleteItem(post1);
                 },
                 (chatRxFragment1, throwable) -> {
@@ -420,7 +390,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         post.setId(null);
         post.setUser(null);
         post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());
-        start(REQUEST_SEND_TO_SERVER_ERROR);
+        start(REQUEST_SEND_TO_SERVER);
     }
 
     public void requestDeletePost(Post post) {
@@ -467,10 +437,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     //endregion
 
     // region To View
-    private void sendShowEmptyList() {
-        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
-                chatRxFragment.showEmptyList()));
-
+    private void sendShowEmptyList(String channelId) {
+        createTemplateObservable(channelId).subscribe(split(
+                (chatRxFragment, string) -> chatRxFragment.showEmptyList(channelId)));
     }
 
     private void sendRefreshing(Boolean isShow) {
@@ -492,7 +461,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         createTemplateObservable(post).subscribe(split((chatRxFragment, o) ->
                 PostRepository.remove(post)));
     }
-
 
     private void sendIvalidateAdapter() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->

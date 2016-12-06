@@ -343,7 +343,10 @@ public class ManagerBroadcast {
     }
 
     private static void savePost(Post post) {
-        PostRepository.prepareAndAddPost(post);
+        if (PostRepository.query(post.getPendingPostId()) != null)
+            PostRepository.merge(post);
+        else
+            PostRepository.prepareAndAddPost(post);
     }
 
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {

@@ -182,6 +182,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public void onDestroy() {
         super.onDestroy();
         members.removeChangeListeners();
+        preferences.removeChangeListeners();
+
     }
 
     @Override
@@ -243,7 +245,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         RealmResults<Team> teams = TeamRepository.query();
         for (Team item : teams) {
             if (item.getId().equals(MattermostPreference.getInstance().getTeamId())) {
-                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName().toUpperCase());
+                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName());
             }
         }
     }
