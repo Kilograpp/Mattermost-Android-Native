@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import icepick.State;
 import io.realm.Realm;
@@ -719,7 +720,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Channel channel = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(channelId)).first();
 
-        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy")
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
 
         if (channel.getType().equals(Channel.DIRECT)) {
@@ -738,10 +739,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             if (channel.getType().equals(Channel.OPEN)) {
                 binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + getResources().getString(R.string.empty_dialog_group_message)));
+                        + " " + getResources().getString(R.string.empty_dialog_group_message)));
             } else {
                 binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + getResources().getString(R.string.empty_dialog_private_message)));
+                        + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
 
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
