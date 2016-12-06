@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/popup_window"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center"
+    android:background="@android:color/white"
+    android:orientation="horizontal"
+    android:paddingTop="30dp"
+    android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:id="@+id/layCamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/bottom_sheet_circle_size"
+            android:layout_height="@dimen/bottom_sheet_circle_size"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_attach_camera_icon" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="15dp"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="@string/camera"
+            android:textColor="@color/grey" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layGallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_width="@dimen/bottom_sheet_circle_size"
+                android:layout_height="@dimen/bottom_sheet_circle_size"
+                android:layout_gravity="center"
+                android:src="@drawable/circle_blue" />
+
+            <ImageView
+                android:layout_width="@dimen/bottom_sheet_icon_size"
+                android:layout_height="@dimen/bottom_sheet_icon_size"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_camera_white" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="15dp"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="@string/gallery"
+            android:textColor="@color/grey" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layFile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_width="@dimen/bottom_sheet_circle_size"
+                android:layout_height="@dimen/bottom_sheet_circle_size"
+                android:layout_gravity="center"
+                android:src="@drawable/circle_blue" />
+
+            <ImageView
+                android:layout_width="@dimen/bottom_sheet_icon_size"
+                android:layout_height="@dimen/bottom_sheet_icon_size"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_downloaded_file" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="15dp"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="@string/file"
+            android:textColor="@color/grey" />
+    </LinearLayout>
+
+</LinearLayout>

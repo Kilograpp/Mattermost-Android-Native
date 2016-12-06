@@ -19,8 +19,10 @@ public class PicassoService {
     public static void create(Context context) throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
         headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         OkHttpClient client = NetworkUtil.createOkHttpClient();
 
         Picasso.setSingletonInstance(new Picasso.Builder(context)
