@@ -117,8 +117,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_CANCELED)
             if (requestCode == ChannelActivity.REQUEST_ID)
-                ((ChatRxFragment) getFragmentManager()
-                        .findFragmentById(binding.contentFrame.getId()))
+                ((ChatRxFragment) getFragmentManager().findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
                                 .first()
@@ -136,14 +135,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                     setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-
-                    /*
-                    leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-                    leftMenuRxFragment.onChannelClick(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-                    */
                 }
             }
         }
@@ -273,7 +264,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        //TODO убрала условие 07.12, т.к. неясно для чего оно
+        //TODO убрала условие 07.12, т.к. неясно для чего оно. без него часть багов исчезает
 //        if (currentChannel.equals("")) {
 //            replaceFragment(channelId, channelName);
 //            leftMenuRxFragment.setSelectItemMenu(channelId, type);

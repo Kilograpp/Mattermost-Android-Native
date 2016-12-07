@@ -967,7 +967,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         showView(message, type);
         binding.editReplyMessageLayout.close.setOnClickListener(view -> {
             binding.writingMessage.setText(null);
-            closeEditView();});
+            closeEditView();
+        });
         binding.writingMessage.setText(rootPost.getMessage());
         binding.writingMessage.setSelection(rootPost.getMessage().length());
     }
