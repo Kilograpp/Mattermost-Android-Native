@@ -23,10 +23,10 @@
         android:text="@string/logout_dialog_message"
         android:textColor="@color/grey" />
 
-    <TextView
+    <Button
         android:id="@+id/log_out"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginTop="15dp"
         android:background="@color/colorPrimary"
         android:gravity="center"

@@ -10,8 +10,15 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.kilogramm.mattermost.ui.FilesView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import io.fabric.sdk.android.Fabric;
@@ -77,5 +84,13 @@ public class MattermostApp extends Application{
                                 .build())
                         .build());
 
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .diskCacheExtraOptions(300, 300, bitmap -> null)
+                .memoryCacheExtraOptions(300, 300)
+                .memoryCacheSize(1024*1024*20)
+                .imageDownloader(new FilesView.AuthDownloader(this))
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 }

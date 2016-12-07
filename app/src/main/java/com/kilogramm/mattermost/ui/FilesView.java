@@ -5,10 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.renderscript.RenderScript;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,12 +29,8 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.decode.ImageDecoder;
-import com.nostra13.universalimageloader.core.decode.ImageDecodingInfo;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +55,6 @@ public class FilesView extends GridLayout {
 
     private static final String TAG = "FilesView";
 
-    private DisplayImageOptions options;
 
     private List<String> fileList = new ArrayList<>();
     private Drawable backgroundColorId;
@@ -90,30 +82,8 @@ public class FilesView extends GridLayout {
 
     private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
-//        setUpImageloader(context);
     }
 
-    private void setUpImageloader(Context context) {
-        Map<String, String> headers = new HashMap();
-        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-
-        options = new DisplayImageOptions.Builder()
-                .imageScaleType(ImageScaleType.EXACTLY)
-                .resetViewBeforeLoading(true)
-                .cacheInMemory(true)
-                .extraForDownloader(headers)
-                .considerExifParams(true)
-                .cacheOnDisc(true)
-                .build();
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .diskCacheExtraOptions(300, 300, bitmap -> null)
-                .memoryCacheExtraOptions(300, 300)
-                .defaultDisplayImageOptions(options)
-                .imageDownloader(new AuthDownloader(context))
-                .build();
-        ImageLoader.getInstance().init(config);
-    }
 
     public void setItems(List<String> items) {
         Log.d(TAG, "items count: " + items.size());
@@ -218,14 +188,19 @@ public class FilesView extends GridLayout {
             binding.title.setText(title);
         }
 
-        Picasso.with(getContext())
-                .load(url)
-                .resize(300, 300)
-                .centerCrop()
-                .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
-                .error(getContext().getResources().getDrawable(R.drawable.slices))
-                .into(binding.image);
-//        ImageLoader.getInstance().displayImage(url, binding.image, options);
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .showImageOnLoading(R.drawable.slices)
+                .showImageOnFail(R.drawable.slices)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+        ImageLoader.getInstance().displayImage(url, binding.image, options);
 
         this.addView(binding.getRoot());
 
@@ -389,7 +364,7 @@ public class FilesView extends GridLayout {
         this.removeAllViews();
     }
 
-    public class AuthDownloader extends BaseImageDownloader {
+    public static class AuthDownloader extends BaseImageDownloader {
 
         public AuthDownloader(Context context) {
             super(context);

@@ -5,7 +5,7 @@
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
-    <string name="main_url_error">Url is not valid https://</string>
+    <string name="main_url_error">Url is not valid</string>
 
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
@@ -192,8 +192,8 @@
     <string name="empty_dialog_invite">+ Invite others to this channel</string>
     <string name="empty_dialog_title">Beginning of %1$s</string>
     <string name="empty_dialog_beginning_message">This is the start of the %1$s channel, created on %2$s. </string>
-    <string name="empty_dialog_private_message">Only invited members can see this private group.</string>
-    <string name="empty_dialog_group_message">Any member can join and read this channel.</string>
+    <string name="empty_dialog_private_message"> Only invited members can see this private group.</string>
+    <string name="empty_dialog_group_message"> Any member can join and read this channel.</string>
     <string name="empty_dialog_direct_message">This is the start of your direct message history with %1$s.
         \n\nDirect messages and files shared here are not shown to people outside this area.</string>
 
@@ -206,7 +206,7 @@
     <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
     <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
 
-    <!--Channel info-->
+                    <!--Channel info-->
     <string name="channel_info">Channel info</string>
     <string name="channel_info_header">Header</string>
     <string name="channel_info_purpose">Purpose</string>
@@ -216,7 +216,10 @@
     <string name="channel_info_count_members">MEMBERS</string>
     <string name="channel_info_see_all">SEE ALL</string>
     <string name="channel_info_leave_channel">Leave Channel</string>
+    <string name="channel_info_leave_private">Leave Private</string>
     <string name="channel_info_delete_channel">Delete Channel</string>
+    <string name="channel_info_handle_info">The name of the subdirectory used to navigate to a
+        channel using the site URL appended with the handle name. Must use only valid URL inputs</string>
 
     <string name="all_members_toolbar">All Members</string>
     <string name="add_members_toolbar">Add Members</string>
@@ -231,14 +234,14 @@
     <string name="channel_display_name_edit">Edit name</string>
     <string name="channel_name_edit">Edit handle</string>
 
-    <!--PUSH NOTIFICATIONS-->
+                    <!--PUSH NOTIFICATIONS-->
     <string name="notification_sent_attachment">"did something new"</string>
     <string name="notification_sent_pic">"sent picture"</string>
     <string name="notification_sent_file">"sent file"</string>
 
     <string name="ellipsis" msgid="7899829516048813237">"…"</string>
 
-    <!--Logout dialog-->
+                    <!--Logout dialog-->
     <string name="logout_dialog_title">WOW!</string>
     <string name="logout_dialog_message">Do you really want to log out?</string>
     <string name="logout_dialog_button">LOG OUT</string>
