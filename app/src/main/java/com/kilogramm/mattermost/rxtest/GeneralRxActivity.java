@@ -131,15 +131,28 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             }
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
+
+                    String test1 = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
+                    String test2 = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
+                    String test3 = data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL);
+
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
-                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));/*
+
+                    // TODO убрала setFragmentChat и заменила на replaceFragment 07.12
+                    replaceFragment(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME));
+                    //
+//                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+//                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
+//                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+//
+                    /*
                     leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
                     leftMenuRxFragment.onChannelClick(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));*/
+                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+                    */
                 }
             }
         }
