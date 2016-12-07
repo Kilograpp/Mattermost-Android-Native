@@ -267,7 +267,6 @@ public class ManagerBroadcast {
 //            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
 //        }
 
-
         Notification.Builder notificationBuilder = showNotification(context);
         notificationBuilder.setContent(remoteViews);
         notificationBuilder.setContentIntent(pIntent);

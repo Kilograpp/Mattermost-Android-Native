@@ -84,6 +84,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     protected void onStart() {
         super.onStart();
+        parceIntent(getIntent());
     }
 
     @Override

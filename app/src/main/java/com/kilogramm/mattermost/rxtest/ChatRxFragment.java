@@ -773,9 +773,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
 
+            String chan = channel.getId();
+
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
-                    v -> AddMembersActivity.start(getActivity(), channelId));
+                    v -> AddMembersActivity.start(getActivity(), channel.getId()));
 
             binding.emptyListTitle.setVisibility(View.VISIBLE);
             binding.emptyListMessage.setVisibility(View.VISIBLE);
