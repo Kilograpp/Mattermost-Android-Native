@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
@@ -46,6 +47,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         implements TextView.OnEditorActionListener,
         SearchMessageAdapter.OnJumpClickListener,
         TextWatcher {
+    public static final String TAG = "SearchMessageActivity";
+
+    private final int DELAY = 2500;
 
     private static final String TEAM_ID = "team_id";
     public static final String MESSAGE_ID = "message_id";
@@ -75,6 +79,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search);
         binding.searchAutoComplete.setOnEditorActionListener(this);
         binding.searchAutoComplete.addTextChangedListener(this);
+        binding.searchAutoComplete.addTextChangedListener(dynamicalSearch);
+        binding.searchAutoComplete.setOnFocusChangeListener((v, hasFocus) ->
+                binding.btnClear.setVisibility(hasFocus ? View.VISIBLE : View.GONE));
 
         display = getWindowManager().getDefaultDisplay();
         size = new Point();
@@ -90,6 +97,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         binding.searchAutoComplete.setAdapter(historyAutoCompleteAdapter);
 
         binding.btnBack.setOnClickListener(v -> finish());
+
         binding.btnClear.setOnClickListener(v -> {
             binding.searchAutoComplete.setText("");
             defaultMessageVisibility(true);
@@ -98,6 +106,21 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
             showKeyboard(this);
         });
     }
+
+    private TextWatcher dynamicalSearch = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            binding.searchAutoComplete.postDelayed(() -> doMessageSearch(), DELAY);
+        }
+    };
 
     public void setRecycleView(String terms) {
         RealmQuery<Post> query = Realm.getDefaultInstance().where(Post.class);
