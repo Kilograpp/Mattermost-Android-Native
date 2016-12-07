@@ -18,6 +18,8 @@
     <!--setting-->
 
     <dimen name="settings_title_margin">24dp</dimen>
+    <dimen name="bottom_sheet_circle_size">60dp</dimen>
+    <dimen name="bottom_sheet_icon_size">25dp</dimen>
 
     <!--Direct list-->
     <dimen name="margin_start">5dp</dimen>

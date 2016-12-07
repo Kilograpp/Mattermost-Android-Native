@@ -101,7 +101,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             }
         });
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
+
         initView();
+
         return view;
     }
 
@@ -183,7 +185,6 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         super.onDestroy();
         members.removeChangeListeners();
         preferences.removeChangeListeners();
-
     }
 
     @Override
@@ -234,7 +235,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         }
     }
 
-    private void initView() {
+    public void initView() {
         initTeamHeader();
         initChannelList();
         initPrivateList();
@@ -314,7 +315,10 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     @Override
     public void onRefresh() {
         getPresenter().requestUpdate();
-        mBinding.leftSwipeRefresh.setRefreshing(false);
+    }
+
+    public void setRefreshAnimation(boolean isVisible) {
+        mBinding.leftSwipeRefresh.setRefreshing(isVisible);
     }
 
     public RealmResults<Channel> getDirectChannelData() {
@@ -327,7 +331,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         return realmQuery.findAllSorted("username", Sort.ASCENDING);
     }
 
-    private void selectLastChannel() {
+    public void selectLastChannel() {
         RealmResults<Channel> channels = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
         if (channels.size() <= 0) {

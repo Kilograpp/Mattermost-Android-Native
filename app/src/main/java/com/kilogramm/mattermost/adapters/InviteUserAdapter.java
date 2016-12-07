@@ -101,6 +101,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
             @Override
             public void afterTextChanged(Editable s) {
                 getData().get(holder.getAdapterPosition()).setEmail(s.toString());
+                if(holder.binding.inputEmail.isErrorEnabled()){
+                    checkEmailField(holder, getData().get(holder.getAdapterPosition()));
+                }
             }
         };
         firstNameTextWatcher = new TextWatcher() {

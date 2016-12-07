@@ -23,6 +23,6 @@
             android:layout_alignEnd="@id/team_header_text"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
-            app:srcCompat="@drawable/ic_person_grey_24dp" />
+            app:srcCompat="@drawable/ic_menu_team_icon" />
     </RelativeLayout>
 </layout>

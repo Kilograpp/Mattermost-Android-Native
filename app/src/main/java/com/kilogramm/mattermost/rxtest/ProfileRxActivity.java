@@ -62,18 +62,19 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
 
         mBinding.email.setText(user.getEmail());
         Picasso.with(this)
-                .load(getAvatarUrl())
+                .load(getAvatarUrl(user))
                 .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .into(mBinding.headerPicture);
     }
 
-    public String getAvatarUrl() {
+    public String getAvatarUrl(User user) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/users/"
                     + userId
-                    + "/image";
+                    + "/image?time="
+                    + user.getLastPictureUpdate();
     }
 
    /* @Override

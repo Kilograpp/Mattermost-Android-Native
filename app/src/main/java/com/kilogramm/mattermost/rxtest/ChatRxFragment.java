@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -36,6 +37,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -64,6 +66,7 @@ import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
@@ -78,6 +81,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import icepick.State;
@@ -183,7 +187,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-        setBottomToolbarOnClickListeners();
+        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
+//        setBottomToolbarOnClickListeners();
         setButtonAddFileOnClickListener();
         setDropDownUserList();
         setAttachedFilesLayout();
@@ -370,7 +375,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
             if (heightDiff > 100) {
                 isOpenedKeyboard = true;
-            } else if (isOpenedKeyboard == true) {
+            } else if (isOpenedKeyboard) {
                 isOpenedKeyboard = false;
             }
         });
@@ -550,7 +555,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setMasseageLayout(int visible) {
-        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
+//        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
     }
@@ -717,6 +722,30 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
+    private void showDialog() {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            makePhoto();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            openGallery();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            pickFile();
+            mBottomSheetDialog.cancel();
+        });
+    }
+
     public void showEmptyList(String channelId) {
         Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
@@ -724,12 +753,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Channel channel = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(channelId)).first();
 
-        if (!channel.getType().equals(Channel.DIRECT))
-            getPresenter().requestGetCountUsersStatus();
-        else
-            getPresenter().requestUserStatus();
-
-        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy")
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
 
         if (channel.getType().equals(Channel.DIRECT)) {
@@ -748,15 +772,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             if (channel.getType().equals(Channel.OPEN)) {
                 binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + getResources().getString(R.string.empty_dialog_group_message)));
+                        + " " + getResources().getString(R.string.empty_dialog_group_message)));
             } else {
                 binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + getResources().getString(R.string.empty_dialog_private_message)));
+                        + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
 
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
-                    v -> InviteUserRxActivity.start(getActivity()));
+                    v -> AddMembersActivity.start(getActivity(), channelId));
 
             binding.emptyListTitle.setVisibility(View.VISIBLE);
             binding.emptyListMessage.setVisibility(View.VISIBLE);
@@ -773,7 +797,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setVisibility(View.VISIBLE);
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
-
         fabBehavior.unlockBehavior();
     }
 
@@ -1060,7 +1083,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
 
-
     private String getMessageLink(String postId) {
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
@@ -1137,12 +1159,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setButtonAddFileOnClickListener() {
-        binding.buttonAttachFile.setOnClickListener(view -> pickFile());
+        binding.buttonAttachFile.setOnClickListener(view -> showDialog());
     }
 
     @Override
     public void onAllUploaded() {
         binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
-
 }
