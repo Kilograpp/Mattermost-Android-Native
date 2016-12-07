@@ -131,21 +131,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             }
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
-
-                    String test1 = data.getStringExtra(SearchMessageActivity.CHANNEL_ID);
-                    String test2 = data.getStringExtra(SearchMessageActivity.CHANNEL_NAME);
-                    String test3 = data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL);
-
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
 
-                    // TODO убрала setFragmentChat и заменила на replaceFragment 07.12
-                    replaceFragment(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME));
-                    //
-//                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-//                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-//                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-//
+                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
+                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
+
                     /*
                     leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
@@ -282,10 +273,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        if (currentChannel.equals("")) {
-            replaceFragment(channelId, channelName);
-            leftMenuRxFragment.setSelectItemMenu(channelId, type);
-        }
+        //TODO убрала условие 07.12, т.к. неясно для чего оно
+//        if (currentChannel.equals("")) {
+//            replaceFragment(channelId, channelName);
+//            leftMenuRxFragment.setSelectItemMenu(channelId, type);
+//        }
+        replaceFragment(channelId, channelName);
+
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
@@ -296,10 +290,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
-            // For clearing attached files on channel change
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
-
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
