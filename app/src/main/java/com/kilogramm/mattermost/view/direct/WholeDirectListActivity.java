@@ -51,12 +51,11 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     private void init() {
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-
         setRecycleView();
         getPresenter().getUsers();
     }
 
-    public TextWatcher getMassageTextWatcher() {
+    public TextWatcher getMessageTextWatcher() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -73,7 +72,6 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         };
     }
@@ -102,7 +100,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.done, menu);
         searchItem = menu.findItem(R.id.action_search);
-        initSearchView(menu, getMassageTextWatcher());
+        initSearchView(menu, getMessageTextWatcher());
         return true;
     }
 
@@ -134,6 +132,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         }
         return true;
     }
+
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
         Intent starter = new Intent(fragment.getActivity(), WholeDirectListActivity.class);
         fragment.startActivityForResult(starter, requestCode);
