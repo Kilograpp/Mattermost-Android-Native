@@ -24,12 +24,18 @@ import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
+import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
+import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
+import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 
 import java.util.ArrayList;
 
 import icepick.State;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import rx.Observable;
@@ -52,6 +58,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_SEND_TO_SERVER_ERROR = 11;
 
     private static final int REQUEST_DB_GETUSERS = 10;
+    private static final int REQUEST_DB_USERS_STATUS = 13;
+    private static final int REQUEST_DB_USER_STATUS = 14;
 
     private static final int REQUEST_LOAD_BEFORE = 8;
     private static final int REQUEST_LOAD_AFTER = 9;
@@ -62,6 +70,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     @State
     String teamId;
+    @State
+    String channelType;
     @State
     String channelId;
     @State
@@ -119,6 +129,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initLoadAfter();
         initLoadBefore();
         initGetUsers();
+        initGetStatusUser();
+        initGetUserStatusList();
 //        initSendToServerError();
         initLoadBeforeAndAfter();
     }
@@ -136,7 +148,16 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
                                     MattermostPreference.getInstance().getMyUserId());
                             MembersRepository.add(channelsWithMembers.getMembers().values());
+                            channelType = ChannelRepository.query(new
+                                    ChannelRepository.ChannelByIdSpecification(this.channelId))
+                                    .first()
+                                    .getType();
                             setGoodLayout();
+                            RealmList<User> results = new RealmList<>();
+                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
+                            extraInfo.setMembers(results);
+                            ExtroInfoRepository.add(extraInfo);
+                            sendTypeChannel();
                             return extraInfo;
                         }))
                 , (chatRxFragment, extraInfo) -> requestLoadPosts()
@@ -301,6 +322,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, o) -> sendDropDown(o));
     }
 
+    private void initGetUserStatusList() {
+        restartableFirst(REQUEST_DB_USERS_STATUS,
+                () -> UserStatusRepository.query(new UsersStatusByChannelSpecification(channelId))
+                        .asObservable(),
+                (chatRxFragment, o) -> sendTypingText(o));
+    }
+
+    private void initGetStatusUser() {
+        restartableFirst(REQUEST_DB_USER_STATUS,
+                () -> UserStatusRepository.query(new UserStatusByDirectSpecification(channelId))
+                        .asObservable(),
+                (chatRxFragment, o) -> {
+                    if (o.size() > 0)
+                        sendTypingText(o.first());
+                    else
+                        sendTypingText();
+                });
+    }
+
     private void initLoadBeforeAndAfter() {
         restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
                         Observable.defer(() -> Observable.zip(
@@ -437,6 +477,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         this.cursorPos = cursorPos;
         start(REQUEST_DB_GETUSERS);
     }
+
+    public void requestGetCountUsersStatus() {
+        start(REQUEST_DB_USERS_STATUS);
+    }
+
+    public void requestUserStatus() {
+        start(REQUEST_DB_USER_STATUS);
+    }
     //endregion
 
     // region To View
@@ -505,6 +553,36 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 ChatRxFragment::setDropDown));
     }
 
+    private void sendTypingText(RealmResults<UserStatus> users) {
+        createTemplateObservable(users).subscribe(split(
+                (chatRxFragment, userStatuses) -> chatRxFragment.setupTypingText(getStringTyping(users.size()))));
+    }
+
+    private void sendTypingText(UserStatus userStatus) {
+        createTemplateObservable(userStatus).subscribe(split(
+                (chatRxFragment, status) -> chatRxFragment.setupTypingText(status.getStatus())));
+    }
+    private void sendTypingText() {
+        createTemplateObservable(new Object()).subscribe(split(
+                (chatRxFragment, status) -> chatRxFragment.setupTypingText(UserStatus.OFFLINE)));
+    }
+
+    private void sendTypeChannel() {
+        createTemplateObservable(new Object()).subscribe(split(
+                (chatRxFragment, o) -> chatRxFragment.initTypingText()));
+    }
+
+    String getStringTyping(int count) {
+        switch (count) {
+            case 0:
+                return "No users online";
+            case 1:
+                return count + " user online";
+            default:
+                return count + " users online";
+        }
+    }
+
     private void sendHideFileAttachLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.hideAttachedFilesLayout()));
@@ -563,6 +641,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
             firstmessageId = realmList.get(realmList.size() - 1).getId();
             Log.d(TAG, "firstmessage " + realmList.get(realmList.size() - 1).getMessage());
         }
+    }
+
+    public String getChannelType() {
+        return channelType;
     }
 
     private void setErrorPost(String sendedPostId) {

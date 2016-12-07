@@ -92,6 +92,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     protected void onStart() {
         super.onStart();
+        parceIntent(getIntent());
     }
 
     @Override
@@ -124,8 +125,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_CANCELED)
             if (requestCode == ChannelActivity.REQUEST_ID)
-                ((ChatRxFragment) getFragmentManager()
-                        .findFragmentById(binding.contentFrame.getId()))
+                ((ChatRxFragment) getFragmentManager().findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
                                 .first()
@@ -139,14 +139,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+
                     setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));/*
-                    leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-                    leftMenuRxFragment.onChannelClick(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));*/
                 }
             }
         }
@@ -286,10 +282,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        if (currentChannel.equals("")) {
-            replaceFragment(channelId, channelName);
-            leftMenuRxFragment.setSelectItemMenu(channelId, type);
-        }
+        //TODO убрала условие 07.12, т.к. неясно для чего оно. без него часть багов исчезает
+//        if (currentChannel.equals("")) {
+//            replaceFragment(channelId, channelName);
+//            leftMenuRxFragment.setSelectItemMenu(channelId, type);
+//        }
+        replaceFragment(channelId, channelName);
+
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
@@ -300,10 +299,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
-            // For clearing attached files on channel change
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
-
         if (!channelId.equals(currentChannel)) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;

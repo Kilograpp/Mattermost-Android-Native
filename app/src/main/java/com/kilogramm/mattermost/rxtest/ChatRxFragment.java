@@ -79,8 +79,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.Realm;
@@ -147,6 +149,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private ScrollAwareFabBehavior fabBehavior;
 
+    Map<String, String> mapType;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,15 +200,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
-                    getActivity().runOnUiThread(() -> {// TODO зачем эта обработка?
-                        if (obj.getData() != null) {
-                            updateEditedPosition(obj.getData().getPost().getId());
+                if (obj.getChannelId().equals(channelId)) {
+                    if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
+                            && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+                        if (obj != null) {
+                            if (mapType != null)
+                                mapType.remove(obj.getUserId());
+                            getActivity().runOnUiThread(() -> showTyping(null));
                         }
-                    });
-                } else {
-                    if (obj.getChannelId().equals(channelId)) {
-                        getActivity().runOnUiThread(() -> showTyping());
+                    } else if (obj.getEvent().equals(WebSocketObj.EVENT_TYPING)) {
+                        getActivity().runOnUiThread(() -> showTyping(obj));
                     }
                 }
             }
@@ -219,7 +224,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         };
 
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
-        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
+        intentFilter.addAction(WebSocketObj.EVENT_POSTED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
         binding.fab.hide();
@@ -378,6 +383,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
     }
 
+    boolean isSendTyping;
+
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
             @Override
@@ -390,6 +397,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (FileToAttachRepository.getInstance().haveFilesToAttach() &&
                                 !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    if (!isSendTyping) {
+                        isSendTyping = true;
+                        MattermostService.Helper.create(getActivity()).sendUserTuping(channelId);
+                        binding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
+                    }
                 } else {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
                 }
@@ -776,9 +788,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
 
+            String chan = channel.getId();
+
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
-                    v -> AddMembersActivity.start(getActivity(), channelId));
+                    v -> AddMembersActivity.start(getActivity(), channel.getId()));
 
             binding.emptyListTitle.setVisibility(View.VISIBLE);
             binding.emptyListMessage.setVisibility(View.VISIBLE);
@@ -805,9 +819,95 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setCanPaginationBot(true);
     }
 
-    public void showTyping() {
-        binding.typing.setVisibility(View.VISIBLE);
-        binding.typing.postDelayed(() -> binding.typing.setVisibility(View.GONE), TYPING_DURATION);
+    public void initTypingText() {
+        if (!getPresenter().getChannelType().equals("D"))
+            getPresenter().requestGetCountUsersStatus();
+        else
+            getPresenter().requestUserStatus();
+    }
+
+    public void showTyping(WebSocketObj obj) {
+        String typing = getStringTyping(obj);
+        if (typing != null) {
+            setupTypingText(typing);
+            binding.getRoot().postDelayed(() -> {
+                sendUsersStatus(obj);
+            }, TYPING_DURATION);
+        } else
+            sendUsersStatus(null);
+    }
+
+    private void sendUsersStatus(WebSocketObj obj) {
+        if (getPresenter().getChannelType() != null) {
+            if (!getPresenter().getChannelType().equals("D")) {
+                if (obj != null)
+                    mapType.remove(obj.getUserId());
+                if (mapType.size() == 0)
+                    getPresenter().requestGetCountUsersStatus();
+            } else {
+                getPresenter().requestUserStatus();
+            }
+        } else setupTypingText("");
+    }
+
+    @Override
+    protected void setupTypingText(String text) {
+        super.setupTypingText(text);
+    }
+
+
+    public String getStringTyping(WebSocketObj obj) {
+        StringBuffer result = new StringBuffer();
+        if (getPresenter().getChannelType() != null) {
+            if (getPresenter().getChannelType().equals("D")) {
+                if (obj != null) {
+                    return getString(R.string.typing);
+                } else return null;
+            } else {
+                if (mapType == null) {
+                    mapType = new HashMap<>();
+                }
+                if (obj != null) {
+                    mapType.put(obj.getUserId(),
+                            UserRepository
+                                    .query(new UserRepository.UserByIdSpecification(obj.getUserId()))
+                                    .first()
+                                    .getUsername());
+                }
+                int count = 0;
+                if (mapType.size() == 1) {
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        result.append(item.getValue() + " " + getString(R.string.typing));
+                    }
+                    return result.toString();
+                }
+
+                if (mapType.size() == 2) {
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        count++;
+                        if (count == 2)
+                            result.append(item.getValue() + " " + getString(R.string.typing));
+                        else
+                            result.append(item.getValue() + " and ");
+                    }
+                    return result.toString();
+                }
+                if (mapType.size() > 2)
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        count++;
+                        if (count == 1)
+                            result.append(item.getValue() + ", ");
+                        else if (count == 2) {
+                            result.append(String.format("%s and %d %s",
+                                    item.getValue(),
+                                    mapType.size() - 2,
+                                    getString(R.string.typing)));
+                            return result.toString();
+                        }
+                    }
+            }
+        }
+        return null;
     }
 
     public String getMessage() {
@@ -975,7 +1075,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         showView(message, type);
         binding.editReplyMessageLayout.close.setOnClickListener(view -> {
             binding.writingMessage.setText(null);
-            closeEditView();});
+            closeEditView();
+        });
         binding.writingMessage.setText(rootPost.getMessage());
         binding.writingMessage.setSelection(rootPost.getMessage().length());
     }

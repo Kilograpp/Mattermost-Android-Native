@@ -28,6 +28,8 @@ public class WebSocketManager {
     private static final String HEADER_WEB_SOCKET = "Cookie";
     public static final int TIME_REPEAT_RECONNECT = 30 * 1000;
 
+    public static int seq_reply = 0;
+
     private static WebSocket webSocket = null;
 
     private WebSocketMessage mWebSocketMessage;
@@ -40,6 +42,8 @@ public class WebSocketManager {
 
     private UpdateStatusUser mUpdateStatusUser;
 
+    private UserTyping mUserTyping;
+
 
     public WebSocketManager(WebSocketMessage webSocketMessage) {
         this.mWebSocketMessage = webSocketMessage;
@@ -48,6 +52,7 @@ public class WebSocketManager {
 
         mCheckStatusSocket = new CheckStatusSocket();
         mUpdateStatusUser = new UpdateStatusUser();
+        mUserTyping = new UserTyping();
 
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -165,6 +170,8 @@ public class WebSocketManager {
 
         handler.removeCallbacks(mUpdateStatusUser);
 
+        handler.removeCallbacks(mUserTyping);
+
         if(webSocket != null) {
             webSocket.disconnect();
         }
@@ -175,6 +182,12 @@ public class WebSocketManager {
     public void updateUserStatusNow() {
         handler.removeCallbacks(mUpdateStatusUser);
         handler.post(mUpdateStatusUser);
+    }
+
+    public void sendUserTyping(String channelId) {
+        mUserTyping.setChannelId(channelId);
+        handler.removeCallbacks(mUserTyping);
+        handler.post(mUserTyping);
     }
 
     public interface WebSocketMessage {
@@ -209,6 +222,36 @@ public class WebSocketManager {
                 }*/
                 Log.d(TAG,"send " + getStatus);
                 webSocket.sendBinary(getStatus.getBytes());
+            }
+            else  Log.d(TAG, "web socket not created");
+        }
+    }
+
+    public class UserTyping implements Runnable {
+        String channelId;
+        String parentId;
+
+
+        private void setParrnetlId(String parentId) {
+            this.parentId = parentId;
+        }
+
+        private void setChannelId(String channelId) {
+            this.channelId = channelId;
+        }
+
+        @Override
+        public void run() {
+            if(webSocket!=null) {
+                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
+                seq_reply++;
+                parentId = "\"\"";
+                String action = "{\"action\": \"user_typing\", \"seq\": " + seq_reply +
+                        ", \"data\": {\"channel_id\": \"" +  channelId + "\", \"parent_id\": " + parentId + "}}";
+                String getStatus = "{\"status\":\"OK\",\"seq_reply\":" + seq_reply + ",\"data\":null}";
+
+                Log.d(TAG,"send " + action);
+                webSocket.sendBinary(action.getBytes());
             }
             else  Log.d(TAG, "web socket not created");
         }

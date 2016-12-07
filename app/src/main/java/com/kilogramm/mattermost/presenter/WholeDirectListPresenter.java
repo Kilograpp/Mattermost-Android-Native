@@ -158,7 +158,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                             this.defaultChannelInfo = ExtroInfoRepository.query(
                                     new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).first();
                             wholeDirectListActivity.updateDataList(defaultChannelInfo
-                                    .getMembers().where().notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
+                                    .getMembers().where().isNotNull("id").notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
                         }
                 ));
     }
@@ -170,6 +170,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                     if (name == null)
                         wholeDirectListActivity.updateDataList(
                                 users.where()
+                                        .isNotNull("id")
                                         .notEqualTo("id", currentUserId)
                                         .findAllSorted("username", Sort.ASCENDING));
                     else

@@ -17,9 +17,9 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
@@ -34,6 +34,7 @@ import nucleus.view.NucleusAppCompatActivity;
 public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompatActivity<P> {
 
     private Toolbar toolbar;
+    private TextView typing;
 
     @Override
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
@@ -118,9 +119,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
                                     View.OnClickListener listenerChannelName,
                                     View.OnClickListener listenerSearch) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        Button channel_name = (Button) toolbar.findViewById(R.id.channel_title);
+        TextView channel_name = (TextView) toolbar.findViewById(R.id.channel_title);
         channel_name.setText(channelName);
         channel_name.setOnClickListener(listenerChannelName);
+        channel_name.setTransformationMethod(null);
 
         ImageView search_message = (ImageView) toolbar.findViewById(R.id.search_message);
         search_message.setOnClickListener(listenerSearch);
@@ -130,6 +132,11 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_dehaze_white_24dp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitleActivity(activityTitle);
+    }
+
+    public void setupTypingText(String text){
+        typing = (TextView) findViewById(R.id.typing);
+        typing.setText(text);
     }
 
     public static void hideKeyboard(Activity activity) {

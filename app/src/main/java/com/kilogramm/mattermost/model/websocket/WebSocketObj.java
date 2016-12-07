@@ -68,6 +68,10 @@ public class WebSocketObj implements Parcelable {
     @Expose
     private Integer seqReplay;
 
+    @SerializedName("seq")
+    @Expose
+    private Integer seq;
+
 
     //Posted
     @SerializedName("channel_display_name")
@@ -86,6 +90,10 @@ public class WebSocketObj implements Parcelable {
     @Expose
     private String senderName;
 
+
+    public Integer getSeq() {
+        return seq;
+    }
 
     public void setDataJSON(String dataJSON) {
         this.dataJSON = dataJSON;
@@ -228,6 +236,7 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.userId);
         dest.writeString(this.event);
         dest.writeValue(this.seqReplay);
+        dest.writeValue(this.seq);
         dest.writeString(this.channelDisplayName);
         dest.writeString(this.channelType);
         dest.writeString(this.mentions);
@@ -241,6 +250,7 @@ public class WebSocketObj implements Parcelable {
         this.userId = in.readString();
         this.event = in.readString();
         this.seqReplay = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.seq = (Integer) in.readValue(Integer.class.getClassLoader());
         this.channelDisplayName = in.readString();
         this.channelType = in.readString();
         this.mentions = in.readString();
