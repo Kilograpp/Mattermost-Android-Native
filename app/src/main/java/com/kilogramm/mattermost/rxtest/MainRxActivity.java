@@ -56,7 +56,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             binding.urlEditText.postDelayed(() -> {
-                if (checkEnteredUrl(getStringUrl())) {
+                if (checkEnteredUrl(getStringUrl()) || (binding.urlEditText.getText().length() == 0)) {
                     hideEditTextErrorMessage();
                 } else {
                     showEditTextErrorMessage();

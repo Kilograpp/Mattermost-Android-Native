@@ -14,8 +14,10 @@ import nucleus.view.NucleusFragment;
  */
 public abstract class BaseFragment<P extends Presenter> extends NucleusFragment<P> {
 
-    protected void setupToolbar(String activityTitle, String channelName, View.OnClickListener listener1, View.OnClickListener listener2) {
-        ((BaseActivity) getActivity()).setupChannelToolbar(activityTitle, channelName, listener1, listener2);
+    protected void setupToolbar(String activityTitle, String channelName,
+                                View.OnClickListener listener1, View.OnClickListener listener2) {
+        ((BaseActivity) getActivity()).setupChannelToolbar(
+                activityTitle, channelName, listener1, listener2);
     }
 
     protected void setupTypingText(String text) {

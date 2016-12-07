@@ -46,9 +46,10 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         boolean isShow = false;
         RealmQuery<Preferences> preferencesRealmQuery = preferences.where()
                 .equalTo("name", user.getId());
-        if (preferencesRealmQuery.count() > 0)
+        if (preferencesRealmQuery.count() > 0) {
             if (preferencesRealmQuery.findFirst().getValue().equals("true"))
                 isShow = true;
+        }
 
         holder.getmBinding().getRoot().setOnClickListener(view -> {
                 holder.getmBinding().selectDirect.setChecked(
@@ -61,7 +62,6 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         );
         holder.bindTo(user, isShow, changesMap.get(user.getId()));
     }
-
 
     public Map<String, Boolean> getChangesMap() {
         return changesMap;

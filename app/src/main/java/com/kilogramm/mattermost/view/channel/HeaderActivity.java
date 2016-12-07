@@ -42,24 +42,29 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
 
     private void initData() {
         binding.header.setText(getPresenter().getHeader());
-        binding.header.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+//        binding.header.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                if (charSequence.length() > 0)
+//                    binding.btnClear.setVisibility(View.VISIBLE);
+//                else
+//                    binding.btnClear.setVisibility(View.INVISIBLE);
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//
+//            }
+//        });
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() > 0)
-                    binding.btnClear.setVisibility(View.VISIBLE);
-                else
-                    binding.btnClear.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
+        binding.header.setOnFocusChangeListener((v, hasFocus) -> {
+            binding.btnClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
         });
+
         binding.btnClear.setOnClickListener(view -> binding.header.setText(""));
     }
 
@@ -101,7 +106,6 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save_toolbar, menu);
         return true;
     }
@@ -112,5 +116,4 @@ public class HeaderActivity extends BaseActivity<HeaderPresenter> {
         starter.putExtra(CHANNEL_ID, channelId);
         activity.startActivity(starter);
     }
-
 }

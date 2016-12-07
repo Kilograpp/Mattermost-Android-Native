@@ -4,5 +4,5 @@
     <item
         android:id="@+id/invite"
         app:showAsAction="ifRoom"
-        android:title="Invite"/>
+        android:title="@string/invite"/>
 </menu>
