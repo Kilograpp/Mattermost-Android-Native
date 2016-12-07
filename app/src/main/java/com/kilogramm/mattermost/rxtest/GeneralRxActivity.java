@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,12 +33,19 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragment;
 import com.kilogramm.mattermost.rxtest.left_menu.OnChannelChangeListener;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.RealmChangeListener;
@@ -163,18 +171,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             user.addChangeListener(userRealmChangeListener = element -> {
                 Log.d(TAG, "OnChange users");
                 updateHeaderUserName(element);
-                Picasso.with(this)
-                        .load(getAvatarUrl())
-                        .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                        .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                        .into(binding.headerPicture);
+                setAvatar();
             });
             updateHeaderUserName(user);
-            Picasso.with(this)
-                    .load(getAvatarUrl())
-                    .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                    .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(binding.headerPicture);
+            setAvatar();
         }
         binding.navView.setNavigationItemSelectedListener(item -> {
             binding.drawerLayout.closeDrawer(GravityCompat.END);
@@ -208,6 +208,24 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             }
             return false;
         });
+    }
+
+    private void setAvatar() {
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .showImageOnLoading(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .showImageOnFail(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+
+        ImageLoader.getInstance().displayImage(getAvatarUrl(), binding.headerPicture, options);
+
     }
 
     @Override

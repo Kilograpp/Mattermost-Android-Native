@@ -99,7 +99,6 @@ public class FilesView extends GridLayout {
                         createControlsClickListener(fileName, fileDownloadListener, binding)
                 );
 
-
                 File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                         + File.separator
                         + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
