@@ -1175,4 +1175,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onAllUploaded() {
         binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        setupTypingText("");
+    }
 }
