@@ -98,6 +98,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         AttachedFilesLayout.AllUploadedListener {
 
     private static final String TAG = "ChatRxFragment";
+
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
     private static final String CHANNEL_IS_SEARCH = "isSearch";
@@ -248,6 +249,28 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
+
+
+        binding.rev.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                LinearLayoutManager layoutManager = ((LinearLayoutManager) binding.rev.getLayoutManager());
+                int lastVisible = layoutManager.findLastVisibleItemPosition();
+                int firstVisible = layoutManager.findFirstVisibleItemPosition();
+                Log.d(TAG, "lastVisible = " + lastVisible + " /n firstVisible = " + firstVisible);
+                Log.d(TAG, "current = " + adapter.getPositionById(searchMessageId));
+
+                if (adapter.getPositionById(searchMessageId) >= firstVisible &&
+                        adapter.getPositionById(searchMessageId) <= lastVisible) {
+                    adapter.changeItemBackground(getActivity(), true);
+                }
+//                else {
+//                    adapter.changeItemBackground(getActivity(), false);
+//                }
+            }
+        });
     }
 
     private void updateEditedPosition(String id) {
@@ -256,6 +279,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void slideToMessageById() {
         binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+        adapter.changeItemBackground(getActivity(), true);
     }
 
     public void setChannelName(String channelName) {
@@ -778,8 +802,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
 
-            String chan = channel.getId();
-
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
                     v -> AddMembersActivity.start(getActivity(), channel.getId()));
@@ -821,9 +843,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         if (typing != null) {
             setupTypingText(typing);
             binding.getRoot().postDelayed(() -> {
-                    sendUsersStatus(obj);
+                sendUsersStatus(obj);
             }, TYPING_DURATION);
-        }else
+        } else
             sendUsersStatus(null);
     }
 

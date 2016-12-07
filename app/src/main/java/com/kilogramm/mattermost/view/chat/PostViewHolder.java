@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.view.chat;
 import android.content.Context;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spannable;
@@ -240,5 +241,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
 
         return ret;
+    }
+
+    public void changeChatItemBackground(Context context, boolean isHighlighted) {
+        ((ChatListItemBinding) mBinding).chatItem.setBackgroundColor(
+                isHighlighted ?
+                context.getResources().getColor(R.color.color_highlight) :
+                context.getResources().getColor(R.color.white));
     }
 }

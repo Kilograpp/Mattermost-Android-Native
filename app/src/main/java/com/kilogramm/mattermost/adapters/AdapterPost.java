@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,8 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
+    private PostViewHolder postViewHolder;
+
     public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
         this.inflater = LayoutInflater.from(context);
@@ -56,7 +59,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public int getItemCount() {
-
         int count = super.getItemCount();
 
         if (isBottomLoading) {
@@ -114,6 +116,8 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
+        this.postViewHolder = holder;
+
         if (getItemViewType(position) == ITEM) {
             int pos = isTopLoading ? position - 1 : position;
             Post post = getData().get(isTopLoading ? position - 1 : position);
@@ -150,7 +154,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                     ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
                 }
-            } else if(post.isSystemMessage()){
+            } else if (post.isSystemMessage()) {
                 ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
@@ -180,5 +184,9 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         }
         //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
+    }
+
+    public void changeItemBackground(Context context, boolean isHighlighted) {
+        postViewHolder.changeChatItemBackground(context, isHighlighted);
     }
 }

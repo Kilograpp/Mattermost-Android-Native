@@ -61,6 +61,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     private ActivitySearchBinding binding;
     private SearchMessageAdapter adapter;
 
+    private boolean isStillInput = false;
+
     String terms;
 
     ArrayAdapter<String> historyAutoCompleteAdapter;
@@ -108,6 +110,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     private TextWatcher dynamicalSearch = new TextWatcher() {
+        Long timeStopAfter;
+        Long timeStopOn;
+
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -118,7 +123,28 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
         @Override
         public void afterTextChanged(Editable s) {
-            binding.searchAutoComplete.postDelayed(() -> doMessageSearch(), DELAY);
+//            binding.searchAutoComplete.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (binding.searchAutoComplete.getText().length() != 0) {
+//                        binding.searchAutoComplete.removeCallbacks(this);
+//                        doMessageSearch();
+//                    }
+//                }
+//            }, DELAY);
+
+            final String beforePause = binding.searchAutoComplete.getText().toString();
+            binding.searchAutoComplete.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (binding.searchAutoComplete.getText().length() != 0 ||
+                            beforePause.equals(s.toString())) {
+                        doMessageSearch();
+                        binding.searchAutoComplete.removeCallbacks(this);
+                    }
+
+                }
+            }, DELAY);
         }
     };
 
@@ -145,7 +171,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
     public void doMessageSearch() {
         terms = binding.searchAutoComplete.getText().toString();
-
         if (terms.equals("")) {
             Toast.makeText(this, this.getResources().getString(R.string.empty_search), Toast.LENGTH_SHORT).show();
         } else {
