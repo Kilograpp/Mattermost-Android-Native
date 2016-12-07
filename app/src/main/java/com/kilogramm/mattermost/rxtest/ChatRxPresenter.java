@@ -425,8 +425,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     public void requestLoadAfter() {
         getFirstMessageId();
-        this.limit = "60";
-        start(REQUEST_LOAD_AFTER);
+        if(!firstmessageId.contains(":")) {
+            this.limit = "60";
+            start(REQUEST_LOAD_AFTER);
+        }
     }
 
     public void requestGetUsers(String search, int cursorPos) {

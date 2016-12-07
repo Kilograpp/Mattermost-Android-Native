@@ -31,15 +31,7 @@ public class MattermostRetrofitService {
         HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
         headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client;
-        client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .addInterceptor(getAuthInterceptor())
-                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .addNetworkInterceptor(new StethoInterceptor())
-                .cookieJar(NetworkUtil.getCookieJar())
-                .build();
-/*        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             client = new OkHttpClient.Builder()
                     .addInterceptor(logging)
                     .addInterceptor(getAuthInterceptor())
@@ -56,7 +48,7 @@ public class MattermostRetrofitService {
                     .addNetworkInterceptor(new StethoInterceptor())
                     .cookieJar(NetworkUtil.getCookieJar())
                     .build();
-        }*/
+        }
 
         Gson gson = NetworkUtil.createGson();
 
