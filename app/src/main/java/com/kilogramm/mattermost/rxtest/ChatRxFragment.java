@@ -381,6 +381,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
     }
 
+    boolean isSendTyping;
+
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
             @Override
@@ -393,6 +395,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (FileToAttachRepository.getInstance().haveFilesToAttach() &&
                                 !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    if (!isSendTyping) {
+                        isSendTyping = true;
+                        MattermostService.Helper.create(getActivity()).sendUserTuping(channelId);
+                        binding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
+                    }
                 } else {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
                 }
@@ -819,9 +826,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         if (typing != null) {
             setupTypingText(typing);
             binding.getRoot().postDelayed(() -> {
-                    sendUsersStatus(obj);
+                sendUsersStatus(obj);
             }, TYPING_DURATION);
-        }else
+        } else
             sendUsersStatus(null);
     }
 
