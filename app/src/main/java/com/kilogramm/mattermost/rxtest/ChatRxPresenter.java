@@ -220,6 +220,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
                     sendOnDeleteItem(post1);
+                    sendNotifyNearItems();
                 },
                 (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
@@ -425,7 +426,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     public void requestLoadAfter() {
         getFirstMessageId();
-        if(!firstmessageId.contains(":")) {
+        if (firstmessageId != null && !firstmessageId.contains(":")) {
             this.limit = "60";
             start(REQUEST_LOAD_AFTER);
         }
@@ -462,6 +463,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void sendOnDeleteItem(Post post) {
         createTemplateObservable(post).subscribe(split((chatRxFragment, o) ->
                 PostRepository.remove(post)));
+    }
+
+    private void sendNotifyNearItems() {
+        createTemplateObservable(null).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.notifyItem()));
     }
 
     private void sendIvalidateAdapter() {
