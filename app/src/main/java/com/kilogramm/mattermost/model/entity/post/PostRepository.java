@@ -110,7 +110,9 @@ public class PostRepository {
             post.setType(item.getType());
             post.setHashtags(item.getHashtags());
             post.setPendingPostId(item.getPendingPostId());
-            realm1.insertOrUpdate(post);
+            post.setFilenames(item.getFilenames());
+            // TODO из-за этой строчки исчезал прикрепленный файл. Закомментил, вроде все ок работает
+//            realm1.insertOrUpdate(post);
         });
     }
 

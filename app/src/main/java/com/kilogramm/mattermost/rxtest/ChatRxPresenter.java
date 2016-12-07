@@ -166,7 +166,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 //                    PostRepository.remove(new PostByChannelId(channelId));
 //                    PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
-//                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
                     if (!isEmpty) {
@@ -377,6 +376,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
                 .first());
+        forSavePost.setFilenames(post.getFilenames());
         //TODO markdown cpp
         //forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
