@@ -166,6 +166,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="textBigTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="textTitleWhite" parent="@style/textWhite">
         <item name="android:textSize">25sp</item>
         <item name="android:textStyle">bold</item>

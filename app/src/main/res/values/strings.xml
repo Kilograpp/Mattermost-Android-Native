@@ -28,7 +28,7 @@
     <string name="in_development">In Development</string>
 
     <string name="transitions_image">image</string>
-    <string name="typing">typing…</string>
+    <string name="typing">typing...</string>
     <string name="send">Send</string>
 
     <string name="title_forgot_password">Password recovery</string>
