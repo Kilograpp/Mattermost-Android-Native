@@ -31,7 +31,6 @@ public class WholeDirectListHolder extends RealmViewHolder {
     }
 
     public void bindTo(User user, boolean isShow, Boolean changed) {
-
         directBinding.directProfileName.setText(user.getUsername());
 
         if (user.getFirstName().length() == 0 && user.getLastName().length() == 0)
