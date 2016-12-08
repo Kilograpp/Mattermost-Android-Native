@@ -98,6 +98,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         AttachedFilesLayout.AllUploadedListener {
 
     private static final String TAG = "ChatRxFragment";
+
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
     private static final String CHANNEL_IS_SEARCH = "isSearch";
@@ -252,18 +253,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
     }
 
-    private void updateEditedPosition(String id) {
-        invalidateByPosition(adapter.getPositionById(id));
-    }
-
-    public void slideToMessageById() {
-        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -277,6 +266,30 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(channelId.hashCode());
         Log.d(TAG, "onResume: channeld" + channelId.hashCode());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        channelId = null;
+        getActivity().unregisterReceiver(brReceiverTyping);
+    }
+
+    @Override
+    protected void setupTypingText(String text) {
+        super.setupTypingText(text);
+    }
+
+    private void updateEditedPosition(String id) {
+        invalidateByPosition(adapter.getPositionById(id));
+    }
+
+    public void slideToMessageById() {
+        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     private void checkNeededPermissions() {
@@ -347,14 +360,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy()");
-        channelId = null;
-        getActivity().unregisterReceiver(brReceiverTyping);
     }
 
     public String getChId() {
@@ -564,7 +569,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setText(getString(R.string.send));
     }
 
-    public void setMasseageLayout(int visible) {
+    public void setMessageLayout(int visible) {
 //        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
@@ -704,15 +709,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void openFile(Context context, String minmeType, int requestCode) {
-
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType(minmeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
-        // special intent for Samsung file manager
         Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
-        // if you want any file type, you can skip next line
         sIntent.putExtra("CONTENT_TYPE", minmeType);
         sIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -757,7 +759,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void showEmptyList(String channelId) {
-        Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
 
         Channel channel = ChannelRepository.query(
@@ -787,8 +788,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
                         + " " + getResources().getString(R.string.empty_dialog_private_message)));
             }
-
-            String chan = channel.getId();
 
             binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
             binding.emptyListInviteOthers.setOnClickListener(
@@ -849,12 +848,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         } else setupTypingText("");
     }
-
-    @Override
-    protected void setupTypingText(String text) {
-        super.setupTypingText(text);
-    }
-
 
     public String getStringTyping(WebSocketObj obj) {
         StringBuffer result = new StringBuffer();

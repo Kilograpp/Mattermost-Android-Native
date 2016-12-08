@@ -28,18 +28,24 @@ import java.util.regex.Pattern;
 
 import in.uncod.android.bypass.Bypass;
 
-
 /**
  * Created by Evgeny on 31.10.2016.
  */
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
+    private Post mPost;
+
+
     private ViewDataBinding mBinding;
 
+    private PostViewHolder(ViewDataBinding binding) {
+        super(binding.getRoot());
+        mBinding = binding;
+    }
+
     public static PostViewHolder createItem(LayoutInflater inflater, ViewGroup parent) {
-        ChatListItemBinding binding = ChatListItemBinding
-                .inflate(inflater, parent, false);
+        ChatListItemBinding binding = ChatListItemBinding.inflate(inflater, parent, false);
         return new PostViewHolder(binding);
     }
 
@@ -53,12 +59,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         return new PostViewHolder(binding);
     }
 
-    private PostViewHolder(ViewDataBinding binding) {
-        super(binding.getRoot());
-        mBinding = binding;
-    }
-
     public void bindToItem(Post post, Context context, Boolean isTitle, Post root, OnItemClickListener listener) {
+        this.mPost = post;
+
         if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
             ((ChatListItemBinding) mBinding).sendStatusError.setOnClickListener(view -> {
                 if (listener != null)
@@ -243,4 +246,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         return ret;
     }
+
+//    public void changeChatItemBackground(Context context, boolean isHighlighted, String searchMessageId) {
+//        if ( mPost.getId().equals(searchMessageId)) {
+//            ((ChatListItemBinding) mBinding).chatItem.setBackgroundColor(
+//                    isHighlighted ?
+//                            context.getResources().getColor(R.color.color_highlight) :
+//                            context.getResources().getColor(R.color.white));
+//        }
+//    }
 }

@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +57,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public int getItemCount() {
-
         int count = super.getItemCount();
 
         if (isBottomLoading) {

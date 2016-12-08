@@ -600,12 +600,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void setErrorLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
-                chatRxFragment.setMasseageLayout(View.GONE)));
+                chatRxFragment.setMessageLayout(View.GONE)));
     }
 
     private void setGoodLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
-                chatRxFragment.setMasseageLayout(View.VISIBLE)));
+                chatRxFragment.setMessageLayout(View.VISIBLE)));
     }
 
     private void sendSlideDialogToFoundMessage() {
