@@ -89,8 +89,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void copyText(String s) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(s);
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setText(s);
     }
 
     private void initView() {
@@ -130,7 +130,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             binding.seeAll.setVisibility(View.INVISIBLE);
 
         if (extraInfo.getMember_count().equals("1")) {
-            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+            binding.textLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
+                    ? getString(R.string.channel_info_delete_channel)
+                    : getString(R.string.channel_info_delete_group));
         } else {
             binding.textLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
                     ? getResources().getString(R.string.channel_info_leave_channel)
