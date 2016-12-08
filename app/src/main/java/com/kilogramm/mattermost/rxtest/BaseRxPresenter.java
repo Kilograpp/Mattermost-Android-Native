@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.databinding.repacked.google.common.net.InternetDomainName;
 import android.os.Bundle;
 
 import com.google.gson.Gson;
