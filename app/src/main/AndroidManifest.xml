@@ -82,6 +82,7 @@
 
         <activity
             android:name=".view.channel.AddMembersActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait">
         </activity>
 
@@ -102,6 +103,7 @@
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait" />
 
         <activity
@@ -131,6 +133,7 @@
 
         <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait" />
 
         <activity

@@ -16,6 +16,10 @@
         <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>
     </style>
 
+
+    <style name="searchActivityStyle" parent="AppTheme">
+        <item name="colorControlActivated">@color/white</item>
+    </style>
     <style name="TitleBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/title_text_size</item>

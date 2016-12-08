@@ -97,6 +97,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         searchView.setIconifiedByDefault(true);
         searchView.setSubmitButtonEnabled(false);
         EditText searchText = (EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        searchText.setCursorVisible(true);
         searchText.addTextChangedListener(textWatcher);
         return searchView;
     }
