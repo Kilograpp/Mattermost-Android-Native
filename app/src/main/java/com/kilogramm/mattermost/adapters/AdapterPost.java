@@ -138,9 +138,10 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             if (pos - 1 == -1) {
                 isTitle = true;
             }
+            Post postAbove = getItem(holder.getAdapterPosition() - 1);
+            if (holder.getAdapterPosition() >= 1 && !post.isSystemMessage() && !isTitle
+                    && post.getChannelId().equals(postAbove.getChannelId())) {
 
-            if (holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
-                Post postAbove = getItem(holder.getAdapterPosition() - 1);
                 if (postAbove.getUser().getId().equals(post.getUser().getId())) {
                     ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);

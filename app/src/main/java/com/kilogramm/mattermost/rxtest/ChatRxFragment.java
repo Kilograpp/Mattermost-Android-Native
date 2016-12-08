@@ -132,6 +132,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     boolean isMessageTextOpen = false;
     @State
     String searchMessageId = null;
+    @State
+    int removeablePosition = -1;
 
     private Uri fileFromCamera;
 
@@ -391,7 +393,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.length() > 0 ||
+                if (charSequence.toString().trim().length() > 0 ||
                         (FileToAttachRepository.getInstance().haveFilesToAttach() &&
                                 !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
@@ -523,10 +525,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        String message = post.getMessage().trim();
         if (
-                post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
-                        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
-                        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                message.length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        message.length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        message.length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
                 ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
@@ -534,7 +537,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } else {
             if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                 Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
-            } else if (post.getMessage().length() <= 0) {
+            } else if (message.length() <= 0) {
                 Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
             }
         }
@@ -957,10 +960,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.writingMessage.setSelection(nameBufferStart.length());
     }
 
+
+
     @Override
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
             Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
+            removeablePosition = adapter.getPositionById(item);
             switch (view.getId()) {
                 case R.id.sendStatusError:
                     showErrorSendMenu(view, post);
@@ -973,6 +979,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     break;
             }
         }
+    }
+
+    public void notifyItem(){
+        if(removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
     }
 
     private void dispatchTakePictureIntent() {
@@ -1160,7 +1170,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onEmptyList() {
         hideAttachedFilesLayout();
-        if (binding.writingMessage.getText().length() > 0) {
+        if (binding.writingMessage.getText().toString().trim().length() > 0) {
             binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
         } else {
             binding.btnSend.setTextColor(getResources().getColor(R.color.grey));

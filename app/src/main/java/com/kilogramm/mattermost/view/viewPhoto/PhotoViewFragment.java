@@ -67,7 +67,6 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.EXACTLY)
-                .showImageOnLoading(R.drawable.slices)
                 .showImageOnFail(R.drawable.ic_error_red_24dp)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)

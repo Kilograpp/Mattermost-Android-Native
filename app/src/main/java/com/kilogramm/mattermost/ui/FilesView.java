@@ -53,7 +53,7 @@ import io.realm.Realm;
  */
 public class FilesView extends GridLayout {
 
-    private static final String TAG = "FileDownloadManager";
+    private static final String TAG = "FilesView";
 
 
     private List<String> fileList = new ArrayList<>();
@@ -86,6 +86,7 @@ public class FilesView extends GridLayout {
 
 
     public void setItems(List<String> items) {
+        Log.d(TAG, "items count: " + items.size());
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
@@ -97,7 +98,6 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.setControlsClickListener(
                         createControlsClickListener(fileName, fileDownloadListener, binding)
                 );
-
 
                 File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                         + File.separator
@@ -208,7 +208,6 @@ public class FilesView extends GridLayout {
             if (realmString.getFileSize() <= 0) {
                 new Thread(() -> {
                     long fileSize = getRemoteFileSize(url);
-                    Log.d(TAG, String.valueOf(fileSize));
                     if (fileSize > 0) {
                         binding.fileSize.post(() -> {
                             binding.materialProgressBar.setVisibility(GONE);
@@ -340,11 +339,9 @@ public class FilesView extends GridLayout {
 
     private long getRemoteFileSize(String fileUrl) {
         try {
-            Log.d(TAG, fileUrl);
             URL url = new URL(fileUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-            Log.d(TAG, urlConnection.getResponseMessage());
             final long file_size = Long.parseLong(urlConnection.getHeaderField("Content-Length"));
             urlConnection.disconnect();
             return file_size;
