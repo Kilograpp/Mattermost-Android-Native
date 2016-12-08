@@ -132,7 +132,7 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> implemen
     @Override
     public boolean onLongClick(View view) {
         copyText(((TextView) view).getText().toString());
-        Toast.makeText(this, "Url was copied", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
         return true;
     }
 

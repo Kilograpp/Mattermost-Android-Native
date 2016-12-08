@@ -70,6 +70,7 @@ import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -1060,6 +1061,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                             .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
                             .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
                             .show();
+                    break;
+                case R.id.copy:
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(PostViewHolder.getMarkdownPost(post.getMessage(), getActivity()));
+                    Toast.makeText(getActivity(), "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.reply:
                     rootPost = post;

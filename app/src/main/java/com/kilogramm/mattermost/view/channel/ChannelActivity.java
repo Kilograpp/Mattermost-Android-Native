@@ -205,7 +205,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.toolbarText.setOnClickListener(this);
         binding.url.setOnLongClickListener(view -> {
             copyText(getMessageLink(getPresenter().getChannel().getName()));
-            Toast.makeText(this, "Url was copied", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
             return true;
         });
     }
