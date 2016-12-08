@@ -54,6 +54,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     String mEditEmail = "";
     @State
     String mEditPassword = "";
+    @State
+    boolean firstLoginBad = false;
 
     private ObservableBoolean isEnabledSignInButton;
     private ObservableField<String> siteName;
@@ -97,6 +99,11 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         return m.matches();
     }
 
+    @Override
+    protected void onTakeView(LoginRxActivity loginRxActivity) {
+        super.onTakeView(loginRxActivity);
+        setRedTextForgotPassword(firstLoginBad);
+    }
     //======================== Network ============================================================
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
@@ -240,12 +247,18 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
+            firstLoginBad = true;
+            setRedTextForgotPassword(firstLoginBad);
             sendShowError(getError(throwable));
         });
     }
 
     private void sendShowError(String error) {
         createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
+
+    private void setRedTextForgotPassword(boolean isRed) {
+        createTemplateObservable(isRed).subscribe(split((loginRxActivity, aBoolean) -> loginRxActivity.setRedColorForgotPasswordText(aBoolean)));
     }
 
     private void sendHideKeyboard() {

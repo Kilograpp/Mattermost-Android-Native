@@ -12,8 +12,10 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
@@ -101,7 +103,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                     post.getMessage(), context));
             //SpannableStringBuilder ssb = getSpannableStringBuilder(post, context);
             //((ChatListItemBinding) mBinding).message.setText(revertSpanned(ssb));
-            ((ChatListItemBinding) mBinding).message.setMovementMethod(LinkMovementMethod.getInstance());
+
         } else {
             ((ChatListItemBinding) mBinding).message.setVisibility(View.GONE);
         }
@@ -153,7 +155,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 .loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
                         ((ChatListItemBinding) mBinding).getViewModel().getUrl(post));
         ((ChatListItemBinding) mBinding).messageRootPost.setText(getMarkdownPost(post.getMessage(), mBinding.getRoot().getContext()));
-        ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void setPropMassage(Post post) {
@@ -174,7 +175,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                     getMarkdownPost(
                             post.getProps().getAttachments().get(0).getText(), mBinding.getRoot().getContext())
             );
-            ((ChatListItemBinding) mBinding).messageRootPost.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 

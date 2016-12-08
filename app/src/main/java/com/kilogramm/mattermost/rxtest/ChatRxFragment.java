@@ -70,6 +70,7 @@ import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -140,12 +141,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Post rootPost;
 
-    private Realm realm;
-
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+    // TODO нам он еще нужен?
     private BroadcastReceiver brReceiverNotifications;
 
     private ScrollAwareFabBehavior fabBehavior;
@@ -158,7 +158,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
-        this.realm = Realm.getDefaultInstance();
         this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
@@ -229,7 +228,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
         binding.fab.hide();
-        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
+        binding.fab.setOnClickListener(v -> {
+            if(searchMessageId == null) {
+                binding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            } else {
+                searchMessageId = null;
+                setupListChat(channelId);
+            }
+        });
         CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
         fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
@@ -714,7 +720,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
+        // special intent for Samsung file manager
         Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
+        // if you want any file type, you can skip next line
         sIntent.putExtra("CONTENT_TYPE", minmeType);
         sIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -954,7 +962,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
 
-
     @Override
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
@@ -974,8 +981,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void notifyItem(){
-        if(removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
+    public void notifyItem() {
+        if (removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
     }
 
     private void dispatchTakePictureIntent() {
@@ -1054,6 +1061,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                             .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
                             .show();
                     break;
+                case R.id.copy:
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(PostViewHolder.getMarkdownPost(post.getMessage(), getActivity()));
+                    Toast.makeText(getActivity(), "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
+                    break;
                 case R.id.reply:
                     rootPost = post;
                     showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
@@ -1096,6 +1108,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private String getMessageLink(String postId) {
+        Realm realm = Realm.getDefaultInstance();
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/"
