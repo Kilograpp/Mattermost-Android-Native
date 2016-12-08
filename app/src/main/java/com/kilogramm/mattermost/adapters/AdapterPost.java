@@ -138,20 +138,21 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             if (pos - 1 == -1) {
                 isTitle = true;
             }
-            Post postAbove = getItem(holder.getAdapterPosition() - 1);
-            if (holder.getAdapterPosition() >= 1 && !post.isSystemMessage() && !isTitle
-                    && post.getChannelId().equals(postAbove.getChannelId())) {
-
-                if (postAbove.getUser().getId().equals(post.getUser().getId())) {
-                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
-                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
-                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
-                } else {
-                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
-                }
-            } else if(post.isSystemMessage()){
+            Post postAbove = null;
+            if (holder.getAdapterPosition() >= 1)
+                postAbove = getItem(holder.getAdapterPosition() - 1);
+//            && post.getChannelId().equals(postAbove.getChannelId() TODO не понятная проверка
+                if (!post.isSystemMessage() && !isTitle) {
+                    if (postAbove!=null && postAbove.getUser().getId().equals(post.getUser().getId())) {
+                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
+                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
+                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
+                    } else {
+                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                    }
+            } else if (post.isSystemMessage()) {
                 ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                 ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
