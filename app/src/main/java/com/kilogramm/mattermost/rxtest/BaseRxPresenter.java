@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.kilogramm.mattermost.model.error.HttpError;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import icepick.Icepick;
 import nucleus.presenter.RxPresenter;
@@ -31,7 +32,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         Icepick.saveInstanceState(this, state);
     }
 
-    protected  <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj) {
+    protected <T> Observable<Delivery<ViewType, T>> createTemplateObservable(T obj) {
         return Observable.just(obj)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -44,14 +45,20 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                 HttpError error = new Gson().fromJson(((HttpException) e).response()
                         .errorBody()
                         .string(), HttpError.class);
+                if (error != null && error.getStatusCode() != null
+                        && error.getStatusCode() == 500)
+                return "Internal server error, please try later";
+
                 return (error != null)
-                        ? (error.getMessage() !=null)
-                            ? error.getMessage()
-                            :error.getError()
+                        ? (error.getMessage() != null)
+                        ? error.getMessage()
+                        : error.getError()
                         : e.getMessage();
             } catch (IOException e1) {
                 return e.getMessage();
             }
+        } else if (e instanceof UnknownHostException) {
+            return "Couldn't find existing team matching this URL";
         } else {
             return e.getMessage();
         }

@@ -37,6 +37,9 @@ public class PostRepository {
             if (realm.where(Post.class).equalTo("id", item.getId()).findAll().size() != 0) {
                 Post post = realm.where(Post.class).equalTo("id", item.getId()).findFirst();
                 post.deleteFromRealm();
+                RealmResults<Post> comment = realm.where(Post.class)
+                        .equalTo("rootId", item.getId()).findAll();
+                comment.deleteAllFromRealm();
             }
         });
     }

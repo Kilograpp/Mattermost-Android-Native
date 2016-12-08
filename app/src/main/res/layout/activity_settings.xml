@@ -92,7 +92,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/white"
-                    app:contentPaddingBottom="10dp"
                     app:contentPaddingTop="10dp">
 
                     <LinearLayout
@@ -101,6 +100,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/nameHeader"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
@@ -117,15 +117,17 @@
                             tools:text="Maria Reynolds" />
 
                         <View
+                            android:id="@+id/nameLine"
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginBottom="10dp"
                             android:layout_marginTop="10dp"
                             android:background="@color/light_grey" />
 
                         <TextView
+                            android:id="@+id/userNameHeader"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
                             android:text="@string/username"
@@ -140,15 +142,17 @@
                             tools:text="Maria Reynolds" />
 
                         <View
+                            android:id="@+id/userNameLine"
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginBottom="10dp"
                             android:layout_marginTop="10dp"
                             android:background="@color/light_grey" />
 
                         <TextView
+                            android:id="@+id/nickNameHeader"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
                             android:layout_marginBottom="10dp"
                             android:paddingStart="15dp"
                             android:text="@string/nickname"
@@ -159,6 +163,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="15dp"
+                            android:layout_marginBottom="10dp"
                             android:textColor="@color/black"
                             tools:text="Maria Reynolds" />
 
