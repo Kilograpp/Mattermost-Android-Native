@@ -9,7 +9,7 @@
 
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
-    <string name="login_forgot_password">Need a remember? ></string>
+    <string name="login_forgot_password">Forgot a password? ></string>
     <string name="login_sign_in">Sign in</string>
 
     <string name="forgot_password_hint_email">Email</string>
