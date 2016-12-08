@@ -23,12 +23,13 @@
             <AutoCompleteTextView
                 style="@style/DescriptionBlackTextStyle"
                 android:id="@+id/searchAutoComplete"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_marginBottom="@dimen/search_edit_text_margin"
                 android:layout_marginTop="@dimen/search_edit_text_margin"
                 android:layout_marginStart="@dimen/search_edit_text_margin"
+                android:layout_marginEnd="@dimen/search_edit_text_margin"
                 android:dropDownVerticalOffset="13dp"
                 android:layout_weight="1"
                 android:hint="@string/search_hint"
@@ -43,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="@dimen/search_image_margin_end"
-                app:srcCompat="@drawable/ic_clear" />
+                app:srcCompat="@drawable/ic_clear"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <View

@@ -243,6 +243,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 Button cancelButton = (Button) alertDialog.findViewById(R.id.log_out);
                 if (cancelButton != null) {
                     cancelButton.setOnClickListener(v -> getPresenter().requestLogout());
+                    alertDialog.cancel();
                 }
                 break;
         }
