@@ -194,6 +194,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+
+
     // TODO этот метод не используется, он нужен?
     @NonNull
     public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context, boolean isProp, boolean isComment) {
