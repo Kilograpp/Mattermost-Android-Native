@@ -135,6 +135,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @State
     String searchMessageId = null;
     @State
+    int positionItemMessage;
+    @State
+    boolean isFocus = false;
+
+    @State
     int removeablePosition = -1;
 
     private Uri fileFromCamera;
@@ -291,7 +296,36 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void slideToMessageById() {
-        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+        if (adapter != null) {
+            adapter.setHighlitedPost(searchMessageId);
+            positionItemMessage = adapter.getPositionById(searchMessageId);
+        }
+
+        isFocus = false;
+        binding.rev.smoothScrollToPosition(positionItemMessage);
+
+        binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int pFirst = layoutManager.findFirstVisibleItemPosition();
+                int pLast = layoutManager.findLastVisibleItemPosition();
+                Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
+
+                if (adapter != null && adapter.getHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                    isFocus = true;
+                    Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
+                }
+
+                if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
+                    Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
+                    if (adapter != null) adapter.setHighlitedPost(null);
+                    adapter.notifyDataSetChanged();
+                    isFocus = false;
+                }
+            }
+        });
     }
 
     public void setChannelName(String channelName) {
@@ -519,7 +553,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    //==========================MVP methods==================================================
+//==========================MVP methods==================================================
 
     private void sendMessage() {
         Post post = new Post();
