@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -202,6 +203,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.toolbarText.setOnClickListener(this);
         binding.url.setOnLongClickListener(view -> {
             copyText(getMessageLink(getPresenter().getChannel().getName()));
+            Toast.makeText(this, "Url was copied", Toast.LENGTH_SHORT).show();
             return true;
         });
     }
