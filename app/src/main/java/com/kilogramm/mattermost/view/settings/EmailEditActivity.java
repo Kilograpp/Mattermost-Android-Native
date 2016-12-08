@@ -59,6 +59,7 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
                 return true;
             case android.R.id.home:
                 onBackPressed();
+                hideKeyboard(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

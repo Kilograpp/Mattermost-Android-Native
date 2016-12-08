@@ -10,13 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ActivityChangeEmailBinding;
 import com.kilogramm.mattermost.databinding.ActivityChangePasswordBinding;
-import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.presenter.settings.EmailEditPresenter;
 import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -59,6 +54,7 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
                 onClickSave();
                 return true;
             case android.R.id.home:
+                hideKeyboard(this);
                 onBackPressed();
                 return true;
             default:

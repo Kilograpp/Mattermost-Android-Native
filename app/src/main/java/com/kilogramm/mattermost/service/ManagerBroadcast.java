@@ -119,8 +119,12 @@ public class ManagerBroadcast {
                         .build();
 
                 savePost(data.getPost());
+                String MuUserId = MattermostPreference.getInstance().getMyUserId();
                 if (data.getMentions().length() > 0
-                        && !data.getPost().getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+                        && data.getMentions().equals("[\"" + MuUserId + "\"]")
+                        && !data.getPost().getChannelId().equals(
+                        MattermostPreference.getInstance().getLastChannelId())
+                        && !data.getPost().getUserId().equals(MuUserId)) {
 
                     createNotificationNEW(data.getPost(), context);
                 }
