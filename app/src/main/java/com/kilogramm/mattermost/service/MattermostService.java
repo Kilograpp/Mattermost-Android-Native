@@ -19,6 +19,8 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
     public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
+    public static final String USER_TYPING = "USER_TYPING";
+    public static final String CHANNEL_ID = "CHANNEL_ID";
     public static final String BROADCAST_MESSAGE = "broadcast_message";
 
     private static String TAG = "MattermostService";
@@ -26,6 +28,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     private WebSocketManager mWebSocketManager;
     private ManagerBroadcast managerBroadcast;
     private MattermostNotificationManager mattermostNotificationManager;
+
 
     @Override
     public void onCreate() {
@@ -66,6 +69,10 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         }
         if (UPDATE_USER_STATUS.equals(intent.getAction())) {
             mWebSocketManager.updateUserStatusNow();
+        }
+
+        if (USER_TYPING.equals(intent.getAction())) {
+            mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
         }
 
         //return Service.START_STICKY;
@@ -124,6 +131,14 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         public Helper updateUserStatusNow() {
             Intent intent = new Intent(mContext, MattermostService.class);
             intent.setAction(UPDATE_USER_STATUS);
+            mContext.startService(intent);
+            return this;
+        }
+
+        public Helper sendUserTuping(String channelId) {
+            Intent intent = new Intent(mContext, MattermostService.class);
+            intent.putExtra(CHANNEL_ID,channelId);
+            intent.setAction(USER_TYPING);
             mContext.startService(intent);
             return this;
         }

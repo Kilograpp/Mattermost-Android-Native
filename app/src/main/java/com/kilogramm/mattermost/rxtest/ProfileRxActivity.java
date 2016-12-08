@@ -44,7 +44,6 @@ public class ProfileRxActivity extends BaseActivity<ProfileRxPresenter> {
         setSupportActionBar(mBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Profile");
-
     }
 
     private void initView() {

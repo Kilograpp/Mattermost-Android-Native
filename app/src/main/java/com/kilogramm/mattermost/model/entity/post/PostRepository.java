@@ -8,6 +8,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import java.util.Collection;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -36,6 +37,9 @@ public class PostRepository {
             if (realm.where(Post.class).equalTo("id", item.getId()).findAll().size() != 0) {
                 Post post = realm.where(Post.class).equalTo("id", item.getId()).findFirst();
                 post.deleteFromRealm();
+                RealmResults<Post> comment = realm.where(Post.class)
+                        .equalTo("rootId", item.getId()).findAll();
+                comment.deleteAllFromRealm();
             }
         });
     }
@@ -64,15 +68,19 @@ public class PostRepository {
         });
     }
 
-    public static void merge(Collection<Post> posts, Specification specification){
+    public static void merge(Collection<Post> posts, Specification specification) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery realmQuery = query(specification).where().notEqualTo("updateAt", Post.NO_UPDATE);
         RealmResults realmResults = query(specification);
-        for(Post post : posts){
-            if(realmResults.where().equalTo("id", post.getId()).findFirst() != null){
+        for (Post post : posts) {
+            if (realmResults.where().equalTo("id", post.getId()).findFirst() != null) {
                 prepareAndUpdatePost(post);
             } else {
                 prepareAndAddPost(post);
             }
+            realmQuery.notEqualTo("id", post.getId());
         }
+        realm.executeTransaction(realm1 -> realmQuery.findAll().deleteAllFromRealm());
     }
 
 //    public static void merge(Collection<Post> posts, Specification specification) {
@@ -110,7 +118,9 @@ public class PostRepository {
             post.setType(item.getType());
             post.setHashtags(item.getHashtags());
             post.setPendingPostId(item.getPendingPostId());
-            realm1.insertOrUpdate(post);
+            post.setFilenames(item.getFilenames());
+            // TODO из-за этой строчки исчезал прикрепленный файл. Закомментил, вроде все ок работает
+//            realm1.insertOrUpdate(post);
         });
     }
 

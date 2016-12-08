@@ -64,7 +64,8 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
                 break;
         }
         String pushStatus = null;
-        switch (getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting()) {
+        String type = getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting();
+        switch (type) {
             case "online":
                 pushStatus = getString(R.string.mob_push_on_away_off);
                 break;
@@ -78,7 +79,7 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
                 break;
         }
 
-        return String.format("%s when %s", pushSetting, pushStatus.toLowerCase());
+        return pushStatus!=null?String.format("%s when %s", pushSetting, pushStatus.toLowerCase()):String.format("%s", pushSetting==null?"":pushSetting);
     }
 
     @Override

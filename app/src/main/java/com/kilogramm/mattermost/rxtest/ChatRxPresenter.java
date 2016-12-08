@@ -187,7 +187,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 //                    PostRepository.remove(new PostByChannelId(channelId));
 //                    PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
-//                    PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
                     if (!isEmpty) {
@@ -242,6 +241,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
                     sendOnDeleteItem(post1);
+                    sendNotifyNearItems();
                 },
                 (chatRxFragment1, throwable) -> {
                     sendError(throwable.getMessage());
@@ -417,6 +417,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
                 .first());
+        forSavePost.setFilenames(post.getFilenames());
         //TODO markdown cpp
         //forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
@@ -465,8 +466,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     public void requestLoadAfter() {
         getFirstMessageId();
-        this.limit = "60";
-        start(REQUEST_LOAD_AFTER);
+        if (firstmessageId != null && !firstmessageId.contains(":")) {
+            this.limit = "60";
+            start(REQUEST_LOAD_AFTER);
+        }
     }
 
     public void requestGetUsers(String search, int cursorPos) {
@@ -508,6 +511,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void sendOnDeleteItem(Post post) {
         createTemplateObservable(post).subscribe(split((chatRxFragment, o) ->
                 PostRepository.remove(post)));
+    }
+
+    private void sendNotifyNearItems() {
+        createTemplateObservable(null).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.notifyItem()));
     }
 
     private void sendIvalidateAdapter() {

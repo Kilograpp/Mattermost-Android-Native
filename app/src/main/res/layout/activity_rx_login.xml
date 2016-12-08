@@ -94,6 +94,22 @@
 
                     </android.support.design.widget.TextInputLayout>
 
+                    <TextView
+                        android:id="@+id/buttonForgot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left|center_horizontal"
+                        android:background="@drawable/touch_selector"
+                        android:onClick="@{loginPresenter.onForgotButtonClick}"
+                        android:stateListAnimator="@null"
+                        android:text="@string/login_forgot_password"
+                        android:textColor="@color/error_color"
+                        android:paddingRight="12dp"
+                        android:paddingBottom="12dp"
+                        android:paddingTop="12dp"
+                        android:paddingLeft="4dp"
+                        android:textSize="@dimen/description_text_size" />
+
                     <Button
                         android:id="@+id/buttonNext"
                         android:layout_width="wrap_content"
@@ -129,16 +145,7 @@
 
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/buttonForgot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:background="@drawable/touch_selector"
-                    android:onClick="@{loginPresenter.onForgotButtonClick}"
-                    android:stateListAnimator="@null"
-                    android:text="@string/login_forgot_password"
-                    android:textColor="@color/error_color" />
+
 
                 <!--<me.zhanghai.android.materialprogressbar.MaterialProgressBar-->
                 <!--android:visibility="@{loginPresenter.isVisibleProgress}"-->

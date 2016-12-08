@@ -48,7 +48,6 @@ public class MattermostRetrofitService {
                     .addNetworkInterceptor(new StethoInterceptor())
                     .cookieJar(NetworkUtil.getCookieJar())
                     .build();
-
         }
 
         Gson gson = NetworkUtil.createGson();

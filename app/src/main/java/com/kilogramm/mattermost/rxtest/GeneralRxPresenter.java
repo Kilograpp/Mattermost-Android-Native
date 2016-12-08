@@ -140,7 +140,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
                         //sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
-                            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                            sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
                         }
                     } else {
                         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(
@@ -150,7 +150,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                                 sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                                 break;
                             default:
-                                sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                                sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
                                 break;
                         }
                     }

@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -88,8 +89,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void copyText(String s) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setText(s);
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setText(s);
     }
 
     private void initView() {
@@ -129,7 +130,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             binding.seeAll.setVisibility(View.INVISIBLE);
 
         if (extraInfo.getMember_count().equals("1")) {
-            binding.textLeaveDelete.setText(getString(R.string.channel_info_delete_channel));
+            binding.textLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
+                    ? getString(R.string.channel_info_delete_channel)
+                    : getString(R.string.channel_info_delete_group));
         } else {
             binding.textLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
                     ? getResources().getString(R.string.channel_info_leave_channel)
@@ -202,6 +205,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         binding.toolbarText.setOnClickListener(this);
         binding.url.setOnLongClickListener(view -> {
             copyText(getMessageLink(getPresenter().getChannel().getName()));
+            Toast.makeText(this, "Url was copied", Toast.LENGTH_SHORT).show();
             return true;
         });
     }

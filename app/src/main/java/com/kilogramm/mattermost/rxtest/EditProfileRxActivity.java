@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,11 +38,17 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.settings.EmailEditActivity;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 import com.kilogramm.mattermost.view.settings.PasswordChangeActivity;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.RealmChangeListener;
@@ -143,7 +153,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
                             @Override
                             public void onNext(FileUtil.BitmapWithUri bitmapWithUri) {
-                                mBinding.headerPicture.setImageBitmap(bitmapWithUri.getBitmap());
+                                setAvatar(bitmapWithUri.getUri());
                                 selectedImageUri = bitmapWithUri.getUri();
                             }
                         });
@@ -155,6 +165,48 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                     "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
                     .show();
         }
+    }
+
+    private void setAvatar(Uri bitmapUri) {
+        FileUtil.getInstance().getBitmap(FileUtil.getInstance().getFileByUri(bitmapUri), 16)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Bitmap>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Bitmap myBitmap) {
+                        ExifInterface exif;
+                        try {
+                            exif = new ExifInterface(FileUtil.getInstance().getFileByUri(bitmapUri));
+                            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                            Log.d("ORIENTATION", "" + orientation);
+                            Matrix matrix = new Matrix();
+                            if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                                matrix.postRotate(90);
+                            } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+                                matrix.postRotate(180);
+                            } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                                matrix.postRotate(270);
+                            }
+                            myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),
+                                    myBitmap.getHeight(), matrix, true);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        mBinding.headerPicture.setImageBitmap(myBitmap);
+                    }
+                });
+
     }
 
     @Override
@@ -224,7 +276,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         });
 
         view.findViewById(R.id.layGallery).setOnClickListener(v -> {
-            Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(i, YOUR_SELECT_PICTURE_REQUEST_CODE);
             mBottomSheetDialog.cancel();
         });
@@ -300,11 +352,25 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
         });
 
-        Picasso.with(this)
+        /*Picasso.with(this)
                 .load(getAvatarUrl())
                 .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
                 .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(mBinding.headerPicture);
+                .into(mBinding.headerPicture);*/
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .showImageOnLoading(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .showImageOnFail(R.drawable.slices)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+
+        ImageLoader.getInstance().displayImage(getAvatarUrl(), mBinding.headerPicture, options);
     }
 
     public void invalidateView() {

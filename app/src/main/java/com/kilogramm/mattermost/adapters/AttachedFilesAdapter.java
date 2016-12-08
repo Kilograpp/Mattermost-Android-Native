@@ -85,7 +85,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                                 } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
                                     matrix.postRotate(270);
                                 }
-                                myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
+                                myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),
+                                        myBitmap.getHeight(), matrix, true);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

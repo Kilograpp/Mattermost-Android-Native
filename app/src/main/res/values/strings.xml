@@ -9,7 +9,7 @@
 
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
-    <string name="login_forgot_password">Forgot password</string>
+    <string name="login_forgot_password">Need a remember? ></string>
     <string name="login_sign_in">Sign in</string>
 
     <string name="forgot_password_hint_email">Email</string>
@@ -216,6 +216,7 @@
     <string name="channel_info_leave_channel">Leave Channel</string>
     <string name="channel_info_leave_private">Leave Private</string>
     <string name="channel_info_delete_channel">Delete Channel</string>
+    <string name="channel_info_delete_group">Delete Group</string>
     <string name="channel_info_handle_info">The name of the subdirectory used to navigate to a
         channel using the site URL appended with the handle name. Must use only valid URL inputs</string>
 
