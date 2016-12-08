@@ -139,12 +139,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private Post rootPost;
 
-    private Realm realm;
-
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
 
     private BroadcastReceiver brReceiverTyping;
+    // TODO нам он еще нужен?
     private BroadcastReceiver brReceiverNotifications;
 
     private ScrollAwareFabBehavior fabBehavior;
@@ -157,7 +156,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
-        this.realm = Realm.getDefaultInstance();
         this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
@@ -228,7 +226,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
         binding.fab.hide();
-        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
+        binding.fab.setOnClickListener(v -> {
+            if(searchMessageId == null) {
+                binding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            } else {
+                searchMessageId = null;
+                setupListChat(channelId);
+            }
+        });
         CoordinatorLayout.LayoutParams params =
                 (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
         fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
@@ -252,6 +257,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
     }
 
+    // TODO метод нужон?
     private void updateEditedPosition(String id) {
         invalidateByPosition(adapter.getPositionById(id));
     }
@@ -961,7 +967,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
 
-
     @Override
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
@@ -981,8 +986,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void notifyItem(){
-        if(removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
+    public void notifyItem() {
+        if (removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
     }
 
     private void dispatchTakePictureIntent() {
@@ -1103,6 +1108,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private String getMessageLink(String postId) {
+        Realm realm = Realm.getDefaultInstance();
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/"

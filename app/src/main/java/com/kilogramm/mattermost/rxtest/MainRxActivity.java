@@ -95,8 +95,6 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         binding.urlEditText.setSelection(binding.urlEditText.length());
     }
 
-    //
-
     public String getStringUrl() {
         return binding.urlEditText.getText().toString();
     }

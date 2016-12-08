@@ -178,7 +178,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         restartableFirst(REQUEST_LOAD_POSTS, () ->
                         service.getPosts(teamId, channelId)
                                 .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
+                                .observeOn(Schedulers.computation()),
                 (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
