@@ -73,6 +73,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            mBinding.searchAutoComplete.dismissDropDown();
             this.doMessageSearch(mBinding.searchAutoComplete.getText().toString());
         } else {
             return false;
@@ -146,6 +147,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     }
 
     public void doMessageSearch(String terms) {
+        mBinding.searchAutoComplete.dismissDropDown();
         addHistorySearch(terms);
         getPresenter().search(terms);
     }

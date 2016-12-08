@@ -198,7 +198,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-
     // TODO этот метод не используется, он нужен?
     @NonNull
     public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context, boolean isProp, boolean isComment) {
@@ -247,12 +246,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         return ret;
     }
 
-//    public void changeChatItemBackground(Context context, boolean isHighlighted, String searchMessageId) {
-//        if ( mPost.getId().equals(searchMessageId)) {
-//            ((ChatListItemBinding) mBinding).chatItem.setBackgroundColor(
-//                    isHighlighted ?
-//                            context.getResources().getColor(R.color.color_highlight) :
-//                            context.getResources().getColor(R.color.white));
-//        }
-//    }
+    public void changeChatItemBackground(Context context, boolean isHighlighted) {
+        ((ChatListItemBinding) mBinding).chatItem.setBackgroundColor(
+                isHighlighted
+                        ? context.getResources().getColor(R.color.color_highlight)
+                        : context.getResources().getColor(R.color.white));
+    }
 }

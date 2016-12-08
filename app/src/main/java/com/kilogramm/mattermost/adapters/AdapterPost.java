@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +23,8 @@ import io.realm.RealmResults;
 public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     public static final String TAG = "AdapterPost";
 
+    private PostViewHolder mHolder;
+
     public static final int ITEM = -1;
     public static final int LOADING_TOP = -2;
     public static final int LOADING_BOTTOM = -3;
@@ -34,6 +35,8 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
+
+    private String highlitedPost;
 
     public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
@@ -114,6 +117,8 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
+        this.mHolder = holder;
+
         if (getItemViewType(position) == ITEM) {
             int pos = isTopLoading ? position - 1 : position;
             Post post = getData().get(isTopLoading ? position - 1 : position);
@@ -159,7 +164,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             }
 
             holder.bindToItem(post, context, isTitle, root, listener);
-
+            holder.changeChatItemBackground(context, highlitedPost != null ? highlitedPost.equals(post.getId()) : false);
         } else {
             holder.bindToLoadingBottom();
         }
@@ -182,5 +187,13 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         }
         //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
+    }
+
+    public String getHighlitedPost() {
+        return highlitedPost;
+    }
+
+    public void setHighlitedPost(String highlitedPost) {
+        this.highlitedPost = highlitedPost;
     }
 }
