@@ -143,7 +143,7 @@
     <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
 
                     <!--Email-->
-    <string name="email_title">SEND DESKTOP NOTIFICATIONS</string>
+    <string name="email_title">SEND EMAIL NOTIFICATIONS</string>
     <string name="email_immediately">Immediately</string>
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
