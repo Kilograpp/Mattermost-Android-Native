@@ -28,7 +28,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     public static final int REQUEST_SEARCH = 1;
 
     private MattermostApp mMattermostApp;
-    private ApiMethod service;
+    private ApiMethod mService;
 
     private boolean isSearchEmpty;
     private boolean isOrSearch = true; //was by default
@@ -41,10 +41,10 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         super.onCreate(savedState);
 
         mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
+        mService = mMattermostApp.getMattermostRetrofitService();
 
         restartableFirst(REQUEST_SEARCH,
-                () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
+                () -> mService.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (searchMessageActivity, posts) -> {
