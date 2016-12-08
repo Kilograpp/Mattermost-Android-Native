@@ -186,7 +186,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         return count;
     }
 
-    public void changeItemBackground(Context context, boolean isHighlighted) {
-        postViewHolder.changeChatItemBackground(context, isHighlighted);
-    }
+//    public void changeItemBackground(Context context, boolean isHighlight, String searchMessageId) {
+//        postViewHolder.changeChatItemBackground(context, isHighlight, searchMessageId);
+//    }
 }

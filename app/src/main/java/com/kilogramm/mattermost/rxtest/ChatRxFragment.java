@@ -251,39 +251,26 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
 
 
-        binding.rev.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                LinearLayoutManager layoutManager = ((LinearLayoutManager) binding.rev.getLayoutManager());
-                int lastVisible = layoutManager.findLastVisibleItemPosition();
-                int firstVisible = layoutManager.findFirstVisibleItemPosition();
-                Log.d(TAG, "lastVisible = " + lastVisible + " /n firstVisible = " + firstVisible);
-                Log.d(TAG, "current = " + adapter.getPositionById(searchMessageId));
-
-                if (adapter.getPositionById(searchMessageId) >= firstVisible &&
-                        adapter.getPositionById(searchMessageId) <= lastVisible) {
-                    adapter.changeItemBackground(getActivity(), true);
-                }
-//                else {
-//                    adapter.changeItemBackground(getActivity(), false);
-//                }
-            }
-        });
-    }
-
-    private void updateEditedPosition(String id) {
-        invalidateByPosition(adapter.getPositionById(id));
-    }
-
-    public void slideToMessageById() {
-        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
-        adapter.changeItemBackground(getActivity(), true);
-    }
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
+//        binding.rev.setOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//
+//                LinearLayoutManager layoutManager = (LinearLayoutManager) binding.rev.getLayoutManager();
+//                int lastVisible = layoutManager.findLastVisibleItemPosition();
+//                int firstVisible = layoutManager.findFirstVisibleItemPosition();
+//
+//                Log.d(TAG, "lastVisible = " + lastVisible + " /n firstVisible = " + firstVisible);
+//                Log.d(TAG, "current = " + adapter.getPositionById(searchMessageId));
+//
+//                boolean isHighlight;
+//
+//                isHighlight = adapter.getPositionById(searchMessageId) >= firstVisible &&
+//                        adapter.getPositionById(searchMessageId) <= lastVisible;
+//
+//                adapter.changeItemBackground(getActivity(), isHighlight, searchMessageId);
+//            }
+//        });
     }
 
     @Override
@@ -299,6 +286,30 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(channelId.hashCode());
         Log.d(TAG, "onResume: channeld" + channelId.hashCode());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        channelId = null;
+        getActivity().unregisterReceiver(brReceiverTyping);
+    }
+
+    @Override
+    protected void setupTypingText(String text) {
+        super.setupTypingText(text);
+    }
+
+    private void updateEditedPosition(String id) {
+        invalidateByPosition(adapter.getPositionById(id));
+    }
+
+    public void slideToMessageById() {
+        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     private void checkNeededPermissions() {
@@ -369,14 +380,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
         //setupPaginationListener();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy()");
-        channelId = null;
-        getActivity().unregisterReceiver(brReceiverTyping);
     }
 
     public String getChId() {
@@ -578,7 +581,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setText(getString(R.string.send));
     }
 
-    public void setMasseageLayout(int visible) {
+    public void setMessageLayout(int visible) {
 //        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
@@ -718,15 +721,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void openFile(Context context, String minmeType, int requestCode) {
-
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType(minmeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
-        // special intent for Samsung file manager
         Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
-        // if you want any file type, you can skip next line
         sIntent.putExtra("CONTENT_TYPE", minmeType);
         sIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -771,7 +771,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void showEmptyList(String channelId) {
-        Log.d(TAG, "showEmptyList()");
         binding.progressBar.setVisibility(View.GONE);
 
         Channel channel = ChannelRepository.query(
@@ -861,12 +860,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         } else setupTypingText("");
     }
-
-    @Override
-    protected void setupTypingText(String text) {
-        super.setupTypingText(text);
-    }
-
 
     public String getStringTyping(WebSocketObj obj) {
         StringBuffer result = new StringBuffer();
