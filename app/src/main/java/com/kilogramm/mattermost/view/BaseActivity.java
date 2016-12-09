@@ -122,7 +122,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         TextView channel_name = (TextView) toolbar.findViewById(R.id.channel_title);
         channel_name.setText(channelName);
-        channel_name.setOnClickListener(listenerChannelName);
+        toolbar.setOnClickListener(listenerChannelName);
         channel_name.setTransformationMethod(null);
 
         ImageView search_message = (ImageView) toolbar.findViewById(R.id.search_message);
