@@ -212,7 +212,7 @@ public class ManagerBroadcast {
                 .build();
     }
 
-    private static void createNotificationNEW(Post post, Context context) {
+    private void createNotificationNEW(Post post, Context context) {
         if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())) {
             return;
         }
@@ -304,7 +304,6 @@ public class ManagerBroadcast {
     private static Intent closeNotificationIntent(Context context, int id) {
         Intent intent = new Intent(context.getApplicationContext(), CloseButtonReceiver.class);
         intent.putExtra(NOTIFICATION_ID, NOTIFY_ID);
-//        intent.putExtra(NOTIFICATION_ID, id);
         intent.setAction(CLOSE_NOTIFICATION);
         return intent;
     }

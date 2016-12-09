@@ -74,7 +74,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private String searchMessageId;
     private User user;
-    private RealmChangeListener<User> userRealmChangeListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,9 +160,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
         if (users != null) {
             user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-            user.addChangeListener(userRealmChangeListener = element -> {
+            user.addChangeListener(element -> {
                 Log.d(TAG, "OnChange users");
-                updateHeaderUserName(element);
+                updateHeaderUserName((User) element);
                 setAvatar();
             });
             updateHeaderUserName(user);
@@ -218,7 +217,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 .build();
 
         ImageLoader.getInstance().displayImage(getAvatarUrl(), binding.headerPicture, options);
-
     }
 
     @Override
@@ -280,13 +278,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        //TODO убрала условие 07.12, т.к. неясно для чего оно. без него часть багов исчезает
-//        if (currentChannel.equals("")) {
-//            replaceFragment(channelId, channelName);
-//            leftMenuRxFragment.setSelectItemMenu(channelId, type);
-//        }
         replaceFragment(channelId, channelName);
-
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
@@ -294,31 +286,19 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void replaceFragment(String channelId, String channelName) {
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
-        if (!channelId.equals(currentChannel)) {
+        if (!channelId.equals(currentChannel) || searchMessageId != null) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             MattermostPreference.getInstance().setLastChannelId(channelId);
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            if (searchMessageId != null) {
-                ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-                currentChannel = channelId;
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
-                        .commit();
-                MattermostPreference.getInstance().setLastChannelId(channelId);
-                binding.drawerLayout.closeDrawer(GravityCompat.START);
-                this.searchMessageId = null;
-            }
         }
         if (searchMessageId != null) {
             searchMessageId = null;

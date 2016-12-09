@@ -29,7 +29,6 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     private ManagerBroadcast managerBroadcast;
     private MattermostNotificationManager mattermostNotificationManager;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -48,24 +47,10 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        if (intent == null) return Service.START_STICKY;
         if (intent == null) return START_REDELIVER_INTENT;
         Log.d(TAG, "onStartCommand action:" + intent.getAction());
         if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
-
-//            Intent notificationIntent = new Intent(this, MainRxActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-//                    notificationIntent, 0);
-//            Notification notification = new NotificationCompat.Builder(this)
-//                    .setContentTitle("Truiton Music Player")
-//                    .setTicker("Truiton Music Player")
-//                    .setContentText("My Music")
-//                    .setSmallIcon(R.drawable.attach_doc_icon)
-//                    .setContentIntent(pendingIntent)
-//                    .setOngoing(true)
-//                    .build();
-//            startForeground(101, notification);
         }
         if (UPDATE_USER_STATUS.equals(intent.getAction())) {
             mWebSocketManager.updateUserStatusNow();

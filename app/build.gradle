@@ -112,7 +112,6 @@ dependencies {
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     // SwipyRefreshLayout
     compile 'com.github.orangegangsters:swipy:1.2.3@aar'
-    compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'info.android15.nucleus:nucleus:4.0.0'
     compile 'info.android15.nucleus:nucleus-support-v4:4.0.0'
     compile 'info.android15.nucleus:nucleus-support-v7:4.0.0'

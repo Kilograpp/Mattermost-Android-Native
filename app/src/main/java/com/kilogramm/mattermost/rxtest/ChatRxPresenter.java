@@ -50,12 +50,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
-    //private static final int REQUEST_LOAD_NEXT_POST = 3;
     private static final int REQUEST_SEND_TO_SERVER = 4;
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 7;
-    private static final int REQUEST_SEND_TO_SERVER_ERROR = 11;
 
     private static final int REQUEST_DB_GETUSERS = 10;
     private static final int REQUEST_DB_USERS_STATUS = 13;

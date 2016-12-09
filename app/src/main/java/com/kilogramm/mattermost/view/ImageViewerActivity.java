@@ -15,10 +15,8 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityImageViewerBinding;
 import com.kilogramm.mattermost.viewmodel.ImageViewerViewModel;
@@ -35,7 +33,6 @@ public class ImageViewerActivity extends BaseActivity {
     private static final int ANIM_DURATION = 200;
 
     private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
-    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
 
     ColorDrawable mBackground;
 
@@ -55,11 +52,6 @@ public class ImageViewerActivity extends BaseActivity {
         imageUrl = getIntent().getStringExtra(IMAGE_URL);
         viewModel = new ImageViewerViewModel(this, imageUrl);
         binding.setViewModel(viewModel);
-
-        Glide.with(getApplicationContext())
-                .load(imageUrl)
-                .placeholder(Color.RED)
-                .into(binding.image);
 
         String title = getIntent().getStringExtra(TITLE);
         setupToolbar(title, true);
