@@ -131,7 +131,7 @@ public class PostRepository {
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
-        if (post.getProps().getFrom_webhook() == null) {
+        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
             /*post.getProps().getAttachments().get(0).setText(
@@ -149,7 +149,8 @@ public class PostRepository {
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
-        if (post.getProps().getFrom_webhook() == null) {
+
+        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
             /*post.getProps().getAttachments().get(0).setText(
