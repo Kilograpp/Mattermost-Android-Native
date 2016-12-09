@@ -160,7 +160,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             sendTypeChannel();
                             return extraInfo;
                         }))
-                , (chatRxFragment, extraInfo) -> requestLoadPosts()
+                , (chatRxFragment, extraInfo) -> {
+                   requestLoadPosts();
+                }
                 , (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
                     final ConnectivityManager connectivityManager =
@@ -184,8 +186,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         isEmpty = true;
                         sendShowEmptyList(channelId);
                     }
-//                    PostRepository.remove(new PostByChannelId(channelId));
-//                    PostRepository.prepareAndAdd(posts);
+                    PostRepository.remove(new PostByChannelId(channelId));
+                    PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
@@ -276,6 +278,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             .observeOn(Schedulers.io());
                 },
                 (chatRxFragment, posts) -> {
+
                     if (posts.getPosts() == null) {
                         sendCanPaginationTop(false);
                         return;
@@ -284,6 +287,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendShowList();
                     sendDisableShowLoadMoreTop();
                     Log.d(TAG, "Complete load before post");
+
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
@@ -396,7 +400,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     //region Requests
     public void requestExtraInfo() {
-        start(REQUEST_EXTRA_INFO);
+       start(REQUEST_EXTRA_INFO);
     }
 
     public void requestLoadPosts() {
