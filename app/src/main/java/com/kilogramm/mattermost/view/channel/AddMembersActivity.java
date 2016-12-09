@@ -80,6 +80,8 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     public void requestMember(String s) {
         binding.list.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
+        if (searchView.getQuery().length() == 0)
+            updateDataList(getPresenter().getMembers());
         searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
