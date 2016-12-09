@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,11 +26,13 @@ import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -43,6 +46,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -174,6 +179,8 @@ public class FilesView extends GridLayout {
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
         if (backgroundColorId != null)
             binding.root.setBackground(backgroundColorId);
+
+
         String url = getImageUrl(fileName);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
@@ -186,11 +193,19 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
+        String extension = FileUtil.getInstance().getFileExtensionFromUrlWithDot(url);
+        final String url_thumb;
+        if(extension.equals(".jpg") || extension.equals(".JPG")) {
+            url_thumb = url.replace(extension, "_thumb" + extension);
+        } else {
+            url_thumb = url;
+        }
 
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .imageScaleType(ImageScaleType.EXACTLY)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
                 .showImageOnLoading(R.drawable.slices)
                 .showImageOnFail(R.drawable.slices)
                 .resetViewBeforeLoading(true)
@@ -199,7 +214,9 @@ public class FilesView extends GridLayout {
                 .extraForDownloader(headers)
                 .considerExifParams(true)
                 .build();
-        ImageLoader.getInstance().displayImage(url, binding.image, options);
+
+
+        ImageLoader.getInstance().displayImage(url_thumb, binding.image, options);
 
         this.addView(binding.getRoot());
 

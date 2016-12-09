@@ -438,4 +438,38 @@ public class FileUtil {
 
         return "";
     }
+
+    public String getFileExtensionFromUrlWithDot(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            int fragment = url.lastIndexOf('#');
+            if (fragment > 0) {
+                url = url.substring(0, fragment);
+            }
+
+            int query = url.lastIndexOf('?');
+            if (query > 0) {
+                url = url.substring(0, query);
+            }
+
+            int filenamePos = url.lastIndexOf('/');
+            String filename =
+                    0 <= filenamePos ? url.substring(filenamePos + 1) : url;
+
+            // if the filename contains special characters, we don't
+            // consider it valid for our matching purposes:
+
+            if (!filename.isEmpty()) {
+                Pattern pattern = Pattern.compile("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+");
+                Matcher matcher = pattern.matcher(filename);
+                if(matcher.find()) {
+                    int dotPos = filename.lastIndexOf('.');
+                    if (0 <= dotPos) {
+                        return filename.substring(dotPos);
+                    }
+                }
+            }
+        }
+
+        return "";
+    }
 }

@@ -37,12 +37,17 @@ import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import icepick.State;
 import io.realm.RealmChangeListener;
@@ -79,6 +84,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
+        setupImageLoaderConfiguration();
         setupMenu();
         setupRightMenu();
         showProgressBar();
@@ -142,6 +148,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 }
             }
         }
+    }
+
+    private void setupImageLoaderConfiguration(){
+        final int memoryCacheSize = 1024 * 1024 * 2;
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this.getApplicationContext())
+                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
+//                .imageDownloader(new BaseImageDownloader(this, 15 * 1000, 30 * 1000)) // connectTimeout (15 s), readTimeout (30 s)
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 
     public String getAvatarUrl() {
