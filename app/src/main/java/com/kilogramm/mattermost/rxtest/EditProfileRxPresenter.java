@@ -12,6 +12,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.util.Calendar;
@@ -91,6 +92,8 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                             .subscribeOn(Schedulers.io());
                 },(editProfileRxActivity, result) -> {
                     sendGood(editProfileRxActivity.getString(R.string.avatar_updated));
+                    ImageLoader.getInstance().clearDiskCache();
+                    ImageLoader.getInstance().clearMemoryCache();
                     updateAvatarTime();
                     imageUri = null;
                     sendUriNull();

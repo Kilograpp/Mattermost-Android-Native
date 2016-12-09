@@ -4,12 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
@@ -42,38 +39,20 @@ public class NameActivity extends BaseActivity<NamePresenter> {
         binding.displayName.setText(getPresenter().getChannel().getDisplayName());
         binding.name.setText(getPresenter().getChannel().getName());
 
-        binding.displayName.addTextChangedListener(setTextWatcher(binding.btnClearDisplayName));
-        binding.name.addTextChangedListener(setTextWatcher(binding.btnClearName));
-
-        if(getPresenter().getChannel().getName().equals("town-square")){
+        if (getPresenter().getChannel().getName().equals("town-square")) {
             binding.name.setEnabled(false);
             binding.handleDescription.setText("Handle - Cannot be changed for the default channel");
         }
 
         binding.btnClearName.setOnClickListener(view -> binding.name.setText(""));
         binding.btnClearDisplayName.setOnClickListener(view -> binding.displayName.setText(""));
-    }
 
-    private TextWatcher setTextWatcher(ImageView view) {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() > 0)
-                    view.setVisibility(View.VISIBLE);
-                else
-                    view.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
+        binding.name.setOnFocusChangeListener((v, hasFocus) -> {
+            binding.btnClearName.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        });
+        binding.displayName.setOnFocusChangeListener((v, hasFocus) -> {
+            binding.btnClearDisplayName.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        });
     }
 
 
@@ -102,6 +81,11 @@ public class NameActivity extends BaseActivity<NamePresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
+                if (checkFields(binding.displayName.getText().toString(),
+                        binding.name.getText().toString())) {
+                    Toast.makeText(this, "Unable to save", Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 getPresenter().setDisplayName(binding.displayName.getText().toString());
                 getPresenter().setName(binding.name.getText().toString());
                 getPresenter().requestUpdateChannel();
@@ -113,6 +97,23 @@ public class NameActivity extends BaseActivity<NamePresenter> {
                 super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    private boolean checkFields(String displayName, String name) {
+        boolean isError = false;
+        if (displayName.length() == 0) {
+            binding.errorText.setVisibility(View.VISIBLE);
+            isError = true;
+        } else binding.errorText.setVisibility(View.INVISIBLE);
+        if (name.length() == 0) {
+            binding.handleError.setText(getString(R.string.channel_error));
+            binding.handleError.setTextColor(getResources().getColor(R.color.red_error_send_massage));
+            isError = true;
+        } else {
+            binding.handleError.setText(getString(R.string.channel_info_handle_info));
+            binding.handleError.setTextColor(getResources().getColor(R.color.grey));
+        }
+        return isError;
     }
 
     @Override

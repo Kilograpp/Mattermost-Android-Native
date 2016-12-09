@@ -44,6 +44,7 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +80,8 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     Uri outputFileUri;
     @State
     Uri selectedImageUri;
+    @State
+    boolean isCamera = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,7 +170,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         }
     }
 
-    private void setAvatar(Uri bitmapUri) {
+    private void setAvatar(final Uri bitmapUri) {
         FileUtil.getInstance().getBitmap(FileUtil.getInstance().getFileByUri(bitmapUri), 16)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -199,6 +202,34 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             }
                             myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),
                                     myBitmap.getHeight(), matrix, true);
+
+                            if(isCamera) {
+                                final Bitmap bitmapForOutput = myBitmap;
+                                new Thread(() -> {
+                                    FileOutputStream out = null;
+                                    try {
+                                        final File root = Environment.getExternalStoragePublicDirectory(
+                                                Environment.DIRECTORY_PICTURES + "/Mattermost");
+                                        root.mkdir();
+                                        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+                                        final File sdImageMainDirectory = new File(root, fname);
+                                        out = new FileOutputStream(sdImageMainDirectory);
+                                        bitmapForOutput.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                                        selectedImageUri = Uri.fromFile(sdImageMainDirectory);
+                                        // PNG is a lossless format, the compression factor (100) is ignored
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        try {
+                                            if (out != null) {
+                                                out.close();
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -263,6 +294,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         mBottomSheetDialog.show();
 
         view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            isCamera = true;
             final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
             root.mkdir();
             final String fname = "img_" + System.currentTimeMillis() + ".jpg";
@@ -276,12 +308,14 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         });
 
         view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            isCamera = false;
             Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(i, YOUR_SELECT_PICTURE_REQUEST_CODE);
             mBottomSheetDialog.cancel();
         });
 
         view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            isCamera = false;
             final Intent galleryIntent = new Intent();
             galleryIntent.setType("image/*");
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);

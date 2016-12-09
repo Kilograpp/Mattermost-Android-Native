@@ -225,8 +225,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.toolbarText:
-                if (getPresenter().getChannel().getDisplayName().equals(binding.toolbarText.getText())
-                        && binding.progressBar.getVisibility() == View.VISIBLE)
+                if (getPresenter().getChannel().getDisplayName()
+                        .equals(binding.toolbarText.getText().toString()))
                     NameActivity.start(this, channelId);
                 break;
             case R.id.channel_icon:
