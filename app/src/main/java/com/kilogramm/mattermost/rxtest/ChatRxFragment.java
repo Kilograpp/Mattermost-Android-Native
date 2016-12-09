@@ -138,6 +138,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     int positionItemMessage;
     @State
     boolean isFocus = false;
+    @State
+    boolean isFirstLoad = true;
 
     @State
     int removeablePosition = -1;
@@ -230,11 +232,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 setupListChat(channelId);
             }
         });
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+//        CoordinatorLayout.LayoutParams params =
+//                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
         fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
-        params.setBehavior(fabBehavior);
-        binding.fab.requestLayout();
+//        params.setBehavior(fabBehavior);
+//        binding.fab.requestLayout();
 
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
@@ -374,11 +376,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
-                    binding.fab.hide();
+//                    binding.fab.hide();
                 } else {
-                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
-                        fabBehavior.animateFabUp(binding.fab);
-                    }
+//                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
+//                        fabBehavior.animateFabUp(binding.fab);
+//                    }
                 }
             }
         });
@@ -620,10 +622,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         .findLastCompletelyVisibleItemPosition()) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
-                    fabBehavior.animateFabDown(binding.fab);
+//                    fabBehavior.animateFabDown(binding.fab);
+                    binding.fab.hide();
                 } else {
+                    binding.fab.show();
                     binding.swipeRefreshLayout
                             .setEnabled(false);
+//                    if(!binding.fab.isShown()) fabBehavior.animateFabUp(binding.fab);
                 }
             }
 
@@ -643,7 +648,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.setCanPagination(false);
             fabBehavior.lockBehavior();
             getPresenter().requestLoadPosts();
-            binding.fab.hide();
+//            binding.fab.hide();
         });
     }
 
@@ -827,8 +832,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
         fabBehavior.unlockBehavior();
-        if(adapter.getItemCount() > 0) {
+        if(isFirstLoad && adapter.getItemCount() > 0) {
             binding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            isFirstLoad = false;
         }
     }
 
