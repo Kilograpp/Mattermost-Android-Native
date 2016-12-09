@@ -162,24 +162,27 @@ public class PostRepository {
     }
 
     public static void prepareAndAdd(Posts posts) {
-        Realm realm = Realm.getDefaultInstance();
-        for (Post post : posts.getPosts().values()) {
-            if (post.isSystemMessage())
-                post.setUser(new User("System", "System", "System"));
-            else
-                post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
-            post.setViewed(true);
-            //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-            if (post.getProps().getFrom_webhook() == null) {
-                post.setProps(null);
-            } else {
-            }
+            Realm realm = Realm.getDefaultInstance();
+
+            realm.beginTransaction();
+            for (Post post : posts.getPosts().values()) {
+                if (post.isSystemMessage())
+                    post.setUser(new User("System", "System", "System"));
+                else
+                    post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+                post.setViewed(true);
+                //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
+                    post.setProps(null);
+                } else {
+                }
                 /*post.getProps().getAttachments().get(0).setText(
                         Processor.process(post.getProps().getAttachments().get(0).getText(),
                                 Configuration.builder().forceExtentedProfile().build()));*/
 
-        }
-        add(posts.getPosts().values());
+            }
+            realm.insertOrUpdate(posts.getPosts().values());
+            realm.commitTransaction();
     }
 
     public static void updateUpdateAt(String postId, long update) {

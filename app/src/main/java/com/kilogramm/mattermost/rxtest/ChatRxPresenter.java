@@ -278,6 +278,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             .observeOn(Schedulers.io());
                 },
                 (chatRxFragment, posts) -> {
+
                     if (posts.getPosts() == null) {
                         sendCanPaginationTop(false);
                         return;
@@ -286,6 +287,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendShowList();
                     sendDisableShowLoadMoreTop();
                     Log.d(TAG, "Complete load before post");
+
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
