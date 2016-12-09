@@ -64,6 +64,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+    public static final String MESSAGE_ID = "message_id";
 
     private ActivityMenuBinding binding;
 
@@ -80,6 +81,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
+        searchMessageId = getIntent().getStringExtra(MESSAGE_ID);
         setupMenu();
         setupRightMenu();
         showProgressBar();
@@ -325,6 +327,12 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         }
     }
 
+    public static void startSearch(Context context, String searchMessageId) {
+        Intent starter = new Intent(context, GeneralRxActivity.class);
+        starter.putExtra(MESSAGE_ID, searchMessageId);
+        context.startActivity(starter);
+    }
+
     public static void start(Context context, Integer flags) {
         Intent starter = new Intent(context, GeneralRxActivity.class);
         if (flags != null) {
@@ -334,7 +342,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private boolean parceIntent(Intent intent) {
-        if (intent.getExtras() != null) {
+        if (intent.getStringExtra(CHANNEL_ID) != null || intent.getStringExtra(CHANNEL_NAME) != null ||
+                intent.getStringExtra(CHANNEL_TYPE) != null) {
             String openChannelId = intent.getStringExtra(CHANNEL_ID);
             String openChannelName = intent.getStringExtra(CHANNEL_NAME);
             String openChannelType = intent.getStringExtra(CHANNEL_TYPE);

@@ -19,11 +19,13 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivitySearchBinding;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.presenter.SearchMessagePresenter;
+import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import org.json.JSONArray;
@@ -43,8 +45,8 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
-        implements  TextView.OnEditorActionListener,
-                    SearchMessageAdapter.OnJumpClickListener {
+        implements TextView.OnEditorActionListener,
+        SearchMessageAdapter.OnJumpClickListener {
 
     private final int DELAY_SEARCH = 2000;
 
@@ -83,13 +85,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
     @Override
     public void onJumpClick(String messageId, String channelId, String channelName, String typeChannel) {
-        Intent intent = new Intent(getApplicationContext(), SearchMessageActivity.class)
-                .putExtra(MESSAGE_ID, messageId)
-                .putExtra(CHANNEL_ID, channelId)
-                .putExtra(CHANNEL_NAME, channelName)
-                .putExtra(TYPE_CHANNEL, typeChannel);
-        setResult(RESULT_OK, intent);
-        finish();
+        MattermostPreference.getInstance().setLastChannelId(channelId);
+        GeneralRxActivity.startSearch(this, messageId);
     }
 
     public void init() {
@@ -217,7 +214,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         }
         return storedHistory;
     }
-    
+
     private TextWatcher dynamicalSearch = new TextWatcher() {
 
         @Override
