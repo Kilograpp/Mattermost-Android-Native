@@ -247,4 +247,15 @@
     <string name="logout_dialog_message">Do you really want to log out?</string>
     <string name="logout_dialog_button">LOG OUT</string>
 
+    <array name="command_array">
+        <item>/echo</item>
+        <item>/logout</item>
+        <item>/me</item>
+        <item>/shrug</item>
+        <item>/msg</item>
+        <item>/away</item>
+        <item>/offline</item>
+        <item>/online</item>
+    </array>
+
 </resources>

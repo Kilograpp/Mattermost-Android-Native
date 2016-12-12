@@ -13,6 +13,8 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
+import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
@@ -345,6 +347,15 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/users/newpassword")
     Observable<ResponseBody> changePassword(@Body PasswordChangePresenter.NewPassword newPassword);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/commands/execute")
+    Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
+                                              @Body CommandToNet command);
 
 
 }
