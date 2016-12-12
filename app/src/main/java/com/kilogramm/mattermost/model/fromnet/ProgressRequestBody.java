@@ -18,16 +18,10 @@ import okio.BufferedSink;
 public class ProgressRequestBody extends RequestBody {
     private File mFile;
     private String mMediaType = "*"; // also can use: "application/octet-stream"
-    private UploadCallbacks mListener;
     private long fileId;
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 32;
     private static final int UPDATE_TIME_PROGRESS_MS = 300;
-
-    public ProgressRequestBody(final File file, String mediaType, final UploadCallbacks listener) {
-        this(file, mediaType, -1);
-        mListener = listener;
-    }
 
     public ProgressRequestBody(final File file, String mediaType, long id) {
         mFile = file;
@@ -53,15 +47,13 @@ public class ProgressRequestBody extends RequestBody {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
         long lastTimeUpdate = 0;
-//        FileToAttach fileToAttach = FileToAttachRepository.getInstance().get()
+        FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileId);
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             if (fileLength == 0) {
                 FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
             }
-            while ((read = in.read(buffer)) != -1) {
-                // updateMembers progress on UI thread
-//                handler.post(new ProgressUpdater(uploaded, fileLength));
+            while ((read = in.read(buffer)) != -1 && fileToAttach != null && fileToAttach.isValid()) {
                 uploaded += read;
                 if(System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS){
                     lastTimeUpdate = System.currentTimeMillis();
@@ -69,30 +61,13 @@ public class ProgressRequestBody extends RequestBody {
                 }
                 sink.write(buffer, 0, read);
             }
-            FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
+            if(fileToAttach != null && fileToAttach.isValid()) {
+                FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
+            } else {
+                sink.flush();
+                sink.close();
+                in.close();
+            }
         }
-    }
-
-    private class ProgressUpdater implements Runnable {
-        private long mUploaded;
-        private long mTotal;
-
-        public ProgressUpdater(long uploaded, long total) {
-            mUploaded = uploaded;
-            mTotal = total;
-        }
-
-        @Override
-        public void run() {
-            mListener.onProgressUpdate((int) (100 * mUploaded / mTotal));
-        }
-    }
-
-    public interface UploadCallbacks {
-        void onProgressUpdate(int percentage);
-
-        void onError();
-
-        void onFinish();
     }
 }

@@ -103,7 +103,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void sendShowError(String error) {
         createTemplateObservable(error).subscribe(split((attachedFilesLayout, o)
-                        -> attachedFilesLayout.showUploadErrorToast()));
+                        -> attachedFilesLayout.showUploadErrorToast(error)));
     }
 
     private void sendAllUploaded() {
