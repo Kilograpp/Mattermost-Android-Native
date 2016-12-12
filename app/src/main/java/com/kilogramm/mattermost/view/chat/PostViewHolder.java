@@ -137,6 +137,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         mBinding.executePendingBindings();
     }
 
+    // TODO этот метод не используется, он нужен?
     public void bindToLoadingTop() {
     }
 
@@ -234,6 +235,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         return ssb;
     }
 
+    // TODO этот метод не используется, он нужен?
     static Spannable revertSpanned(Spanned stext) {
         Object[] spans = stext.getSpans(0, stext.length(), Object.class);
         Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());

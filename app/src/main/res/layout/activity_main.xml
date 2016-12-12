@@ -32,7 +32,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standart_margin"
-                    android:text="@string/main_discription" />
+                    android:text="@string/main_description" />
 
             </LinearLayout>
 

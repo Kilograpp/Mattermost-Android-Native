@@ -20,7 +20,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
     public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
     public static final String USER_TYPING = "USER_TYPING";
-    public static final String CHANNEL_ID = "CHANNEL_ID";
+    public static final String CHANNEL_ID = "sCHANNEL_ID";
     public static final String BROADCAST_MESSAGE = "broadcast_message";
 
     private static String TAG = "MattermostService";

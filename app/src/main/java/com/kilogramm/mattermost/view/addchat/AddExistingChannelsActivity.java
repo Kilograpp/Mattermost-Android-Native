@@ -30,44 +30,26 @@ public class AddExistingChannelsActivity
         extends BaseActivity<AddExistingChannelsPresenter>
         implements AddExistingChannelsAdapter.OnChannelItemClickListener {
 
-    public static final String CHANNEL_ID = "channelId";
-    public static final String TYPE = "type";
-    public static final String CHANNEL_NAME = "channelName";
+    private ActivityAllChatsBinding mBinding;
+    private AddExistingChannelsAdapter mAdapter;
+    private Realm mRealm;
 
-    private ActivityAllChatsBinding binding;
-    private AddExistingChannelsAdapter adapter;
-    private Realm realm;
+    public static final String sCHANNEL_ID = "CHANNEL_ID";
+    public static final String sTYPE = "sTYPE";
+    public static final String sCHANNEL_NAME = "CHANNEL_NAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_all_chats);
+        mRealm = Realm.getDefaultInstance();
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_all_chats);
         init();
         setRecycleView();
     }
 
-    private void setRecycleView() {
-        RealmResults<ChannelsDontBelong> moreChannels = realm.where(ChannelsDontBelong.class)
-                .findAll()
-                .sort("name", Sort.ASCENDING);
-        adapter = new AddExistingChannelsAdapter(this, moreChannels, true, this);
-        binding.recViewMoreChannels.setAdapter(adapter);
-
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
-        binding.recViewMoreChannels.setLayoutManager(manager);
-    }
-
-    private void init() {
-        setupToolbar(getString(R.string.title_existing_channels), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-        getPresenter().requestChannelsMore();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
+        if (item.getItemId() == android.R.id.home) {
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -78,25 +60,48 @@ public class AddExistingChannelsActivity
         getPresenter().requestAddChat(joinChannelId);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRealm.close();
+    }
+
     public void setProgress(boolean bool) {
-        binding.circProgressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
+        mBinding.circProgressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
     }
 
     public void setNoChannels(boolean bool) {
-        binding.noMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+        mBinding.noMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
     }
 
     public void setRecycleView(boolean bool) {
-        binding.recViewMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
+        mBinding.recViewMoreChannels.setVisibility(bool ? View.VISIBLE : View.GONE);
     }
 
     public void finishActivity(String joinChannelId, String channelName, String type) {
         Intent intent = new Intent(this, AddExistingChannelsActivity.class)
-                .putExtra(CHANNEL_ID, joinChannelId)
-                .putExtra(CHANNEL_NAME, channelName)
-                .putExtra(TYPE, type);
+                .putExtra(sCHANNEL_ID, joinChannelId)
+                .putExtra(sCHANNEL_NAME, channelName)
+                .putExtra(sTYPE, type);
         setResult(Activity.RESULT_OK, intent);
         this.finish();
+    }
+
+    private void setRecycleView() {
+        RealmResults<ChannelsDontBelong> moreChannels = mRealm.where(ChannelsDontBelong.class)
+                .findAll()
+                .sort("name", Sort.ASCENDING);
+        mAdapter = new AddExistingChannelsAdapter(this, moreChannels, true, this);
+        mBinding.recViewMoreChannels.setAdapter(mAdapter);
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(this);
+        mBinding.recViewMoreChannels.setLayoutManager(manager);
+    }
+
+    private void init() {
+        setupToolbar(getString(R.string.title_existing_channels), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+        getPresenter().requestChannelsMore();
     }
 
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {

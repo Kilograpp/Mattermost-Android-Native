@@ -10,7 +10,6 @@
         android:background="@color/colorPrimary">
 
         <!--TODO почему тут button? и вообще зачем?-->
-        <!--TODO скорей всего на будущее, чтобы потом заголоок нажимаемым был-->
         <Button
             android:id="@+id/channel_title"
             android:layout_width="wrap_content"

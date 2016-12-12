@@ -39,6 +39,7 @@ public class ColorGenerator {
                 0xff90a4ae
         ));
     }
+
     public static ColorGenerator create(List<Integer> colorList) {
         return new ColorGenerator(colorList);
     }
@@ -50,13 +51,8 @@ public class ColorGenerator {
 
     public int getRandomColor() {
         int color = mColors.get(mRandom.nextInt(mColors.size()));
-        return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
-                (int)(SHADE_FACTOR * Color.green(color)),
-                (int)(SHADE_FACTOR * Color.blue(color)));
+        return Color.rgb((int) (SHADE_FACTOR * Color.red(color)),
+                (int) (SHADE_FACTOR * Color.green(color)),
+                (int) (SHADE_FACTOR * Color.blue(color)));
     }
-
-//    public int getRandomColor() {
-//        return mColors.get(mRandom.nextInt(mColors.size()));
-//    }
-
 }

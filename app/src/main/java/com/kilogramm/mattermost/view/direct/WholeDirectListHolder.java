@@ -65,14 +65,12 @@ public class WholeDirectListHolder extends RealmViewHolder {
     }
 
     public static String getImageUrl(String userId) {
-        if (userId != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/users/"
-                    + userId
-                    + "/image";
-        } else {
-            return "";
-        }
+        return userId != null
+                ? "https://" +
+                  MattermostPreference.getInstance().getBaseUrl() +
+                  "/api/v3/users/" +
+                  userId +
+                  "/image"
+                : "";
     }
 }

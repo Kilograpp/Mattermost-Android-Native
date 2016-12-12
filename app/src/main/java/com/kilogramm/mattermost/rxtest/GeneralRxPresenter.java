@@ -137,7 +137,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, stringUserMap) -> {
                     UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
+                        Channel channel = ChannelRepository.query(
+                                new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
                         //sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
                             sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
@@ -200,7 +201,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         handleErrorLogin(throwable)
         );
     }
-
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
