@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
+import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.io.File;
 
@@ -39,12 +40,12 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     String channelId;
     @State
     String fileName;
-    FileToAttach fileToAttach;
+    private FileToAttach fileToAttach;
 
     private RequestBody channel_Id;
     private RequestBody clientId;
 
-    FileUtil fileUtil;
+    private FileUtil fileUtil;
 
     public void requestUploadFileToServer(String channelId) {
         this.channelId = channelId;
@@ -61,7 +62,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
-//            sendShowToast("Loading start");
             String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
             String mimeType = fileUtil.getMimeType(filePath);
 
@@ -89,28 +89,31 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         }, (attachedFilesLayout, fileUploadResponse) -> {
             if (fileUploadResponse.getFilenames() != null
                     && fileUploadResponse.getFilenames().size() != 0) {
-//                sendShowToast("Loading complete");
                 Log.d(TAG, fileUploadResponse.toString());
                 FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
                 FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
                 FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
-
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowUploadErrorToast();
-            Log.d(TAG, "Error");
+//            sendShowUploadErrorToast();
+            sendShowError(parceError(throwable, UPLOAD_A_FILE));
             FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });
     }
 
-    private void sendShowUploadErrorToast() {
-        createTemplateObservable(new Object())
-                .subscribe(split((attachedFilesLayout, o)
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split((attachedFilesLayout, o)
                         -> attachedFilesLayout.showUploadErrorToast()));
     }
+
+//    private void sendShowUploadErrorToast() {
+//        createTemplateObservable(new Object())
+//                .subscribe(split((attachedFilesLayout, o)
+//                        -> attachedFilesLayout.showUploadErrorToast()));
+//    }
 
     private void sendAllUploaded() {
         createTemplateObservable(new Object())

@@ -60,7 +60,6 @@ public class NameActivity extends BaseActivity<NamePresenter> {
         saveItem.setVisible(true);
         binding.progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
-
     }
 
     private void setToolbar() {

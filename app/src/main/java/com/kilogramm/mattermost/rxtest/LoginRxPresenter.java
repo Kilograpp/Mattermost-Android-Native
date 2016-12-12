@@ -227,7 +227,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
-            sendShowError(getError(throwable));
+//            sendShowError(getError(throwable));
+            sendShowError(parceError(throwable, null));
         });
     }
 
@@ -249,7 +250,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             firstLoginBad = true;
             setRedTextForgotPassword(firstLoginBad);
-            sendShowError(getError(throwable));
+//            sendShowError(getError(throwable));
+            sendShowError(parceError(throwable, LOGIN));
         });
     }
 
@@ -258,7 +260,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     }
 
     private void setRedTextForgotPassword(boolean isRed) {
-        createTemplateObservable(isRed).subscribe(split((loginRxActivity, aBoolean) -> loginRxActivity.setRedColorForgotPasswordText(aBoolean)));
+        createTemplateObservable(isRed).subscribe(split(LoginRxActivity::setRedColorForgotPasswordText));
     }
 
     private void sendHideKeyboard() {

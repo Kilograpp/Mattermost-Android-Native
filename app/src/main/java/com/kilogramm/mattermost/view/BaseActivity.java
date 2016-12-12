@@ -164,7 +164,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
 
     public void showErrorText(String text) {
         int apiVersion = Build.VERSION.SDK_INT;
-
         if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
             Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_LONG);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
