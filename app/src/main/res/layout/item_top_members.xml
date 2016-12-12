@@ -29,9 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="50dp"
             android:layout_toEndOf="@+id/memberIcon"
-            android:layout_toRightOf="@+id/openMembers"
+            android:layout_toStartOf="@+id/textViewStatus"
+            android:singleLine="true"
             android:padding="2dp"
             android:layout_marginRight="@dimen/activity_vertical_start"
             />
