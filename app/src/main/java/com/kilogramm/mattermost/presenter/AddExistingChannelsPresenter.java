@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     sendSetProgress(false);
                 },
                 (addExistingChannelsActivity, throwable) -> {
-                    throwable.printStackTrace();
+                    sendShowError(parceError(throwable, CHANNELS_MORE));
                     sendSetProgress(false);
                 });
 
@@ -150,27 +151,8 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
         createTemplateObservable(bool)
                 .subscribe(split((addExistingChannelsActivity, aBoolean) -> addExistingChannelsActivity.setRecycleView(bool)));
     }
-}
 
-/*        restartableFirst(REQUEST_ADD_CHAT, () -> Observable.defer(
-                () -> Observable.zip(
-                        service.joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (channel, channelsWithMembers) -> {
-                            RealmList<Channel> channelsList = new RealmList<>();
-                            channelsList.addAll(channelsWithMembers.getChannels());
-                            ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
-                            ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-                            return channel;
-                        })), (generalRxActivity, channel) -> {
-            sendSetProgress(false);
-            sendFinish();
-        }, (generalRxActivity, throwable) -> {
-            throwable.printStackTrace();
-            Log.d(TAG, throwable.getMessage());
-            sendSetProgress(false);
-        });*/
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
+}

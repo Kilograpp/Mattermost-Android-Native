@@ -52,10 +52,10 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
                         this.displayName = channel.getDisplayName();
                         requestGetChannelInfo();
                     } else {
-                        sendShowError("\\t Channel is not created \\n");
+                        sendSetProgressVisibility(false);
                     }
                 }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(getError(throwable));
+                    sendShowError(parceError(throwable, CREATE_CHANNEL));
                     sendSetProgressVisibility(false);
                 });
     }

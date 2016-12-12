@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
@@ -34,6 +35,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_SAVE = 3;
     private static final int REQUEST_CHANNEL = 4;
     private static final int REQUEST_DELETE = 5;
+
+    private String errorLoadingExtraInfo = "Error loading channel info";
 
     private ApiMethod service;
 
@@ -59,7 +62,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     }
 
     public void initPresenter(String teamId, String channelId) {
-        Log.d(TAG, "initPresenter");
         this.teamId = teamId;
         this.channelId = channelId;
         this.channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
@@ -85,7 +87,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ExtroInfoRepository.add(extraInfo);
                     start(REQUEST_CHANNEL);
                 }, (channelActivity, throwable) -> {
-                    sendError("Error loading channel info");
+                    sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 }
         );
@@ -98,7 +100,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ChannelRepository.update(channelWithMember.getChannel());
                     requestMembers();
                 }, (channelActivity, throwable) -> {
-                    sendError("Error loading channel info");
+                    sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 }
         );
@@ -143,7 +145,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
             listPreferences.getmSaveData().clear();
             MattermostPreference.getInstance().setLastChannelId(channel.getId());
             sendSetFragmentChat();
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+        }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
     }
 
     public void requestSaveData(Preferences data, String userId) {
@@ -210,5 +212,9 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void sendCloseActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((channelActivity, o) -> channelActivity.finish()));
+    }
+
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 }

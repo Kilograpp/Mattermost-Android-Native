@@ -46,7 +46,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         implements  TextView.OnEditorActionListener,
                     SearchMessageAdapter.OnJumpClickListener {
 
-    private final int DELAY_SEARCH = 2000;
+//    private final int DELAY_SEARCH = 2000;
+    private final int DELAY_SEARCH = 100;
 
     private static final String TEAM_ID = "team_id";
 
@@ -59,8 +60,9 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     private ActivitySearchBinding mBinding;
     private SearchMessageAdapter mAdapter;
 
-    private ArrayAdapter<String> mHistoryAutoCompleteAdapter;
-    private ArrayList<String> mHistoryAutoComplete;
+    //TODO временно убрала searchAutoComplete
+//    private ArrayAdapter<String> mHistoryAutoCompleteAdapter;
+//    private ArrayList<String> mHistoryAutoComplete;
 
     private Runnable mSearchDelay;
 
@@ -99,17 +101,17 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         mBinding.searchAutoComplete.setOnFocusChangeListener((v, hasFocus) ->
                 mBinding.btnClear.setVisibility(hasFocus ? View.VISIBLE : View.GONE));
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
+//        Display display = getWindowManager().getDefaultDisplay();
+//        Point size = new Point();
+//        display.getSize(size);
 
-        mBinding.searchAutoComplete.setDropDownWidth(size.x);
-        mHistoryAutoComplete = getSearchHistory(getApplication(), SEARCH_HISTORY);
-        mHistoryAutoCompleteAdapter = new ArrayAdapter<>(
-                SearchMessageActivity.this,
-                R.layout.item_search_history_dropdown,
-                mHistoryAutoComplete);
-        mBinding.searchAutoComplete.setAdapter(mHistoryAutoCompleteAdapter);
+//        mBinding.searchAutoComplete.setDropDownWidth(size.x);
+//        mHistoryAutoComplete = getPresenter().getSearchHistory(getApplication(), SEARCH_HISTORY);
+//        mHistoryAutoCompleteAdapter = new ArrayAdapter<>(
+//                SearchMessageActivity.this,
+//                R.layout.item_search_history_dropdown,
+//                mHistoryAutoComplete);
+//        mBinding.searchAutoComplete.setAdapter(mHistoryAutoCompleteAdapter);
 
         mBinding.btnBack.setOnClickListener(v -> finish());
 
@@ -124,7 +126,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         mSearchDelay = () -> doMessageSearch(mBinding.searchAutoComplete.getText().toString());
     }
 
-    //TODO сделать asyncTask, кот на выходе будет возвращать уже готовую выборку
     public void setRecycleView(String terms) {
         RealmQuery<Post> query = Realm.getDefaultInstance().where(Post.class);
         RealmResults<FoundMessagesIds> foundMessageId = Realm.getDefaultInstance().where(FoundMessagesIds.class).findAll();
@@ -148,17 +149,17 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
 
     public void doMessageSearch(String terms) {
         mBinding.searchAutoComplete.dismissDropDown();
-        addHistorySearch(terms);
+//        addHistorySearch(terms);
         getPresenter().search(terms);
     }
 
-    public void addHistorySearch(String terms) {
-        if (!mHistoryAutoComplete.contains(terms)) {
-            mHistoryAutoCompleteAdapter.add(terms);
-            mHistoryAutoComplete.add(terms);
-            setSearchHistory(getApplication(), SEARCH_HISTORY, mHistoryAutoComplete);
-        }
-    }
+//    public void addHistorySearch(String terms) {
+//        if (!mHistoryAutoComplete.contains(terms)) {
+//            mHistoryAutoCompleteAdapter.add(terms);
+//            mHistoryAutoComplete.add(terms);
+//            getPresenter().setSearchHistory(getApplication(), SEARCH_HISTORY, mHistoryAutoComplete);
+//        }
+//    }
 
     public void progressBarVisibility(boolean isShow) {
         mBinding.progressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
@@ -182,42 +183,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         context.startActivityForResult(starter, id);
     }
 
-    // TODO set & get вынести в presenter
-    private void setSearchHistory(Context context, String key, ArrayList<String> history) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        JSONArray jsonArray = new JSONArray();
-
-        for (String item : history) {
-            jsonArray.put(item);
-        }
-        if (!history.isEmpty()) {
-            editor.putString(key, jsonArray.toString());
-        } else {
-            editor.putString(key, null);
-        }
-        editor.apply();
-    }
-
-    private ArrayList<String> getSearchHistory(Context context, String key) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String json = preferences.getString(key, null);
-        ArrayList<String> storedHistory = new ArrayList<>();
-
-        if (json != null) {
-            try {
-                JSONArray jsonArray = new JSONArray(json);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    String historyItem = jsonArray.optString(i);
-                    storedHistory.add(historyItem);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return storedHistory;
-    }
-    
     private TextWatcher dynamicalSearch = new TextWatcher() {
 
         @Override
