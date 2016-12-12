@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.SetPurposeBinding;
+import com.kilogramm.mattermost.databinding.ActivityPurposeBinding;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -23,13 +23,13 @@ import nucleus.factory.RequiresPresenter;
 public class PurposeActivity extends BaseActivity<PurposePresenter> {
     private static final String CHANNEL_PURPOSE = "CHANNEL_PURPOSE";
     private static final String CHANNEL_ID = "channel_id";
-    private SetPurposeBinding binding;
-    MenuItem saveItem;
+    private ActivityPurposeBinding mBinding;
+    private MenuItem mSaveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.set_purpose);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_purpose);
         setToolbar();
         getPresenter().initPresenter(
                 getIntent().getStringExtra(CHANNEL_PURPOSE),
@@ -38,17 +38,17 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
     }
 
     private void initData() {
-        binding.purpose.setText(getPresenter().getPurpose());
-        binding.purpose.setOnFocusChangeListener((v, hasFocus) -> {
-            binding.btnClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        mBinding.editTextPurpose.setText(getPresenter().getPurpose());
+        mBinding.editTextPurpose.setOnFocusChangeListener((v, hasFocus) -> {
+            mBinding.buttonClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
         });
-        binding.btnClear.setOnClickListener(view -> binding.purpose.setText(""));
+        mBinding.buttonClear.setOnClickListener(view -> mBinding.editTextPurpose.setText(""));
     }
 
 
     public void requestSave(String s) {
-        saveItem.setVisible(true);
-        binding.progressBar.setVisibility(View.INVISIBLE);
+        mSaveItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
@@ -70,11 +70,11 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
-                getPresenter().setHeader(binding.purpose.getText().toString());
+                getPresenter().setHeader(mBinding.editTextPurpose.getText().toString());
                 getPresenter().requestUpdatePurpose();
-                saveItem = item;
+                mSaveItem = item;
                 item.setVisible(false);
-                binding.progressBar.setVisibility(View.VISIBLE);
+                mBinding.editTextPurpose.setVisibility(View.VISIBLE);
                 break;
             default:
                 super.onOptionsItemSelected(item);
