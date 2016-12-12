@@ -28,9 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,13 +56,9 @@ public class FileUtil {
 
     public String getPath(final Uri uri) {
 
-        //check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
-        // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(mContext, uri)) {
-
-            // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
@@ -74,20 +67,13 @@ public class FileUtil {
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
+            } else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
-/*                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://<span id=\"IL_AD1\" class=\"IL_AD\">downloads</span>/public_downloads"), Long.valueOf(id));*/
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
                 return getDataColumn(mContext, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
+            } else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -105,21 +91,13 @@ public class FileUtil {
                 final String[] selectionArgs = new String[]{
                         split[1]
                 };
-
                 return getDataColumn(mContext, contentUri, selection, selectionArgs);
             }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
-            // Return the remote address
-            if (isGooglePhotosUri(uri))
-                return uri.getLastPathSegment();
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            if (isGooglePhotosUri(uri)) return uri.getLastPathSegment();
 
             return getDataColumn(mContext, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
         return null;
@@ -127,13 +105,11 @@ public class FileUtil {
 
     private static String getDataColumn(Context context, Uri uri, String selection,
                                         String[] selectionArgs) {
-
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {
                 column
         };
-
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                     null);
@@ -172,33 +148,11 @@ public class FileUtil {
 
     public String getMimeType(String url) {
         String type = null;
-        String extension = getFileExtensionFromUrl(url);
+        String extension = getFileExtensionFromUrl(url, false);
         if (extension != null) {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         }
         return type;
-    }
-
-    public File createTempImageFile() throws IOException {
-        Calendar calendar = Calendar.getInstance();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date(calendar.getTimeInMillis()));
-        String imageFileName = "JPEG_" + calendar.getTimeInMillis();
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES + "/Mattermost");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                throw new IOException();
-            }
-        }
-
-        // Can use:
-        // File file = new File();
-        // file.createNewFile();
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",                          /* suffix */
-                storageDir                       /* directory */
-        );
     }
 
     public void removeFile(String path) {
@@ -281,39 +235,17 @@ public class FileUtil {
         }
     }
 
-    public Observable<BitmapWithUri> getBitmap(Uri outputFileUri, Intent data) {
+    public Observable<Uri> getBitmap(Uri outputFileUri, Intent data) {
         return Observable.create(subscriber -> {
             final boolean isCamera;
             isCamera = isCamera(data);
-            Uri selectedImageUri;
             if (isCamera) {
-                selectedImageUri = outputFileUri;
-                //Bitmap factory
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                // downsizing image as it throws OutOfMemory Exception for larger
-                // images
-                options.inSampleSize = 8;
-                final Bitmap bitmap = BitmapFactory.decodeFile(selectedImageUri.getPath(), options);
-                subscriber.onNext(new BitmapWithUri(bitmap, selectedImageUri));
+                subscriber.onNext(outputFileUri);
                 subscriber.onCompleted();
-                //mBinding.headerPicture.setImageBitmap(bitmap);
             } else {
-                selectedImageUri = data == null ? null : data.getData();
-                //Log.d("ImageURI", selectedImageUri.getLastPathSegment());
-                // /Bitmap factory
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                // downsizing image as it throws OutOfMemory Exception for larger
-                // images
-                options.inSampleSize = 8;
-                try {//Using Input Stream to get uri did the trick
-                    InputStream input = mContext.getContentResolver().openInputStream(selectedImageUri);
-                    Rect rect = new Rect(0, 0, 0, 0);
-                    final Bitmap bitmap = BitmapFactory.decodeStream(input, rect, options);
-                    subscriber.onNext(new BitmapWithUri(bitmap, selectedImageUri));
-                    subscriber.onCompleted();
-                } catch (FileNotFoundException e) {
-                    subscriber.onError(e);
-                }
+                Uri selectedImageUri = data == null ? null : data.getData();
+                subscriber.onNext(selectedImageUri);
+                subscriber.onCompleted();
             }
         });
     }
@@ -321,7 +253,7 @@ public class FileUtil {
     public Observable<Bitmap> getBitmap(String filePath, int inSampleSize) {
         return Observable.create(subscriber -> {
             File file = new File(filePath);
-            if(!file.exists()){
+            if (!file.exists()) {
                 subscriber.onError(new Throwable("File does not exist"));
             } else {
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -348,7 +280,6 @@ public class FileUtil {
         return isCamera;
     }
 
-
     public String getFileByUri(Uri imageUri) {
         String path;
         try {
@@ -374,25 +305,6 @@ public class FileUtil {
         return path;
     }
 
-
-    public static class BitmapWithUri {
-        private Bitmap bitmap;
-        private Uri uri;
-
-        public BitmapWithUri(Bitmap bitmap, Uri uri) {
-            this.bitmap = bitmap;
-            this.uri = uri;
-        }
-
-        public Bitmap getBitmap() {
-            return bitmap;
-        }
-
-        public Uri getUri() {
-            return uri;
-        }
-    }
-
     public String getImageUrl(String id) {
         if (id != null) {
             return "https://"
@@ -405,7 +317,7 @@ public class FileUtil {
         }
     }
 
-    public String getFileExtensionFromUrl(String url) {
+    public String getFileExtensionFromUrl(String url, boolean withDot) {
         if (!TextUtils.isEmpty(url)) {
             int fragment = url.lastIndexOf('#');
             if (fragment > 0) {
@@ -420,56 +332,18 @@ public class FileUtil {
             int filenamePos = url.lastIndexOf('/');
             String filename =
                     0 <= filenamePos ? url.substring(filenamePos + 1) : url;
-
-            // if the filename contains special characters, we don't
-            // consider it valid for our matching purposes:
-
             if (!filename.isEmpty()) {
                 Pattern pattern = Pattern.compile("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+");
                 Matcher matcher = pattern.matcher(filename);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     int dotPos = filename.lastIndexOf('.');
                     if (0 <= dotPos) {
-                        return filename.substring(dotPos + 1);
+                        if(withDot) return filename.substring(dotPos);
+                        else return filename.substring(dotPos + 1);
                     }
                 }
             }
         }
-
-        return "";
-    }
-
-    public String getFileExtensionFromUrlWithDot(String url) {
-        if (!TextUtils.isEmpty(url)) {
-            int fragment = url.lastIndexOf('#');
-            if (fragment > 0) {
-                url = url.substring(0, fragment);
-            }
-
-            int query = url.lastIndexOf('?');
-            if (query > 0) {
-                url = url.substring(0, query);
-            }
-
-            int filenamePos = url.lastIndexOf('/');
-            String filename =
-                    0 <= filenamePos ? url.substring(filenamePos + 1) : url;
-
-            // if the filename contains special characters, we don't
-            // consider it valid for our matching purposes:
-
-            if (!filename.isEmpty()) {
-                Pattern pattern = Pattern.compile("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+");
-                Matcher matcher = pattern.matcher(filename);
-                if(matcher.find()) {
-                    int dotPos = filename.lastIndexOf('.');
-                    if (0 <= dotPos) {
-                        return filename.substring(dotPos);
-                    }
-                }
-            }
-        }
-
         return "";
     }
 }

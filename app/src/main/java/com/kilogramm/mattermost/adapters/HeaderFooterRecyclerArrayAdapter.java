@@ -100,7 +100,7 @@ public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.V
      */
     public void add(T item) {
         // TODO прочекать, как будет работать при наличии хедеров
-        if (items == null) items = new ArrayList<T>();
+        if (items == null) items = new ArrayList<>();
         items.add(item);
         notifyItemInserted(items.size() - 1);
         notifyItemChanged(0);

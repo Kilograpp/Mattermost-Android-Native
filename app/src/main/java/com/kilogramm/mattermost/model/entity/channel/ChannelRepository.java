@@ -99,7 +99,6 @@ public class ChannelRepository {
                 channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                 channel.setUsername(channel.getUser().getUsername());
             }
-            channel.setTotalMsgCount(channel.getTotalMsgCount()); //TODO fix me
             realm1.copyToRealmOrUpdate(channel);
             realm1.close();
         });

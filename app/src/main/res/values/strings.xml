@@ -178,6 +178,7 @@
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
     <string name="file">File</string>
+    <string name="error_fail_capture_image">Failed to capture image</string>
 
                     <!--Create new channel/group-->
     <string name="create_new_channel_name_hint">Channel Name*</string>
