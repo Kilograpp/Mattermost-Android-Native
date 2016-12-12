@@ -232,11 +232,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 setupListChat(channelId);
             }
         });
-//        CoordinatorLayout.LayoutParams params =
-//                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+
         fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
-//        params.setBehavior(fabBehavior);
-//        binding.fab.requestLayout();
 
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
@@ -618,8 +615,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
-                if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
-                        .findLastCompletelyVisibleItemPosition()) {
+                int lastVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
+                        .findLastVisibleItemPosition();
+                if (bottomRow == lastVisiblePosition) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
 //                    fabBehavior.animateFabDown(binding.fab);
