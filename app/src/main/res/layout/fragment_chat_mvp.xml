@@ -179,7 +179,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:padding="10dp"
-                    android:text="Send"
+                    tools:text="Send"
                     android:textColor="@color/grey" />
             </LinearLayout>
         </LinearLayout>

@@ -16,15 +16,14 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatar"
             android:layout_width="30dp"
-            android:layout_height="30dp"
-            />
+            android:layout_height="30dp"  />
 
         <TextView
             android:id="@+id/user_nikname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="@dimen/activity_horizontal_text_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_text_margin"
             android:textColor="@color/black" />
 
         <TextView

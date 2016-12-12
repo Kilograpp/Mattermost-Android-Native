@@ -10,7 +10,7 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center"
-        android:layout_margin="15dp"/>
+        android:layout_margin="15dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -25,11 +25,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:textColor="@color/black"
-            android:textSize="15sp"
             android:ellipsize="end"
             android:singleLine="true"
-            tools:text="test"/>
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            tools:text="test" />
 
         <TextView
             android:id="@+id/text"
@@ -37,12 +37,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="5dp"
+            android:ellipsize="end"
+            android:maxEms="10"
+            android:singleLine="true"
             android:textColor="@color/grey"
             android:textSize="13sp"
-            android:maxEms="10"
-            android:ellipsize="end"
-            android:singleLine="true"
-            tools:text="test"/>
+            tools:text="test" />
 
     </LinearLayout>
 
@@ -52,5 +52,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginEnd="10dp"
-        android:padding="13dp"/>
+        android:padding="13dp" />
 </LinearLayout>

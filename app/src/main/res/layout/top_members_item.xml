@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -10,9 +9,7 @@
             android:id="@+id/memberIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            />
-
+            android:layout_margin="@dimen/activity_horizontal_margin" />
 
         <View
             android:id="@+id/line"
@@ -29,24 +26,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="50dp"
+            android:layout_marginRight="@dimen/activity_vertical_start"
+            android:layout_marginStart="16dp"
             android:layout_toEndOf="@+id/memberIcon"
             android:layout_toRightOf="@+id/openMembers"
-            android:padding="2dp"
-            android:layout_marginRight="@dimen/activity_vertical_start"
-            />
+            android:padding="2dp" />
 
         <TextView
             android:id="@+id/status"
             style="@style/textLittleBlue"
-            android:foregroundGravity="right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-          />
+            android:foregroundGravity="right" />
 
     </RelativeLayout>
 </layout>

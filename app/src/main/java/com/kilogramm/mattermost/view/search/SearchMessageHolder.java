@@ -51,17 +51,9 @@ public class SearchMessageHolder extends RealmViewHolder {
         RealmResults<User> user = UserRepository.query(new UserRepository.UserByIdSpecification(post.getUserId()));
         RealmResults<Channel> channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(post.getChannelId()));
 
-        binding.postedDate.setText(dateOrTimeConvert(post.getCreateAt(), false));
+        binding.textViewPostedDate.setText(dateOrTimeConvert(post.getCreateAt(), false));
 
         String chName = channel.first().getName();
-
-//        if (Pattern.matches(".+\\w[_].+\\w", chName)) {
-//            binding.chatName.setText(this.getChatName(chName));
-//            typeChannel = channel.first().getType();
-//        } else {
-//            binding.chatName.setText(chName);
-//            typeChannel = channel.first().getType();
-//        }
 
         typeChannel = channel.first().getType();
         if (typeChannel.equals(Channel.DIRECT)) {
