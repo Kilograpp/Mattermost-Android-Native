@@ -62,7 +62,6 @@ public class FilesView extends GridLayout {
 
 
     private List<String> fileList = new ArrayList<>();
-    private Drawable backgroundColorId;
 
     public FilesView(Context context) {
         super(context);
@@ -177,10 +176,6 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
-        if (backgroundColorId != null)
-            binding.root.setBackground(backgroundColorId);
-
-
         String url = getImageUrl(fileName);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
@@ -193,7 +188,7 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
-        String extension = FileUtil.getInstance().getFileExtensionFromUrlWithDot(url);
+        String extension = FileUtil.getInstance().getFileExtensionFromUrl(url, true);
         final String url_thumb;
         if(extension.equals(".jpg") || extension.equals(".JPG")) {
             url_thumb = url.replace(extension, "_thumb" + extension);
@@ -239,17 +234,6 @@ public class FilesView extends GridLayout {
                 binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
             }
         }
-    }
-
-    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName) {
-        binding.title.setOnClickListener(v -> FileUtil.getInstance().
-                startOpenFileIntent(getContext(),
-                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
-        );
-        binding.icDownloadedFile.setOnClickListener(v -> FileUtil.getInstance().
-                startOpenFileIntent(getContext(),
-                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
-        );
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {

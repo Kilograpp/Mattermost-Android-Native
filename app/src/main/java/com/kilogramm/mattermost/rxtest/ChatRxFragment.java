@@ -19,7 +19,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -282,7 +281,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void slideToMessageById() {
         if (adapter != null) {
-            adapter.setHighlitedPost(searchMessageId);
+            adapter.setmHighlitedPost(searchMessageId);
             positionItemMessage = adapter.getPositionById(searchMessageId);
         }
 
@@ -298,14 +297,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 int pLast = layoutManager.findLastVisibleItemPosition();
                 Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
 
-                if (adapter != null && adapter.getHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
                     isFocus = true;
                     Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
                 }
 
                 if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
                     Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
-                    if (adapter != null) adapter.setHighlitedPost(null);
+                    if (adapter != null) adapter.setmHighlitedPost(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
                 }
@@ -337,7 +336,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.attachedFilesLayout.setVisibility(View.GONE);
         }
         binding.attachedFilesLayout.setEmptyListListener(this);
-        binding.attachedFilesLayout.setAllUploadedListener(this);
+        binding.attachedFilesLayout.setmAllUploadedListener(this);
     }
 
     private void setDropDownUserList() {

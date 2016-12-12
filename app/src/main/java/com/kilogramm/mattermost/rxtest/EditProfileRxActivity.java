@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -41,14 +40,11 @@ import com.kilogramm.mattermost.view.settings.PasswordChangeActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import icepick.State;
@@ -136,14 +132,14 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == YOUR_SELECT_PICTURE_REQUEST_CODE) {
 
                 FileUtil.getInstance().getBitmap(outputFileUri, data)
                         .subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<FileUtil.BitmapWithUri>() {
+                        .subscribe(new Subscriber<Uri>() {
                             @Override
                             public void onCompleted() {
                             }
@@ -155,17 +151,15 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             }
 
                             @Override
-                            public void onNext(FileUtil.BitmapWithUri bitmapWithUri) {
-                                setAvatar(bitmapWithUri.getUri());
-                                selectedImageUri = bitmapWithUri.getUri();
+                            public void onNext(Uri uri) {
+                                setAvatar(uri);
+                                selectedImageUri = uri;
                             }
                         });
             }
         } else if (resultCode == RESULT_CANCELED) {
-        } else {
-            // failed to capture image
             Toast.makeText(getApplicationContext(),
-                    "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
+                    "Failed to capture image", Toast.LENGTH_SHORT)
                     .show();
         }
     }
@@ -189,7 +183,8 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                     public void onNext(Bitmap myBitmap) {
                         ExifInterface exif;
                         try {
-                            exif = new ExifInterface(FileUtil.getInstance().getFileByUri(bitmapUri));
+                            exif = new ExifInterface(FileUtil.getInstance()
+                                    .getFileByUri(bitmapUri));
                             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
                             Log.d("ORIENTATION", "" + orientation);
                             Matrix matrix = new Matrix();
@@ -252,35 +247,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 }
                 break;
         }
-    }
-
-    // TODO в ближайшее время можно будет удалить, если не вернемся к старому варианту
-    private void openImageIntent() {
-        // Determine Uri of camera image to save.
-        final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
-        root.mkdir();
-        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
-        final File sdImageMainDirectory = new File(root, fname);
-        outputFileUri = Uri.fromFile(sdImageMainDirectory);
-
-        // Camera.
-        final List<Intent> cameraIntents = new ArrayList<>();
-        final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-        cameraIntents.add(captureIntent);
-
-        // Filesystem.
-        final Intent galleryIntent = new Intent();
-        galleryIntent.setType("image/*");
-        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-
-        // Chooser of filesystem options.
-        final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
-
-        // Add the camera options.
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
-
-        startActivityForResult(chooserIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
     }
 
     private void showDialog() {
