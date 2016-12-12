@@ -13,13 +13,13 @@ import io.realm.RealmResults;
  */
 public class FileToAttachRepository {
 
-    private static FileToAttachRepository instance;
+    private static FileToAttachRepository mInstance;
 
     public static FileToAttachRepository getInstance() {
-        if (instance == null) {
-            instance = new FileToAttachRepository();
+        if (mInstance == null) {
+            mInstance = new FileToAttachRepository();
         }
-        return instance;
+        return mInstance;
     }
 
     //region Add methods
@@ -235,13 +235,6 @@ public class FileToAttachRepository {
         });
     }
 
-    public void clearData() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.delete(FileToAttach.class);
-        realm.commitTransaction();
-    }
-
     public void deleteUploadedFiles() {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -262,14 +255,4 @@ public class FileToAttachRepository {
     }
 
     // endregion
-
-/*
-    private void decodeFileName(String fileName){
-        try {
-            fileName = URLDecoder.decode(fileName, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-    }*/
 }
