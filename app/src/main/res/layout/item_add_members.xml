@@ -31,12 +31,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="50dp"
             android:layout_toEndOf="@+id/circleImageViewMemberIcon"
             android:padding="2dp"
             android:singleLine="true"
-            android:layout_marginRight="@dimen/activity_vertical_start"
+            android:layout_marginRight="@dimen/margin_end_list_members"
             />
 
         <ImageView

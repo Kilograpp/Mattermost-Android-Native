@@ -11,6 +11,7 @@
     <dimen name="standart_margin">10dp</dimen>
     <dimen name="left_padding">15dp</dimen>
 
+    <dimen name="margin_end_list_members">60dp</dimen>
     <dimen name="progress_bar">60dp</dimen>
 
     <dimen name="image_height">250dp</dimen>
