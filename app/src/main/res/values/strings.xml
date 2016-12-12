@@ -207,6 +207,7 @@
 
                     <!--Channel info-->
     <string name="channel_info">Channel info</string>
+    <string name="group_info">Group info</string>
     <string name="channel_info_header">Header</string>
     <string name="channel_info_purpose">Purpose</string>
     <string name="channel_info_url">URL</string>
@@ -230,6 +231,7 @@
     <string name="channel_purpose">Edit purpose</string>
     <string name="channel_purpose_toolbar">Channel Purpose</string>
     <string name="channel_name_toolbar">Channel Name</string>
+    <string name="group_name_toolbar">Group Name</string>
     <string name="channel_display_name">Display Name</string>
     <string name="channel_handle_name">Handle</string>
     <string name="channel_display_name_edit">Edit name</string>

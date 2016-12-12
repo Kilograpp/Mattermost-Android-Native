@@ -37,27 +37,6 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
         initData();
     }
 
-    private void initData() {
-        mBinding.editTextPurpose.setText(getPresenter().getPurpose());
-        mBinding.editTextPurpose.setOnFocusChangeListener((v, hasFocus) -> {
-            mBinding.buttonClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
-        });
-        mBinding.buttonClear.setOnClickListener(view -> mBinding.editTextPurpose.setText(""));
-    }
-
-
-    public void requestSave(String s) {
-        mSaveItem.setVisible(true);
-        mBinding.progressBar.setVisibility(View.INVISIBLE);
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
-    }
-
-    private void setToolbar() {
-        setupToolbar(getString(R.string.channel_purpose_toolbar), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-    }
-
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -89,11 +68,31 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
         return true;
     }
 
+    public void requestSave(String s) {
+        mSaveItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
     public static void start(Activity activity, String purpose, String channelId) {
         Intent starter = new Intent(activity, PurposeActivity.class);
         starter.putExtra(CHANNEL_PURPOSE, purpose);
         starter.putExtra(CHANNEL_ID, channelId);
         activity.startActivity(starter);
     }
+
+    private void initData() {
+        mBinding.editTextPurpose.setText(getPresenter().getPurpose());
+        mBinding.editTextPurpose.setOnFocusChangeListener((v, hasFocus) -> {
+            mBinding.buttonClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        });
+        mBinding.buttonClear.setOnClickListener(view -> mBinding.editTextPurpose.setText(""));
+    }
+
+    private void setToolbar() {
+        setupToolbar(getString(R.string.channel_purpose_toolbar), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+    }
+
 
 }

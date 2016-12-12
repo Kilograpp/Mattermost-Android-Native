@@ -10,7 +10,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.channel.HeaderActivity;
+import com.kilogramm.mattermost.view.channel.HeaderChannelActivity;
 
 import icepick.State;
 import rx.schedulers.Schedulers;
@@ -19,7 +19,7 @@ import rx.schedulers.Schedulers;
  * Created by ngers on 01.11.16.
  */
 
-public class HeaderPresenter extends BaseRxPresenter<HeaderActivity> {
+public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     private static final String TAG = "HeaderPresenter";
     private static final int REQUEST_UPDATE_HEADER = 1;
 

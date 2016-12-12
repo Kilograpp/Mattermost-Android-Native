@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.TopMembersItemBinding;
+import com.kilogramm.mattermost.databinding.ItemTopMembersBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.userstatus.StatusByIdSpecification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
@@ -45,9 +45,9 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TopMembersItemBinding binding = DataBindingUtil.inflate(
+        ItemTopMembersBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
-                R.layout.top_members_item,
+                R.layout.item_top_members,
                 parent,
                 false);
         return new MyViewHolder(binding);
@@ -57,20 +57,20 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getItem(position);
         if (user.getId() != null) {
-            holder.binding.memberName.setText(user.getUsername());
+            holder.binding.textViewMemberName.setText(user.getUsername());
             if (user.getRoles().equals("admin")) {
-                holder.binding.status.setText(user.getRoles());
-                holder.binding.status.setTextColor(holder.binding.getRoot().getContext()
+                holder.binding.textViewStatus.setText(user.getRoles());
+                holder.binding.textViewStatus.setTextColor(holder.binding.getRoot().getContext()
                         .getResources().getColor(R.color.title_grey));
             } else if (getStatus(user.getId()).equals(UserStatus.ONLINE)) {
-                holder.binding.status.setText(UserStatus.ONLINE);
+                holder.binding.textViewStatus.setText(UserStatus.ONLINE);
             } else {
-                holder.binding.status.setText("");
+                holder.binding.textViewStatus.setText("");
             }
 
             if(position == getItemCount() -1){
-                holder.binding.line.setVisibility(View.INVISIBLE);
-            } else holder.binding.line.setVisibility(View.VISIBLE);
+                holder.binding.viewLine.setVisibility(View.INVISIBLE);
+            } else holder.binding.viewLine.setVisibility(View.VISIBLE);
 
             Picasso.with(holder.binding.getRoot().getContext())
                     .load(getImageUrl(user))
@@ -81,19 +81,11 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
                     .placeholder(holder.binding.getRoot().getContext()
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(holder.binding.memberIcon);
+                    .into(holder.binding.circleImageViewMemberIcon);
 
             holder.binding.getRoot().setOnClickListener(view ->
                     onItemClickListener.onItemClick(user.getId()));
         }
-    }
-
-    public String getImageUrl(User user) {
-        return "https://"
-                + MattermostPreference.getInstance().getBaseUrl()
-                + "/api/v3/users/"
-                + user.getId()
-                + "/image";
     }
 
     @Override
@@ -102,6 +94,14 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
             return getData().size() > 5 ? 5 : getData().size();
         else
             return getData().size();
+    }
+
+    public String getImageUrl(User user) {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + user.getId()
+                + "/image";
     }
 
     public String getStatus(String id) {
@@ -114,9 +114,9 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
     }
 
     public static class MyViewHolder extends RealmViewHolder {
-        TopMembersItemBinding binding;
+        ItemTopMembersBinding binding;
 
-        private MyViewHolder(TopMembersItemBinding binding) {
+        private MyViewHolder(ItemTopMembersBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
