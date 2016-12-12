@@ -50,12 +50,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
-    //private static final int REQUEST_LOAD_NEXT_POST = 3;
     private static final int REQUEST_SEND_TO_SERVER = 4;
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 7;
-    private static final int REQUEST_SEND_TO_SERVER_ERROR = 11;
 
     private static final int REQUEST_DB_GETUSERS = 10;
     private static final int REQUEST_DB_USERS_STATUS = 13;
@@ -160,7 +158,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             sendTypeChannel();
                             return extraInfo;
                         }))
-                , (chatRxFragment, extraInfo) -> requestLoadPosts()
+                , (chatRxFragment, extraInfo) -> {
+                   requestLoadPosts();
+                }
                 , (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
                     final ConnectivityManager connectivityManager =
@@ -184,8 +184,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         isEmpty = true;
                         sendShowEmptyList(channelId);
                     }
-//                    PostRepository.remove(new PostByChannelId(channelId));
-//                    PostRepository.prepareAndAdd(posts);
+                    PostRepository.remove(new PostByChannelId(channelId));
+                    PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
                     sendRefreshing(false);
@@ -276,6 +276,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             .observeOn(Schedulers.io());
                 },
                 (chatRxFragment, posts) -> {
+
                     if (posts.getPosts() == null) {
                         sendCanPaginationTop(false);
                         return;
@@ -284,6 +285,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendShowList();
                     sendDisableShowLoadMoreTop();
                     Log.d(TAG, "Complete load before post");
+
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
@@ -396,7 +398,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     //region Requests
     public void requestExtraInfo() {
-        start(REQUEST_EXTRA_INFO);
+       start(REQUEST_EXTRA_INFO);
     }
 
     public void requestLoadPosts() {

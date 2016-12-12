@@ -144,15 +144,15 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
                 isTitle = true;
             }
             Post postAbove;
-            if (holder.getAdapterPosition() >= 1) {
+            if (holder.getAdapterPosition() >= 1 && post != null) {
                 postAbove = getItem(holder.getAdapterPosition() - 1);
                 if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
-                    if (postAbove != null && post != null
+                    if (postAbove != null
                             && postAbove.getUser() != null && post.getUser() != null
                             && postAbove.getUser().getId().equals(post.getUser().getId())) {
                         ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
                         ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
-                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
+                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
                     } else {
                         ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
                         ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
@@ -166,7 +166,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             }
 
             holder.bindToItem(post, context, isTitle, root, listener);
-            holder.changeChatItemBackground(context, highlitedPost != null ? highlitedPost.equals(post.getId()) : false);
+            holder.changeChatItemBackground(context, highlitedPost != null && highlitedPost.equals(post.getId()));
         } else {
             holder.bindToLoadingBottom();
         }

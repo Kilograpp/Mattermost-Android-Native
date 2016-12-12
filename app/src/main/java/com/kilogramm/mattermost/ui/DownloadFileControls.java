@@ -11,7 +11,6 @@ import com.kilogramm.mattermost.R;
 /**
  * Created by kepar on 29.9.16.
  */
-//@RequiresPresenter(DownLoadFilePresenter.class)
 public class DownloadFileControls extends FrameLayout {
 
     public static final String TAG = "AttachedFilesLayout";

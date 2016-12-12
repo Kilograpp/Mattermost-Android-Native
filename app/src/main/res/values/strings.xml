@@ -62,7 +62,7 @@
 
     <string name="cannot_load_photo">We cannot load photo. Try to download it on your device and look through any installed app</string>
 
-    <!--Search posts-->
+                    <!--Search posts-->
     <string name="search_hint">Search</string>
     <string name="default_text"> If you\'re searching a partial phrase (ex. searching "real", looking
                                     for "reach" or "reaction"), append a * to your search term. \n\n
@@ -143,7 +143,7 @@
     <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
 
                     <!--Email-->
-    <string name="email_title">SEND DESKTOP NOTIFICATIONS</string>
+    <string name="email_title">SEND EMAIL NOTIFICATIONS</string>
     <string name="email_immediately">Immediately</string>
     <string name="email_never">Never</string>
     <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
@@ -218,6 +218,7 @@
     <string name="channel_info_leave_group">Leave Group</string>
     <string name="channel_info_delete_channel">Delete Channel</string>
     <string name="channel_info_delete_group">Delete Group</string>
+    <string name="channel_error">This field is required</string>
     <string name="channel_info_handle_info">The name of the subdirectory used to navigate to a
         channel using the site URL appended with the handle name. Must use only valid URL inputs</string>
 
@@ -245,5 +246,8 @@
     <string name="logout_dialog_title">WOW!</string>
     <string name="logout_dialog_message">Do you really want to log out?</string>
     <string name="logout_dialog_button">LOG OUT</string>
+
+                    <!--Server errors-->
+    <!--<string name="error_loading_chann_info">Error loading channel info</string>-->
 
 </resources>

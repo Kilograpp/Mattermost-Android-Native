@@ -1,6 +1,9 @@
 package com.kilogramm.mattermost.service;
 
+import android.app.Activity;
+import android.app.Service;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -12,9 +15,12 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
+
+import static com.kilogramm.mattermost.rxtest.BaseRxPresenter.CHANNELS_MORE;
 
 /**
  * Created by Evgeny on 23.09.2016.
@@ -80,7 +86,6 @@ public class MattermostNotificationManager {
                 .subscribe(new Subscriber<ChannelWithMember>() {
                     @Override
                     public void onCompleted() {
-
                     }
 
                     @Override

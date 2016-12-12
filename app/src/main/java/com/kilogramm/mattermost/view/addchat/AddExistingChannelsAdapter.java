@@ -9,6 +9,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.utils.ColorGenerator;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
@@ -42,26 +43,23 @@ public class AddExistingChannelsAdapter extends
     @Override
     public void onBindViewHolder(AddExistingChannelHolder holder, int position) {
         colorGenerator = ColorGenerator.MATERIAL;
-        for (int i = 0; i < getData().size(); i++) {
-            backgroundColors.add(colorGenerator.getRandomColor());
-        }
 
-        holder.bindTo(getData().get(position), backgroundColors.get(position));
-
-        holder.getmBinding().getRoot().setOnClickListener(v -> {
-            if (channelClickListener != null) {
-
-                String channelName = getData().get(position).getDisplayName() == ""
-                        ? getData().get(position).getName()
-                        : getData().get(position).getDisplayName();
-
-                channelClickListener.onChannelItemClick(
-                        getData().get(position).getId(),
-                        channelName,
-                        //getData().get(position).getName(),
-                        holder.getTypeChannel());
+        if (getData() != null) {
+            for (int i = 0; i < getData().size(); i++) {
+                backgroundColors.add(colorGenerator.getRandomColor());
             }
-        });
+
+            holder.bindTo(getData().get(position), backgroundColors.get(position));
+
+            holder.getmBinding().getRoot().setOnClickListener(v -> {
+                if (channelClickListener != null) {
+                    channelClickListener.onChannelItemClick(
+                            getData().get(position).getId(),
+                            getData().get(position).getDisplayName(),
+                            holder.getTypeChannel());
+                }
+            });
+        }
     }
 
     public interface OnChannelItemClickListener {

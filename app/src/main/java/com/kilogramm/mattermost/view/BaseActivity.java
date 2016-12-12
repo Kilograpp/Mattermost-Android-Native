@@ -122,7 +122,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         TextView channel_name = (TextView) toolbar.findViewById(R.id.channel_title);
         channel_name.setText(channelName);
-        channel_name.setOnClickListener(listenerChannelName);
+        toolbar.setOnClickListener(listenerChannelName);
         channel_name.setTransformationMethod(null);
 
         ImageView search_message = (ImageView) toolbar.findViewById(R.id.search_message);
@@ -164,7 +164,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
 
     public void showErrorText(String text) {
         int apiVersion = Build.VERSION.SDK_INT;
-
         if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
             Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_LONG);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));

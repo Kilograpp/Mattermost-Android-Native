@@ -193,10 +193,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 "name = " + name + "\n" +
                 "type = " + type + "\n");
         removeSelection(type);
-        if (!itemId.equals(MattermostPreference.getInstance().getLastChannelId())) {
-            sendOnChange(itemId, name);
-            MattermostPreference.getInstance().setLastChannelId(itemId);
-        }
+        sendOnChange(itemId, name);
+        MattermostPreference.getInstance().setLastChannelId(itemId);
     }
 
     private void removeSelection(String type) {

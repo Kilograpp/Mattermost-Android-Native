@@ -49,7 +49,7 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
 
     public void animateFabUp(FloatingActionButton child) {
         if(isEnabled){
-            child.show();
+//            child.show();
             child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
 
         }

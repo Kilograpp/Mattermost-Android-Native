@@ -18,7 +18,7 @@
 
 
     <style name="searchActivityStyle" parent="AppTheme">
-        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlActivated">@color/icon_team_color_end</item>
     </style>
     <style name="TitleBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>

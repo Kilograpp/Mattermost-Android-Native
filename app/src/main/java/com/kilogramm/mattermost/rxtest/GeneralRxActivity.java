@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,19 +32,22 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragment;
 import com.kilogramm.mattermost.rxtest.left_menu.OnChannelChangeListener;
 import com.kilogramm.mattermost.service.MattermostService;
-import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import icepick.State;
 import io.realm.RealmChangeListener;
@@ -67,6 +69,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+    public static final String MESSAGE_ID = "message_id";
 
     private ActivityMenuBinding binding;
 
@@ -77,12 +80,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private String searchMessageId;
     private User user;
-    private RealmChangeListener<User> userRealmChangeListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
+        setupImageLoaderConfiguration();
+        searchMessageId = getIntent().getStringExtra(MESSAGE_ID);
         setupMenu();
         setupRightMenu();
         showProgressBar();
@@ -148,6 +152,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         }
     }
 
+    private void setupImageLoaderConfiguration(){
+        final int memoryCacheSize = 1024 * 1024 * 2;
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this.getApplicationContext())
+                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
+//                .imageDownloader(new BaseImageDownloader(this, 15 * 1000, 30 * 1000)) // connectTimeout (15 s), readTimeout (30 s)
+                .build();
+        ImageLoader.getInstance().init(config);
+    }
+
     public String getAvatarUrl() {
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
@@ -164,9 +177,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
         if (users != null) {
             user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-            user.addChangeListener(userRealmChangeListener = element -> {
+            user.addChangeListener(element -> {
                 Log.d(TAG, "OnChange users");
-                updateHeaderUserName(element);
+                updateHeaderUserName((User) element);
                 setAvatar();
             });
             updateHeaderUserName(user);
@@ -221,7 +234,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 .build();
 
         ImageLoader.getInstance().displayImage(getAvatarUrl(), binding.headerPicture, options);
-
     }
 
     @Override
@@ -283,13 +295,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        //TODO убрала условие 07.12, т.к. неясно для чего оно. без него часть багов исчезает
-//        if (currentChannel.equals("")) {
-//            replaceFragment(channelId, channelName);
-//            leftMenuRxFragment.setSelectItemMenu(channelId, type);
-//        }
         replaceFragment(channelId, channelName);
-
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
@@ -297,35 +303,29 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void replaceFragment(String channelId, String channelName) {
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
-        if (!channelId.equals(currentChannel)) {
+        if (!channelId.equals(currentChannel) || searchMessageId != null) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             MattermostPreference.getInstance().setLastChannelId(channelId);
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            if (searchMessageId != null) {
-                ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-                currentChannel = channelId;
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
-                        .commit();
-                MattermostPreference.getInstance().setLastChannelId(channelId);
-                binding.drawerLayout.closeDrawer(GravityCompat.START);
-                this.searchMessageId = null;
-            }
         }
         if (searchMessageId != null) {
             searchMessageId = null;
         }
+    }
+
+    public static void startSearch(Context context, String searchMessageId) {
+        Intent starter = new Intent(context, GeneralRxActivity.class);
+        starter.putExtra(MESSAGE_ID, searchMessageId);
+        context.startActivity(starter);
     }
 
     public static void start(Context context, Integer flags) {
@@ -337,7 +337,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private boolean parceIntent(Intent intent) {
-        if (intent.getExtras() != null) {
+        if (intent.getStringExtra(CHANNEL_ID) != null || intent.getStringExtra(CHANNEL_NAME) != null ||
+                intent.getStringExtra(CHANNEL_TYPE) != null) {
             String openChannelId = intent.getStringExtra(CHANNEL_ID);
             String openChannelName = intent.getStringExtra(CHANNEL_NAME);
             String openChannelType = intent.getStringExtra(CHANNEL_TYPE);

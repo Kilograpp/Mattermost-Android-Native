@@ -35,7 +35,7 @@ public class AddExistingChannelHolder extends RealmViewHolder {
                 .setColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY);
 
         typeChannel = channelDontBelong.getType();
-        moreBinding.tvChannelName.setText(channelDontBelong.getDisplayName().toUpperCase());
+        moreBinding.tvChannelName.setText(channelDontBelong.getDisplayName());
     }
 
     public String getTypeChannel() {
