@@ -4,25 +4,17 @@ import android.content.Context;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ChatListItemBinding;
 import com.kilogramm.mattermost.databinding.LoadMoreLayoutBinding;
 import com.kilogramm.mattermost.model.entity.post.Post;
-import com.kilogramm.mattermost.tools.HrSpannable;
-import com.kilogramm.mattermost.tools.MattermostTagHandler;
 import com.kilogramm.mattermost.viewmodel.chat.ItemChatViewModel;
 import com.vdurmont.emoji.EmojiParser;
 
@@ -195,55 +187,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         } else {
             return Spannable.Factory.getInstance().newSpannable("");
         }
-    }
-
-
-    // TODO этот метод не используется, он нужен?
-    @NonNull
-    public static SpannableStringBuilder getSpannableStringBuilder(Post post, Context context, boolean isProp, boolean isComment) {
-        Spanned spanned;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(
-                    isProp ? post.getProps().getAttachments().get(0).getText().trim() : post.getMessage()),
-                    Html.FROM_HTML_MODE_LEGACY, null, new MattermostTagHandler());
-        } else {
-            spanned = Html.fromHtml(EmojiParser.parseToUnicode(
-                    isProp ? post.getProps().getAttachments().get(0).getText().trim() : post.getMessage()),
-                    null, new MattermostTagHandler());
-        }
-
-        SpannableStringBuilder ssb = new SpannableStringBuilder(spanned);
-        Linkify.addLinks(ssb, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
-
-        Linkify.addLinks(ssb, Pattern.compile("\\B@([\\w|.]+)\\b"), null, (s, start, end) -> {
-            ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.colorPrimary)),
-                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            return true;
-        }, null);
-
-        Linkify.addLinks(ssb, Pattern.compile("<hr>.*<\\/hr>"), null, (charSequence, i, i1) -> {
-            String s = charSequence.toString();
-            StringBuilder builder = new StringBuilder();
-            for (int k = i; k < i1; k++) {
-                builder.append(' ');
-            }
-            ssb.replace(i, i1, builder.toString());
-            ssb.setSpan(new HrSpannable(context.getResources().getColor(R.color.light_grey)), i, i1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            return true;
-        }, null);
-        return ssb;
-    }
-
-    static Spannable revertSpanned(Spanned stext) {
-        Object[] spans = stext.getSpans(0, stext.length(), Object.class);
-        Spannable ret = Spannable.Factory.getInstance().newSpannable(stext.toString());
-        if (spans != null && spans.length > 0) {
-            for (int i = spans.length - 1; i >= 0; --i) {
-                ret.setSpan(spans[i], stext.getSpanStart(spans[i]), stext.getSpanEnd(spans[i]), stext.getSpanFlags(spans[i]));
-            }
-        }
-
-        return ret;
     }
 
     public void changeChatItemBackground(Context context, boolean isHighlighted) {
