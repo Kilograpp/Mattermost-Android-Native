@@ -75,7 +75,7 @@ public class UsersDropDownListAdapter extends RealmRecyclerViewAdapter<User, Use
 
 
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         private ItemUserDropDownListBinding binding;
 
         public ViewHolder(ItemUserDropDownListBinding binding) {
