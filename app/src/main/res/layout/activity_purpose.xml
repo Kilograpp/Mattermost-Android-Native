@@ -40,7 +40,7 @@
                 android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/purpose"
+                android:id="@+id/editTextPurpose"
                 style="@style/textBlack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 />
 
                 <ImageView
-                    android:id="@+id/btnClear"
+                    android:id="@+id/buttonClear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

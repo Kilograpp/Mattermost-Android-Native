@@ -22,7 +22,7 @@ public class DirectHolder extends BaseLeftHolder {
     private static final String TAG = "DIRECT_HOLDER";
     private ItemDirectionProfileChannelBinding mBinding;
 
-    public DirectHolder(ItemDirectionProfileChannelBinding binding) {
+    private DirectHolder(ItemDirectionProfileChannelBinding binding) {
         super(binding.getRoot());
         this.mBinding = binding;
     }

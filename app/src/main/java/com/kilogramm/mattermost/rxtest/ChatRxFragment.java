@@ -40,13 +40,17 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
+import com.kilogramm.mattermost.adapters.command.CommandAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.CommandObject;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
@@ -60,6 +64,7 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
@@ -149,6 +154,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
+    private CommandAdapter commandAdapter;
 
     private BroadcastReceiver brReceiverTyping;
 
@@ -196,6 +202,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 //        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
         setButtonAddFileOnClickListener();
         setDropDownUserList();
+        setupCommandList();
         setAttachedFilesLayout();
 
         brReceiverTyping = new BroadcastReceiver() {
@@ -339,6 +346,48 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.attachedFilesLayout.setmAllUploadedListener(this);
     }
 
+    private void setupCommandList(){
+        commandAdapter = new CommandAdapter(getActivity(), getCommandList(null),command -> {
+            Toast.makeText(getActivity(), command.getCommand(), Toast.LENGTH_SHORT).show();
+            binding.writingMessage.setText(command.getCommand() + " ");
+            binding.writingMessage.setSelection(binding.writingMessage.getText().length());
+        });
+        binding.commandLayout.setAdapter(commandAdapter);
+        binding.commandLayout.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.writingMessage.addTextChangedListener(getCommandListener());
+    }
+
+    private TextWatcher getCommandListener(){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                commandAdapter.updateDate(getCommandList(s.toString()));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+    }
+
+    private List<CommandObject> getCommandList(String commandWrite){
+        if(commandWrite!=null && !commandWrite.equals("")) {
+            return Stream.of(CommandObject.getCommandList())
+                    .filter(value -> value.getCommand().startsWith(commandWrite))
+                    .sorted()
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    // TODO: 12.12.2016 dropdownmenu
     private void setDropDownUserList() {
         dropDownListAdapter = new UsersDropDownListAdapter(getActivity(), this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
@@ -389,10 +438,20 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setOnClickListener(view -> {
             fabBehavior.lockBehavior();
             if (!binding.btnSend.getText().equals("Save"))
-                sendMessage();
+                if(binding.writingMessage.getText().toString().startsWith("/")) {
+                    sendCommand();
+                } else {
+                    sendMessage();
+                }
             else
                 editMessage();
         });
+    }
+
+    private void sendCommand() {
+        getPresenter().requestSendCommand(new CommandToNet(this.channelId,
+                        binding.writingMessage.getText().toString(),
+                        Boolean.FALSE.toString()));
     }
 
     public void setListenerToRootView() {
@@ -977,7 +1036,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.writingMessage.setSelection(nameBufferStart.length());
     }
 
-
     @Override
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
@@ -1213,4 +1271,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         super.onDestroyView();
         setupTypingText("");
     }
+
+
 }

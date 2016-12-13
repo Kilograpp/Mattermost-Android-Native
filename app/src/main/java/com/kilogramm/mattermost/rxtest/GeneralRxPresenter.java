@@ -231,7 +231,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void requestLogout() {
-        start(REQUEST_LOGOUT);
+        MattermostApp.logout();
+        //start(REQUEST_LOGOUT);
     }
 
     @Override

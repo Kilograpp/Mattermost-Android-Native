@@ -13,7 +13,7 @@ import android.view.View;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.MembersListBinding;
+import com.kilogramm.mattermost.databinding.ActivityAllMembersChannelBinding;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
@@ -31,35 +31,29 @@ import nucleus.factory.RequiresPresenter;
  * Created by ngers on 01.11.16.
  */
 @RequiresPresenter(AllMembersPresenter.class)
-public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
+public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter> {
     private static final String CHANNEL_ID = "channel_id";
 
-    MembersListBinding binding;
+    ActivityAllMembersChannelBinding binding;
     AllMembersAdapter allMembersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.members_list);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_all_members_channel);
         setToolbar();
         initiationData();
     }
-
-    private void initiationData() {
-        allMembersAdapter = new AllMembersAdapter(
-                this,
-                id -> openDirect(id), null);
-        binding.list.setAdapter(allMembersAdapter);
-        binding.list.setLayoutManager(new LinearLayoutManager(this));
-        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
         initSearchView(menu, getMassageTextWatcher());
         return true;
+    }
+
+    public void startGeneralActivity() {
+        GeneralRxActivity.start(this, null);
     }
 
     private TextWatcher getMassageTextWatcher(){
@@ -83,6 +77,35 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
         };
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void updateDataList(OrderedRealmCollection<User> realmResult) {
+        allMembersAdapter.updateData(realmResult);
+        if (realmResult.size() == 0) {
+            binding.textViewListEmpty.setVisibility(View.VISIBLE);
+        } else
+            binding.textViewListEmpty.setVisibility(View.INVISIBLE);
+    }
+
+    public static void start(Activity activity, String channelId) {
+        Intent starter = new Intent(activity, AllMembersChannelActivity.class);
+        starter.putExtra(CHANNEL_ID, channelId);
+        activity.startActivity(starter);
+    }
+
+    private void initiationData() {
+        allMembersAdapter = new AllMembersAdapter(
+                this,
+                id -> openDirect(id), null);
+        binding.recView.setAdapter(allMembersAdapter);
+        binding.recView.setLayoutManager(new LinearLayoutManager(this));
+        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
+    }
+
     private void openDirect(String id) {
         String userId = MattermostPreference.getInstance().getMyUserId();
         if (!userId.equals(id)) {
@@ -96,10 +119,6 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
         }
     }
 
-    public void startGeneralActivity() {
-        GeneralRxActivity.start(this, null);
-    }
-
     private void startDialog(String userTalkToId) {
         Preferences preferences = new Preferences(
                 userTalkToId,
@@ -111,29 +130,10 @@ public class AllMembersActivity extends BaseActivity<AllMembersPresenter> {
 
     }
 
-
-    public void updateDataList(OrderedRealmCollection<User> realmResult) {
-        allMembersAdapter.updateData(realmResult);
-        if (realmResult.size() == 0) {
-            binding.listEmpty.setVisibility(View.VISIBLE);
-        } else
-            binding.listEmpty.setVisibility(View.INVISIBLE);
-    }
-
     private void setToolbar() {
         setupToolbar(getString(R.string.all_members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
-    public static void start(Activity activity, String channelId) {
-        Intent starter = new Intent(activity, AllMembersActivity.class);
-        starter.putExtra(CHANNEL_ID, channelId);
-        activity.startActivity(starter);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return super.onOptionsItemSelected(item);
-    }
 }

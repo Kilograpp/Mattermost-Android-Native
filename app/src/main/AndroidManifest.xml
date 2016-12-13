@@ -61,7 +61,7 @@
         </activity>
 
         <activity
-            android:name=".view.channel.HeaderActivity"
+            android:name=".view.channel.HeaderChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 
@@ -71,12 +71,12 @@
         </activity>
 
         <activity
-            android:name=".view.channel.NameActivity"
+            android:name=".view.channel.NameChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".view.channel.AllMembersActivity"
+            android:name=".view.channel.AllMembersChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 

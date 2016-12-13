@@ -9,7 +9,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.channel.NameActivity;
+import com.kilogramm.mattermost.view.channel.NameChannelActivity;
 
 import icepick.State;
 import rx.schedulers.Schedulers;
@@ -18,7 +18,7 @@ import rx.schedulers.Schedulers;
  * Created by ngers on 01.11.16.
  */
 
-public class NamePresenter extends BaseRxPresenter<NameActivity> {
+public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
     private static final String TAG = "NamePresenter";
     private static final int REQUEST_UPDATE_CHANNEL = 1;
 

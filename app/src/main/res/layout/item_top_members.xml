@@ -6,42 +6,43 @@
         android:layout_height="wrap_content">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/memberIcon"
+            android:id="@+id/circleImageViewMemberIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_margin="@dimen/activity_horizontal_margin" />
 
         <View
-            android:id="@+id/line"
+            android:id="@+id/viewLine"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_below="@+id/memberIcon"
+            android:layout_below="@+id/circleImageViewMemberIcon"
             android:layout_marginStart="16dp"
-            android:layout_toEndOf="@+id/memberIcon"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
             android:background="@color/light_grey" />
 
         <TextView
-            android:id="@+id/memberName"
+            android:id="@+id/textViewMemberName"
             style="@style/textVeryBigDarkGrey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="50dp"
-            android:layout_marginRight="@dimen/activity_vertical_start"
             android:layout_marginStart="16dp"
-            android:layout_toEndOf="@+id/memberIcon"
-            android:layout_toRightOf="@+id/openMembers"
-            android:padding="2dp" />
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
+            android:singleLine="true"
+            android:padding="2dp"
+            android:layout_marginEnd="@dimen/margin_end_list_members"
+            />
 
         <TextView
-            android:id="@+id/status"
+            android:id="@+id/textViewStatus"
             style="@style/textLittleBlue"
+            android:foregroundGravity="right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:foregroundGravity="right" />
+          />
 
     </RelativeLayout>
 </layout>

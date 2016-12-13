@@ -14,7 +14,7 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.channel.AllMembersActivity;
+import com.kilogramm.mattermost.view.channel.AllMembersChannelActivity;
 
 import icepick.State;
 import io.realm.RealmResults;
@@ -26,7 +26,7 @@ import rx.schedulers.Schedulers;
  * Created by ngers on 01.11.16.
  */
 
-public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
+public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivity> {
     private static final int REQUEST_DB_GETUSERS = 1;
     private static final int REQUEST_SAVE = 2;
     @State
