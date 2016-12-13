@@ -28,6 +28,8 @@
     <string name="wait_files">Wait file for uploading</string>
     <string name="in_development">In Development</string>
 
+    <string name="all_members_empty">List is empty</string>
+
     <string name="transitions_image">image</string>
     <string name="typing">typing...</string>
     <string name="send">Send</string>
@@ -189,6 +191,8 @@
     <string name="create_new_ch_gr_toolbar_gr">New Group</string>
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
+    <string name="create_new_channel_ref">Private Groups are only visible to select team members.
+        Any member of a Private Group can add additional members.</string>
 
     <string name="empty_dialog_invite">+ Invite others to this channel</string>
     <string name="empty_dialog_title">Beginning of %1$s</string>
