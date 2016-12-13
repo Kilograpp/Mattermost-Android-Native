@@ -27,7 +27,7 @@ public class RightMenuAboutAppActivity extends BaseActivity {
 
         setupToolbar(getApplicationContext().getResources().getString(R.string.about_mattermost), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-
+        
         mBinding.mattermostOrg.setMovementMethod(LinkMovementMethod.getInstance());
         mBinding.kilograppTeam.setMovementMethod(LinkMovementMethod.getInstance());
     }
