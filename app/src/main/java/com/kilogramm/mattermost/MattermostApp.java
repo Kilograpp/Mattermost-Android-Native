@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -18,6 +17,7 @@ import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
@@ -38,7 +38,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Evgeny on 25.07.2016.
  */
-public class MattermostApp extends Application{
+public class MattermostApp extends Application {
 
     public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
     private static final String TAG = "Application";
@@ -47,19 +47,20 @@ public class MattermostApp extends Application{
 
     private ApiMethod mattermostRetrofitService;
 
-    public static MattermostApp get(Context context){
+    public static MattermostApp get(Context context) {
         return (MattermostApp) context.getApplicationContext();
     }
 
-    public static MattermostApp getSingleton(){
+    public static MattermostApp getSingleton() {
         return singleton;
     }
-    public void refreshMattermostRetrofitService(){
+
+    public void refreshMattermostRetrofitService() {
         mattermostRetrofitService = MattermostRetrofitService.refreshRetrofitService();
     }
 
-    public ApiMethod getMattermostRetrofitService() throws IllegalArgumentException{
-        if(mattermostRetrofitService == null){
+    public ApiMethod getMattermostRetrofitService() throws IllegalArgumentException {
+        if (mattermostRetrofitService == null) {
             mattermostRetrofitService = MattermostRetrofitService.create();
         }
         return mattermostRetrofitService;
@@ -69,12 +70,12 @@ public class MattermostApp extends Application{
     public void onCreate() {
         MultiDex.install(getApplicationContext());
         super.onCreate();
-        if(!BuildConfig.DEBUG){
+        if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-       // Realm.init(getApplicationContext());
+        // Realm.init(getApplicationContext());
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
@@ -99,37 +100,25 @@ public class MattermostApp extends Application{
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .diskCacheExtraOptions(300, 300, bitmap -> null)
                 .memoryCacheExtraOptions(300, 300)
-                .memoryCacheSize(1024*1024*20)
+                .memoryCacheSize(1024 * 1024 * 20)
                 .imageDownloader(new FilesView.AuthDownloader(this))
                 .build();
         ImageLoader.getInstance().init(config);
     }
 
-    public static void logout() {
-            MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .doOnError(throwable -> {
-                    })
-                    .doOnCompleted(() -> {
-                        Log.d(TAG, "Complete logout");
-                        clearDataBaseAfterLogout();
-                        clearPreference();
-                        showMainRxActivity();
-                    })
-                    .doOnNext(logoutData -> {
-                        logoutData.getUserId();
-                    })
-                    .subscribe();
+    public static rx.Observable<LogoutData> logout() {
+     return  MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
     }
-//    .doOnError(Throwable::printStackTrace)
+//
 
-    private static void clearPreference() {
+    public static void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);
         MattermostPreference.getInstance().setLastChannelId(null);
     }
 
-    private static void clearDataBaseAfterLogout() {
+    public static void clearDataBaseAfterLogout() {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             realm1.delete(Post.class);
@@ -146,7 +135,7 @@ public class MattermostApp extends Application{
         });
     }
 
-    private static void showMainRxActivity() {
+    public static void showMainRxActivity() {
         MainRxActivity.start(MattermostApp.getSingleton().getApplicationContext(),
                 Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
     }

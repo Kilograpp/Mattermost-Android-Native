@@ -1,8 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -41,6 +38,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -233,19 +231,27 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_USER_TEAM);
     }
 
-    //TODO тут ошибка, не смог понять где( поэтому добавил такую обработку
     public void requestLogout() {
-        final ConnectivityManager connectivityManager =
-                (ConnectivityManager) MattermostApp.getSingleton()
-                        .getApplicationContext()
-                        .getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-        if (ni == null || !ni.isConnectedOrConnecting()) {
-            Toast.makeText(getView(), "Error logout", Toast.LENGTH_SHORT).show();
-        } else {
-            MattermostApp.logout();
-        }
-        //start(REQUEST_LOGOUT);
+        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "Complete logout");
+                MattermostApp.clearDataBaseAfterLogout();
+                MattermostApp.clearPreference();
+                MattermostApp.showMainRxActivity();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                sendShowError("Error logout");
+            }
+
+            @Override
+            public void onNext(LogoutData logoutData) {
+            }
+        });
+//        start(REQUEST_LOGOUT);
     }
 
     @Override
