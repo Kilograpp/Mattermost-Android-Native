@@ -13,10 +13,10 @@ import java.util.Random;
 public class ColorGenerator {
 
     public static ColorGenerator MATERIAL;
+    private static final float SHADE_FACTOR = 0.9f;
 
     private final List<Integer> mColors;
     private final Random mRandom;
-    private static final float SHADE_FACTOR = 0.9f;
 
     static {
         MATERIAL = create(Arrays.asList(
@@ -43,11 +43,6 @@ public class ColorGenerator {
         return new ColorGenerator(colorList);
     }
 
-    private ColorGenerator(List<Integer> colorList) {
-        mColors = colorList;
-        mRandom = new Random(System.currentTimeMillis());
-    }
-
     public int getRandomColor() {
         int color = mColors.get(mRandom.nextInt(mColors.size()));
         return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
@@ -55,8 +50,8 @@ public class ColorGenerator {
                 (int)(SHADE_FACTOR * Color.blue(color)));
     }
 
-//    public int getRandomColor() {
-//        return mColors.get(mRandom.nextInt(mColors.size()));
-//    }
-
+    private ColorGenerator(List<Integer> colorList) {
+        mColors = colorList;
+        mRandom = new Random(System.currentTimeMillis());
+    }
 }
