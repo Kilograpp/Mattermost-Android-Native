@@ -40,16 +40,16 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     private static final String CHANNEL_ID = "channel_id";
     public static final int REQUEST_ID = 201;
 
-    ActivityChannelBinding binding;
-    String channelId;
-    AllMembersAdapter allMembersAdapter;
+    ActivityChannelBinding mBinding;
+    String mChannelId;
+    AllMembersAdapter mAllMembersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        channelId = getIntent().getStringExtra(CHANNEL_ID);
+        mChannelId = getIntent().getStringExtra(CHANNEL_ID);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_channel);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channel);
 
         initView();
         initClick();
@@ -61,26 +61,26 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         switch (view.getId()) {
             case R.id.TextViewToolbarText:
                 if (getPresenter().getChannel().getDisplayName()
-                        .equals(binding.TextViewToolbarText.getText().toString()))
-                    NameChannelActivity.start(this, channelId);
+                        .equals(mBinding.TextViewToolbarText.getText().toString()))
+                    NameChannelActivity.start(this, mChannelId);
                 break;
             case R.id.textViewChannelIcon:
-                NameChannelActivity.start(this, channelId);
+                NameChannelActivity.start(this, mChannelId);
                 break;
             case R.id.textViewChannelName:
-                NameChannelActivity.start(this, channelId);
+                NameChannelActivity.start(this, mChannelId);
                 break;
             case R.id.cardViewHeader:
-                HeaderChannelActivity.start(this, getPresenter().getChannel().getHeader(), channelId);
+                HeaderChannelActivity.start(this, getPresenter().getChannel());
                 break;
             case R.id.cardViewPurpose:
-                PurposeActivity.start(this, getPresenter().getChannel().getPurpose(), channelId);
+                PurposeActivity.start(this, getPresenter().getChannel());
                 break;
             case R.id.textViewSeeAll:
-                AllMembersChannelActivity.start(this, channelId);
+                AllMembersChannelActivity.start(this, mChannelId);
                 break;
             case R.id.cardViewAddMembers:
-                AddMembersActivity.start(this, channelId);
+                AddMembersActivity.start(this, mChannelId);
                 break;
             case R.id.cardViewLeave:
                 if (getPresenter().getMemberCount() == 1) {
@@ -88,8 +88,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 } else {
                     getPresenter().requestLeave();
                 }
-                binding.progressBar.setVisibility(View.VISIBLE);
-                binding.nestedScrollViewLayoutData.setVisibility(View.GONE);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
+                mBinding.nestedScrollViewLayoutData.setVisibility(View.GONE);
                 break;
         }
     }
@@ -102,7 +102,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     public void setCTollBarTitle(final String name) {
-        binding.layoutAppBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+        mBinding.layoutAppBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             boolean isShow = false;
             boolean isNotColapsed = true;
             int scrollRange = -1;
@@ -114,18 +114,18 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 }
                 if (scrollRange + verticalOffset == 0) {
                     if (isNotColapsed) {
-                        binding.TextViewToolbarText.startAnimation(AnimationUtils.loadAnimation(
-                                binding.getRoot().getContext(), R.anim.visible_anim));
-                        binding.TextViewToolbarText.setText(name);
-                        binding.linearLayoutName.setVisibility(View.INVISIBLE);
+                        mBinding.TextViewToolbarText.startAnimation(AnimationUtils.loadAnimation(
+                                mBinding.getRoot().getContext(), R.anim.visible_anim));
+                        mBinding.TextViewToolbarText.setText(name);
+                        mBinding.linearLayoutName.setVisibility(View.INVISIBLE);
                         isNotColapsed = false;
                         isShow = true;
                     }
                 } else if (isShow) {
-                    binding.TextViewToolbarText.startAnimation(AnimationUtils.loadAnimation(
-                            binding.getRoot().getContext(), R.anim.visible_anim));
-                    binding.TextViewToolbarText.setText(getString(R.string.channel_info));
-                    binding.linearLayoutName.setVisibility(View.VISIBLE);
+                    mBinding.TextViewToolbarText.startAnimation(AnimationUtils.loadAnimation(
+                            mBinding.getRoot().getContext(), R.anim.visible_anim));
+                    mBinding.TextViewToolbarText.setText(getString(R.string.channel_info));
+                    mBinding.linearLayoutName.setVisibility(View.VISIBLE);
                     isNotColapsed = true;
                     isShow = false;
                 }
@@ -141,25 +141,25 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         Channel channel = getPresenter().getChannel();
         channel.addChangeListener(element -> setMutableData(extraInfo, channel));
 
-        binding.textViewChannelIcon.getBackground()
+        mBinding.textViewChannelIcon.getBackground()
                 .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
-        binding.textViewUrlDescription.setText(getMessageLink(channel.getName()));
-        binding.textViewIdDescription.setText(channel.getId());
+        mBinding.textViewUrlDescription.setText(getMessageLink(channel.getName()));
+        mBinding.textViewIdDescription.setText(channel.getId());
 
         setMutableData(extraInfo, channel);
 
-        binding.progressBar.setVisibility(View.GONE);
-        binding.nestedScrollViewLayoutData.setVisibility(View.VISIBLE);
+        mBinding.progressBar.setVisibility(View.GONE);
+        mBinding.nestedScrollViewLayoutData.setVisibility(View.VISIBLE);
     }
 
     public void setAdapter(ExtraInfo extraInfo) {
-        allMembersAdapter = new AllMembersAdapter(
+        mAllMembersAdapter = new AllMembersAdapter(
                 this,
                 this::openDirect,
                 extraInfo.getMembers(), true);
-        binding.recyclerViewList.setAdapter(allMembersAdapter);
-        binding.recyclerViewList.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerViewList.setNestedScrollingEnabled(false);
+        mBinding.recyclerViewList.setAdapter(mAllMembersAdapter);
+        mBinding.recyclerViewList.setLayoutManager(new LinearLayoutManager(this));
+        mBinding.recyclerViewList.setNestedScrollingEnabled(false);
     }
 
     public void startGeneralActivity() {
@@ -174,8 +174,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
 
 
     public void errorRequest() {
-        binding.progressBar.setVisibility(View.GONE);
-        binding.nestedScrollViewLayoutData.setVisibility(View.VISIBLE);
+        mBinding.progressBar.setVisibility(View.GONE);
+        mBinding.nestedScrollViewLayoutData.setVisibility(View.VISIBLE);
     }
 
     public void finishActivity() {
@@ -190,30 +190,30 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void initView() {
-        getPresenter().initPresenter(MattermostPreference.getInstance().getTeamId(), channelId);
+        getPresenter().initPresenter(MattermostPreference.getInstance().getTeamId(), mChannelId);
         getPresenter().requestExtraInfo();
     }
 
     private void setMutableData(ExtraInfo extraInfo, Channel channel) {
-        binding.textViewChannelName.setText(channel.getDisplayName());
-        binding.textViewChannelIcon.setText(EmojiParser.removeAllEmojis(channel.getDisplayName()));
-        binding.textViewHeaderDescription.setText(channel.getHeader());
-        binding.textViewPurposeDescription.setText(channel.getPurpose());
-        binding.textViewCountMembers.setText(String.format("%s %s",
+        mBinding.textViewChannelName.setText(channel.getDisplayName());
+        mBinding.textViewChannelIcon.setText(EmojiParser.removeAllEmojis(channel.getDisplayName()));
+        mBinding.textViewHeaderDescription.setText(channel.getHeader());
+        mBinding.textViewPurposeDescription.setText(channel.getPurpose());
+        mBinding.textViewCountMembers.setText(String.format("%s %s",
                 extraInfo.getMember_count(),
                 getString(R.string.channel_info_count_members)));
 
         if (Integer.parseInt(extraInfo.getMember_count()) > 5)
-            binding.textViewSeeAll.setVisibility(View.VISIBLE);
+            mBinding.textViewSeeAll.setVisibility(View.VISIBLE);
         else
-            binding.textViewSeeAll.setVisibility(View.INVISIBLE);
+            mBinding.textViewSeeAll.setVisibility(View.INVISIBLE);
 
         if (extraInfo.getMember_count().equals("1")) {
-            binding.textViewLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
+            mBinding.textViewLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
                     ? getString(R.string.channel_info_delete_channel)
                     : getString(R.string.channel_info_delete_group));
         } else {
-            binding.textViewLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
+            mBinding.textViewLeaveDelete.setText(channel.getType().equals(Channel.OPEN)
                     ? getResources().getString(R.string.channel_info_leave_channel)
                     : getResources().getString(R.string.channel_info_leave_group));
         }
@@ -259,17 +259,17 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void initClick() {
-        binding.cardViewHeader.setOnClickListener(this);
-        binding.cardViewPurpose.setOnClickListener(this);
-        binding.textViewChannelName.setOnClickListener(this);
-        binding.textViewChannelIcon.setOnClickListener(this);
-        binding.cardViewUrl.setOnClickListener(this);
-        binding.cardViewId.setOnClickListener(this);
-        binding.cardViewLeave.setOnClickListener(this);
-        binding.textViewSeeAll.setOnClickListener(this);
-        binding.cardViewAddMembers.setOnClickListener(this);
-        binding.TextViewToolbarText.setOnClickListener(this);
-        binding.cardViewUrl.setOnLongClickListener(view -> {
+        mBinding.cardViewHeader.setOnClickListener(this);
+        mBinding.cardViewPurpose.setOnClickListener(this);
+        mBinding.textViewChannelName.setOnClickListener(this);
+        mBinding.textViewChannelIcon.setOnClickListener(this);
+        mBinding.cardViewUrl.setOnClickListener(this);
+        mBinding.cardViewId.setOnClickListener(this);
+        mBinding.cardViewLeave.setOnClickListener(this);
+        mBinding.textViewSeeAll.setOnClickListener(this);
+        mBinding.cardViewAddMembers.setOnClickListener(this);
+        mBinding.TextViewToolbarText.setOnClickListener(this);
+        mBinding.cardViewUrl.setOnLongClickListener(view -> {
             copyText(getMessageLink(getPresenter().getChannel().getName()));
             Toast.makeText(this, "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
             return true;
@@ -277,7 +277,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     }
 
     private void setToolbar() {
-        binding.TextViewToolbarText.setText(getPresenter().getChannel().getType().equals("O") ?
+        mBinding.TextViewToolbarText.setText(getPresenter().getChannel().getType().equals("O") ?
                 R.string.channel_info : R.string.group_info);
         setupToolbar(null, true);
     }

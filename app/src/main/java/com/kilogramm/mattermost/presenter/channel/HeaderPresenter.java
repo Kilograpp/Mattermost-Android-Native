@@ -7,6 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -31,7 +32,12 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     String channelId;
     @State
     String header;
+    @State
+    String typeChannel;
 
+    public String getTypeChannel() {
+        return typeChannel;
+    }
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -42,40 +48,16 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
         initRequests();
     }
 
-    public void initPresenter(String header, String channelId) {
+    public void initPresenter(Channel channel) {
         Log.d(TAG, "initPresenter");
         this.teamId = MattermostPreference.getInstance().getTeamId();
-        this.channelId = channelId;
-        this.header = header;
-    }
-
-    //region Init Requests
-    private void initRequests() {
-        initHeader();
-    }
-
-    private void initHeader() {
-        restartableFirst(REQUEST_UPDATE_HEADER,
-                () -> service.updateHeader(this.teamId, new ChannelHeader(channelId, header))
-                        .observeOn(Schedulers.io())
-                        .subscribeOn(Schedulers.io()),
-                (headerActivity, channel) -> {
-                    ChannelRepository.update(channel);
-                    requestFinish("Saved successfully");
-                }, (headerActivity, throwable) -> {
-                    throwable.printStackTrace();
-                    requestFinish("Unable to save");
-                }
-        );
+        this.channelId = channel.getId();
+        this.header = channel.getHeader();
+        this.typeChannel = channel.getType();
     }
 
     public void requestUpdateHeader() {
         start(REQUEST_UPDATE_HEADER);
-    }
-
-    private void requestFinish(String s) {
-        createTemplateObservable(new Object()).subscribe(split((headerActivity, o) ->
-                headerActivity.requestSave(s)));
     }
 
     public String getHeader() {
@@ -102,5 +84,28 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
 
     }
 
+    //region Init Requests
+    private void initRequests() {
+        initHeader();
+    }
 
+    private void initHeader() {
+        restartableFirst(REQUEST_UPDATE_HEADER,
+                () -> service.updateHeader(this.teamId, new ChannelHeader(channelId, header))
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (headerActivity, channel) -> {
+                    ChannelRepository.update(channel);
+                    requestFinish("Saved successfully");
+                }, (headerActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    requestFinish("Unable to save");
+                }
+        );
+    }
+
+    private void requestFinish(String s) {
+        createTemplateObservable(new Object()).subscribe(split((headerActivity, o) ->
+                headerActivity.requestSave(s)));
+    }
 }

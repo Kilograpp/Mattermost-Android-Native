@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityPurposeBinding;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -21,8 +22,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(PurposePresenter.class)
 public class PurposeActivity extends BaseActivity<PurposePresenter> {
-    private static final String CHANNEL_PURPOSE = "CHANNEL_PURPOSE";
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL = "CHANNEL";
     private ActivityPurposeBinding mBinding;
     private MenuItem mSaveItem;
 
@@ -30,11 +30,10 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_purpose);
-        setToolbar();
         getPresenter().initPresenter(
-                getIntent().getStringExtra(CHANNEL_PURPOSE),
-                getIntent().getStringExtra(CHANNEL_ID));
+                getIntent().getParcelableExtra(CHANNEL));
         initData();
+        setToolbar();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
                 getPresenter().requestUpdatePurpose();
                 mSaveItem = item;
                 item.setVisible(false);
-                mBinding.editTextPurpose.setVisibility(View.VISIBLE);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -74,10 +73,9 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
-    public static void start(Activity activity, String purpose, String channelId) {
+    public static void start(Activity activity, Channel channel) {
         Intent starter = new Intent(activity, PurposeActivity.class);
-        starter.putExtra(CHANNEL_PURPOSE, purpose);
-        starter.putExtra(CHANNEL_ID, channelId);
+        starter.putExtra(CHANNEL, channel);
         activity.startActivity(starter);
     }
 
@@ -90,7 +88,8 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
     }
 
     private void setToolbar() {
-        setupToolbar(getString(R.string.channel_purpose_toolbar), true);
+        setupToolbar(getString(getPresenter().getChannelType().equals("O") ?
+                R.string.channel_purpose_toolbar : R.string.group_purpose_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 

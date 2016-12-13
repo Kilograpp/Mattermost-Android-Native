@@ -17,9 +17,9 @@
             android:id="@+id/viewLine"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_below="@+id/memberIcon"
+            android:layout_below="@+id/circleImageViewMemberIcon"
             android:layout_marginStart="16dp"
-            android:layout_toEndOf="@+id/memberIcon"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
             android:background="@color/light_grey" />
 
         <TextView
@@ -29,9 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
-            android:layout_toEndOf="@+id/memberIcon"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
             android:singleLine="true"
-            android:text="sasdasdsadsasdsadsadsadashdfkdsahkdfahglkjdfhlg"
             android:padding="2dp"
             android:layout_marginEnd="@dimen/margin_end_list_members"
             />
@@ -45,7 +44,6 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:text="online"
           />
 
     </RelativeLayout>

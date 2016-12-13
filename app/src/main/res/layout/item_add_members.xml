@@ -20,9 +20,9 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_below="@+id/memberIcon"
+            android:layout_below="@+id/circleImageViewMemberIcon"
             android:layout_marginStart="16dp"
-            android:layout_toEndOf="@+id/memberIcon"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
             android:background="@color/light_grey" />
 
         <TextView

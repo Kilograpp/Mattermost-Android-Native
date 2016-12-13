@@ -7,6 +7,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -31,7 +32,12 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
     String channelId;
     @State
     String purpose;
+    @State
+    String channelType;
 
+    public String getChannelType() {
+        return channelType;
+    }
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -42,11 +48,12 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
         initRequests();
     }
 
-    public void initPresenter(String purpose, String channelId) {
+    public void initPresenter(Channel channel) {
         Log.d(TAG, "initPresenter");
         this.teamId = MattermostPreference.getInstance().getTeamId();
-        this.channelId = channelId;
-        this.purpose = purpose;
+        this.channelId = channel.getId();
+        this.purpose = channel.getPurpose();
+        this.channelType = channel.getType();
     }
 
     //region Init Requests

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityHeaderChannelBinding;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -21,20 +22,18 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(HeaderPresenter.class)
 public class HeaderChannelActivity extends BaseActivity<HeaderPresenter> {
-    private static final String CHANNEL_HEADER = "CHANNEL_HEADER";
-    private static final String CHANNEL_ID = "channel_id";
-    private ActivityHeaderChannelBinding binding;
-    private MenuItem saveItem;
+    private static final String CHANNEL = "CHANNEL";
+    private ActivityHeaderChannelBinding mBinding;
+    private MenuItem mSaveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_header_channel);
-        setToolbar();
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_header_channel);
         getPresenter().initPresenter(
-                getIntent().getStringExtra(CHANNEL_HEADER),
-                getIntent().getStringExtra(CHANNEL_ID));
+                getIntent().getParcelableExtra(CHANNEL));
         initData();
+        setToolbar();
     }
 
     @Override
@@ -49,11 +48,11 @@ public class HeaderChannelActivity extends BaseActivity<HeaderPresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
-                getPresenter().setHeader(binding.editTextHeader.getText().toString());
+                getPresenter().setHeader(mBinding.editTextHeader.getText().toString());
                 getPresenter().requestUpdateHeader();
-                saveItem = item;
+                mSaveItem = item;
                 item.setVisible(false);
-                binding.progressBar.setVisibility(View.VISIBLE);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -68,32 +67,31 @@ public class HeaderChannelActivity extends BaseActivity<HeaderPresenter> {
     }
 
     public void requestSave(String s) {
-        saveItem.setVisible(true);
-        binding.progressBar.setVisibility(View.INVISIBLE);
+        mSaveItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
 
-
-    public static void start(Activity activity, String header, String channelId) {
+    public static void start(Activity activity, Channel channel) {
         Intent starter = new Intent(activity, HeaderChannelActivity.class);
-        starter.putExtra(CHANNEL_HEADER, header);
-        starter.putExtra(CHANNEL_ID, channelId);
+        starter.putExtra(CHANNEL, channel);
         activity.startActivity(starter);
     }
 
     private void initData() {
-        binding.editTextHeader.setText(getPresenter().getHeader());
+        mBinding.editTextHeader.setText(getPresenter().getHeader());
 
-        binding.editTextHeader.setOnFocusChangeListener((v, hasFocus) -> {
-            binding.imageViewClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        mBinding.editTextHeader.setOnFocusChangeListener((v, hasFocus) -> {
+            mBinding.imageViewClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
         });
 
-        binding.imageViewClear.setOnClickListener(view -> binding.editTextHeader.setText(""));
+        mBinding.imageViewClear.setOnClickListener(view -> mBinding.editTextHeader.setText(""));
     }
 
     private void setToolbar() {
-        setupToolbar(getString(R.string.channel_header_toolbar), true);
+        setupToolbar(getString(getPresenter().getTypeChannel().equals("O") ?
+                R.string.channel_header_toolbar : R.string.group_header_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 

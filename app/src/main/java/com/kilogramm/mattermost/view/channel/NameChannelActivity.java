@@ -79,16 +79,16 @@ public class NameChannelActivity extends BaseActivity<NamePresenter> {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
-    private void setToolbar() {
-        setupToolbar(getString(getPresenter().getChannel().getType().equals("O") ?
-                R.string.channel_name_toolbar : R.string.group_name_toolbar), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-    }
-
     public static void start(Activity activity, String channelId) {
         Intent starter = new Intent(activity, NameChannelActivity.class);
         starter.putExtra(CHANNEL_ID, channelId);
         activity.startActivity(starter);
+    }
+
+    private void setToolbar() {
+        setupToolbar(getString(getPresenter().getChannel().getType().equals("O") ?
+                R.string.channel_name_toolbar : R.string.group_name_toolbar), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     private void initData() {
