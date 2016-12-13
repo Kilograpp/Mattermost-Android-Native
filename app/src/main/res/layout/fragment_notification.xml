@@ -16,7 +16,7 @@
                 android:orientation="vertical">
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/email"
+                    android:id="@+id/cardViewEmail"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
                             android:text="@string/notification_email" />
 
                         <TextView
-                            android:id="@+id/emailSetting"
+                            android:id="@+id/textViewEmailSetting"
                             style="@style/textVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/mobPush"
+                    android:id="@+id/cardViewMobPush"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
                             android:text="@string/notification_mob_push" />
 
                         <TextView
-                            android:id="@+id/descriptionMobPush"
+                            android:id="@+id/textViewDescriptionMobPush"
                             style="@style/textVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/wordTrigger"
+                    android:id="@+id/cardViewWordTrigger"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
 
 
                         <TextView
-                            android:id="@+id/descriptionWordsTrigger"
+                            android:id="@+id/textViewDescriptionWordsTrigger"
                             style="@style/textVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

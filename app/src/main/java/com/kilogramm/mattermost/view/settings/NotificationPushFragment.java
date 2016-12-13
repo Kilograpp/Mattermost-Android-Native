@@ -17,7 +17,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
  */
 public class NotificationPushFragment extends BaseFragment implements View.OnClickListener {
 
-    private FragmentNotificationMobilePushBinding binding;
+    private FragmentNotificationMobilePushBinding mBinding;
 
 
     @Override
@@ -28,70 +28,15 @@ public class NotificationPushFragment extends BaseFragment implements View.OnCli
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification_mobile_push,
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification_mobile_push,
                 container, false);
 
         initSettingPush();
         initSettingPushStatus();
         initOnClick();
 
-        return binding.getRoot();
+        return mBinding.getRoot();
     }
-
-    private void initOnClick() {
-        binding.all.setOnClickListener(this);
-        binding.mention.setOnClickListener(this);
-        binding.none.setOnClickListener(this);
-
-        binding.online.setOnClickListener(this);
-        binding.away.setOnClickListener(this);
-        binding.offline.setOnClickListener(this);
-    }
-
-    private void initSettingPush() {
-        notifPushSetting();
-        switch (getPresenter().getPushSetting()) {
-            case "all":
-                binding.selectAll.setVisibility(View.VISIBLE);
-                break;
-            case "mention":
-                binding.selectMentionsDirect.setVisibility(View.VISIBLE);
-                break;
-            case "none":
-                binding.selectNever.setVisibility(View.VISIBLE);
-                break;
-        }
-    }
-
-    private void notifPushSetting(){
-        binding.selectAll.setVisibility(View.INVISIBLE);
-        binding.selectMentionsDirect.setVisibility(View.INVISIBLE);
-        binding.selectNever.setVisibility(View.INVISIBLE);
-    }
-
-    private void initSettingPushStatus() {
-        notifyPushStatusSetting();
-        switch (getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting()) {
-            case "online":
-                binding.selectAllTriger.setVisibility(View.VISIBLE);
-                break;
-            case "away":
-                binding.selectAwayOff.setVisibility(View.VISIBLE);
-                break;
-            case "offline":
-                binding.selectOff.setVisibility(View.VISIBLE);
-                break;
-            case "":
-                break;
-        }
-    }
-
-    private void notifyPushStatusSetting(){
-        binding.selectAllTriger.setVisibility(View.INVISIBLE);
-        binding.selectAwayOff.setVisibility(View.INVISIBLE);
-        binding.selectOff.setVisibility(View.INVISIBLE);
-    }
-
 
     @Override
     public void onClick(View view) {
@@ -112,5 +57,60 @@ public class NotificationPushFragment extends BaseFragment implements View.OnCli
     public NotificationPresenter getPresenter() {
         return ((NotificationActivity) getActivity()).getPresenter();
     }
+
+    private void initOnClick() {
+        mBinding.cardViewAll.setOnClickListener(this);
+        mBinding.cardViewMention.setOnClickListener(this);
+        mBinding.cardViewNone.setOnClickListener(this);
+
+        mBinding.cardViewOnline.setOnClickListener(this);
+        mBinding.cardViewAway.setOnClickListener(this);
+        mBinding.cardViewOffline.setOnClickListener(this);
+    }
+
+    private void initSettingPush() {
+        notifPushSetting();
+        switch (getPresenter().getPushSetting()) {
+            case "all":
+                mBinding.imageViewSelectAll.setVisibility(View.VISIBLE);
+                break;
+            case "mention":
+                mBinding.imageViewSelectMentionsDirect.setVisibility(View.VISIBLE);
+                break;
+            case "none":
+                mBinding.imageViewSelectNever.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+    private void notifPushSetting() {
+        mBinding.imageViewSelectAll.setVisibility(View.INVISIBLE);
+        mBinding.imageViewSelectMentionsDirect.setVisibility(View.INVISIBLE);
+        mBinding.imageViewSelectNever.setVisibility(View.INVISIBLE);
+    }
+
+    private void initSettingPushStatus() {
+        notifyPushStatusSetting();
+        switch (getPresenter().getPushStatusSetting() == null ? "" : getPresenter().getPushStatusSetting()) {
+            case "online":
+                mBinding.imageViewSelectAllTrigger.setVisibility(View.VISIBLE);
+                break;
+            case "away":
+                mBinding.imageViewSelectAwayOff.setVisibility(View.VISIBLE);
+                break;
+            case "offline":
+                mBinding.imageViewSelectOff.setVisibility(View.VISIBLE);
+                break;
+            case "":
+                break;
+        }
+    }
+
+    private void notifyPushStatusSetting() {
+        mBinding.imageViewSelectAllTrigger.setVisibility(View.INVISIBLE);
+        mBinding.imageViewSelectAwayOff.setVisibility(View.INVISIBLE);
+        mBinding.imageViewSelectOff.setVisibility(View.INVISIBLE);
+    }
+
 }
 

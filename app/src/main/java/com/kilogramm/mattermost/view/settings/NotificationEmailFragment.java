@@ -18,7 +18,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
  */
 public class NotificationEmailFragment extends BaseFragment implements View.OnClickListener {
 
-    private FragmentEmailNotificationBinding binding;
+    private FragmentEmailNotificationBinding mBinding;
 
 
     @Override
@@ -29,37 +29,17 @@ public class NotificationEmailFragment extends BaseFragment implements View.OnCl
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_email_notification,
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_email_notification,
                 container, false);
 
         initSetting();
         initOnClick();
-        binding.description.setText(String.format("%s %s %s",
+        mBinding.textViewDescription.setText(String.format("%s %s %s",
                 getText(R.string.email_description_start),
                 MattermostPreference.getInstance().getSiteName(),
                 getText(R.string.email_description_end)));
-        return binding.getRoot();
+        return mBinding.getRoot();
     }
-
-    private void initOnClick() {
-        binding.immediately.setOnClickListener(this);
-        binding.never.setOnClickListener(this);
-    }
-
-    private void initSetting() {
-        notifyEmailSetting();
-        if (getPresenter().getEmailSetting().equals(getString(R.string.email_immediately))) {
-            binding.selectImmediately.setVisibility(View.VISIBLE);
-        } else {
-            binding.selectNever.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void notifyEmailSetting() {
-        binding.selectImmediately.setVisibility(View.INVISIBLE);
-        binding.selectNever.setVisibility(View.INVISIBLE);
-    }
-
 
     @Override
     public void onClick(View view) {
@@ -71,5 +51,25 @@ public class NotificationEmailFragment extends BaseFragment implements View.OnCl
     public NotificationPresenter getPresenter() {
         return ((NotificationActivity) getActivity()).getPresenter();
     }
+
+    private void initOnClick() {
+        mBinding.cardViewImmediately.setOnClickListener(this);
+        mBinding.cardViewNever.setOnClickListener(this);
+    }
+
+    private void initSetting() {
+        notifyEmailSetting();
+        if (getPresenter().getEmailSetting().equals(getString(R.string.email_immediately))) {
+            mBinding.imageViewSelectImmediately.setVisibility(View.VISIBLE);
+        } else {
+            mBinding.imageViewSelectNever.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void notifyEmailSetting() {
+        mBinding.imageViewSelectImmediately.setVisibility(View.INVISIBLE);
+        mBinding.imageViewSelectNever.setVisibility(View.INVISIBLE);
+    }
+
 }
 

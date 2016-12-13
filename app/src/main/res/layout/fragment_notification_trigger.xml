@@ -23,7 +23,7 @@
                     android:layout_marginTop="@dimen/activity_vertical_start">
 
                     <TextView
-                        android:id="@+id/titleFirstName"
+                        android:id="@+id/textViewTitleFirstName"
                         style="@style/textVeryBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
                         android:text="@string/triggers_first_name" />
 
                     <CheckBox
-                        android:id="@+id/selectFirstName"
+                        android:id="@+id/checkBoxSelectFirstName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|right"
@@ -48,7 +48,7 @@
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <TextView
-                        android:id="@+id/titleUserName"
+                        android:id="@+id/textViewTitleUserName"
                         style="@style/textVeryBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
                         android:text="@string/triggers_username" />
 
                     <CheckBox
-                        android:id="@+id/selectUserName"
+                        android:id="@+id/checkBoxSelectUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|right"
@@ -73,7 +73,7 @@
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <TextView
-                        android:id="@+id/titleUserNameMentioned"
+                        android:id="@+id/textViewTitleUserNameMentioned"
                         style="@style/textVeryBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                         android:text="@string/triggers_user_mention" />
 
                     <CheckBox
-                        android:id="@+id/selectUserNameMentioned"
+                        android:id="@+id/checkBoxSelectUserNameMentioned"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|right"
@@ -98,7 +98,7 @@
                     android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                     <TextView
-                        android:id="@+id/titleChannelMentioned"
+                        android:id="@+id/textViewTitleChannelMentioned"
                         style="@style/textVeryBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                         android:text="@string/triggers_channel_mention" />
 
                     <CheckBox
-                        android:id="@+id/selectChannelMentioned"
+                        android:id="@+id/checkBoxSelectChannelMentioned"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical|right"
@@ -131,7 +131,7 @@
                     android:layout_marginTop="@dimen/activity_vertical_text_margin">
 
                     <EditText
-                        android:id="@+id/otherMention"
+                        android:id="@+id/editTextOtherMention"
                         style="@style/textVeryBigBlack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

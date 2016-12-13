@@ -38,46 +38,6 @@ public class WordsTriggerMentionsFragment extends BaseFragment {
         return binding.getRoot();
     }
 
-    private void initChangeListener() {
-        binding.selectFirstName.setOnCheckedChangeListener((compoundButton, b) ->
-                getPresenter().setFirstNameTrigger(b));
-        binding.selectChannelMentioned.setOnCheckedChangeListener((compoundButton, b) ->
-                getPresenter().setChannelTrigger(b));
-
-        CompoundButton.OnCheckedChangeListener mention_keysListener = (compoundButton, b) -> setMentionsKeys();
-        binding.selectUserName.setOnCheckedChangeListener(mention_keysListener);
-        binding.selectUserNameMentioned.setOnCheckedChangeListener(mention_keysListener);
-    }
-
-    private void initTriggers() {
-        binding.titleFirstName.setText(binding.titleFirstName.getText()
-                + " \"" + getPresenter().getFirstName() + "\"");
-        binding.selectFirstName.setChecked(getPresenter().isFirstNameTrigger());
-
-        binding.titleUserName.setText(binding.titleUserName.getText()
-                + " \"" + getPresenter().getUserName() + "\"");
-        binding.selectUserName.setChecked(getPresenter().isUserName());
-
-        binding.titleUserNameMentioned.setText(binding.titleUserNameMentioned.getText()
-                + " \"" + getPresenter().getUserNameMentioned() + "\"");
-        binding.selectUserNameMentioned.setChecked(getPresenter().isUserNameMentioned());
-
-        binding.selectChannelMentioned.setChecked(getPresenter().isChannelTrigger());
-
-        binding.otherMention.setText(getPresenter().getOtherMentionsKeys());
-    }
-
-    public String getAllMentions() {
-        String mentionKeys = "";
-        if (binding.selectUserName.isChecked())
-            mentionKeys = mentionKeys + getPresenter().getUserName() + ",";
-        if (binding.selectUserNameMentioned.isChecked())
-            mentionKeys = mentionKeys + getPresenter().getUserNameMentioned() + ",";
-        if (binding.otherMention.getText().toString().trim().length() > 0)
-            mentionKeys = mentionKeys + binding.otherMention.getText().toString();
-        return mentionKeys;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -97,6 +57,46 @@ public class WordsTriggerMentionsFragment extends BaseFragment {
     @Override
     public NotificationPresenter getPresenter() {
         return ((NotificationActivity) getActivity()).getPresenter();
+    }
+
+    public String getAllMentions() {
+        String mentionKeys = "";
+        if (binding.checkBoxSelectUserName.isChecked())
+            mentionKeys = mentionKeys + getPresenter().getUserName() + ",";
+        if (binding.checkBoxSelectUserNameMentioned.isChecked())
+            mentionKeys = mentionKeys + getPresenter().getUserNameMentioned() + ",";
+        if (binding.editTextOtherMention.getText().toString().trim().length() > 0)
+            mentionKeys = mentionKeys + binding.editTextOtherMention.getText().toString();
+        return mentionKeys;
+    }
+
+    private void initChangeListener() {
+        binding.checkBoxSelectFirstName.setOnCheckedChangeListener((compoundButton, b) ->
+                getPresenter().setFirstNameTrigger(b));
+        binding.checkBoxSelectChannelMentioned.setOnCheckedChangeListener((compoundButton, b) ->
+                getPresenter().setChannelTrigger(b));
+
+        CompoundButton.OnCheckedChangeListener mention_keysListener = (compoundButton, b) -> setMentionsKeys();
+        binding.checkBoxSelectUserName.setOnCheckedChangeListener(mention_keysListener);
+        binding.checkBoxSelectUserNameMentioned.setOnCheckedChangeListener(mention_keysListener);
+    }
+
+    private void initTriggers() {
+        binding.textViewTitleFirstName.setText(binding.textViewTitleFirstName.getText()
+                + " \"" + getPresenter().getFirstName() + "\"");
+        binding.checkBoxSelectFirstName.setChecked(getPresenter().isFirstNameTrigger());
+
+        binding.textViewTitleUserName.setText(binding.textViewTitleUserName.getText()
+                + " \"" + getPresenter().getUserName() + "\"");
+        binding.checkBoxSelectUserName.setChecked(getPresenter().isUserName());
+
+        binding.textViewTitleUserNameMentioned.setText(binding.textViewTitleUserNameMentioned.getText()
+                + " \"" + getPresenter().getUserNameMentioned() + "\"");
+        binding.checkBoxSelectUserNameMentioned.setChecked(getPresenter().isUserNameMentioned());
+
+        binding.checkBoxSelectChannelMentioned.setChecked(getPresenter().isChannelTrigger());
+
+        binding.editTextOtherMention.setText(getPresenter().getOtherMentionsKeys());
     }
 }
 
