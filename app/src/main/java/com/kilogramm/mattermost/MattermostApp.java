@@ -106,19 +106,23 @@ public class MattermostApp extends Application{
     }
 
     public static void logout() {
-        MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnError(Throwable::printStackTrace)
-                .doOnCompleted(() -> {
-                    Log.d(TAG, "Complete logout");
-                    clearDataBaseAfterLogout();
-                    clearPreference();
-                    showMainRxActivity();
-                })
-                .doOnNext(logoutData -> {})
-                .subscribe();
+            MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .doOnError(throwable -> {
+                    })
+                    .doOnCompleted(() -> {
+                        Log.d(TAG, "Complete logout");
+                        clearDataBaseAfterLogout();
+                        clearPreference();
+                        showMainRxActivity();
+                    })
+                    .doOnNext(logoutData -> {
+                        logoutData.getUserId();
+                    })
+                    .subscribe();
     }
+//    .doOnError(Throwable::printStackTrace)
 
     private static void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);

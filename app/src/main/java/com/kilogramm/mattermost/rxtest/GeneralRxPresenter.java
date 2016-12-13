@@ -1,5 +1,8 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -230,8 +233,18 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_USER_TEAM);
     }
 
+    //TODO тут ошибка, не смог понять где( поэтому добавил такую обработку
     public void requestLogout() {
-        MattermostApp.logout();
+        final ConnectivityManager connectivityManager =
+                (ConnectivityManager) MattermostApp.getSingleton()
+                        .getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+        if (ni == null || !ni.isConnectedOrConnecting()) {
+            Toast.makeText(getView(), "Error logout", Toast.LENGTH_SHORT).show();
+        } else {
+            MattermostApp.logout();
+        }
         //start(REQUEST_LOGOUT);
     }
 
