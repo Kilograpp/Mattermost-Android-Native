@@ -27,51 +27,20 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(CreateNewChannelPresenter.class)
 public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPresenter> {
-    public static final String TYPE = "TYPE";
-    public static final String channelType = "O";
-    public static final String CHANNEL_NAME = "CHANNEL_NAME";
-    public static final String CREATED_CHANNEL_ID = "CREATED_CHANNEL_ID";
+    private ActivityCreateChannelGroupBinding mBinding;
+    private ColorGenerator mColorGenerator;
 
-    private ActivityCreateChannelGroupBinding binding;
-    private ColorGenerator colorGenerator;
+    public static final String sTYPE = "sTYPE";
+    public static final String sCHANNEL_TYPE = "O";
+    public static final String CHANNEL_NAME = "sCHANNEL_NAME";
+    public static final String sCREATED_CHANNEL_ID = "sCREATED_CHANNEL_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_create_channel_group);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_create_channel_group);
         this.init();
     }
-
-    private void init() {
-        binding.tvChannelName.setHint(getResources().getString(R.string.create_new_channel_name_hint));
-        setupToolbar(getString(R.string.create_new_ch_gr_toolbar_ch), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-
-        colorGenerator = ColorGenerator.MATERIAL;
-        binding.newChannelAvatar.getBackground()
-                .setColorFilter(colorGenerator.getRandomColor(), PorterDuff.Mode.MULTIPLY);
-
-        binding.tvChannelName.addTextChangedListener(textingWatcher);
-    }
-
-    private final TextWatcher textingWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (binding.tvChannelName.getText().length() == 0) {
-                binding.newChannelAvatar.setText("");
-            } else {
-                binding.newChannelAvatar.setText(String.valueOf(binding.tvChannelName.getText().toString().charAt(0)));
-            }
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -86,49 +55,47 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
                 BaseActivity.hideKeyboard(this);
                 this.finish();
                 break;
-
             case R.id.action_create:
                 this.createChannel();
                 break;
-
             default:
                 super.onOptionsItemSelected(item);
         }
         return true;
     }
 
-    public static void startActivityForResult(Activity context, Integer requestCode) {
-        Intent starter = new Intent(context, CreateNewChannelActivity.class);
-        starter.putExtra(TYPE, "O");
-        context.startActivityForResult(starter, requestCode);
-    }
-
-    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
-        Intent starter = new Intent(fragment.getActivity(), CreateNewChannelActivity.class);
-        starter.putExtra(TYPE,  "O");
-        fragment.startActivityForResult(starter, requestCode);
-    }
-
     public void finishActivity(String createdChannelId, String channelName) {
         Intent finish = new Intent(this, CreateNewGroupActivity.class)
-                .putExtra(CREATED_CHANNEL_ID, createdChannelId)
+                .putExtra(sCREATED_CHANNEL_ID, createdChannelId)
                 .putExtra(CHANNEL_NAME, channelName)
-                .putExtra(TYPE, channelType);
+                .putExtra(sTYPE, sCHANNEL_TYPE);
         setResult(Activity.RESULT_OK, finish);
         this.finish();
     }
 
     public void setProgressVisibility(Boolean bool) {
-        binding.progressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
+        mBinding.progressBar.setVisibility(bool ? View.VISIBLE : View.GONE);
+    }
+
+    private void init() {
+        mBinding.tvChannelName.setHint(getResources().getString(R.string.create_new_channel_name_hint));
+        setupToolbar(getString(R.string.create_new_ch_gr_toolbar_ch), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+
+        mColorGenerator = ColorGenerator.MATERIAL;
+        mBinding.newChannelAvatar.getBackground()
+                .setColorFilter(mColorGenerator.getRandomColor(), PorterDuff.Mode.MULTIPLY);
+
+        mBinding.tvChannelName.addTextChangedListener(textingWatcher);
     }
 
     private void createChannel() {
-        if (binding.tvChannelName.getText().length() != 0) {
+        if (mBinding.tvChannelName.getText().length() != 0) {
             getPresenter().requestCreateChannel(
-                    makeName(binding.tvChannelName.getText().toString()),
-                    binding.tvChannelName.getText().toString(),
-                    binding.header.getText().toString(),
-                    binding.purpose.getText().toString());
+                    makeName(mBinding.tvChannelName.getText().toString()),
+                    mBinding.tvChannelName.getText().toString(),
+                    mBinding.header.getText().toString(),
+                    mBinding.purpose.getText().toString());
         } else {
             getPresenter().sendShowError(getResources().getString(R.string.create_new_channel_error));
         }
@@ -144,4 +111,35 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
             return channelName.toLowerCase();
         }
     }
+    
+    public static void startActivityForResult(Activity context, Integer requestCode) {
+        Intent starter = new Intent(context, CreateNewChannelActivity.class);
+        starter.putExtra(sTYPE, "O");
+        context.startActivityForResult(starter, requestCode);
+    }
+
+    public static void startActivityForResult(Fragment fragment, Integer requestCode) {
+        Intent starter = new Intent(fragment.getActivity(), CreateNewChannelActivity.class);
+        starter.putExtra(sTYPE, "O");
+        fragment.startActivityForResult(starter, requestCode);
+    }
+
+    private final TextWatcher textingWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (mBinding.tvChannelName.getText().length() == 0) {
+                mBinding.newChannelAvatar.setText("");
+            } else {
+                mBinding.newChannelAvatar.setText(String.valueOf(mBinding.tvChannelName.getText().toString().charAt(0)));
+            }
+        }
+    };
 }

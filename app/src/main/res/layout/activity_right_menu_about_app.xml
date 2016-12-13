@@ -25,14 +25,24 @@
                     android:layout_gravity="center"
                     app:srcCompat="@drawable/ic_mm" />
 
-                <ImageView
-                    android:layout_width="@dimen/about_small_icon_size"
-                    android:layout_height="@dimen/about_small_icon_size"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginBottom="@dimen/status_margin_bottom"
-                    android:layout_marginEnd="@dimen/status_margin_end"
-                    app:srcCompat="@drawable/ic_logo"
-                    android:visibility="gone"/>
+                <!--<ImageView-->
+                    <!--android:id="@+id/image_view_kg"-->
+                    <!--android:layout_width="@dimen/about_small_icon_size"-->
+                    <!--android:layout_height="@dimen/about_small_icon_size"-->
+                    <!--android:layout_gravity="bottom|end"-->
+                    <!--app:srcCompat="@drawable/ic_oval_50_2" />-->
+
+                <!--android:layout_marginBottom="@dimen/status_margin_bottom"-->
+                <!--android:layout_marginEnd="@dimen/status_margin_end"-->
+
+                <!--<ImageView-->
+                    <!--android:layout_width="25dp"-->
+                    <!--android:layout_height="25dp"-->
+                    <!--android:layout_gravity="bottom|end"-->
+                    <!--android:layout_marginBottom="12dp"-->
+                    <!--android:layout_marginEnd="15dp"-->
+                    <!--app:srcCompat="@drawable/ic_logo"-->
+                    <!--/>-->
             </FrameLayout>
 
             <LinearLayout
@@ -68,7 +78,7 @@
 
                 <TextView
                     style="@style/linkSmallNormalBlack"
-                    android:id="@+id/mattermostOrg"
+                    android:id="@+id/text_view_mattermost_org"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/about_margin_start_end"
@@ -79,7 +89,7 @@
 
                 <TextView
                     style="@style/linkSmallNormalBlack"
-                    android:id="@+id/kilograppTeam"
+                    android:id="@+id/text_view_kilograpp_team"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="@dimen/about_margin_start_end"

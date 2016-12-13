@@ -48,12 +48,12 @@ public class Data implements Parcelable {
     private Map<String, String> statusMap;
 
     public Data(String channelDisplayName,
-                 String channelType,
-                 String mentions,
-                 Post post,
-                 String senderName,
-                 String teamId,
-                 String status,
+                String channelType,
+                String mentions,
+                Post post,
+                String senderName,
+                String teamId,
+                String status,
                 Map<String, String> statusMap) {
         this.channelDisplayName = channelDisplayName;
         this.channelType = channelType;

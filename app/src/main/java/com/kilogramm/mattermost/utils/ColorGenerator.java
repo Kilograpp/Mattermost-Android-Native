@@ -14,9 +14,10 @@ public class ColorGenerator {
 
     public static ColorGenerator MATERIAL;
 
+    private static final float SHADE_FACTOR = 0.9f;
+
     private final List<Integer> mColors;
     private final Random mRandom;
-    private static final float SHADE_FACTOR = 0.9f;
 
     static {
         MATERIAL = create(Arrays.asList(
@@ -39,24 +40,20 @@ public class ColorGenerator {
                 0xff90a4ae
         ));
     }
-    public static ColorGenerator create(List<Integer> colorList) {
-        return new ColorGenerator(colorList);
-    }
 
     private ColorGenerator(List<Integer> colorList) {
         mColors = colorList;
         mRandom = new Random(System.currentTimeMillis());
     }
 
-    public int getRandomColor() {
-        int color = mColors.get(mRandom.nextInt(mColors.size()));
-        return Color.rgb((int)(SHADE_FACTOR * Color.red(color)),
-                (int)(SHADE_FACTOR * Color.green(color)),
-                (int)(SHADE_FACTOR * Color.blue(color)));
+    public static ColorGenerator create(List<Integer> colorList) {
+        return new ColorGenerator(colorList);
     }
 
-//    public int getRandomColor() {
-//        return mColors.get(mRandom.nextInt(mColors.size()));
-//    }
-
+    public int getRandomColor() {
+        int color = mColors.get(mRandom.nextInt(mColors.size()));
+        return Color.rgb((int) (SHADE_FACTOR * Color.red(color)),
+                (int) (SHADE_FACTOR * Color.green(color)),
+                (int) (SHADE_FACTOR * Color.blue(color)));
+    }
 }

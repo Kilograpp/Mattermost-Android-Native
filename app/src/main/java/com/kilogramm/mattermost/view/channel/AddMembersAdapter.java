@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.AddMembersItemBinding;
+import com.kilogramm.mattermost.databinding.ItemAddMembersBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
@@ -31,9 +31,9 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        AddMembersItemBinding binding = DataBindingUtil.inflate(
+        ItemAddMembersBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
-                R.layout.add_members_item,
+                R.layout.item_add_members,
                 parent,
                 false);
         return new MyViewHolder(binding);
@@ -43,7 +43,7 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
     public void onBindViewHolder(MyViewHolder holder, int position) {
         User user = getItem(position);
         if (user.getId() != null) {
-            holder.binding.memberName.setText(user.getUsername());
+            holder.binding.textViewMemberName.setText(user.getUsername());
 
             Picasso.with(holder.binding.getRoot().getContext())
                     .load(getImageUrl(user))
@@ -54,7 +54,7 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
                     .placeholder(holder.binding.getRoot().getContext()
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(holder.binding.memberIcon);
+                    .into(holder.binding.circleImageViewMemberIcon);
 
             holder.binding.getRoot().setOnClickListener(view ->
                     onItemClickListener.onItemClick(user.getId()));
@@ -70,8 +70,8 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
     }
 
     public static class MyViewHolder extends RealmViewHolder {
-        AddMembersItemBinding binding;
-        private MyViewHolder(AddMembersItemBinding binding) {
+        ItemAddMembersBinding binding;
+        private MyViewHolder(ItemAddMembersBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

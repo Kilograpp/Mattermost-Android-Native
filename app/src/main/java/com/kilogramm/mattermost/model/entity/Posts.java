@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class Posts {
     @SerializedName("posts")
-    Map<String,Post> posts;
+    Map<String, Post> posts;
 
     public Map<String, Post> getPosts() {
         return posts;

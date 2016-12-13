@@ -33,7 +33,5 @@ public class PicassoService {
                 .downloader(new OkHttp3Downloader(client))
                 .memoryCache(new LruCache(context))
                 .build());
-
     }
-
 }

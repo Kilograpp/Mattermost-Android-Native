@@ -68,7 +68,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
     protected void onTakeView(MainRxActivity mainRxActivity) {
         super.onTakeView(mainRxActivity);
 
-        //TODO FIX logic check login
         if (MattermostPreference.getInstance().getAuthToken() != null &&
                 MattermostPreference.getInstance().getCookies() != null) {
             sendShowChatActivity();

@@ -141,15 +141,15 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void handleRequestJoinChannel(Intent data) {
-        onChannelClick(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
-                data.getStringExtra(AddExistingChannelsActivity.TYPE));
-        setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                data.getStringExtra(AddExistingChannelsActivity.TYPE));
+        onChannelClick(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_NAME),
+                data.getStringExtra(AddExistingChannelsActivity.sTYPE));
+        setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                data.getStringExtra(AddExistingChannelsActivity.sTYPE));
     }
 
     private void handleRequestJoinDirect(Intent data) {
-        String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
+        String userTalkToId = data.getStringExtra(WholeDirectListActivity.mUSER_ID);
         Preferences saveData = new Preferences(userTalkToId,
                 MattermostPreference.getInstance().getMyUserId(),
                 true,
@@ -159,25 +159,25 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             getPresenter().requestSaveData(saveData, userTalkToId);
         } else {
             onChannelClick(channels.get(0).getId(), channels.get(0).getUsername(), channels.get(0).getType());
-            setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                    data.getStringExtra(AddExistingChannelsActivity.TYPE));
+            setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                    data.getStringExtra(AddExistingChannelsActivity.sTYPE));
         }
     }
 
     private void handleRequestCreateGroup(Intent data) {
         privateListAdapter.setSelectedItem(
-                privateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.CREATED_GROUP_ID)));
-        onChannelClick(data.getStringExtra(CreateNewGroupActivity.CREATED_GROUP_ID),
-                data.getStringExtra(CreateNewGroupActivity.GROUP_NAME),
-                data.getStringExtra(CreateNewGroupActivity.TYPE));
+                privateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID)));
+        onChannelClick(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID),
+                data.getStringExtra(CreateNewGroupActivity.sGROUP_NAME),
+                data.getStringExtra(CreateNewGroupActivity.sTYPE));
     }
 
     private void handleRequestCreateChannel(Intent data) {
         channelListAdapter.setSelectedItem(
-                channelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.CREATED_CHANNEL_ID)));
-        onChannelClick(data.getStringExtra(CreateNewChannelActivity.CREATED_CHANNEL_ID),
+                channelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID)));
+        onChannelClick(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID),
                 data.getStringExtra(CreateNewChannelActivity.CHANNEL_NAME),
-                data.getStringExtra(CreateNewChannelActivity.TYPE));
+                data.getStringExtra(CreateNewChannelActivity.sTYPE));
     }
 
     @Override

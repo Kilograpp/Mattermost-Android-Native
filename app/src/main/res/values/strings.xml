@@ -1,12 +1,13 @@
 <resources>
     <string name="app_name">Mattermost</string>
-    <string name="main_discription">All your team communication in one place, searchable and accessible anywhere.</string>
+    <string name="main_description">All your team communication in one place, searchable and accessible anywhere.</string>
 
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
     <string name="main_url_error">Url is not valid</string>
 
+                    <!--LogIn-->
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -26,6 +27,8 @@
     <string name="message_empty">Message is empty</string>
     <string name="wait_files">Wait file for uploading</string>
     <string name="in_development">In Development</string>
+
+    <string name="all_members_empty">List is empty</string>
 
     <string name="transitions_image">image</string>
     <string name="typing">typing...</string>
@@ -188,6 +191,8 @@
     <string name="create_new_ch_gr_toolbar_gr">New Group</string>
     <string name="create_new_channel_error"> \t Channel name is required \n</string>
     <string name="create_new_group_error"> \t Group name is required \n </string>
+    <string name="create_new_channel_ref">Private Groups are only visible to select team members.
+        Any member of a Private Group can add additional members.</string>
 
     <string name="empty_dialog_invite">+ Invite others to this channel</string>
     <string name="empty_dialog_title">Beginning of %1$s</string>
@@ -208,6 +213,7 @@
 
                     <!--Channel info-->
     <string name="channel_info">Channel info</string>
+    <string name="group_info">Group info</string>
     <string name="channel_info_header">Header</string>
     <string name="channel_info_purpose">Purpose</string>
     <string name="channel_info_url">URL</string>
@@ -228,15 +234,18 @@
 
     <string name="channel_header">Edit header</string>
     <string name="channel_header_toolbar">Channel Header</string>
+    <string name="group_header_toolbar">Group Header</string>
     <string name="channel_purpose">Edit purpose</string>
     <string name="channel_purpose_toolbar">Channel Purpose</string>
+    <string name="group_purpose_toolbar">Group Purpose</string>
     <string name="channel_name_toolbar">Channel Name</string>
+    <string name="group_name_toolbar">Group Name</string>
     <string name="channel_display_name">Display Name</string>
     <string name="channel_handle_name">Handle</string>
     <string name="channel_display_name_edit">Edit name</string>
     <string name="channel_name_edit">Edit handle</string>
 
-                    <!--PUSH NOTIFICATIONS-->
+                    <!--Push notifications-->
     <string name="notification_sent_attachment">"did something new"</string>
     <string name="notification_sent_pic">"sent picture"</string>
     <string name="notification_sent_file">"sent file"</string>
@@ -247,8 +256,5 @@
     <string name="logout_dialog_title">WOW!</string>
     <string name="logout_dialog_message">Do you really want to log out?</string>
     <string name="logout_dialog_button">LOG OUT</string>
-
-                    <!--Server errors-->
-    <!--<string name="error_loading_chann_info">Error loading channel info</string>-->
 
 </resources>

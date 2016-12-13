@@ -19,6 +19,7 @@ public class Attachments extends RealmObject implements Parcelable {
     @SerializedName("fallback")
     @Expose
     private String fallback;
+    // TODO закомментированную часть можно удалять?
     //        @SerializedName("fields")
 //        @Expose
 //        private RealmList<RealmString> fields;

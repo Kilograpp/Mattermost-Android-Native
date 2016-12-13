@@ -69,7 +69,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
-    public static final String MESSAGE_ID = "message_id";
+    public static final String MESSAGE_ID = "MESSAGE_ID";
 
     private ActivityMenuBinding binding;
 

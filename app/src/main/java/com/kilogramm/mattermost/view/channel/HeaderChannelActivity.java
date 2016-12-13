@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ActivityPurposeBinding;
+import com.kilogramm.mattermost.databinding.ActivityHeaderChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
+import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import nucleus.factory.RequiresPresenter;
@@ -20,16 +20,16 @@ import nucleus.factory.RequiresPresenter;
 /**
  * Created by ngers on 18.10.16.
  */
-@RequiresPresenter(PurposePresenter.class)
-public class PurposeActivity extends BaseActivity<PurposePresenter> {
+@RequiresPresenter(HeaderPresenter.class)
+public class HeaderChannelActivity extends BaseActivity<HeaderPresenter> {
     private static final String CHANNEL = "CHANNEL";
-    private ActivityPurposeBinding mBinding;
+    private ActivityHeaderChannelBinding mBinding;
     private MenuItem mSaveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_purpose);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_header_channel);
         getPresenter().initPresenter(
                 getIntent().getParcelableExtra(CHANNEL));
         initData();
@@ -48,8 +48,8 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
-                getPresenter().setHeader(mBinding.editTextPurpose.getText().toString());
-                getPresenter().requestUpdatePurpose();
+                getPresenter().setHeader(mBinding.editTextHeader.getText().toString());
+                getPresenter().requestUpdateHeader();
                 mSaveItem = item;
                 item.setVisible(false);
                 mBinding.progressBar.setVisibility(View.VISIBLE);
@@ -62,7 +62,6 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save_toolbar, menu);
         return true;
     }
@@ -73,25 +72,27 @@ public class PurposeActivity extends BaseActivity<PurposePresenter> {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
+
     public static void start(Activity activity, Channel channel) {
-        Intent starter = new Intent(activity, PurposeActivity.class);
+        Intent starter = new Intent(activity, HeaderChannelActivity.class);
         starter.putExtra(CHANNEL, channel);
         activity.startActivity(starter);
     }
 
     private void initData() {
-        mBinding.editTextPurpose.setText(getPresenter().getPurpose());
-        mBinding.editTextPurpose.setOnFocusChangeListener((v, hasFocus) -> {
-            mBinding.buttonClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
+        mBinding.editTextHeader.setText(getPresenter().getHeader());
+
+        mBinding.editTextHeader.setOnFocusChangeListener((v, hasFocus) -> {
+            mBinding.imageViewClear.setVisibility(hasFocus ? View.VISIBLE : View.INVISIBLE);
         });
-        mBinding.buttonClear.setOnClickListener(view -> mBinding.editTextPurpose.setText(""));
+
+        mBinding.imageViewClear.setOnClickListener(view -> mBinding.editTextHeader.setText(""));
     }
 
     private void setToolbar() {
-        setupToolbar(getString(getPresenter().getChannelType().equals("O") ?
-                R.string.channel_purpose_toolbar : R.string.group_purpose_toolbar), true);
+        setupToolbar(getString(getPresenter().getTypeChannel().equals("O") ?
+                R.string.channel_header_toolbar : R.string.group_header_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
-
 
 }

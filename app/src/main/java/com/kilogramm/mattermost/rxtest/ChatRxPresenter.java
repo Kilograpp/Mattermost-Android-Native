@@ -29,6 +29,7 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecif
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.network.ApiMethod;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 7;
+    private static final int REQUEST_SEND_COMMAND = 15;
 
     private static final int REQUEST_DB_GETUSERS = 10;
     private static final int REQUEST_DB_USERS_STATUS = 13;
@@ -100,6 +102,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     @State
     String searchMessageId;
 
+    private CommandToNet command;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -131,6 +135,20 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initGetUserStatusList();
 //        initSendToServerError();
         initLoadBeforeAndAfter();
+        initSendCommand();
+    }
+
+    private void initSendCommand() {
+        restartableFirst(REQUEST_SEND_COMMAND,
+                () -> service.executeCommand(this.teamId, this.command)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (chatRxFragment, commandFromNet) -> {
+                    sendEmptyMessage();
+                    if(commandFromNet.getGoToLocation().equals("/"))
+                        MattermostApp.logout();
+                },
+                (chatRxFragment, throwable) -> sendError(getError(throwable)));
     }
 
     private void initExtraInfo() {
@@ -159,7 +177,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             return extraInfo;
                         }))
                 , (chatRxFragment, extraInfo) -> {
-                   requestLoadPosts();
+                    requestLoadPosts();
                 }
                 , (chatRxFragment1, throwable) -> {
                     sendError(getError(throwable));
@@ -398,7 +416,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     //region Requests
     public void requestExtraInfo() {
-       start(REQUEST_EXTRA_INFO);
+        start(REQUEST_EXTRA_INFO);
     }
 
     public void requestLoadPosts() {
@@ -487,6 +505,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     public void requestUserStatus() {
         start(REQUEST_DB_USER_STATUS);
     }
+
+    public void requestSendCommand(CommandToNet command){
+        this.command = command;
+        start(REQUEST_SEND_COMMAND);
+    }
     //endregion
 
     // region To View
@@ -564,6 +587,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         createTemplateObservable(userStatus).subscribe(split(
                 (chatRxFragment, status) -> chatRxFragment.setupTypingText(status.getStatus())));
     }
+
     private void sendTypingText() {
         createTemplateObservable(new Object()).subscribe(split(
                 (chatRxFragment, status) -> chatRxFragment.setupTypingText(UserStatus.OFFLINE)));

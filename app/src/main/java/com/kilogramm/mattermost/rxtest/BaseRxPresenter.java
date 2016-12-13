@@ -89,6 +89,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
 
     /*******************************/
 
+    // TODO вот альтернативный метод для обработки ошибок, посмотрите плз
     public static String parceError(Throwable e, String requestTag) {
         if (e instanceof HttpException) {
             try {

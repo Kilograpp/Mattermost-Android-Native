@@ -18,21 +18,21 @@ import io.realm.RealmResults;
 /**
  * Created by melkshake on 14.09.16.
  */
+
 public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, WholeDirectListHolder> {
 
-    private RealmResults<UserStatus> userStatuses;
-    private RealmResults<Preferences> preferences;
-
-    Map<String, Boolean> changesMap;
+    private RealmResults<UserStatus> mUserStatuses;
+    private RealmResults<Preferences> mPreferences;
+    private Map<String, Boolean> mChangesMap;
 
     public WholeDirectListAdapter(Context context,
                                   RealmResults<UserStatus> statusRealmResults,
                                   RealmResults<Preferences> preferences) {
         super(context, null, true);
-        this.userStatuses = statusRealmResults;
-        this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
-        this.changesMap = new HashMap<>();
-        this.preferences = preferences;
+        this.mUserStatuses = statusRealmResults;
+        this.mUserStatuses.addChangeListener(element -> notifyDataSetChanged());
+        this.mChangesMap = new HashMap<>();
+        this.mPreferences = preferences;
     }
 
     @Override
@@ -44,11 +44,11 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
     public void onBindViewHolder(WholeDirectListHolder holder, int position) {
         User user = getData().get(position);
         boolean isShow = false;
-        RealmQuery<Preferences> preferencesRealmQuery = preferences.where()
+        RealmQuery<Preferences> preferencesRealmQuery = mPreferences.where()
                 .equalTo("name", user.getId());
+
         if (preferencesRealmQuery.count() > 0) {
-            if (preferencesRealmQuery.findFirst().getValue().equals("true"))
-                isShow = true;
+            if (preferencesRealmQuery.findFirst().getValue().equals("true")) isShow = true;
         }
 
         holder.getmBinding().getRoot().setOnClickListener(view -> {
@@ -60,14 +60,14 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         holder.getmBinding().selectDirect.setOnClickListener(view ->
                 setItemChangeMap(user.getId(), ((CheckBox) view).isChecked())
         );
-        holder.bindTo(user, isShow, changesMap.get(user.getId()));
+        holder.bindTo(user, isShow, mChangesMap.get(user.getId()));
     }
 
-    public Map<String, Boolean> getChangesMap() {
-        return changesMap;
+    public Map<String, Boolean> getmChangesMap() {
+        return mChangesMap;
     }
 
     public void setItemChangeMap(String id, boolean value) {
-        changesMap.put(id, value);
+        mChangesMap.put(id, value);
     }
 }

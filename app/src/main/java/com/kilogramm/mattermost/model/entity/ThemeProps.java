@@ -84,396 +84,308 @@ public class ThemeProps extends RealmObject implements Parcelable {
     private String type;
 
     /**
-     *
-     * @return
-     * The awayIndicator
+     * @return The awayIndicator
      */
     public String getAwayIndicator() {
         return awayIndicator;
     }
 
     /**
-     *
-     * @param awayIndicator
-     * The awayIndicator
+     * @param awayIndicator The awayIndicator
      */
     public void setAwayIndicator(String awayIndicator) {
         this.awayIndicator = awayIndicator;
     }
 
     /**
-     *
-     * @return
-     * The buttonBg
+     * @return The buttonBg
      */
     public String getButtonBg() {
         return buttonBg;
     }
 
     /**
-     *
-     * @param buttonBg
-     * The buttonBg
+     * @param buttonBg The buttonBg
      */
     public void setButtonBg(String buttonBg) {
         this.buttonBg = buttonBg;
     }
 
     /**
-     *
-     * @return
-     * The buttonColor
+     * @return The buttonColor
      */
     public String getButtonColor() {
         return buttonColor;
     }
 
     /**
-     *
-     * @param buttonColor
-     * The buttonColor
+     * @param buttonColor The buttonColor
      */
     public void setButtonColor(String buttonColor) {
         this.buttonColor = buttonColor;
     }
 
     /**
-     *
-     * @return
-     * The centerChannelBg
+     * @return The centerChannelBg
      */
     public String getCenterChannelBg() {
         return centerChannelBg;
     }
 
     /**
-     *
-     * @param centerChannelBg
-     * The centerChannelBg
+     * @param centerChannelBg The centerChannelBg
      */
     public void setCenterChannelBg(String centerChannelBg) {
         this.centerChannelBg = centerChannelBg;
     }
 
     /**
-     *
-     * @return
-     * The centerChannelColor
+     * @return The centerChannelColor
      */
     public String getCenterChannelColor() {
         return centerChannelColor;
     }
 
     /**
-     *
-     * @param centerChannelColor
-     * The centerChannelColor
+     * @param centerChannelColor The centerChannelColor
      */
     public void setCenterChannelColor(String centerChannelColor) {
         this.centerChannelColor = centerChannelColor;
     }
 
     /**
-     *
-     * @return
-     * The codeTheme
+     * @return The codeTheme
      */
     public String getCodeTheme() {
         return codeTheme;
     }
 
     /**
-     *
-     * @param codeTheme
-     * The codeTheme
+     * @param codeTheme The codeTheme
      */
     public void setCodeTheme(String codeTheme) {
         this.codeTheme = codeTheme;
     }
 
     /**
-     *
-     * @return
-     * The linkColor
+     * @return The linkColor
      */
     public String getLinkColor() {
         return linkColor;
     }
 
     /**
-     *
-     * @param linkColor
-     * The linkColor
+     * @param linkColor The linkColor
      */
     public void setLinkColor(String linkColor) {
         this.linkColor = linkColor;
     }
 
     /**
-     *
-     * @return
-     * The mentionBj
+     * @return The mentionBj
      */
     public String getMentionBj() {
         return mentionBj;
     }
 
     /**
-     *
-     * @param mentionBj
-     * The mentionBj
+     * @param mentionBj The mentionBj
      */
     public void setMentionBj(String mentionBj) {
         this.mentionBj = mentionBj;
     }
 
     /**
-     *
-     * @return
-     * The mentionColor
+     * @return The mentionColor
      */
     public String getMentionColor() {
         return mentionColor;
     }
 
     /**
-     *
-     * @param mentionColor
-     * The mentionColor
+     * @param mentionColor The mentionColor
      */
     public void setMentionColor(String mentionColor) {
         this.mentionColor = mentionColor;
     }
 
     /**
-     *
-     * @return
-     * The mentionHighlightBg
+     * @return The mentionHighlightBg
      */
     public String getMentionHighlightBg() {
         return mentionHighlightBg;
     }
 
     /**
-     *
-     * @param mentionHighlightBg
-     * The mentionHighlightBg
+     * @param mentionHighlightBg The mentionHighlightBg
      */
     public void setMentionHighlightBg(String mentionHighlightBg) {
         this.mentionHighlightBg = mentionHighlightBg;
     }
 
     /**
-     *
-     * @return
-     * The mentionHighlightLink
+     * @return The mentionHighlightLink
      */
     public String getMentionHighlightLink() {
         return mentionHighlightLink;
     }
 
     /**
-     *
-     * @param mentionHighlightLink
-     * The mentionHighlightLink
+     * @param mentionHighlightLink The mentionHighlightLink
      */
     public void setMentionHighlightLink(String mentionHighlightLink) {
         this.mentionHighlightLink = mentionHighlightLink;
     }
 
     /**
-     *
-     * @return
-     * The newMessageSeparator
+     * @return The newMessageSeparator
      */
     public String getNewMessageSeparator() {
         return newMessageSeparator;
     }
 
     /**
-     *
-     * @param newMessageSeparator
-     * The newMessageSeparator
+     * @param newMessageSeparator The newMessageSeparator
      */
     public void setNewMessageSeparator(String newMessageSeparator) {
         this.newMessageSeparator = newMessageSeparator;
     }
 
     /**
-     *
-     * @return
-     * The onlineIndicator
+     * @return The onlineIndicator
      */
     public String getOnlineIndicator() {
         return onlineIndicator;
     }
 
     /**
-     *
-     * @param onlineIndicator
-     * The onlineIndicator
+     * @param onlineIndicator The onlineIndicator
      */
     public void setOnlineIndicator(String onlineIndicator) {
         this.onlineIndicator = onlineIndicator;
     }
 
     /**
-     *
-     * @return
-     * The sidebarBg
+     * @return The sidebarBg
      */
     public String getSidebarBg() {
         return sidebarBg;
     }
 
     /**
-     *
-     * @param sidebarBg
-     * The sidebarBg
+     * @param sidebarBg The sidebarBg
      */
     public void setSidebarBg(String sidebarBg) {
         this.sidebarBg = sidebarBg;
     }
 
     /**
-     *
-     * @return
-     * The sidebarHeaderBg
+     * @return The sidebarHeaderBg
      */
     public String getSidebarHeaderBg() {
         return sidebarHeaderBg;
     }
 
     /**
-     *
-     * @param sidebarHeaderBg
-     * The sidebarHeaderBg
+     * @param sidebarHeaderBg The sidebarHeaderBg
      */
     public void setSidebarHeaderBg(String sidebarHeaderBg) {
         this.sidebarHeaderBg = sidebarHeaderBg;
     }
 
     /**
-     *
-     * @return
-     * The sidebarHeaderTextColor
+     * @return The sidebarHeaderTextColor
      */
     public String getSidebarHeaderTextColor() {
         return sidebarHeaderTextColor;
     }
 
     /**
-     *
-     * @param sidebarHeaderTextColor
-     * The sidebarHeaderTextColor
+     * @param sidebarHeaderTextColor The sidebarHeaderTextColor
      */
     public void setSidebarHeaderTextColor(String sidebarHeaderTextColor) {
         this.sidebarHeaderTextColor = sidebarHeaderTextColor;
     }
 
     /**
-     *
-     * @return
-     * The sidebarText
+     * @return The sidebarText
      */
     public String getSidebarText() {
         return sidebarText;
     }
 
     /**
-     *
-     * @param sidebarText
-     * The sidebarText
+     * @param sidebarText The sidebarText
      */
     public void setSidebarText(String sidebarText) {
         this.sidebarText = sidebarText;
     }
 
     /**
-     *
-     * @return
-     * The sidebarTextActiveBorder
+     * @return The sidebarTextActiveBorder
      */
     public String getSidebarTextActiveBorder() {
         return sidebarTextActiveBorder;
     }
 
     /**
-     *
-     * @param sidebarTextActiveBorder
-     * The sidebarTextActiveBorder
+     * @param sidebarTextActiveBorder The sidebarTextActiveBorder
      */
     public void setSidebarTextActiveBorder(String sidebarTextActiveBorder) {
         this.sidebarTextActiveBorder = sidebarTextActiveBorder;
     }
 
     /**
-     *
-     * @return
-     * The sidebarTextActiveColor
+     * @return The sidebarTextActiveColor
      */
     public String getSidebarTextActiveColor() {
         return sidebarTextActiveColor;
     }
 
     /**
-     *
-     * @param sidebarTextActiveColor
-     * The sidebarTextActiveColor
+     * @param sidebarTextActiveColor The sidebarTextActiveColor
      */
     public void setSidebarTextActiveColor(String sidebarTextActiveColor) {
         this.sidebarTextActiveColor = sidebarTextActiveColor;
     }
 
     /**
-     *
-     * @return
-     * The sidebarTextHoverBg
+     * @return The sidebarTextHoverBg
      */
     public String getSidebarTextHoverBg() {
         return sidebarTextHoverBg;
     }
 
     /**
-     *
-     * @param sidebarTextHoverBg
-     * The sidebarTextHoverBg
+     * @param sidebarTextHoverBg The sidebarTextHoverBg
      */
     public void setSidebarTextHoverBg(String sidebarTextHoverBg) {
         this.sidebarTextHoverBg = sidebarTextHoverBg;
     }
 
     /**
-     *
-     * @return
-     * The sidebarUnreadText
+     * @return The sidebarUnreadText
      */
     public String getSidebarUnreadText() {
         return sidebarUnreadText;
     }
 
     /**
-     *
-     * @param sidebarUnreadText
-     * The sidebarUnreadText
+     * @param sidebarUnreadText The sidebarUnreadText
      */
     public void setSidebarUnreadText(String sidebarUnreadText) {
         this.sidebarUnreadText = sidebarUnreadText;
     }
 
     /**
-     *
-     * @return
-     * The type
+     * @return The type
      */
     public String getType() {
         return type;
     }
 
     /**
-     *
-     * @param type
-     * The type
+     * @param type The type
      */
     public void setType(String type) {
         this.type = type;
