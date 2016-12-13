@@ -95,7 +95,12 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowError(parceError(throwable, UPLOAD_A_FILE));
+            if(!throwable.getMessage().trim().equals("unexpected end of stream")) {
+                String error = parceError(throwable, UPLOAD_A_FILE);
+                if (error != null) {
+                    sendShowError(error);
+                }
+            }
             FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });

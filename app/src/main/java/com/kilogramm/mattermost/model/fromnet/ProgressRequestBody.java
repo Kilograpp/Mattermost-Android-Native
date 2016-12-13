@@ -63,10 +63,6 @@ public class ProgressRequestBody extends RequestBody {
             }
             if(fileToAttach != null && fileToAttach.isValid()) {
                 FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
-            } else {
-                sink.flush();
-                sink.close();
-                in.close();
             }
         }
     }
