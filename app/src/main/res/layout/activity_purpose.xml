@@ -40,17 +40,19 @@
                 android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/header"
+                android:id="@+id/editTextPurpose"
                 style="@style/textBlack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:padding="@dimen/activity_horizontal_margin"
                 android:layout_weight="1"
-                android:hint="@string/channel_header" />
+                android:maxLength="128"
+                android:hint="@string/channel_purpose"
+                />
 
                 <ImageView
-                    android:id="@+id/btnClear"
+                    android:id="@+id/buttonClear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

@@ -89,6 +89,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
 
     /*******************************/
 
+    // TODO вот альтернативный метод для обработки ошибок, посмотрите плз
     public static String parceError(Throwable e, String requestTag) {
         if (e instanceof HttpException) {
             try {
@@ -131,20 +132,17 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                             case UPLOAD_A_FILE:
                                 if (statusCode == 400) {
                                     return "Invalid file type or invalid image dimensions";
-                                }
-                                if (statusCode == 401) {
+                                } else if (statusCode == 401) {
                                     return "You are not logged in";
-                                }
-                                if (statusCode == 403) {
+                                } else if (statusCode == 403) {
                                     return "You do not have permission to upload file here";
-                                }
-                                if (statusCode == 413) {
+                                } else if (statusCode == 413) {
                                     return "Uploaded file is too large";
-                                }
-                                if (statusCode == 501) {
+                                } else if (statusCode == 501) {
                                     return "File storage is disabled";
+                                } else {
+                                    return null;
                                 }
-                                break;
                             case GET_A_FILE:
                             case GET_THUMBNAIL:
                             case GET_PREVIEW:
@@ -198,7 +196,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         }
                     }
                 } else {
-                   return error.getMessage();
+                    return error.getMessage();
                 }
                 return (error != null)
                         ? (error.getMessage() != null)

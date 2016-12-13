@@ -61,8 +61,8 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImag
  */
 public class ManagerBroadcast {
     public static final String TAG = "ObjectUtil";
-    public static final String CHANNEL_ID = "CHANNEL_ID";
-    public static final String CHANNEL_NAME = "CHANNEL_NAME";
+    public static final String CHANNEL_ID = "sCHANNEL_ID";
+    public static final String CHANNEL_NAME = "sCHANNEL_NAME";
     public static final String CHANNEL_TYPE = "CHANNEL_TYPE";
     private static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     private static final String CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";

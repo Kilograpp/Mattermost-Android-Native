@@ -36,9 +36,9 @@
                     android:id="@+id/directProfileName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/black"
                     android:maxLines="1"
                     android:singleLine="true"
+                    android:textColor="@color/black"
                     tools:text="test" />
 
                 <TextView

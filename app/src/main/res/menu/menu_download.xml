@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_download"
-        android:title="download"
         android:icon="@drawable/ic_file_download"
+        android:title="download"
         app:showAsAction="ifRoom" />
 </menu>

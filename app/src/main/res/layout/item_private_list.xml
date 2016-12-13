@@ -16,8 +16,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/white"
-            tools:textColor="@color/black"
-            tools:text="test name"/>
+            tools:text="test name"
+            tools:textColor="@color/black" />
 
         <TextView
             android:id="@+id/unreadedMessage"
@@ -25,8 +25,8 @@
             android:layout_height="wrap_content"
             android:padding="2dp"
             android:textColor="@color/white"
-            tools:textColor="@color/black"
-            tools:text="1" />
+            tools:text="1"
+            tools:textColor="@color/black" />
 
     </com.kilogramm.mattermost.ui.CheckableLinearLayout>
 </layout>

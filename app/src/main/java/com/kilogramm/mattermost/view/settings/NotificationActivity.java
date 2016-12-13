@@ -21,83 +21,36 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(NotificationPresenter.class)
 public class NotificationActivity extends BaseActivity<NotificationPresenter> {
-    private ActivityNotificationBinding binding;
+    private ActivityNotificationBinding mBinding;
 
-    private NotificationFragment notificationFragment;
-    private NotificationEmailFragment notificationEmailFragment;
-    private NotificationPushFragment notificationPushFragment;
+    private NotificationFragment mNotificationFragment;
+    private NotificationEmailFragment mNotificationEmailFragment;
+    private NotificationPushFragment mNotificationPushFragment;
 
-    MenuItem saveItem;
+    MenuItem mSaveItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_notification);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_notification);
         setToolbar();
         openNotification();
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
-
-
-    private void setToolbar() {
-        setupToolbar(getString(R.string.notification), true);
-    }
-
 
     @Override
     protected void onResume() {
         super.onResume();
     }
 
-    public void openMobilePushNotification() {
-        setupToolbar(getString(R.string.notification_mob_push), true);
-        if (notificationPushFragment == null)
-            notificationPushFragment = new NotificationPushFragment();
-
-        getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), notificationPushFragment)
-                .commit();
-        binding.fragmentNotification.setTag("NotificationPushFragment");
-    }
-
-    public void openWordsTriggerMentions() {
-        setupToolbar(getString(R.string.notification_words_trigger), true);
-        getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), new WordsTriggerMentionsFragment())
-                .commit();
-        binding.fragmentNotification.setTag("WordsTriggerMentionsFragment");
-    }
-
-    public void openNotification() {
-        setToolbar();
-        if (notificationFragment == null)
-            notificationFragment = new NotificationFragment();
-        getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), notificationFragment)
-                .commit();
-        binding.fragmentNotification.setTag("NotificationFragment");
-    }
-
-
-    public void openEmailNotification() {
-        setupToolbar(getString(R.string.notification_email), true);
-        if (notificationEmailFragment == null)
-            notificationEmailFragment = new NotificationEmailFragment();
-        getFragmentManager().beginTransaction()
-                .replace(binding.fragmentNotification.getId(), notificationEmailFragment)
-                .commit();
-        binding.fragmentNotification.setTag("NotificationEmailFragment");
-    }
-
-
     @Override
     public void onBackPressed() {
-        switch (binding.fragmentNotification.getTag().toString()) {
+        switch (mBinding.fragmentLayoutNotification.getTag().toString()) {
             case "NotificationFragment":
                 super.onBackPressed();
                 break;
             case "WordsTriggerMentionsFragment":
-                ((WordsTriggerMentionsFragment) getFragmentManager().findFragmentById(R.id.fragmentNotification)).setMentionsKeys();
+                ((WordsTriggerMentionsFragment) getFragmentManager().findFragmentById(R.id.fragmentLayoutNotification)).setMentionsKeys();
                 openNotification();
                 break;
             default:
@@ -113,11 +66,11 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
                 onBackPressed();
                 return true;
             case R.id.action_save:
-                saveItem = item;
+                mSaveItem = item;
                 updateNotification();
                 BaseActivity.hideKeyboard(this);
                 item.setVisible(false);
-                binding.progressBar.setVisibility(View.VISIBLE);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -125,17 +78,57 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         return true;
     }
 
-    public void requestSave(String s) {
-        saveItem.setVisible(true);
-        binding.progressBar.setVisibility(View.INVISIBLE);
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save_toolbar, menu);
         return true;
+    }
+    
+    public void openMobilePushNotification() {
+        setupToolbar(getString(R.string.notification_mob_push), true);
+        if (mNotificationPushFragment == null)
+            mNotificationPushFragment = new NotificationPushFragment();
+
+        getFragmentManager().beginTransaction()
+                .replace(mBinding.fragmentLayoutNotification.getId(), mNotificationPushFragment)
+                .commit();
+        mBinding.fragmentLayoutNotification.setTag("NotificationPushFragment");
+    }
+
+    public void openWordsTriggerMentions() {
+        setupToolbar(getString(R.string.notification_words_trigger), true);
+        getFragmentManager().beginTransaction()
+                .replace(mBinding.fragmentLayoutNotification.getId(), new WordsTriggerMentionsFragment())
+                .commit();
+        mBinding.fragmentLayoutNotification.setTag("WordsTriggerMentionsFragment");
+    }
+
+    public void openNotification() {
+        setToolbar();
+        if (mNotificationFragment == null)
+            mNotificationFragment = new NotificationFragment();
+        getFragmentManager().beginTransaction()
+                .replace(mBinding.fragmentLayoutNotification.getId(), mNotificationFragment)
+                .commit();
+        mBinding.fragmentLayoutNotification.setTag("NotificationFragment");
+    }
+
+
+    public void openEmailNotification() {
+        setupToolbar(getString(R.string.notification_email), true);
+        if (mNotificationEmailFragment == null)
+            mNotificationEmailFragment = new NotificationEmailFragment();
+        getFragmentManager().beginTransaction()
+                .replace(mBinding.fragmentLayoutNotification.getId(), mNotificationEmailFragment)
+                .commit();
+        mBinding.fragmentLayoutNotification.setTag("NotificationEmailFragment");
+    }
+
+    public void requestSave(String s) {
+        mSaveItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     public void updateNotification() {
@@ -147,4 +140,7 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         context.startActivity(starter);
     }
 
+    private void setToolbar() {
+        setupToolbar(getString(R.string.notification), true);
+    }
 }

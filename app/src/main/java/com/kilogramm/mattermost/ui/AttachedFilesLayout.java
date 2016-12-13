@@ -40,16 +40,16 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     private static final String TAG = "AttachedFilesLayout";
 
-    private String channelId;
-    private List<Uri> uriList;
+    private String mChannelId;
+    private List<Uri> mUriList;
 
-    private AllUploadedListener allUploadedListener;
+    private AllUploadedListener mAllUploadedListener;
 
-    private ProgressDialog progressDialog;
+    private ProgressDialog mProgressDialog;
 
-    AttachedFilesAdapter attachedFilesAdapter;
+    AttachedFilesAdapter mAttachedFilesAdapter;
 
-    BroadcastReceiver broadcastReceiver;
+    BroadcastReceiver mBroadcastReceiver;
 
     public AttachedFilesLayout(Context context) {
         super(context);
@@ -73,7 +73,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
     @Override
     protected void onDetachedFromWindow() {
-        getContext().unregisterReceiver(broadcastReceiver);
+        getContext().unregisterReceiver(mBroadcastReceiver);
         super.onDetachedFromWindow();
     }
 
@@ -82,10 +82,10 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        attachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().getFilesForAttach());
-        recyclerView.setAdapter(attachedFilesAdapter);
+        mAttachedFilesAdapter = new AttachedFilesAdapter(getContext(), FileToAttachRepository.getInstance().getFilesForAttach());
+        recyclerView.setAdapter(mAttachedFilesAdapter);
 
-        broadcastReceiver = new BroadcastReceiver() {
+        mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 
@@ -94,7 +94,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
                     final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
 
                     if (ni != null && ni.isConnectedOrConnecting()) {
-                        getPresenter().requestUploadFileToServer(channelId);
+                        getPresenter().requestUploadFileToServer(mChannelId);
                         Log.i(TAG, "Network " + ni.getTypeName() + " connected");
                     } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
                         Log.d(TAG, "There's no network connectivity");
@@ -102,20 +102,20 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
                 }
             }
         };
-        getContext().registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+        getContext().registerReceiver(mBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     public void addItems(List<Uri> uriList, String channelId) {
-        this.channelId = channelId;
-        if (this.uriList == null) this.uriList = new ArrayList<>();
-        this.uriList.addAll(uriList);
+        this.mChannelId = channelId;
+        if (this.mUriList == null) this.mUriList = new ArrayList<>();
+        this.mUriList.addAll(uriList);
         uploadNext();
     }
 
     private void uploadNext() {
-        if (uriList.size() > 0) {
-            addItem(uriList.get(0));
-            uriList.remove(uriList.get(0));
+        if (mUriList.size() > 0) {
+            addItem(mUriList.get(0));
+            mUriList.remove(mUriList.get(0));
         }
     }
 
@@ -128,11 +128,11 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
         String filePath = FileUtil.getInstance().getPath(uri);
         if (filePath == null) {
             new DownloadFile(getContext(), this).execute(uri);
-            progressDialog = new ProgressDialog(getContext());
-            progressDialog.show();
-            progressDialog.setContentView(R.layout.data_processing_progress_layout);
+            mProgressDialog = new ProgressDialog(getContext());
+            mProgressDialog.show();
+            mProgressDialog.setContentView(R.layout.data_processing_progress_layout);
         } else {
-            uploadFileToServer(uri, filePath, channelId, false);
+            uploadFileToServer(uri, filePath, mChannelId, false);
         }
     }
 
@@ -156,43 +156,38 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     public List<String> getAttachedFiles() {
-        // lambda requires min API level 24, so use old method
         List<String> fileNames = new ArrayList<>();
-        for (FileToAttach fileToAttach : attachedFilesAdapter.getData()) {
+        for (FileToAttach fileToAttach : mAttachedFilesAdapter.getData()) {
             fileNames.add(fileToAttach.getFileName());
         }
         return fileNames;
     }
 
     public void setEmptyListListener(AttachedFilesAdapter.EmptyListListener emptyListListener) {
-        attachedFilesAdapter.setEmptyListListener(emptyListListener);
+        mAttachedFilesAdapter.setEmptyListListener(emptyListListener);
     }
 
     @Override
     public void onDownloadedFile(String filePath) {
-        if (progressDialog != null) progressDialog.cancel();
-        uploadFileToServer(Uri.parse(filePath), filePath, channelId, true);
+        if (mProgressDialog != null) mProgressDialog.cancel();
+        uploadFileToServer(Uri.parse(filePath), filePath, mChannelId, true);
     }
 
     @Override
     public void onError() {
-        if(progressDialog != null) progressDialog.cancel();
+        if(mProgressDialog != null) mProgressDialog.cancel();
     }
 
-    public void showToast(String s) {
-        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+    public void showUploadErrorToast(String error) {
+        Toast.makeText(getContext(), error /*getContext().getString(R.string.error_during_file_upload)*/, Toast.LENGTH_SHORT).show();
     }
 
-    public void showUploadErrorToast() {
-        Toast.makeText(getContext(), getContext().getString(R.string.error_during_file_upload), Toast.LENGTH_SHORT).show();
-    }
-
-    public void setAllUploadedListener(AllUploadedListener allUploadedListener) {
-        this.allUploadedListener = allUploadedListener;
+    public void setmAllUploadedListener(AllUploadedListener mAllUploadedListener) {
+        this.mAllUploadedListener = mAllUploadedListener;
     }
 
     public void onAllUploaded(){
-        if(allUploadedListener != null) allUploadedListener.onAllUploaded();
+        if(mAllUploadedListener != null) mAllUploadedListener.onAllUploaded();
     }
 
     public interface AllUploadedListener{

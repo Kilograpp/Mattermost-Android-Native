@@ -137,7 +137,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         start(REQUEST_SEARCH);
     }
 
-    public void setSearchHistory(Context context, String key, ArrayList<String> history) {
+    public static void setSearchHistory(Context context, String key, ArrayList<String> history) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         JSONArray jsonArray = new JSONArray();
@@ -153,7 +153,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         editor.apply();
     }
 
-    public ArrayList<String> getSearchHistory(Context context, String key) {
+    public static ArrayList<String> getSearchHistory(Context context, String key) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String json = preferences.getString(key, null);
         ArrayList<String> storedHistory = new ArrayList<>();

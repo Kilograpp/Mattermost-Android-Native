@@ -12,7 +12,8 @@ public class FoundMessagesIds extends RealmObject {
     @PrimaryKey
     private String messageId;
 
-    public FoundMessagesIds(){}
+    public FoundMessagesIds() {
+    }
 
     public FoundMessagesIds(String id) {
         this.messageId = id;
