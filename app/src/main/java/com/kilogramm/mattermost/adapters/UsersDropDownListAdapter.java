@@ -43,24 +43,24 @@ public class UsersDropDownListAdapter extends RealmRecyclerViewAdapter<User, Use
     public void onBindViewHolder(ViewHolder holder, int position) {
         User user = getData().get(position);
         if (user.getId() != null) {
-            holder.binding.avatar.setTag(user);
-            holder.binding.userNikname.setText("@" + user.getUsername());
-            holder.binding.userName.setText(String.format(" %s %s",
+            holder.mBinding.circleImageViewAvatar.setTag(user);
+            holder.mBinding.textViewUserNikname.setText("@" + user.getUsername());
+            holder.mBinding.textViewUserName.setText(String.format(" %s %s",
                     user.getFirstName() != null ? user.getFirstName() : "",
                     user.getLastName() != null ? user.getLastName() : ""));
 
-            Picasso.with(holder.binding.getRoot().getContext())
+            Picasso.with(holder.mBinding.getRoot().getContext())
                     .load(getImageUrl(user))
                     .resize(60, 60)
-                    .error(holder.binding.getRoot().getContext()
+                    .error(holder.mBinding.getRoot().getContext()
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .placeholder(holder.binding.getRoot().getContext()
+                    .placeholder(holder.mBinding.getRoot().getContext()
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(holder.binding.avatar);
+                    .into(holder.mBinding.circleImageViewAvatar);
 
-            holder.binding.getRoot().setOnClickListener(view ->
+            holder.mBinding.getRoot().setOnClickListener(view ->
                     onItemClickListener.onItemClick(user.getUsername()));
         }
     }
@@ -74,18 +74,16 @@ public class UsersDropDownListAdapter extends RealmRecyclerViewAdapter<User, Use
     }
 
 
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        private ItemUserDropDownListBinding binding;
-
-        public ViewHolder(ItemUserDropDownListBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
-    }
-
     public interface OnItemClickListener{
         void onItemClick(String name);
     }
 
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private ItemUserDropDownListBinding mBinding;
+
+        public ViewHolder(ItemUserDropDownListBinding mBinding) {
+            super(mBinding.getRoot());
+            this.mBinding = mBinding;
+        }
+    }
 }
