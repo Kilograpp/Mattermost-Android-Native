@@ -39,12 +39,16 @@ public class EmailEditPresenter extends BaseRxPresenter<EmailEditActivity> {
                 () -> service.updateUser(editedUser)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
-                ,(editProfileRxActivity, user) -> {
-                    if (user != null){
+                , (editProfileRxActivity, user) -> {
+                    sendOnComplete();
+                    if (user != null) {
                         UserRepository.updateUserAfterSaveSettings(user);
                         sendGood(editProfileRxActivity.getString(R.string.email_updated));
                     }
-                },(editProfileRxActivity, throwable) -> sendError(getError(throwable)));
+                }, (editProfileRxActivity, throwable) -> {
+                    sendOnComplete();
+                    sendError(getError(throwable));
+                });
     }
 
     @Override
@@ -57,7 +61,7 @@ public class EmailEditPresenter extends BaseRxPresenter<EmailEditActivity> {
         start(REQUEST_SAVE);
     }
 
-    private void sendGood(String good){
+    private void sendGood(String good) {
         createTemplateObservable(good)
                 .subscribe(split((emailEditActivity, s) -> {
                     emailEditActivity.showSuccessMessage();
@@ -65,8 +69,14 @@ public class EmailEditPresenter extends BaseRxPresenter<EmailEditActivity> {
                 }));
     }
 
-    private void sendError(String error){
+    private void sendError(String error) {
         createTemplateObservable(error)
                 .subscribe(split(BaseActivity::showErrorText));
+    }
+
+    private void sendOnComplete() {
+        createTemplateObservable(null)
+                .subscribe(split((emailEditActivity, o) -> emailEditActivity.hideProgressBar()));
+
     }
 }

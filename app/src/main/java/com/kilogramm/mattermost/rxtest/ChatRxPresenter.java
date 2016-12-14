@@ -334,12 +334,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initLoadAfter() {
         restartableFirst(REQUEST_LOAD_AFTER,
-                () -> {
-                    Log.d(TAG, "initLoadAfter");
-                    return service.getPostsAfter(teamId, channelId, firstmessageId, limit)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io());
-                }, (chatRxFragment, posts) -> {
+                () -> service.getPostsAfter(teamId, channelId, firstmessageId, limit)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()), (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
                         sendCanPaginationBot(false);
                         return;
@@ -347,12 +344,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     sendShowList();
                     sendDisableShowLoadMoreBot();
-                    Log.d(TAG, "Complete load next post");
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
-                    Log.d(TAG, "Error");
                 });
     }
 
