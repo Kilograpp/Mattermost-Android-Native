@@ -30,6 +30,7 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import rx.Observable;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -146,7 +148,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 (chatRxFragment, commandFromNet) -> {
                     sendEmptyMessage();
                     if(commandFromNet.getGoToLocation().equals("/"))
-                        MattermostApp.logout();
+                        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "Complete logout");
+                                MattermostApp.clearDataBaseAfterLogout();
+                                MattermostApp.clearPreference();
+                                MattermostApp.showMainRxActivity();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                Toast.makeText(chatRxFragment.getActivity(), "Error logout", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onNext(LogoutData logoutData) {
+                            }
+                        });
                 },
                 (chatRxFragment, throwable) -> sendError(getError(throwable)));
     }

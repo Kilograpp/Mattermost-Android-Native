@@ -343,7 +343,13 @@ public class FilesView extends GridLayout {
             URL url = new URL(fileUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-            final long file_size = Long.parseLong(urlConnection.getHeaderField("Content-Length"));
+            String contentLength = urlConnection.getHeaderField("Content-Length");
+            final long file_size;
+            if (contentLength != null) {
+                file_size = Long.parseLong(contentLength);
+            } else {
+                file_size = 0;
+            }
             urlConnection.disconnect();
             return file_size;
         } catch (MalformedURLException e) {
