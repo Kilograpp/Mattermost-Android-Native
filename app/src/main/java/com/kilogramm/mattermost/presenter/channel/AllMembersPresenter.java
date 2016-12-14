@@ -30,12 +30,12 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
     private static final int REQUEST_DB_GETUSERS = 1;
     private static final int REQUEST_SAVE = 2;
     @State
-    ExtraInfo extraInfo;
+    ExtraInfo mExtraInfo;
     @State
-    String id;
+    String mId;
 
-    private ApiMethod service;
-    private LogoutData user;
+    private ApiMethod mService;
+    private LogoutData mUser;
 
     @State
     ListPreferences listPreferences = new ListPreferences();
@@ -44,18 +44,41 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp application = MattermostApp.getSingleton();
-        user = new LogoutData();
-        service = application.getMattermostRetrofitService();
+        mUser = new LogoutData();
+        mService = application.getMattermostRetrofitService();
 
         initGetUsers();
         initSaveRequest();
     }
 
+    public void requestSaveData(Preferences data, String userId) {
+        listPreferences.getmSaveData().clear();
+        listPreferences.getmSaveData().add(data);
+        mUser.setUserId(userId);
+        start(REQUEST_SAVE);
+    }
+
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
+
+    public void initPresenter(String id) {
+        this.mId = id;
+        start(REQUEST_DB_GETUSERS);
+    }
+
+    public RealmResults<User> getMembers(String name) {
+        return mExtraInfo.getMembers().where().contains("username", name).findAllSorted("username", Sort.ASCENDING);
+    }
+
+    public RealmResults<User> getMembers() {
+        return mExtraInfo.getMembers().where().findAllSorted("username", Sort.ASCENDING);
+    }
     private void initGetUsers() {
         restartableFirst(REQUEST_DB_GETUSERS,
-                () -> ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).asObservable(),
+                () -> ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
                 (allMembersActivity, o) -> {
-                    this.extraInfo = o.first();
+                    this.mExtraInfo = o.first();
                     allMembersActivity.updateDataList(getMembers());
                 },(allMembersActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
     }
@@ -63,17 +86,17 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
                 () -> Observable.zip(
-                        service.save(listPreferences.getmSaveData())
+                        mService.save(listPreferences.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
+                        mService.createDirect(MattermostPreference.getInstance().getTeamId(), mUser)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                         (aBoolean, channel) -> {
                             if (aBoolean == Boolean.FALSE) {
                                 return null;
                             }
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
+                            ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
                             return channel;
                         })), (generalRxActivity, channel) -> {
             listPreferences.getmSaveData().clear();
@@ -82,33 +105,9 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
         }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
 
-    public void requestSaveData(Preferences data, String userId) {
-        listPreferences.getmSaveData().clear();
-        listPreferences.getmSaveData().add(data);
-        user.setUserId(userId);
-        start(REQUEST_SAVE);
-    }
-
     private void sendSetFragmentChat() {
         createTemplateObservable(new Object())
                 .subscribe(split((allMembersActivity, o) ->
                         allMembersActivity.startGeneralActivity()));
-    }
-
-    private void sendShowError(String error) {
-        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
-    }
-
-    public void initPresenter(String id) {
-        this.id = id;
-        start(REQUEST_DB_GETUSERS);
-    }
-
-    public RealmResults<User> getMembers(String name) {
-        return extraInfo.getMembers().where().contains("username", name).findAllSorted("username", Sort.ASCENDING);
-    }
-
-    public RealmResults<User> getMembers() {
-        return extraInfo.getMembers().where().findAllSorted("username", Sort.ASCENDING);
     }
 }

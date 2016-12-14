@@ -52,12 +52,12 @@ public class WholeDirectListAdapter extends RealmRecyclerViewAdapter<User, Whole
         }
 
         holder.getmBinding().getRoot().setOnClickListener(view -> {
-                holder.getmBinding().selectDirect.setChecked(
-                        !holder.getmBinding().selectDirect.isChecked());
-                setItemChangeMap(user.getId(), holder.getmBinding().selectDirect.isChecked());
+                holder.getmBinding().checkBoxSelectDirect.setChecked(
+                        !holder.getmBinding().checkBoxSelectDirect.isChecked());
+                setItemChangeMap(user.getId(), holder.getmBinding().checkBoxSelectDirect.isChecked());
         });
 
-        holder.getmBinding().selectDirect.setOnClickListener(view ->
+        holder.getmBinding().checkBoxSelectDirect.setOnClickListener(view ->
                 setItemChangeMap(user.getId(), ((CheckBox) view).isChecked())
         );
         holder.bindTo(user, isShow, mChangesMap.get(user.getId()));

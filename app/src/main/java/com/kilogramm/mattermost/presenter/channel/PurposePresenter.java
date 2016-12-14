@@ -24,36 +24,36 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
     private static final String TAG = "PurposePresenter";
     private static final int REQUEST_UPDATE_PURPOSE = 1;
 
-    private ApiMethod service;
+    private ApiMethod mService;
 
     @State
-    String teamId;
+    String mTeamId;
     @State
-    String channelId;
+    String mChannelId;
     @State
-    String purpose;
+    String mPurpose;
     @State
-    String channelType;
+    String mChannelType;
 
     public String getChannelType() {
-        return channelType;
+        return mChannelType;
     }
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
+        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
 
     public void initPresenter(Channel channel) {
         Log.d(TAG, "initPresenter");
-        this.teamId = MattermostPreference.getInstance().getTeamId();
-        this.channelId = channel.getId();
-        this.purpose = channel.getPurpose();
-        this.channelType = channel.getType();
+        this.mTeamId = MattermostPreference.getInstance().getTeamId();
+        this.mChannelId = channel.getId();
+        this.mPurpose = channel.getPurpose();
+        this.mChannelType = channel.getType();
     }
 
     //region Init Requests
@@ -63,7 +63,7 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
 
     private void initPurpose() {
         restartableFirst(REQUEST_UPDATE_PURPOSE,
-                () -> service.updatePurpose(this.teamId, new ChannelPurpose(channelId, purpose))
+                () -> mService.updatePurpose(this.mTeamId, new ChannelPurpose(mChannelId, mPurpose))
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (purposeActivity, channel) -> {
@@ -85,11 +85,11 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
     }
 
     public String getPurpose() {
-        return purpose;
+        return mPurpose;
     }
 
     public void setHeader(String purpose) {
-        this.purpose = purpose;
+        this.mPurpose = purpose;
     }
 
     public class ChannelPurpose {
