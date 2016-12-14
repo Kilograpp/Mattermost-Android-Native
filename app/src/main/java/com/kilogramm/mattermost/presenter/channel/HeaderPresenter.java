@@ -24,36 +24,36 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     private static final String TAG = "HeaderPresenter";
     private static final int REQUEST_UPDATE_HEADER = 1;
 
-    private ApiMethod service;
+    private ApiMethod mService;
 
     @State
-    String teamId;
+    String mTeamId;
     @State
-    String channelId;
+    String mChannelId;
     @State
-    String header;
+    String mHeader;
     @State
-    String typeChannel;
+    String mTypeChannel;
 
     public String getTypeChannel() {
-        return typeChannel;
+        return mTypeChannel;
     }
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
+        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
 
     public void initPresenter(Channel channel) {
         Log.d(TAG, "initPresenter");
-        this.teamId = MattermostPreference.getInstance().getTeamId();
-        this.channelId = channel.getId();
-        this.header = channel.getHeader();
-        this.typeChannel = channel.getType();
+        this.mTeamId = MattermostPreference.getInstance().getTeamId();
+        this.mChannelId = channel.getId();
+        this.mHeader = channel.getHeader();
+        this.mTypeChannel = channel.getType();
     }
 
     public void requestUpdateHeader() {
@@ -61,11 +61,11 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     }
 
     public String getHeader() {
-        return header;
+        return mHeader;
     }
 
     public void setHeader(String header) {
-        this.header = header;
+        this.mHeader = header;
     }
 
     public class ChannelHeader {
@@ -91,7 +91,7 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
 
     private void initHeader() {
         restartableFirst(REQUEST_UPDATE_HEADER,
-                () -> service.updateHeader(this.teamId, new ChannelHeader(channelId, header))
+                () -> mService.updateHeader(this.mTeamId, new ChannelHeader(mChannelId, mHeader))
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (headerActivity, channel) -> {

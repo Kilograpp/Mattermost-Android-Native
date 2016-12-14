@@ -22,27 +22,27 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
     private static final String TAG = "NamePresenter";
     private static final int REQUEST_UPDATE_CHANNEL = 1;
 
-    private ApiMethod service;
+    private ApiMethod mService;
 
     @State
-    String teamId;
+    String mTeamId;
     @State
-    Channel channel;
+    Channel mChannel;
 
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
+        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
 
     public void initPresenter(String channelId) {
         Log.d(TAG, "initPresenter");
-        this.teamId = MattermostPreference.getInstance().getTeamId();
-        this.channel = new Channel(ChannelRepository.query(
+        this.mTeamId = MattermostPreference.getInstance().getTeamId();
+        this.mChannel = new Channel(ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(channelId)).first());
     }
 
@@ -53,7 +53,7 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
 
     private void initName() {
         restartableFirst(REQUEST_UPDATE_CHANNEL,
-                () -> service.updateChannel(this.teamId, channel)
+                () -> mService.updateChannel(this.mTeamId, mChannel)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (nameActivity, channel) -> {
@@ -76,15 +76,15 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
     }
 
     public Channel getChannel() {
-        return channel;
+        return mChannel;
     }
 
     public void setDisplayName(String displayName) {
-        this.channel.setDisplayName(displayName);
+        this.mChannel.setDisplayName(displayName);
     }
 
     public void setName(String name) {
-        this.channel.setName(name);
+        this.mChannel.setName(name);
     }
 
 

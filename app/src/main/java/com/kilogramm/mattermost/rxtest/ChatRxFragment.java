@@ -231,7 +231,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
         binding.fab.hide();
         binding.fab.setOnClickListener(v -> {
-            if(searchMessageId == null) {
+            if (searchMessageId == null) {
                 binding.rev.scrollToPosition(adapter.getItemCount() - 1);
             } else {
                 searchMessageId = null;
@@ -254,7 +254,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
-        if(adapter.getItemCount() > 0) {
+        if (adapter.getItemCount() > 0) {
             binding.rev.smoothScrollToPosition(adapter.getItemCount() - 1);
         }
     }
@@ -346,8 +346,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.attachedFilesLayout.setmAllUploadedListener(this);
     }
 
-    private void setupCommandList(){
-        commandAdapter = new CommandAdapter(getActivity(), getCommandList(null),command -> {
+    private void setupCommandList() {
+        commandAdapter = new CommandAdapter(getActivity(), getCommandList(null), command -> {
             Toast.makeText(getActivity(), command.getCommand(), Toast.LENGTH_SHORT).show();
             binding.writingMessage.setText(command.getCommand() + " ");
             binding.writingMessage.setSelection(binding.writingMessage.getText().length());
@@ -357,7 +357,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.writingMessage.addTextChangedListener(getCommandListener());
     }
 
-    private TextWatcher getCommandListener(){
+    private TextWatcher getCommandListener() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -367,6 +367,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 commandAdapter.updateDate(getCommandList(s.toString()));
+                if (commandAdapter.getItemCount() == 0)
+                    binding.cardViewCommandCardView.setVisibility(View.INVISIBLE);
+                else
+                    binding.cardViewCommandCardView.setVisibility(View.VISIBLE);
+
             }
 
             @Override
@@ -376,8 +381,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         };
     }
 
-    private List<CommandObject> getCommandList(String commandWrite){
-        if(commandWrite!=null && !commandWrite.equals("")) {
+    private List<CommandObject> getCommandList(String commandWrite) {
+        if (commandWrite != null && !commandWrite.equals("")) {
             return Stream.of(CommandObject.getCommandList())
                     .filter(value -> value.getCommand().startsWith(commandWrite))
                     .sorted()
@@ -399,10 +404,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setDropDown(RealmResults<User> realmResult) {
-        if (binding.writingMessage.getText().length() > 0)
+        if (binding.writingMessage.getText().length() > 0) {
             dropDownListAdapter.updateData(realmResult);
-        else
+        } else {
             dropDownListAdapter.updateData(null);
+        }
+        if (dropDownListAdapter.getItemCount() == 0)
+            binding.cardViewDropDown.setVisibility(View.INVISIBLE);
+        else
+            binding.cardViewDropDown.setVisibility(View.VISIBLE);
+
     }
 
     public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
@@ -438,7 +449,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setOnClickListener(view -> {
             fabBehavior.lockBehavior();
             if (!binding.btnSend.getText().equals("Save"))
-                if(binding.writingMessage.getText().toString().startsWith("/")) {
+                if (binding.writingMessage.getText().toString().startsWith("/")) {
                     sendCommand();
                 } else {
                     sendMessage();
@@ -450,8 +461,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     private void sendCommand() {
         getPresenter().requestSendCommand(new CommandToNet(this.channelId,
-                        binding.writingMessage.getText().toString(),
-                        Boolean.FALSE.toString()));
+                binding.writingMessage.getText().toString(),
+                Boolean.FALSE.toString()));
     }
 
     public void setListenerToRootView() {
@@ -888,7 +899,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
         fabBehavior.unlockBehavior();
-        if(isFirstLoad && adapter.getItemCount() > 0) {
+        if (isFirstLoad && adapter.getItemCount() > 0) {
             binding.rev.scrollToPosition(adapter.getItemCount() - 1);
             isFirstLoad = false;
         }
