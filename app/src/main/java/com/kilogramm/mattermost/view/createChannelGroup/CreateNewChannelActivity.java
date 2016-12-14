@@ -5,7 +5,9 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
+import android.media.MediaCodec;
 import android.os.Bundle;
+import android.os.PatternMatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -19,6 +21,9 @@ import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.utils.Transliterator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -29,6 +34,7 @@ import nucleus.factory.RequiresPresenter;
 public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPresenter> {
     private ActivityCreateChannelGroupBinding mBinding;
     private ColorGenerator mColorGenerator;
+    private boolean isDisableCreate = false;
 
     public static final String sTYPE = "sTYPE";
     public static final String sCHANNEL_TYPE = "O";
@@ -56,6 +62,9 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
                 this.finish();
                 break;
             case R.id.action_create:
+                if (!isDisableCreate) {
+                    return false;
+                }
                 this.createChannel();
                 break;
             default:
@@ -111,12 +120,6 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
             return channelName.toLowerCase();
         }
     }
-    
-    public static void startActivityForResult(Activity context, Integer requestCode) {
-        Intent starter = new Intent(context, CreateNewChannelActivity.class);
-        starter.putExtra(sTYPE, "O");
-        context.startActivityForResult(starter, requestCode);
-    }
 
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
         Intent starter = new Intent(fragment.getActivity(), CreateNewChannelActivity.class);
@@ -124,13 +127,34 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
         fragment.startActivityForResult(starter, requestCode);
     }
 
-    private final TextWatcher textingWatcher = new TextWatcher() {
+    protected final TextWatcher textingWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+//            String channelName = mBinding.tvChannelName.getText().toString();
+//            channelName = Transliterator.transliterate(channelName);
+//            if (channelName.contains(" ")) {
+//                channelName = channelName.replaceAll("\\s", "-").toLowerCase();
+//            }
+//
+//            Pattern allowedSymbols = Pattern.compile("[0-9a-zA-Z\\-\\ ]");
+//            Matcher allowedMatcher = allowedSymbols.matcher(channelName);
+//
+//            if (allowedMatcher.find()) {
+//                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol \"-\"\n" +
+//                        "The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name");
+//                isDisableCreate = true;
+//            } else {
+//                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol '-'");
+//                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
+//                isDisableCreate = false;
+//            }
+//
+//            mBinding.editTextHandle.setText(channelName);
         }
 
         @Override
@@ -140,6 +164,34 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
             } else {
                 mBinding.newChannelAvatar.setText(String.valueOf(mBinding.tvChannelName.getText().toString().charAt(0)));
             }
+
+            String input = s.toString();
+            input = Transliterator.transliterate(input);
+            if (input.contains(" ")) {
+                input = input.replaceAll("\\s", "-").toLowerCase();
+            }
+
+//            String channelName = mBinding.tvChannelName.getText().toString();
+//            channelName = Transliterator.transliterate(channelName);
+//            if (channelName.contains(" ")) {
+//                channelName = channelName.replaceAll("\\s", "-").toLowerCase();
+//            }
+
+            Pattern allowedSymbols = Pattern.compile("[^0-9a-zA-Z\\-\\ ]");
+            Matcher allowedMatcher = allowedSymbols.matcher(input);
+
+            if (allowedMatcher.find()) {
+                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol '-'");
+                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
+                isDisableCreate = false;
+            } else {
+                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol \"-\"\n" +
+                        "The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name");
+                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.grey));
+                isDisableCreate = true;
+            }
+
+            mBinding.editTextHandle.setText(input);
         }
     };
 }

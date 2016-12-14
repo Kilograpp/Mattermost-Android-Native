@@ -14,7 +14,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -55,6 +55,48 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/search_margin"
                     android:background="@color/very_light_grey" />
+
+
+
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    app:hintAnimationEnabled="true"
+                    app:hintEnabled="true"
+                    app:hintTextAppearance="@style/HintTextStyle">
+
+                    <EditText
+                        android:id="@+id/edit_text_handle"
+                        style="@style/DescriptionBlackTextStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Handle"
+                        android:inputType="textCapSentences|textMultiLine" />
+                </android.support.design.widget.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/text_view_custom_hint"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/grey"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:text="Please use only Latin letters, digits and symbol '-'.\nThe name of the subdirectory used to navigate to a channel using the site URL appended with the handle name."/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/search_margin"
+                    android:background="@color/very_light_grey" />
+
+
+
+
+
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
