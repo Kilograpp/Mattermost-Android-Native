@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,6 +70,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     }
 
     private ActivityEditProfileBinding mBinding;
+    private ProgressDialog mProgressDialog;
 
     private User user;
     @State
@@ -164,6 +165,49 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialog();
+                }
+                break;
+        }
+    }
+
+    public void invalidateView() {
+        mBinding.headerUsername.setText(user.getUsername());
+        mBinding.headerName.setText(String.format("%s %s",
+                (user.getFirstName() != null) ? user.getFirstName() : "",
+                (user.getLastName() != null) ? user.getLastName() : ""));
+        mBinding.editFirstName.setText(user.getFirstName());
+        mBinding.editLastName.setText(user.getLastName());
+        mBinding.editUserName.setText(user.getUsername());
+        mBinding.editNickName.setText(user.getNickname());
+    }
+
+    public String getAvatarUrl() {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + MattermostPreference.getInstance().getMyUserId()
+                + "/image?time="
+                + user.getLastPictureUpdate();
+    }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, EditProfileRxActivity.class);
+        context.startActivity(starter);
+    }
+
+    public void onUpdateComplete(){
+        if(mProgressDialog != null) mProgressDialog.cancel();
+    }
+
     private void setAvatar(final Uri bitmapUri) {
         FileUtil.getInstance().getBitmap(FileUtil.getInstance().getFileByUri(bitmapUri), 16)
                 .subscribeOn(Schedulers.computation())
@@ -186,7 +230,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             exif = new ExifInterface(FileUtil.getInstance()
                                     .getFileByUri(bitmapUri));
                             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                            Log.d("ORIENTATION", "" + orientation);
                             Matrix matrix = new Matrix();
                             if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
                                 matrix.postRotate(90);
@@ -199,54 +242,48 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                                     myBitmap.getHeight(), matrix, true);
 
                             if(isCamera) {
-                                final Bitmap bitmapForOutput = myBitmap;
-                                new Thread(() -> {
-                                    FileOutputStream out = null;
-                                    try {
-                                        final File root = Environment.getExternalStoragePublicDirectory(
-                                                Environment.DIRECTORY_PICTURES + "/Mattermost");
-                                        root.mkdir();
-                                        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
-                                        final File sdImageMainDirectory = new File(root, fname);
-                                        out = new FileOutputStream(sdImageMainDirectory);
-                                        bitmapForOutput.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                                        selectedImageUri = Uri.fromFile(sdImageMainDirectory);
-                                        // PNG is a lossless format, the compression factor (100) is ignored
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    } finally {
-                                        try {
-                                            if (out != null) {
-                                                out.close();
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }).start();
+                                writeBitmapToFile(myBitmap);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         mBinding.headerPicture.setImageBitmap(myBitmap);
                     }
                 });
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST_CODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    showDialog();
+    private void createProgressDialog(){
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.show();
+        mProgressDialog.setContentView(R.layout.data_processing_progress_layout);
+    }
+
+    private void writeBitmapToFile(final Bitmap bitmap){
+        createProgressDialog();
+        new Thread(() -> {
+            FileOutputStream out = null;
+            try {
+                final File root = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES + "/Mattermost");
+                root.mkdir();
+                final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+                final File sdImageMainDirectory = new File(root, fname);
+                out = new FileOutputStream(sdImageMainDirectory);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                selectedImageUri = Uri.fromFile(sdImageMainDirectory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                mBinding.changeAvatar.post(mProgressDialog::cancel);
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                break;
-        }
+            }
+        }).start();
     }
 
     private void showDialog() {
@@ -297,6 +334,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     }
 
     private void onClickSave() {
+        createProgressDialog();
         boolean save = false;
         if (selectedImageUri != null) {
             getPresenter().requestNewImage(selectedImageUri);
@@ -351,12 +389,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
 
         });
-
-        /*Picasso.with(this)
-                .load(getAvatarUrl())
-                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(mBinding.headerPicture);*/
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -371,30 +403,5 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 .build();
 
         ImageLoader.getInstance().displayImage(getAvatarUrl(), mBinding.headerPicture, options);
-    }
-
-    public void invalidateView() {
-        mBinding.headerUsername.setText(user.getUsername());
-        mBinding.headerName.setText(String.format("%s %s",
-                (user.getFirstName() != null) ? user.getFirstName() : "",
-                (user.getLastName() != null) ? user.getLastName() : ""));
-        mBinding.editFirstName.setText(user.getFirstName());
-        mBinding.editLastName.setText(user.getLastName());
-        mBinding.editUserName.setText(user.getUsername());
-        mBinding.editNickName.setText(user.getNickname());
-    }
-
-    public String getAvatarUrl() {
-        return "https://"
-                + MattermostPreference.getInstance().getBaseUrl()
-                + "/api/v3/users/"
-                + MattermostPreference.getInstance().getMyUserId()
-                + "/image?time="
-                + user.getLastPictureUpdate();
-    }
-
-    public static void start(Context context) {
-        Intent starter = new Intent(context, EditProfileRxActivity.class);
-        context.startActivity(starter);
     }
 }
