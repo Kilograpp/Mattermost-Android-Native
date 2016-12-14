@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,17 +61,18 @@ import rx.schedulers.Schedulers;
 @RequiresPresenter(EditProfileRxPresenter.class)
 public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> {
 
-    private static final String TAG = "EditProfileRxActivity";
-    private static final int YOUR_SELECT_PICTURE_REQUEST_CODE = 1;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 7;
+    private static final int REQUEST_CODE_YOUR_SELECT_PICTURE = 1;
+    private static final int REQUEST_CODE_CAMERA_PERMISSION = 7;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     private ActivityEditProfileBinding mBinding;
+    private ProgressDialog mProgressDialog;
+    private MenuItem mMenuItem;
 
-    private User user;
+    private User mUser;
     @State
     Uri outputFileUri;
     @State
@@ -86,9 +87,9 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         mBinding.collapsingToolbar.setTitleEnabled(false);
         mBinding.toolbar.setTitle("title");
 
-        this.user = UserRepository.query(new UserRepository.UserByIdSpecification(
+        this.mUser = UserRepository.query(new UserRepository.UserByIdSpecification(
                 MattermostPreference.getInstance().getMyUserId())).first();
-        this.user.addChangeListener(getUserListener());
+        this.mUser.addChangeListener(getUserListener());
         initView();
 
         setSupportActionBar(mBinding.toolbar);
@@ -99,7 +100,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        user.removeChangeListeners();
+        mUser.removeChangeListeners();
     }
 
     @Override
@@ -120,6 +121,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
+                mMenuItem = item;
                 onClickSave();
                 return true;
             case android.R.id.home:
@@ -134,8 +136,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == YOUR_SELECT_PICTURE_REQUEST_CODE) {
-
+            if (requestCode == REQUEST_CODE_YOUR_SELECT_PICTURE) {
                 FileUtil.getInstance().getBitmap(outputFileUri, data)
                         .subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -164,6 +165,60 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE_CAMERA_PERMISSION:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showDialog();
+                }
+                break;
+        }
+    }
+
+    public void invalidateView() {
+        mBinding.headerUsername.setText(mUser.getUsername());
+        mBinding.headerName.setText(String.format("%s %s",
+                (mUser.getFirstName() != null) ? mUser.getFirstName() : "",
+                (mUser.getLastName() != null) ? mUser.getLastName() : ""));
+        mBinding.editFirstName.setText(mUser.getFirstName());
+        mBinding.editLastName.setText(mUser.getLastName());
+        mBinding.editUserName.setText(mUser.getUsername());
+        mBinding.editNickName.setText(mUser.getNickname());
+    }
+
+    public String getAvatarUrl() {
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/users/"
+                + MattermostPreference.getInstance().getMyUserId()
+                + "/image?time="
+                + mUser.getLastPictureUpdate();
+    }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, EditProfileRxActivity.class);
+        context.startActivity(starter);
+    }
+
+    public void onUpdateComplete(){
+        hideProgressBar();
+    }
+
+    private void showProgressBar(){
+        BaseActivity.hideKeyboard(this);
+        mMenuItem.setVisible(false);
+        mBinding.progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar(){
+        mMenuItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
+    }
+
     private void setAvatar(final Uri bitmapUri) {
         FileUtil.getInstance().getBitmap(FileUtil.getInstance().getFileByUri(bitmapUri), 16)
                 .subscribeOn(Schedulers.computation())
@@ -186,7 +241,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             exif = new ExifInterface(FileUtil.getInstance()
                                     .getFileByUri(bitmapUri));
                             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                            Log.d("ORIENTATION", "" + orientation);
                             Matrix matrix = new Matrix();
                             if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
                                 matrix.postRotate(90);
@@ -199,54 +253,46 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                                     myBitmap.getHeight(), matrix, true);
 
                             if(isCamera) {
-                                final Bitmap bitmapForOutput = myBitmap;
-                                new Thread(() -> {
-                                    FileOutputStream out = null;
-                                    try {
-                                        final File root = Environment.getExternalStoragePublicDirectory(
-                                                Environment.DIRECTORY_PICTURES + "/Mattermost");
-                                        root.mkdir();
-                                        final String fname = "img_" + System.currentTimeMillis() + ".jpg";
-                                        final File sdImageMainDirectory = new File(root, fname);
-                                        out = new FileOutputStream(sdImageMainDirectory);
-                                        bitmapForOutput.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                                        selectedImageUri = Uri.fromFile(sdImageMainDirectory);
-                                        // PNG is a lossless format, the compression factor (100) is ignored
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    } finally {
-                                        try {
-                                            if (out != null) {
-                                                out.close();
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }).start();
+                                writeBitmapToFile(myBitmap);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         mBinding.headerPicture.setImageBitmap(myBitmap);
                     }
                 });
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST_CODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    showDialog();
+    private void writeBitmapToFile(final Bitmap bitmap){
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.show();
+        mProgressDialog.setContentView(R.layout.data_processing_progress_layout);
+        new Thread(() -> {
+            FileOutputStream out = null;
+            try {
+                final File root = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES + "/Mattermost");
+                root.mkdir();
+                final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+                final File sdImageMainDirectory = new File(root, fname);
+                out = new FileOutputStream(sdImageMainDirectory);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                selectedImageUri = Uri.fromFile(sdImageMainDirectory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                mBinding.changeAvatar.post(() -> {
+                    if(mProgressDialog != null) mProgressDialog.cancel();
+                });
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                break;
-        }
+            }
+        }).start();
     }
 
     private void showDialog() {
@@ -255,13 +301,15 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         final Dialog mBottomSheetDialog = new Dialog(this, R.style.MaterialDialogSheet);
         mBottomSheetDialog.setContentView(view);
         mBottomSheetDialog.setCancelable(true);
-        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
         mBottomSheetDialog.show();
 
         view.findViewById(R.id.layCamera).setOnClickListener(v -> {
             isCamera = true;
-            final File root = new File(Environment.getExternalStorageDirectory() + File.separator + "mattermost" + File.separator);
+            final File root = new File(Environment.getExternalStorageDirectory()
+                    + File.separator + "mattermost" + File.separator);
             root.mkdir();
             final String fname = "img_" + System.currentTimeMillis() + ".jpg";
             final File sdImageMainDirectory = new File(root, fname);
@@ -269,14 +317,15 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
             final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-            startActivityForResult(captureIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            startActivityForResult(captureIntent, REQUEST_CODE_YOUR_SELECT_PICTURE);
             mBottomSheetDialog.cancel();
         });
 
         view.findViewById(R.id.layGallery).setOnClickListener(v -> {
             isCamera = false;
-            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(i, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            Intent i = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, REQUEST_CODE_YOUR_SELECT_PICTURE);
             mBottomSheetDialog.cancel();
         });
 
@@ -287,7 +336,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
             final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
-            startActivityForResult(chooserIntent, YOUR_SELECT_PICTURE_REQUEST_CODE);
+            startActivityForResult(chooserIntent, REQUEST_CODE_YOUR_SELECT_PICTURE);
             mBottomSheetDialog.cancel();
         });
     }
@@ -297,13 +346,16 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     }
 
     private void onClickSave() {
+        showProgressBar();
         boolean save = false;
         if (selectedImageUri != null) {
             getPresenter().requestNewImage(selectedImageUri);
             save = true;
         }
         if (checkDifferences()) {
-            User editedUser = new User(UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
+            User editedUser = new User(UserRepository.query(new UserRepository
+                    .UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()))
+                    .first());
             editedUser.setUsername(mBinding.editUserName.getText().toString());
             editedUser.setNickname(mBinding.editNickName.getText().toString());
             editedUser.setFirstName(mBinding.editFirstName.getText().toString());
@@ -317,10 +369,12 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
     }
 
     private boolean checkDifferences() {
-        return (!mBinding.editFirstName.getText().toString().equals((user.getFirstName() != null) ? user.getFirstName() : "")
-                || !mBinding.editLastName.getText().toString().equals((user.getLastName() != null) ? user.getLastName() : "")
-                || !mBinding.editNickName.getText().toString().equals(user.getNickname())
-                || !mBinding.editUserName.getText().toString().equals(user.getUsername()));
+        return (!mBinding.editFirstName.getText().toString().equals((mUser.getFirstName() != null)
+                ? mUser.getFirstName() : "")
+                || !mBinding.editLastName.getText().toString().equals((mUser.getLastName() != null)
+                ? mUser.getLastName() : "")
+                || !mBinding.editNickName.getText().toString().equals(mUser.getNickname())
+                || !mBinding.editUserName.getText().toString().equals(mUser.getUsername()));
     }
 
 
@@ -338,10 +392,12 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                         ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this,
-                            new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            CAMERA_PERMISSION_REQUEST_CODE);
+                            new String[]{android.Manifest.permission.CAMERA,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            REQUEST_CODE_CAMERA_PERMISSION);
                 } else {
                     showDialog();
                 }
@@ -351,12 +407,6 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
 
 
         });
-
-        /*Picasso.with(this)
-                .load(getAvatarUrl())
-                .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(mBinding.headerPicture);*/
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -371,30 +421,5 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 .build();
 
         ImageLoader.getInstance().displayImage(getAvatarUrl(), mBinding.headerPicture, options);
-    }
-
-    public void invalidateView() {
-        mBinding.headerUsername.setText(user.getUsername());
-        mBinding.headerName.setText(String.format("%s %s",
-                (user.getFirstName() != null) ? user.getFirstName() : "",
-                (user.getLastName() != null) ? user.getLastName() : ""));
-        mBinding.editFirstName.setText(user.getFirstName());
-        mBinding.editLastName.setText(user.getLastName());
-        mBinding.editUserName.setText(user.getUsername());
-        mBinding.editNickName.setText(user.getNickname());
-    }
-
-    public String getAvatarUrl() {
-        return "https://"
-                + MattermostPreference.getInstance().getBaseUrl()
-                + "/api/v3/users/"
-                + MattermostPreference.getInstance().getMyUserId()
-                + "/image?time="
-                + user.getLastPictureUpdate();
-    }
-
-    public static void start(Context context) {
-        Intent starter = new Intent(context, EditProfileRxActivity.class);
-        context.startActivity(starter);
     }
 }

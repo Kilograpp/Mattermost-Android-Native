@@ -70,6 +70,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private ApiMethod service;
 
+    private Toast mToast;
+
     @State
     String teamId;
     @State
@@ -147,7 +149,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io()),
                 (chatRxFragment, commandFromNet) -> {
                     sendEmptyMessage();
-                    if(commandFromNet.getGoToLocation().equals("/"))
+                    if (commandFromNet.getGoToLocation().equals("/"))
                         MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
                             @Override
                             public void onCompleted() {
@@ -322,24 +324,18 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     sendShowList();
                     sendDisableShowLoadMoreTop();
-                    Log.d(TAG, "Complete load before post");
-
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
-                    Log.d(TAG, "Error");
                 });
     }
 
     private void initLoadAfter() {
         restartableFirst(REQUEST_LOAD_AFTER,
-                () -> {
-                    Log.d(TAG, "initLoadAfter");
-                    return service.getPostsAfter(teamId, channelId, firstmessageId, limit)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io());
-                }, (chatRxFragment, posts) -> {
+                () -> service.getPostsAfter(teamId, channelId, firstmessageId, limit)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()), (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
                         sendCanPaginationBot(false);
                         return;
@@ -347,12 +343,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     sendShowList();
                     sendDisableShowLoadMoreBot();
-                    Log.d(TAG, "Complete load next post");
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
-                    Log.d(TAG, "Error");
                 });
     }
 
@@ -526,7 +520,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_DB_USER_STATUS);
     }
 
-    public void requestSendCommand(CommandToNet command){
+    public void requestSendCommand(CommandToNet command) {
         this.command = command;
         start(REQUEST_SEND_COMMAND);
     }
@@ -640,8 +634,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void sendError(String error) {
-        createTemplateObservable(error).subscribe(split((chatRxFragment, s) ->
-                Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG).show()));
+        createTemplateObservable(error).subscribe(split((chatRxFragment, s) -> {
+            if (mToast != null) mToast.cancel();
+            mToast = Toast.makeText(chatRxFragment.getActivity(), s, Toast.LENGTH_LONG);
+            mToast.show();
+        }));
     }
 
     private void setErrorLayout() {

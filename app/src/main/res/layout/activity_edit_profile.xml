@@ -30,6 +30,16 @@
                     app:title=""
                     app:titleTextColor="#FFFFFF" />
 
+                <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="@dimen/image_comment_size"
+                    android:layout_height="@dimen/image_comment_size"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:indeterminate="true"
+                    android:visibility="invisible"
+                    app:theme="@style/ProgressWhite" />
+
             </android.support.design.widget.CollapsingToolbarLayout>
 
             <LinearLayout
