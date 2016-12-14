@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -62,6 +63,10 @@ public class UsersDropDownListAdapter extends RealmRecyclerViewAdapter<User, Use
 
             holder.mBinding.getRoot().setOnClickListener(view ->
                     onItemClickListener.onItemClick(user.getUsername()));
+            if(position == getItemCount() - 1)
+                holder.mBinding.viewLine.setVisibility(View.INVISIBLE);
+            else
+                holder.mBinding.viewLine.setVisibility(View.VISIBLE);
         }
     }
 

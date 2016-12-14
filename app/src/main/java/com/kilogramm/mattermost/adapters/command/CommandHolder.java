@@ -13,7 +13,7 @@ import com.kilogramm.mattermost.model.entity.CommandObject;
 public class CommandHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = "CommandHolder";
-    private ItemCommandBinding mBinding;
+    public ItemCommandBinding mBinding;
 
     private CommandHolder(ItemCommandBinding binding) {
         super(binding.getRoot());

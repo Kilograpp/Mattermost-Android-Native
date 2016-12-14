@@ -36,6 +36,7 @@
 
         </LinearLayout>
         <View
+            android:id="@+id/viewLine"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:layout_marginTop="@dimen/standart_margin"
