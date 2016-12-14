@@ -47,6 +47,16 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
         initRequest();
     }
 
+    public void requestNewImage(Uri uri){
+        this.imageUri = uri;
+        start(REQUEST_NEW_IMAGE);
+    }
+
+    public void requestSave(User editedUser) {
+        this.editedUser = editedUser;
+        start(REQUEST_SAVE);
+    }
+
     private void initRequest() {
         initSave();
         initNewImage();
@@ -117,20 +127,17 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
     private void sendError(String error){
         createTemplateObservable(error)
                 .subscribe(split(BaseActivity::showErrorText));
+        sendOnUpdateComplete();
     }
 
     private void sendGood(String good){
         createTemplateObservable(good)
                 .subscribe(split(BaseActivity::showGoodText));
+        sendOnUpdateComplete();
     }
 
-    public void requestNewImage(Uri uri){
-        this.imageUri = uri;
-        start(REQUEST_NEW_IMAGE);
-    }
-
-    public void requestSave(User editedUser) {
-        this.editedUser = editedUser;
-        start(REQUEST_SAVE);
+    private void sendOnUpdateComplete(){
+        createTemplateObservable(null)
+                .subscribe(split((editProfileRxActivity, s) -> editProfileRxActivity.onUpdateComplete()));
     }
 }

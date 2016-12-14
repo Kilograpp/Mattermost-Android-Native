@@ -27,13 +27,9 @@
                         android:id="@+id/left_menu_header"
                         layout="@layout/left_menu_header" />
 
-                    <android.support.v7.widget.CardView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/colorPrimary"
-                        app:cardElevation="10dp">
 
                         <LinearLayout
+                            android:background="@color/colorPrimary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
@@ -50,7 +46,6 @@
                                 android:id="@+id/fr_direct"
                                 layout="@layout/fragment_menu_direct_list" />
                         </LinearLayout>
-                    </android.support.v7.widget.CardView>
                 </LinearLayout>
             </android.support.v4.widget.NestedScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>

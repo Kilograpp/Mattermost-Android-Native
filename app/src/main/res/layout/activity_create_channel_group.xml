@@ -14,7 +14,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -49,6 +49,42 @@
                         android:textColorHint="@color/grey"
                         android:textSize="27sp" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/search_margin"
+                    android:background="@color/very_light_grey" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    app:hintAnimationEnabled="true"
+                    app:hintEnabled="true"
+                    app:hintTextAppearance="@style/HintTextStyle">
+
+                    <EditText
+                        android:id="@+id/edit_text_handle"
+                        style="@style/DescriptionBlackTextStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/channel_handle_name"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+                </android.support.design.widget.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/text_view_custom_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/create_new_ch_gr_handler_description"
+                    android:textColor="@color/grey" />
 
                 <View
                     android:layout_width="match_parent"
@@ -122,12 +158,12 @@
                     android:id="@+id/private_group_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
                     android:layout_marginEnd="15dp"
                     android:layout_marginStart="15dp"
+                    android:layout_marginTop="40dp"
+                    android:text="@string/create_new_channel_ref"
                     android:textColor="@color/grey"
-                    android:visibility="gone"
-                    android:text="@string/create_new_channel_ref"/>
+                    android:visibility="gone" />
 
             </LinearLayout>
         </ScrollView>

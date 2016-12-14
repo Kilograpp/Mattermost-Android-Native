@@ -19,11 +19,11 @@ import io.realm.RealmViewHolder;
 
 public class WholeDirectListHolder extends RealmViewHolder {
 
-    private ItemDirectListBinding directBinding;
+    private ItemDirectListBinding mDirectBinding;
 
     private WholeDirectListHolder(ItemDirectListBinding binding) {
         super(binding.getRoot());
-        directBinding = binding;
+        mDirectBinding = binding;
     }
 
     public static WholeDirectListHolder create(LayoutInflater inflater, ViewGroup parent) {
@@ -31,37 +31,37 @@ public class WholeDirectListHolder extends RealmViewHolder {
     }
 
     public void bindTo(User user, boolean isShow, Boolean changed) {
-        directBinding.directProfileName.setText(user.getUsername());
+        mDirectBinding.textViewDirectProfileName.setText(user.getUsername());
         if (user.getFirstName().length() == 0 && user.getLastName().length() == 0)
-            directBinding.emailProfile.setVisibility(View.GONE);
+            mDirectBinding.textViewEmailProfile.setVisibility(View.GONE);
         else {
-            directBinding.emailProfile.setVisibility(View.VISIBLE);
-            directBinding.emailProfile.setText(String.format("%s %s",
+            mDirectBinding.textViewEmailProfile.setVisibility(View.VISIBLE);
+            mDirectBinding.textViewEmailProfile.setText(String.format("%s %s",
                     user.getFirstName(),
                     user.getLastName()));
         }
 
         if (changed != null) {
-            directBinding.selectDirect.setChecked(changed);
+            mDirectBinding.checkBoxSelectDirect.setChecked(changed);
         } else
-            directBinding.selectDirect.setChecked(isShow);
+            mDirectBinding.checkBoxSelectDirect.setChecked(isShow);
 
-        Picasso.with(directBinding.avatarDirect.getContext())
+        Picasso.with(mDirectBinding.circleImageAvatarDirect.getContext())
                 .load(getImageUrl(user.getId()))
                 .resize(60, 60)
-                .error(directBinding.avatarDirect.getContext()
+                .error(mDirectBinding.circleImageAvatarDirect.getContext()
                         .getResources()
                         .getDrawable(R.drawable.ic_person_grey_24dp))
-                .placeholder(directBinding.avatarDirect.getContext()
+                .placeholder(mDirectBinding.circleImageAvatarDirect.getContext()
                         .getResources()
                         .getDrawable(R.drawable.ic_person_grey_24dp))
-                .into(directBinding.avatarDirect);
+                .into(mDirectBinding.circleImageAvatarDirect);
 
-        directBinding.executePendingBindings();
+        mDirectBinding.executePendingBindings();
     }
 
     public ItemDirectListBinding getmBinding() {
-        return directBinding;
+        return mDirectBinding;
     }
 
     public static String getImageUrl(String userId) {

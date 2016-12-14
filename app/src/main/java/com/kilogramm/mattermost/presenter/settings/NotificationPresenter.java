@@ -22,26 +22,25 @@ import rx.schedulers.Schedulers;
  */
 
 public class NotificationPresenter extends BaseRxPresenter<NotificationActivity> {
-
-    private static final String channelMentions = "\"@channel\",\"@all\"";
-
     private static final String TAG = "NotificationPresenter";
+
+    private static final String CHANNEL_MENTIONS = "\"@channel\",\"@all\"";
     private static final int REQUEST_UPDATE_NOTIFY = 1;
 
     @State
-    NotifyProps notifyProps;
+    NotifyProps mNotifyProps;
     @State
-    User user;
+    User mUser;
 
-    private ApiMethod service;
+    private ApiMethod mService;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        this.user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-        this.notifyProps = new NotifyProps(NotifyRepository.query().first());
-        service = mMattermostApp.getMattermostRetrofitService();
+        this.mUser = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+        this.mNotifyProps = new NotifyProps(NotifyRepository.query().first());
+        mService = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
 
@@ -69,43 +68,17 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         super.dropView();
     }
 
-    private void initRequests() {
-        saveNotification();
-    }
-
-    private void saveNotification() {
-        restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
-                        service.updateNotify(new NotifyUpdate(notifyProps, user.getId()))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (notificationActivity, user) -> {
-                    UserRepository.update(user);
-                    sendToast("Saved successfully");
-                },
-                (notificationActivity, throwable) -> {
-                    sendToast("Unable to save");
-                    Log.d(TAG, "unable to save " + throwable.getMessage());
-                });
-    }
-
-
-    private void sendToast(String message) {
-        createTemplateObservable(message)
-                .subscribe(split((notificationActivity, s) -> notificationActivity.requestSave(message)));
-    }
-
     public void requestUpdateNotify() {
         start(REQUEST_UPDATE_NOTIFY);
     }
-
 
     public String getMentionsAll() {
         String result = "";
         if (isFirstNameTrigger()) {
             result = "\"" + getFirstName() + "\"";
         }
-        if (notifyProps != null) {
-            String[] mentions = notifyProps.getMentionKeys().split(",");
+        if (mNotifyProps != null) {
+            String[] mentions = mNotifyProps.getMentionKeys().split(",");
             for (String s : mentions) {
                 if (s.equals(getUserName()) || s.equals(getUserNameMentioned()))
                     if (result.length() != 0)
@@ -113,11 +86,11 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                     else
                         result = "\"" + s + "\"";
             }
-            if (notifyProps.getChannel().equals("true"))
+            if (mNotifyProps.getChannel().equals("true"))
                 if (result.length() != 0)
-                    result = result + "," + channelMentions;
+                    result = result + "," + CHANNEL_MENTIONS;
                 else
-                    result = channelMentions;
+                    result = CHANNEL_MENTIONS;
 
             for (String s : mentions) {
                 if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()) && s.length() > 0)
@@ -132,53 +105,53 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     }
 
     public String getPushSetting() {
-        return notifyProps.getPush();
+        return mNotifyProps.getPush();
     }
 
 
     public String getEmailSetting() {
-        if (notifyProps.getEmail().equals("true"))
+        if (mNotifyProps.getEmail().equals("true"))
             return "Immediately";
         else
             return "Never";
     }
 
     public void setEmailSetting(String setting) {
-        notifyProps.setEmail(setting);
+        mNotifyProps.setEmail(setting);
     }
 
     public void setPushSetting(String push) {
-        notifyProps.setPush(push);
+        mNotifyProps.setPush(push);
     }
 
     public String getPushStatusSetting() {
-        return notifyProps.getPushStatus();
+        return mNotifyProps.getPushStatus();
     }
 
     public void setPushStatusSetting(String pushStatus) {
-        notifyProps.setPushStatus(pushStatus);
+        mNotifyProps.setPushStatus(pushStatus);
     }
 
     public boolean isChannelTrigger() {
-        return notifyProps.getChannel().equals("true");
+        return mNotifyProps.getChannel().equals("true");
     }
 
     public void setChannelTrigger(boolean channel) {
-        notifyProps.setChannel(channel ? "true" : "false");
+        mNotifyProps.setChannel(channel ? "true" : "false");
     }
 
     public boolean isFirstNameTrigger() {
-        if (notifyProps.getFirstName() != null)
-            return notifyProps.getFirstName().equals("true");
+        if (mNotifyProps.getFirstName() != null)
+            return mNotifyProps.getFirstName().equals("true");
         return false;
     }
 
     public void setFirstNameTrigger(boolean firsName) {
-        notifyProps.setFirstName(firsName ? "true" : "false");
+        mNotifyProps.setFirstName(firsName ? "true" : "false");
     }
 
     public String getMentionsKeys() {
-        return notifyProps.getMentionKeys();
+        return mNotifyProps.getMentionKeys();
     }
 
     public String getOtherMentionsKeys() {
@@ -209,7 +182,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
             }
             i++;
         }
-        notifyProps.setMentionKeys(otherMention);
+        mNotifyProps.setMentionKeys(otherMention);
     }
 
     public boolean isUserName() {
@@ -224,11 +197,11 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     }
 
     public String getUserName() {
-        return user.getUsername();
+        return mUser.getUsername();
     }
 
     public String getUserNameMentioned() {
-        return "@" + user.getUsername();
+        return "@" + mUser.getUsername();
     }
 
     public boolean isUserNameMentioned() {
@@ -243,6 +216,32 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     }
 
     public String getFirstName() {
-        return user.getFirstName();
+        return mUser.getFirstName();
     }
+
+    private void initRequests() {
+        saveNotification();
+    }
+
+    private void saveNotification() {
+        restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
+                        mService.updateNotify(new NotifyUpdate(mNotifyProps, mUser.getId()))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (notificationActivity, user) -> {
+                    UserRepository.update(user);
+                    sendToast("Saved successfully");
+                },
+                (notificationActivity, throwable) -> {
+                    sendToast("Unable to save");
+                    Log.d(TAG, "unable to save " + throwable.getMessage());
+                });
+    }
+
+
+    private void sendToast(String message) {
+        createTemplateObservable(message)
+                .subscribe(split((notificationActivity, s) -> notificationActivity.requestSave(message)));
+    }
+
 }

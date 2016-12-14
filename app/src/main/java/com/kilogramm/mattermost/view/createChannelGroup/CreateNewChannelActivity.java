@@ -19,6 +19,9 @@ import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.utils.Transliterator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -29,6 +32,7 @@ import nucleus.factory.RequiresPresenter;
 public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPresenter> {
     private ActivityCreateChannelGroupBinding mBinding;
     private ColorGenerator mColorGenerator;
+    private boolean isDisableCreate = false;
 
     public static final String sTYPE = "sTYPE";
     public static final String sCHANNEL_TYPE = "O";
@@ -56,6 +60,9 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
                 this.finish();
                 break;
             case R.id.action_create:
+                if (!isDisableCreate) {
+                    return false;
+                }
                 this.createChannel();
                 break;
             default:
@@ -111,12 +118,6 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
             return channelName.toLowerCase();
         }
     }
-    
-    public static void startActivityForResult(Activity context, Integer requestCode) {
-        Intent starter = new Intent(context, CreateNewChannelActivity.class);
-        starter.putExtra(sTYPE, "O");
-        context.startActivityForResult(starter, requestCode);
-    }
 
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
         Intent starter = new Intent(fragment.getActivity(), CreateNewChannelActivity.class);
@@ -124,7 +125,7 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
         fragment.startActivityForResult(starter, requestCode);
     }
 
-    private final TextWatcher textingWatcher = new TextWatcher() {
+    protected final TextWatcher textingWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -140,6 +141,28 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
             } else {
                 mBinding.newChannelAvatar.setText(String.valueOf(mBinding.tvChannelName.getText().toString().charAt(0)));
             }
+
+//            String input = s.toString().toLowerCase();
+            String input = mBinding.tvChannelName.getText().toString().toLowerCase();
+            input = Transliterator.transliterate(input);
+            if (input.contains(" ")) {
+                input = input.replaceAll("\\s", "-");
+            }
+
+            Pattern allowedSymbols = Pattern.compile("[^0-9a-zA-Z\\-\\ ]");
+            Matcher allowedMatcher = allowedSymbols.matcher(input);
+
+            if (allowedMatcher.find()) {
+                mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_rec));
+                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
+                isDisableCreate = false;
+            } else if (!allowedMatcher.find() || s.length() == 0) {
+                mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_description));
+                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.grey));
+                isDisableCreate = true;
+            }
+
+            mBinding.editTextHandle.setText(input);
         }
     };
 }

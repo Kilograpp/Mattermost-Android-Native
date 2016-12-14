@@ -27,40 +27,76 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private static final int REQUEST_ADD_MEMBERS = 2;
 
     @State
-    ExtraInfo extraInfo;
+    ExtraInfo mExtraInfo;
     @State
-    String id;
+    String mId;
 
-    private ApiMethod service;
-    private String user_id;
+    private ApiMethod mService;
+    private String mUser_id;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mattermostApp = MattermostApp.getSingleton();
-        service = mattermostApp.getMattermostRetrofitService();
+        mService = mattermostApp.getMattermostRetrofitService();
         initGetUsers();
         addMembers();
     }
 
+    public void initPresenter(String id) {
+        this.mId = id;
+        start(REQUEST_DB_GETUSERS);
+    }
+
+    public void addMember(String id) {
+        this.mUser_id = id;
+        start(REQUEST_ADD_MEMBERS);
+    }
+
+    public RealmResults<User> getMembers(String name) {
+        return UserRepository
+                .query(new UserRepository.UserByNotIdsSpecification(
+                        mExtraInfo.getMembers(), name));
+    }
+
+    public RealmResults<User> getMembers() {
+        return UserRepository
+                .query(new UserRepository.UserByNotIdsSpecification(
+                        mExtraInfo.getMembers(), null));
+    }
+
+
+    public class Members {
+        @SerializedName("mUser_id")
+        @Expose
+        String user_id;
+
+        public String getUser_id() {
+            return user_id;
+        }
+
+        public Members(String user_id) {
+            this.user_id = user_id;
+        }
+    }
 
     private void initGetUsers() {
         restartableFirst(REQUEST_DB_GETUSERS,
                 () -> ExtroInfoRepository.query(
-                        new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).asObservable(),
+                        new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
                 (addMembersActivity, o) -> {
-                    this.extraInfo = o.first();
+                    this.mExtraInfo = o.first();
                     addMembersActivity.updateDataList(
                             UserRepository
                                     .query(new UserRepository.UserByNotIdsSpecification(
-                                            extraInfo.getMembers(), null)));
+                                            mExtraInfo.getMembers(), null)));
                 });
     }
 
     private void addMembers() {
         restartableFirst(REQUEST_ADD_MEMBERS,
-                () -> service.addMember(MattermostPreference.getInstance().getTeamId(),
-                        id, new Members(user_id))
+                () -> mService.addMember(MattermostPreference.getInstance().getTeamId(),
+                        mId, new Members(mUser_id))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (addMembersActivity, user) -> {
@@ -75,7 +111,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private void updateMembers(String id) {
         createTemplateObservable(new Object())
                 .subscribe(split((addMembersActivity, openChatObject) -> {
-                    ExtroInfoRepository.updateMembers(extraInfo, UserRepository.query(
+                    ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
                             new UserRepository.UserByIdSpecification(id))
                             .first());
                     addMembersActivity.requestMember("User added");
@@ -88,40 +124,4 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         -> addMembersActivity.requestMember(s)));
     }
 
-    public void initPresenter(String id) {
-        this.id = id;
-        start(REQUEST_DB_GETUSERS);
-    }
-
-    public void addMember(String id) {
-        this.user_id = id;
-        start(REQUEST_ADD_MEMBERS);
-    }
-
-    public RealmResults<User> getMembers(String name) {
-        return UserRepository
-                .query(new UserRepository.UserByNotIdsSpecification(
-                        extraInfo.getMembers(), name));
-    }
-
-    public RealmResults<User> getMembers() {
-        return UserRepository
-                .query(new UserRepository.UserByNotIdsSpecification(
-                        extraInfo.getMembers(), null));
-    }
-
-
-    public class Members {
-        @SerializedName("user_id")
-        @Expose
-        String user_id;
-
-        public String getUser_id() {
-            return user_id;
-        }
-
-        public Members(String user_id) {
-            this.user_id = user_id;
-        }
-    }
 }
