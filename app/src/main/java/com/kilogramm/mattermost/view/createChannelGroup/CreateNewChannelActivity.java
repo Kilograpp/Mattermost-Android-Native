@@ -5,9 +5,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
-import android.media.MediaCodec;
 import android.os.Bundle;
-import android.os.PatternMatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -134,27 +132,6 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-//            String channelName = mBinding.tvChannelName.getText().toString();
-//            channelName = Transliterator.transliterate(channelName);
-//            if (channelName.contains(" ")) {
-//                channelName = channelName.replaceAll("\\s", "-").toLowerCase();
-//            }
-//
-//            Pattern allowedSymbols = Pattern.compile("[0-9a-zA-Z\\-\\ ]");
-//            Matcher allowedMatcher = allowedSymbols.matcher(channelName);
-//
-//            if (allowedMatcher.find()) {
-//                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol \"-\"\n" +
-//                        "The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name");
-//                isDisableCreate = true;
-//            } else {
-//                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol '-'");
-//                mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
-//                isDisableCreate = false;
-//            }
-//
-//            mBinding.editTextHandle.setText(channelName);
         }
 
         @Override
@@ -165,28 +142,22 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
                 mBinding.newChannelAvatar.setText(String.valueOf(mBinding.tvChannelName.getText().toString().charAt(0)));
             }
 
-            String input = s.toString();
+//            String input = s.toString().toLowerCase();
+            String input = mBinding.tvChannelName.getText().toString().toLowerCase();
             input = Transliterator.transliterate(input);
             if (input.contains(" ")) {
-                input = input.replaceAll("\\s", "-").toLowerCase();
+                input = input.replaceAll("\\s", "-");
             }
-
-//            String channelName = mBinding.tvChannelName.getText().toString();
-//            channelName = Transliterator.transliterate(channelName);
-//            if (channelName.contains(" ")) {
-//                channelName = channelName.replaceAll("\\s", "-").toLowerCase();
-//            }
 
             Pattern allowedSymbols = Pattern.compile("[^0-9a-zA-Z\\-\\ ]");
             Matcher allowedMatcher = allowedSymbols.matcher(input);
 
             if (allowedMatcher.find()) {
-                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol '-'");
+                mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_rec));
                 mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
                 isDisableCreate = false;
-            } else {
-                mBinding.textViewCustomHint.setText("Please use only Latin letters, digits and symbol \"-\"\n" +
-                        "The name of the subdirectory used to navigate to a channel using the site URL appended with the handle name");
+            } else if (!allowedMatcher.find() || s.length() == 0) {
+                mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_description));
                 mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.grey));
                 isDisableCreate = true;
             }
