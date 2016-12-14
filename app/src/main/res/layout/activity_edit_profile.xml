@@ -71,20 +71,6 @@
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:layout_marginEnd="15dp"
-            app:layout_anchor="@id/header_infos_container"
-            app:layout_anchorGravity="bottom|end"
-            app:fabSize="normal"
-            app:backgroundTint="@color/white"
-            app:rippleColor="@color/blue_selected"
-            android:id="@+id/changeAvatar"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_camera_alt_dark_grey" />
-
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -366,5 +352,18 @@
 
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginEnd="15dp"
+            app:layout_anchor="@id/header_infos_container"
+            app:layout_anchorGravity="bottom|end"
+            app:fabSize="normal"
+            app:backgroundTint="@color/white"
+            app:rippleColor="@color/blue_selected"
+            android:id="@+id/changeAvatar"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_camera_alt_dark_grey" />
     </android.support.design.widget.CoordinatorLayout>
 </layout>
