@@ -194,7 +194,7 @@
     <string name="create_new_channel_ref">Private Groups are only visible to select team members.
         Any member of a Private Group can add additional members.</string>
     <string name="create_new_ch_gr_handler_description">Please use only Latin letters, digits and
-        symbol \'-\'.\nThe name of the subdirectory used to navigate to a channel using the site URL
+        symbol \'-\'.\nThe name of the subdirectory is used to navigate to a channel using the site URL
         appended with the handle name.</string>
     <string name="create_new_ch_gr_handler_rec">Please use only Latin letters, digits and
         symbol \'-\'</string>
