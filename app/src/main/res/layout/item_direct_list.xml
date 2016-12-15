@@ -28,7 +28,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="60dp"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_toEndOf="@+id/avatarDirect"
+                android:layout_toEndOf="@+id/circleImageAvatarDirect"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
@@ -67,10 +67,10 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@id/avatarDirect"
+                android:layout_below="@id/circleImageAvatarDirect"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="21dp"
-                android:layout_toEndOf="@+id/avatarDirect"
+                android:layout_toEndOf="@+id/circleImageAvatarDirect"
                 android:background="@color/very_light_grey" />
         </RelativeLayout>
 
