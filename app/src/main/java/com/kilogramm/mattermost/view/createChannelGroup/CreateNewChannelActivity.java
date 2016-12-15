@@ -112,10 +112,11 @@ public class CreateNewChannelActivity extends BaseActivity<CreateNewChannelPrese
     }
 
     private String makeNewChannelUrl(String input) {
-        Pattern allowedSymbols = Pattern.compile("[^0-9a-zA-Z\\-\\ ]");
+//        Pattern allowedSymbols = Pattern.compile("[^0-9a-zA-Z\\-\\ ]");
+        input = Transliterator.transliterate(input.toLowerCase());
+        Pattern allowedSymbols = Pattern.compile("[^0-9a-z\\-\\ ]");
         Matcher allowedMatcher = allowedSymbols.matcher(input);
 
-        input = Transliterator.transliterate(input.toLowerCase());
         if (input.contains(" ")) {
             input = input.replaceAll("\\s", "-");
         }

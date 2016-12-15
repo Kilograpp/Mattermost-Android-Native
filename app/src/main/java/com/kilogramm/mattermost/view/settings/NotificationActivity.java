@@ -67,6 +67,7 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
                 return true;
             case R.id.action_save:
                 mSaveItem = item;
+                beforeSaving();
                 updateNotification();
                 BaseActivity.hideKeyboard(this);
                 item.setVisible(false);
@@ -84,7 +85,7 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
         getMenuInflater().inflate(R.menu.save_toolbar, menu);
         return true;
     }
-    
+
     public void openMobilePushNotification() {
         setupToolbar(getString(R.string.notification_mob_push), true);
         if (mNotificationPushFragment == null)
@@ -138,6 +139,13 @@ public class NotificationActivity extends BaseActivity<NotificationPresenter> {
     public static void start(Context context) {
         Intent starter = new Intent(context, NotificationActivity.class);
         context.startActivity(starter);
+    }
+
+    private void beforeSaving() {
+        if (mBinding.fragmentLayoutNotification.getTag()
+                .toString().equals("WordsTriggerMentionsFragment")) {
+            ((WordsTriggerMentionsFragment) getFragmentManager().findFragmentById(R.id.fragmentLayoutNotification)).setMentionsKeys();
+        }
     }
 
     private void setToolbar() {
