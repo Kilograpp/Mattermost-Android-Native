@@ -194,6 +194,8 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         public void afterTextChanged(Editable s) {
             if (TextUtils.isEmpty(s.toString())) {
                 mBinding.searchAutoComplete.removeCallbacks(mSearchDelay);
+                defaultMessageVisibility(true);
+                searchResultVisibility(false);
             } else {
                 mBinding.searchAutoComplete.removeCallbacks(mSearchDelay);
                 mBinding.searchAutoComplete.postDelayed(mSearchDelay, DELAY_SEARCH);
