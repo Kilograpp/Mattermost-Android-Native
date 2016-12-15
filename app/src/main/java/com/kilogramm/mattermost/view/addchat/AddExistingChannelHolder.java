@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemMoreChannelBinding;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
+import com.vdurmont.emoji.EmojiParser;
 
 import io.realm.RealmViewHolder;
 
@@ -26,7 +27,8 @@ public class AddExistingChannelHolder extends RealmViewHolder {
 
     public void bindTo(ChannelsDontBelong channelDontBelong, int backgroundColor) {
         String firstLetter = String.valueOf(channelDontBelong.getName().charAt(0)).toUpperCase();
-        mMoreBinding.avatarChannel.setText(firstLetter);
+//        mMoreBinding.avatarChannel.setText(firstLetter);
+        mMoreBinding.avatarChannel.setText(EmojiParser.removeAllEmojis(channelDontBelong.getDisplayName()).toUpperCase());
         mMoreBinding.avatarChannel.getBackground()
                 .setColorFilter(backgroundColor, PorterDuff.Mode.MULTIPLY);
 

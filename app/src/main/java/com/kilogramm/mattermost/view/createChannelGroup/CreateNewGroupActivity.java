@@ -19,6 +19,9 @@ import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.utils.Transliterator;
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -29,6 +32,8 @@ import nucleus.factory.RequiresPresenter;
 public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter> {
     private ActivityCreateChannelGroupBinding mBinding;
     private ColorGenerator mColorGenerator;
+    private boolean isDisableCreate = false;
+    private String mGroupName;
 
     public static final String sTYPE = "sTYPE";
     public static final String sGROUP_TYPE = "P";
@@ -56,7 +61,14 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
                 this.finish();
                 break;
             case R.id.action_create:
-                this.createGroup();
+                if (!isDisableCreate) {
+                    return false;
+                }
+                if (mBinding.tvChannelName.getText().length() == 0) {
+                    getPresenter().sendShowError(getResources().getString(R.string.create_new_channel_error));
+                } else {
+                    this.createGroup();
+                }
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -83,24 +95,13 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
         fragment.startActivityForResult(starter, requestCode);
     }
 
-    private String makeName(String groupName) {
-        if (Transliterator.transliterate(groupName).contains(" ")) {
-            return groupName.replaceAll("\\s", "-").toLowerCase();
-        } else {
-            return groupName.toLowerCase();
-        }
-    }
-
     private void createGroup() {
-        if (mBinding.tvChannelName.getText().length() != 0) {
-            getPresenter().requestCreateGroup(
-                    this.makeName(mBinding.tvChannelName.getText().toString()),
-                    mBinding.tvChannelName.getText().toString(),
-                    mBinding.header.getText().toString(),
-                    mBinding.purpose.getText().toString());
-        } else {
-            getPresenter().sendShowError(getResources().getString(R.string.create_new_group_error));
-        }
+        getPresenter().requestCreateGroup(
+                mGroupName,
+                mBinding.tvChannelName.getText().toString(),
+                mBinding.header.getText().toString(),
+                mBinding.purpose.getText().toString());
+
         BaseActivity.hideKeyboard(this);
     }
 
@@ -114,10 +115,33 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
         mBinding.newChannelAvatar.getBackground()
                 .setColorFilter(mColorGenerator.getRandomColor(), PorterDuff.Mode.MULTIPLY);
 
-        mBinding.tvChannelName.addTextChangedListener(mTextingWatcher);
+        mBinding.tvChannelName.addTextChangedListener(mGroupNameWatcher);
     }
 
-    private final TextWatcher mTextingWatcher = new TextWatcher() {
+    private String makeNewGroupUrl(String input) {
+        input = Transliterator.transliterate(input.toLowerCase());
+
+        Pattern allowedSymbols = Pattern.compile("[^0-9a-z\\-\\ ]");
+        Matcher allowedMatcher = allowedSymbols.matcher(input);
+
+        if (input.contains(" ")) {
+            input = input.replaceAll("\\s", "-");
+        }
+
+        if (allowedMatcher.find()) {
+            mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_rec));
+            mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.error_color));
+            isDisableCreate = false;
+        } else if (!allowedMatcher.find() || input.length() == 0) {
+            mBinding.textViewCustomHint.setText(getResources().getString(R.string.create_new_ch_gr_handler_description));
+            mBinding.textViewCustomHint.setTextColor(getResources().getColor(R.color.grey));
+            isDisableCreate = true;
+        }
+
+        return input;
+    }
+
+    private final TextWatcher mGroupNameWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -133,6 +157,9 @@ public class CreateNewGroupActivity extends BaseActivity<CreateNewGroupPresenter
             } else {
                 mBinding.newChannelAvatar.setText(String.valueOf(mBinding.tvChannelName.getText().toString().charAt(0)));
             }
+
+            mGroupName = makeNewGroupUrl(mBinding.tvChannelName.getText().toString());
+            mBinding.editTextHandle.setText(mGroupName);
         }
     };
 }
