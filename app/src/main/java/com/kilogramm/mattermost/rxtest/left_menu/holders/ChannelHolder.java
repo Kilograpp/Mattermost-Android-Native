@@ -10,17 +10,12 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 
-/**
- * Created by Evgeny on 14.11.2016.
- */
 
 public class ChannelHolder extends BaseLeftHolder {
 
-    private static final String TAG = "CAHNNEL_HOLDER";
-
     private ItemChannelBinding mBinding;
 
-    public ChannelHolder(ItemChannelBinding binding) {
+    private ChannelHolder(ItemChannelBinding binding) {
         super(binding.getRoot());
         mBinding = binding;
     }

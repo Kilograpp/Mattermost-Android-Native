@@ -12,35 +12,43 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.RealmList;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by Evgeny on 14.11.2016.
- */
 
 public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
-    private static final String TAG = "LeftMenuRxPresenter";
+    private static final String TAG = LeftMenuRxPresenter.class.getName();
 
     private static final int REQUEST_SAVE = 1;
     private static final int REQUEST_UPDATE = 2;
 
-    private ApiMethod service;
+    private ApiMethod mService;
     private ListPreferences mListPreferences = new ListPreferences();
-    private LogoutData user;
+    private LogoutData mUser;
 
-    private String teamId;
+    private String mTeamId;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        user = new LogoutData();
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
-        teamId = MattermostPreference.getInstance().getTeamId();
+        mUser = new LogoutData();
+        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
+        mTeamId = MattermostPreference.getInstance().getTeamId();
         initRequest();
+    }
+
+
+    public void requestSaveData(Preferences data, String userId) {
+        mListPreferences.getmSaveData().clear();
+        mListPreferences.getmSaveData().add(data);
+        mUser.setUserId(userId);
+        start(REQUEST_SAVE);
+    }
+
+    public void requestUpdate() {
+        start(REQUEST_UPDATE);
     }
 
     private void initRequest() {
@@ -50,7 +58,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private void initChannelUpdateRequest() {
         restartableFirst(REQUEST_UPDATE,
-                () -> service.getChannelsTeam(this.teamId)
+                () -> mService.getChannelsTeam(this.mTeamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (leftMenuRxFragment, channelsWithMembers) -> {
@@ -71,33 +79,22 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE,
                 () -> Observable.defer(() -> Observable.zip(
-                        service.save(mListPreferences.getmSaveData())
+                        mService.save(mListPreferences.getmSaveData())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                        service.createDirect(MattermostPreference.getInstance().getTeamId(), user)
+                        mService.createDirect(MattermostPreference.getInstance().getTeamId(), mUser)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                         (aBoolean, channel) -> {
                             if (!aBoolean)
                                 return null;
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, user.getUserId());
+                            ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
                             return channel;
                         })), (generalRxActivity, channel) -> {
                     mListPreferences.getmSaveData().clear();
-                    if(channel.getId()!=null)
+                    if (channel.getId() != null)
                         sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                 }, (generalRxActivity, throwable) -> throwable.printStackTrace());
-    }
-
-    public void requestSaveData(Preferences data, String userId) {
-        mListPreferences.getmSaveData().clear();
-        mListPreferences.getmSaveData().add(data);
-        user.setUserId(userId);
-        start(REQUEST_SAVE);
-    }
-
-    public void requestUpdate() {
-        start(REQUEST_UPDATE);
     }
 
     private void sendSetFragmentChat(String channelId, String name, String type) {

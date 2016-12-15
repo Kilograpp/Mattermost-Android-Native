@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,14 +45,11 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.DIRECT;
 import static com.kilogramm.mattermost.model.entity.channel.Channel.OPEN;
 import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
 
-/**
- * Created by Evgeny on 14.11.2016.
- */
 
 @RequiresPresenter(LeftMenuRxPresenter.class)
 public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
         SwipeRefreshLayout.OnRefreshListener {
-    private static final String TAG = "LEFT_MENU_RX_FRAGMENT";
+    private static final String TAG = LeftMenuRxFragment.class.getSimpleName();
 
     private static final int NOT_SELECTED = -1;
 
@@ -64,14 +60,14 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     private FragmentLeftMenuBinding mBinding;
 
-    private ChannelListAdapter channelListAdapter;
-    private PrivateListAdapter privateListAdapter;
-    private DirectListAdapter directListAdapter;
+    private ChannelListAdapter mChannelListAdapter;
+    private PrivateListAdapter mPrivateListAdapter;
+    private DirectListAdapter mDirectListAdapter;
 
-    private OnChannelChangeListener listener;
+    private OnChannelChangeListener mListener;
 
-    private RealmResults<Member> members;
-    private RealmResults<Preferences> preferences;
+    private RealmResults<Member> mMembers;
+    private RealmResults<Preferences> mPreferences;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -83,21 +79,21 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_left_menu, container, false);
         View view = mBinding.getRoot();
-        preferences = PreferenceRepository.query(new PreferenceRepository.PreferenceByCategorySpecification("direct_channel_show"))
+        mPreferences = PreferenceRepository.query(new PreferenceRepository.PreferenceByCategorySpecification("direct_channel_show"))
                 .where()
                 .equalTo("value", "true")
                 .findAll();
-        preferences.addChangeListener(element -> invalidateDirect());
-        members = MembersRepository.query(new MemberAll());
-        members.addChangeListener(element -> {
-            if (channelListAdapter != null) {
-                channelListAdapter.notifyDataSetChanged();
+        mPreferences.addChangeListener(element -> invalidateDirect());
+        mMembers = MembersRepository.query(new MemberAll());
+        mMembers.addChangeListener(element -> {
+            if (mChannelListAdapter != null) {
+                mChannelListAdapter.notifyDataSetChanged();
             }
-            if (directListAdapter != null) {
-                directListAdapter.notifyDataSetChanged();
+            if (mDirectListAdapter != null) {
+                mDirectListAdapter.notifyDataSetChanged();
             }
-            if (privateListAdapter != null) {
-                privateListAdapter.notifyDataSetChanged();
+            if (mPrivateListAdapter != null) {
+                mPrivateListAdapter.notifyDataSetChanged();
             }
         });
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
@@ -107,37 +103,113 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         return view;
     }
 
-    private void invalidateDirect() {
-        RealmResults<Channel> channels = getDirectChannelData();
-        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
-        directListAdapter = new DirectListAdapter(channels, getActivity(), this, members, statusRealmResults);
-        mBinding.frDirect.recView.swapAdapter(directListAdapter, true);
-        selectLastChannel();
-        mBinding.frDirect.recView.invalidate();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMembers.removeChangeListeners();
+        mPreferences.removeChangeListeners();
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CREATE_CHANNEL) {
-                Log.d(TAG, "onActivityResult: REQUEST_CREATE_CHANNEL");
                 handleRequestCreateChannel(data);
             }
             if (requestCode == REQUEST_CREATE_GROUP) {
-                Log.d(TAG, "onActivityResult: REQUEST_CREATE_GROUP");
                 handleRequestCreateGroup(data);
             }
             if (requestCode == REQUEST_JOIN_DIRECT) {
-                Log.d(TAG, "onActivityResult: REQUEST_JOIN_DIRECT");
                 handleRequestJoinDirect(data);
             }
             if (requestCode == REQUEST_JOIN_CHANNEL) {
-                Log.d(TAG, "onActivityResult: REQUEST_JOIN_CHANNEL");
                 handleRequestJoinChannel(data);
             }
         }
+    }
+
+    @Override
+    public void onChannelClick(String itemId, String name, String type) {
+        removeSelection(type);
+        sendOnChange(itemId, name);
+        MattermostPreference.getInstance().setLastChannelId(itemId);
+    }
+
+    @Override
+    public void onCreateChannelClick(View view) {
+        switch (view.getId()) {
+            case R.id.addChannel:
+                CreateNewChannelActivity.startActivityForResult(this, REQUEST_CREATE_CHANNEL);
+                break;
+            case R.id.addGroup:
+                CreateNewGroupActivity.startActivityForResult(this, REQUEST_CREATE_GROUP);
+                break;
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        getPresenter().requestUpdate();
+    }
+
+    public void setSelectItemMenu(String id, String typeChannel) {
+        switch (typeChannel) {
+            case Channel.OPEN:
+                mChannelListAdapter.setSelectedItem(mChannelListAdapter.getPositionById(id));
+                break;
+            case Channel.PRIVATE:
+                mPrivateListAdapter.setSelectedItem(mPrivateListAdapter.getPositionById(id));
+                break;
+            case Channel.DIRECT:
+                mDirectListAdapter.setSelectedItem(mDirectListAdapter.getPositionById(id));
+                break;
+        }
+    }
+
+    public void initView() {
+        initTeamHeader();
+        initChannelList();
+        initPrivateList();
+        initDirectList();
+    }
+
+    public void setRefreshAnimation(boolean isVisible) {
+        mBinding.leftSwipeRefresh.setRefreshing(isVisible);
+    }
+
+    public RealmResults<Channel> getDirectChannelData() {
+        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
+        for (Preferences preference : mPreferences) {
+            String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
+            String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
+            realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
+        }
+        return realmQuery.findAllSorted("username", Sort.ASCENDING);
+    }
+
+    public void selectLastChannel() {
+        RealmResults<Channel> channels = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
+        if (channels.size() > 0) {
+            Channel channel = channels.first();
+            setSelectItemMenu(channel.getId(), channel.getType());
+        }
+    }
+
+    public void setOnChannelChangeListener(OnChannelChangeListener listener) {
+        this.mListener = listener;
+    }
+
+    private void invalidateDirect() {
+        RealmResults<Channel> channels = getDirectChannelData();
+        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
+        mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
+        mDirectListAdapter = new DirectListAdapter(channels, getActivity(), this, mMembers, statusRealmResults);
+        mBinding.frDirect.recView.swapAdapter(mDirectListAdapter, true);
+        selectLastChannel();
+        mBinding.frDirect.recView.invalidate();
     }
 
     private void handleRequestJoinChannel(Intent data) {
@@ -158,87 +230,54 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         if (channels.size() == 0) {
             getPresenter().requestSaveData(saveData, userTalkToId);
         } else {
-            onChannelClick(channels.get(0).getId(), channels.get(0).getUsername(), channels.get(0).getType());
+            onChannelClick(channels.get(0).getId(),
+                    channels.get(0).getUsername(),
+                    channels.get(0).getType());
             setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
                     data.getStringExtra(AddExistingChannelsActivity.sTYPE));
         }
     }
 
     private void handleRequestCreateGroup(Intent data) {
-        privateListAdapter.setSelectedItem(
-                privateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID)));
+        mPrivateListAdapter.setSelectedItem(
+                mPrivateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID)));
         onChannelClick(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID),
                 data.getStringExtra(CreateNewGroupActivity.sGROUP_NAME),
                 data.getStringExtra(CreateNewGroupActivity.sTYPE));
     }
 
     private void handleRequestCreateChannel(Intent data) {
-        channelListAdapter.setSelectedItem(
-                channelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID)));
+        mChannelListAdapter.setSelectedItem(
+                mChannelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID)));
         onChannelClick(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID),
                 data.getStringExtra(CreateNewChannelActivity.CHANNEL_NAME),
                 data.getStringExtra(CreateNewChannelActivity.sTYPE));
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        members.removeChangeListeners();
-        preferences.removeChangeListeners();
-    }
-
-    @Override
-    public void onChannelClick(String itemId, String name, String type) {
-        Log.d(TAG, "Click listener : channelId = " + itemId + "\n" +
-                "name = " + name + "\n" +
-                "type = " + type + "\n");
-        removeSelection(type);
-        sendOnChange(itemId, name);
-        MattermostPreference.getInstance().setLastChannelId(itemId);
-    }
 
     private void removeSelection(String type) {
         switch (type) {
             case OPEN:
-                directListAdapter.setSelectedItem(NOT_SELECTED);
-                privateListAdapter.setSelectedItem(NOT_SELECTED);
+                mDirectListAdapter.setSelectedItem(NOT_SELECTED);
+                mPrivateListAdapter.setSelectedItem(NOT_SELECTED);
                 break;
             case PRIVATE:
-                channelListAdapter.setSelectedItem(NOT_SELECTED);
-                directListAdapter.setSelectedItem(NOT_SELECTED);
+                mChannelListAdapter.setSelectedItem(NOT_SELECTED);
+                mDirectListAdapter.setSelectedItem(NOT_SELECTED);
                 break;
             case DIRECT:
-                channelListAdapter.setSelectedItem(NOT_SELECTED);
-                privateListAdapter.setSelectedItem(NOT_SELECTED);
+                mChannelListAdapter.setSelectedItem(NOT_SELECTED);
+                mPrivateListAdapter.setSelectedItem(NOT_SELECTED);
                 break;
         }
     }
 
     private void sendOnChange(String itemId, String name) {
-        if (listener != null) {
-            listener.onChange(itemId, name);
+        if (this.mListener != null) {
+            this.mListener.onChange(itemId, name);
         }
     }
 
-    @Override
-    public void onCreateChannelClick(View view) {
-        Log.d(TAG, "OnCreate listener ");
-        switch (view.getId()) {
-            case R.id.addChannel:
-                CreateNewChannelActivity.startActivityForResult(this, REQUEST_CREATE_CHANNEL);
-                break;
-            case R.id.addGroup:
-                CreateNewGroupActivity.startActivityForResult(this, REQUEST_CREATE_GROUP);
-                break;
-        }
-    }
-
-    public void initView() {
-        initTeamHeader();
-        initChannelList();
-        initPrivateList();
-        initDirectList();
-    }
 
     private void initTeamHeader() {
         RealmResults<Team> teams = TeamRepository.query();
@@ -250,40 +289,34 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void initChannelList() {
-        Log.d(TAG, "initChannelList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("O"));
         mBinding.frChannel.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.frChannel.recView.setNestedScrollingEnabled(false);
         mBinding.frChannel.addChannel.setOnClickListener(this::onCreateChannelClick);
         mBinding.frChannel.btnMoreChannel.setOnClickListener(this::openMore);
-        channelListAdapter = new ChannelListAdapter(channels, getActivity(), members, this);
-        mBinding.frChannel.recView.setAdapter(channelListAdapter);
+        mChannelListAdapter = new ChannelListAdapter(channels, getActivity(), mMembers, this);
+        mBinding.frChannel.recView.setAdapter(mChannelListAdapter);
     }
 
     private void initPrivateList() {
-        Log.d(TAG, "initPrivateList");
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("P"));
         mBinding.frPrivate.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.frPrivate.recView.setNestedScrollingEnabled(false);
         mBinding.frPrivate.addGroup.setOnClickListener(this::onCreateChannelClick);
-        privateListAdapter = new PrivateListAdapter(channels, getActivity(), members, this);
-        mBinding.frPrivate.recView.setAdapter(privateListAdapter);
+        mPrivateListAdapter = new PrivateListAdapter(channels, getActivity(), mMembers, this);
+        mBinding.frPrivate.recView.setAdapter(mPrivateListAdapter);
     }
 
     private void initDirectList() {
-        Log.d(TAG, "initDirectList");
-        RealmResults<Channel> channels = getDirectChannelData();/*ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification("D"));*/
+        RealmResults<Channel> channels = getDirectChannelData();
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.frDirect.recView.setNestedScrollingEnabled(false);
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
-        directListAdapter = new DirectListAdapter(channels, getActivity(), this, members, statusRealmResults);
-        mBinding.frDirect.recView.setAdapter(directListAdapter);
+        mDirectListAdapter = new DirectListAdapter(channels, getActivity(), this, mMembers, statusRealmResults);
+        mBinding.frDirect.recView.setAdapter(mDirectListAdapter);
     }
 
-    public void setOnChannelChangeListener(OnChannelChangeListener listener) {
-        this.listener = listener;
-    }
 
     private void openMore(View view) {
         switch (view.getId()) {
@@ -296,51 +329,5 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         }
     }
 
-    public void setSelectItemMenu(String id, String typeChannel) {
-        switch (typeChannel) {
-            case Channel.OPEN:
-                channelListAdapter.setSelectedItem(channelListAdapter.getPositionById(id));
-                break;
-            case Channel.PRIVATE:
-                privateListAdapter.setSelectedItem(privateListAdapter.getPositionById(id));
-                break;
-            case Channel.DIRECT:
-                directListAdapter.setSelectedItem(directListAdapter.getPositionById(id));
-                break;
-        }
-    }
 
-    @Override
-    public void onRefresh() {
-        getPresenter().requestUpdate();
-    }
-
-    public void setRefreshAnimation(boolean isVisible) {
-        mBinding.leftSwipeRefresh.setRefreshing(isVisible);
-    }
-
-    public RealmResults<Channel> getDirectChannelData() {
-        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
-        for (Preferences preference : preferences) {
-            String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
-            String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
-            realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
-        }
-        return realmQuery.findAllSorted("username", Sort.ASCENDING);
-    }
-
-    public void selectLastChannel() {
-        RealmResults<Channel> channels = ChannelRepository.query(
-                new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
-        if (channels.size() <= 0) {
-            return;
-        } else {
-            Channel channel = channels.first();
-            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId() + "\n" +
-                    "name = " + channel.getUsername() + "\n" +
-                    "type = " + channel.getType() + "\n");
-            //removeSelection(channel.getType());
-            setSelectItemMenu(channel.getId(), channel.getType());
-        }
-    }
 }
