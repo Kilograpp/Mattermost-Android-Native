@@ -24,6 +24,7 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Data;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
@@ -182,9 +183,17 @@ public class ManagerBroadcast {
             case WebSocketObj.ALL_USER_STATUS:
                 data = getMapStatus(dataJSON);
                 break;
+            case WebSocketObj.EVENT_PREFERENCE_CHANGED:
+                data = getPreferenceData(dataJSON);
         }
         webSocketObj.setData(data);
         return webSocketObj;
+    }
+
+    private Data getPreferenceData(JSONObject dataJSON) throws JSONException {
+        return new WebSocketObj.BuilderData()
+                .setPreference((new Gson()).fromJson(dataJSON.getString(WebSocketObj.PREFERENCES), Preferences.class))
+                .build();
     }
 
     private Data getMapStatus(JSONObject dataJSON) {

@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
@@ -67,6 +69,10 @@ public class MattermostNotificationManager {
                             "status = " + webSocketObj.getData().getStatusMap().get(s));
                     UserStatusRepository.add(new UserStatus(s,webSocketObj.getData().getStatusMap().get(s)));
                 }
+                break;
+            case WebSocketObj.EVENT_PREFERENCE_CHANGED:
+                PreferenceRepository.add(webSocketObj.getData().getPreference());
+                break;
         }
     }
 

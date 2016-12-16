@@ -108,6 +108,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void invalidateDirect() {
+        Log.d(TAG, "invalidateDirect: change");
         RealmResults<Channel> channels = getDirectChannelData();
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);

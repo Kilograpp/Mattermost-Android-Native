@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.Data;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Map;
@@ -32,6 +33,7 @@ public class WebSocketObj implements Parcelable {
     public static final String EVENT_POST_EDITED = "post_edited";
     public static final String EVENT_POST_DELETED = "post_deleted";
     public static final String EVENT_STATUS_CHANGE = "status_change";
+    public static final String EVENT_PREFERENCE_CHANGED = "preference_changed";
 
     //Posted
     public static final String CHANNEL_DISPLAY_NAME = "channel_display_name";
@@ -48,6 +50,7 @@ public class WebSocketObj implements Parcelable {
     public static final String STATUS = "status";
     public static final String SEQ_REPLAY = "seq_reply";
     public static final String ALL_USER_STATUS = "all_user_status";
+    public static final String PREFERENCES = "preference";
     @SerializedName("team_id")
     @Expose
     private String teamId;
@@ -160,6 +163,7 @@ public class WebSocketObj implements Parcelable {
         private String teamId;
         private String status;
         private String parentId;
+        private Preferences preferences;
         private Map<String, String> mapUserStatus;
 
         public BuilderData setChannelDisplayName(String channelDisplayName) {
@@ -174,6 +178,11 @@ public class WebSocketObj implements Parcelable {
 
         public BuilderData setMentions(String mentions) {
             this.mentions = mentions;
+            return this;
+        }
+
+        public BuilderData setPreference(Preferences preference){
+            this.preferences = preference;
             return this;
         }
 
@@ -215,7 +224,8 @@ public class WebSocketObj implements Parcelable {
                     senderName,
                     teamId,
                     status,
-                    mapUserStatus);
+                    mapUserStatus,
+                    preferences);
         }
 
         public BuilderData setStatus(String status) {

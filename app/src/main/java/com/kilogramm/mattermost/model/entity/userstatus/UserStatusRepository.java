@@ -44,8 +44,10 @@ public class UserStatusRepository {
 
     public static void remove(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
-        realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
+        realm.executeTransaction(realm1 -> {
+            RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
+            realmResults.deleteAllFromRealm();
+        });
     }
 
 
