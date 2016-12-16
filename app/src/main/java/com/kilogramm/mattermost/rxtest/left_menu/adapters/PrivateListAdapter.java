@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.rxtest.left_menu.adapters;
 
 import android.app.Service;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,17 +15,13 @@ import io.realm.RealmAD;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
-/**
- * Created by Evgeny on 14.11.2016.
- */
 
-public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder>{
+public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder> {
 
-    private static final String TAG = "PRIVATE_LIST_ADAPTER";
-    private final Context context;
-    private final LayoutInflater inflater;
-    private final RealmResults<Member> members;
-    private final OnLeftMenuClickListener channelItemClickListener;
+    private final Context mContext;
+    private final LayoutInflater mInflater;
+    private final RealmResults<Member> mMembers;
+    private final OnLeftMenuClickListener mChannelItemClickListener;
 
     private int mSelectedItem = -1;
 
@@ -34,16 +29,15 @@ public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder>{
                               Context context, RealmResults<Member> members,
                               OnLeftMenuClickListener listener) {
         super(adapterData);
-        this.context = MattermostApp.get(context);
-        this.inflater = (LayoutInflater) this.context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
-        this.members = members;
-        this.channelItemClickListener = listener;
+        this.mContext = MattermostApp.get(context);
+        this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
+        this.mMembers = members;
+        this.mChannelItemClickListener = listener;
     }
 
     @Override
     public ChannelHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ChannelHolder holder = ChannelHolder.create(inflater, parent);
-        return holder;
+        return ChannelHolder.create(mInflater, parent);
     }
 
     @Override
@@ -52,9 +46,8 @@ public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder>{
         Member member = getMember(channel.getId());
 
         holder.setClickListener(v -> {
-            Log.d(TAG, "onClickItem() holder");
-            if (channelItemClickListener != null) {
-                channelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName(),
+            if (mChannelItemClickListener != null) {
+                mChannelItemClickListener.onChannelClick(channel.getId(), channel.getDisplayName(),
                         channel.getType());
             }
             setSelectedItem(holder.getAdapterPosition());
@@ -65,11 +58,16 @@ public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder>{
         } else {
             holder.setChecked(false);
         }
-        holder.bindTo(channel, context, member);
+        holder.bindTo(channel, mContext, member);
+    }
+
+    public void setSelectedItem(int selecteditem) {
+        this.mSelectedItem = selecteditem;
+        notifyDataSetChanged();
     }
 
     private Member getMember(String channelId) {
-        RealmQuery<Member> query = members.where().equalTo("channelId", channelId);
+        RealmQuery<Member> query = mMembers.where().equalTo("channelId", channelId);
         if (query.count() > 0) {
             return query.findFirst();
         } else {
@@ -77,8 +75,4 @@ public class PrivateListAdapter extends RealmAD<Channel, ChannelHolder>{
         }
     }
 
-    public void setSelectedItem(int selecteditem) {
-        this.mSelectedItem = selecteditem;
-        notifyDataSetChanged();
-    }
 }
