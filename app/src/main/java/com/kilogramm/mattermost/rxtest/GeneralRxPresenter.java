@@ -54,7 +54,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_INITLOAD = 7;
     private static final int REQUEST_EXTROINFO_DEFAULT_CHANNEL = 8;
-    private static final int REQUEST_CREATE_DIRECT = 9;
+//    private static final int REQUEST_CREATE_DIRECT = 9;
 
     private ApiMethod service;
 
@@ -109,17 +109,35 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
-                () -> service.getDirectProfile()
+                () -> service.getAllUsers(MattermostPreference.getInstance().getTeamId(), "0", "100")
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (generalRxActivity, stringUserMap) -> {
-                    List<User> users = new ArrayList<>();
-                    users.addAll(stringUserMap.values());
-                    users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
-                    users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
-                    UserRepository.add(users);
+                (activity, stringUserMap) -> {
+                    if (stringUserMap.keySet().size() == 100) {
+                        requestDirectProfile();
+                    } else {
+                        List<User> users = new ArrayList<>();
+                        users.addAll(stringUserMap.values());
+                        users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                        users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
+                        UserRepository.add(users);
+                    }
+
                     requestLoadChannels();
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+
+//        restartableFirst(REQUEST_DIRECT_PROFILE,
+//                () -> service.getDirectProfile()
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(Schedulers.io()),
+//                (generalRxActivity, stringUserMap) -> {
+//                    List<User> users = new ArrayList<>();
+//                    users.addAll(stringUserMap.values());
+//                    users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+//                    users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
+//                    UserRepository.add(users);
+//                    requestLoadChannels();
+//                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_LOAD_CHANNELS,
                 () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
@@ -208,9 +226,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         service.save(preferenceList)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                (activity, aBoolean) -> {
-                    PreferenceRepository.add(preferenceList);
-                }
+                (activity, aBoolean) ->
+                    PreferenceRepository.add(preferenceList)
                 , (activity, throwable) ->
                         sendShowError(parceError(throwable, SAVE_PREFERENCES))
         );
