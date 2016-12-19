@@ -142,7 +142,8 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                                 } else if (statusCode == 501) {
                                     return "File storage is disabled";
                                 } else {
-                                    return null;
+//                                    return null;
+                                    return error.getMessage();
                                 }
                             case GET_A_FILE:
                             case GET_THUMBNAIL:

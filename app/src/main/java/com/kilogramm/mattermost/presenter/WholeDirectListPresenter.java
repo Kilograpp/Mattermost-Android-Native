@@ -58,7 +58,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         initGetUsers();
     }
 
-
     public Observable<Channel> addParticipantRx(String name) {
         LogoutData logoutData = new LogoutData(name);
         return service.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
@@ -107,7 +106,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 }
         );
     }
-
 
     public void savePreferences(Map<String, Boolean> chouseUser) {
         for (Map.Entry<String, Boolean> user : chouseUser.entrySet()) {

@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.Map;
  * Created by Evgeny on 19.09.2016.
  */
 public class Data implements Parcelable {
+
+
     @SerializedName("channel_display_name")
     @Expose
     private String channelDisplayName;
@@ -45,6 +48,8 @@ public class Data implements Parcelable {
     @Expose
     private String status;
 
+    private Preferences preference;
+
     private Map<String, String> statusMap;
 
     public Data(String channelDisplayName,
@@ -54,7 +59,8 @@ public class Data implements Parcelable {
                 String senderName,
                 String teamId,
                 String status,
-                Map<String, String> statusMap) {
+                Map<String, String> statusMap,
+                Preferences preference) {
         this.channelDisplayName = channelDisplayName;
         this.channelType = channelType;
         this.mentions = mentions;
@@ -63,6 +69,7 @@ public class Data implements Parcelable {
         this.teamId = teamId;
         this.status = status;
         this.statusMap = statusMap;
+        this.preference = preference;
     }
 
     public Map<String, String> getStatusMap() {
@@ -107,6 +114,10 @@ public class Data implements Parcelable {
 
     public String getStatus() {
         return status;
+    }
+
+    public Preferences getPreference() {
+        return preference;
     }
 
     public void setStatus(String status) {
