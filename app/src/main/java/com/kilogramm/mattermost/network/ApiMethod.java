@@ -6,6 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.Channels;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -24,6 +25,7 @@ import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +65,14 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
+
+    //TODO добавила 19.12 для проверки записи channels в бд (меняю только в GeneralRxPresenter)
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/")
+    Observable<List<Channel>> getChannelsTeamNew(@Path("teamId") String teamId);
 
     @Headers({
             "Accept: application/json",

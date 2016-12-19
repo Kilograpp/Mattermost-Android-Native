@@ -57,13 +57,14 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //    private static final int REQUEST_CREATE_DIRECT = 9;
 
     private ApiMethod service;
+    private int mOffset;
+    private int mLimit;
+    private LogoutData user;
 
     @State
     String currentUserId;
-
-    private LogoutData user;
-
-    private String teamId;
+    @State
+    String teamId;
 
     List<Preferences> preferenceList = new ArrayList<>();
 
@@ -76,6 +77,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         service = application.getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
         teamId = MattermostPreference.getInstance().getTeamId();
+        mOffset = 0;
+        mLimit = 100;
+
         initRequest();
         requestDirectProfile();
     }
@@ -112,17 +116,20 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
-                () -> service.getAllUsers(teamId, 0, 100)
+                () -> service.getAllUsers(teamId, mOffset, mLimit)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (activity, stringUserMap) -> {
                     List<User> users = new ArrayList<>();
                     if (stringUserMap.keySet().size() == 100) {
+                        this.mOffset += 1;
                         requestDirectProfile();
                     } else {
                         users.addAll(stringUserMap.values());
                         UserRepository.add(users);
                     }
+
+                    Log.d(TAG, users.toString());
 
                     users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
@@ -144,16 +151,34 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_LOAD_CHANNELS,
-                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                () -> service.getChannelsTeamNew(teamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (generalRxActivity, channelsWithMembers) -> {
-                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                (activity, channelsCollection) -> {
+                    ArrayList<Channel> channels = new ArrayList<>();
+                    channels.addAll(channelsCollection);
+
+                    ChannelRepository.prepareChannelAndAdd(channels,
                             MattermostPreference.getInstance().getMyUserId());
-                    MembersRepository.add(channelsWithMembers.getMembers().values());
+                    Log.d(TAG, channels.toString());
                     requestUserTeam();
+
                     start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+
+//        restartableFirst(REQUEST_LOAD_CHANNELS,
+//                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(Schedulers.io()),
+//                (generalRxActivity, channelsWithMembers) -> {
+//                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+//                            MattermostPreference.getInstance().getMyUserId());
+//                    MembersRepository.add(channelsWithMembers.getMembers().values());
+//                    requestUserTeam();
+//
+//                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
+//
+//                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM,
                 () -> service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
