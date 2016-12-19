@@ -63,6 +63,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private LogoutData user;
 
+    private String teamId;
+
     List<Preferences> preferenceList = new ArrayList<>();
 
     @Override
@@ -73,6 +75,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         MattermostApp application = MattermostApp.getSingleton();
         service = application.getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
+        teamId = MattermostPreference.getInstance().getTeamId();
         initRequest();
         requestDirectProfile();
     }
@@ -109,19 +112,20 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
-                () -> service.getAllUsers(MattermostPreference.getInstance().getTeamId(), "0", "100")
+                () -> service.getAllUsers(teamId, 0, 100)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (activity, stringUserMap) -> {
+                    List<User> users = new ArrayList<>();
                     if (stringUserMap.keySet().size() == 100) {
                         requestDirectProfile();
                     } else {
-                        List<User> users = new ArrayList<>();
                         users.addAll(stringUserMap.values());
-                        users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
-                        users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
                         UserRepository.add(users);
                     }
+
+                    users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+                    users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
 
                     requestLoadChannels();
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));

@@ -178,8 +178,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/users/{offset}/{limit}")
     Observable<Map<String, User>> getAllUsers(@Path("team_id") String team_id,
-                                                         @Path("offset") String offset,
-                                                         @Path("limit") String limit);
+                                                         @Path("offset") int offset,
+                                                         @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
