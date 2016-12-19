@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -17,6 +18,8 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
+
+import java.util.List;
 
 import icepick.State;
 import io.realm.RealmList;
@@ -34,6 +37,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_SAVE = 3;
     private static final int REQUEST_CHANNEL = 4;
     private static final int REQUEST_DELETE = 5;
+    private static final int REQUEST_SAVE_PREFERENCES = 6;
 
     private String errorLoadingExtraInfo = "Error loading channel info";
 
@@ -175,8 +179,22 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
             MattermostPreference.getInstance().setLastChannelId(channel.getId());
             sendSetFragmentChat();
         }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
+
+        List<Preferences> preferenceList = PreferenceRepository.query();
+
+        restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
+                        mService.save(PreferenceRepository.query())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (wholeDirectListActivity, aBoolean) -> sendSetFragmentChat(),
+                (wholeDirectListActivity, throwable) ->
+                        sendShowError(parceError(throwable, SAVE_PREFERENCES))
+        );
     }
 
+    public void savePreferences() {
+        start(REQUEST_SAVE_PREFERENCES);
+    }
 
     private void sendSetFragmentChat() {
         createTemplateObservable(new Object())

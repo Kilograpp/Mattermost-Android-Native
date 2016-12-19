@@ -25,6 +25,9 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -42,15 +45,11 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import icepick.State;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
@@ -152,7 +151,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         }
     }
 
-    private void setupImageLoaderConfiguration(){
+    private void setupImageLoaderConfiguration() {
         final int memoryCacheSize = 1024 * 1024 * 2;
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this.getApplicationContext())
                 .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
@@ -337,14 +336,24 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private boolean parceIntent(Intent intent) {
-        if (intent.getStringExtra(CHANNEL_ID) != null || intent.getStringExtra(CHANNEL_NAME) != null ||
-                intent.getStringExtra(CHANNEL_TYPE) != null) {
-            String openChannelId = intent.getStringExtra(CHANNEL_ID);
-            String openChannelName = intent.getStringExtra(CHANNEL_NAME);
-            String openChannelType = intent.getStringExtra(CHANNEL_TYPE);
-            this.setFragmentChat(openChannelId, openChannelName, openChannelType);
-            return true;
+        if (intent != null) {
+            if (intent.getStringExtra(CHANNEL_ID) != null || intent.getStringExtra(CHANNEL_NAME) != null ||
+                    intent.getStringExtra(CHANNEL_TYPE) != null) {
+                String openChannelId = intent.getStringExtra(CHANNEL_ID);
+                String openChannelName = intent.getStringExtra(CHANNEL_NAME);
+                String openChannelType = intent.getStringExtra(CHANNEL_TYPE);
+
+                RealmResults<Preferences> prefs = PreferenceRepository.query(
+                        new PreferenceRepository.PreferenceByNameSpecification(openChannelId));
+                if (prefs.isEmpty()) {
+                    getPresenter().requestSave(openChannelName, openChannelId);
+                }
+
+                this.setFragmentChat(openChannelId, openChannelName, openChannelType);
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -364,7 +373,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_general, menu);
         return true;
     }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityChannelBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
@@ -241,7 +242,12 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 MattermostPreference.getInstance().setLastChannelId(
                         channels.first().getId()
                 );
-                startGeneralActivity();
+                PreferenceRepository.update(
+                        new PreferenceRepository
+                                .PreferenceByNameSpecification(
+                                channels.first().getUser().getId()),"true");
+                getPresenter().savePreferences();
+//                startGeneralActivity();
             } else startDialog(id);
         }
     }
