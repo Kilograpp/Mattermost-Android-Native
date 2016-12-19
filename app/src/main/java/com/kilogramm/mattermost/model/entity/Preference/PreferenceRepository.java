@@ -29,10 +29,28 @@ public class PreferenceRepository {
         realm.commitTransaction();
     }
 
+    public static void update(Specification specification, String isTrue) {
+        RealmSpecification realmSpecification = (RealmSpecification) specification;
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Preferences> realmResults = realmSpecification.toRealmResults(realm);
+        realm.executeTransaction(realm1 -> {
+            for (Preferences item : realmResults) {
+                item.setValue(isTrue);
+            }
+        });
+    }
+
     public static void update(Preferences item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             realm1.insertOrUpdate(item);
+        });
+    }
+
+    public static void update(String name, String value) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            realm1.where(Preferences.class).equalTo("name",name).findFirst().setValue(value);
         });
     }
 
@@ -68,7 +86,7 @@ public class PreferenceRepository {
 
     public static RealmResults<Preferences> query() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Preferences.class).findAll();
+        return realm.where(Preferences.class).equalTo("category", "direct_channel_show").findAll();
     }
 
 

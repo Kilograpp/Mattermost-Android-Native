@@ -14,6 +14,7 @@ import android.view.View;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityAllMembersChannelBinding;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
@@ -56,7 +57,7 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
         GeneralRxActivity.start(this, null);
     }
 
-    private TextWatcher getMassageTextWatcher(){
+    private TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -110,16 +111,22 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
         String userId = MattermostPreference.getInstance().getMyUserId();
         if (!userId.equals(id)) {
             RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
-            if (channels.size() > 0) {
+            if (channels.size() > 0 && PreferenceRepository.query(
+                    new PreferenceRepository.PreferenceByNameSpecification(id)).size() > 0) {
                 MattermostPreference.getInstance().setLastChannelId(
                         channels.first().getId()
                 );
-                startGeneralActivity();
+                getPresenter().savePreferences(channels.first().getUser().getId());
             } else startDialog(id);
         }
     }
 
     private void startDialog(String userTalkToId) {
+
+        createDialog(userTalkToId);
+    }
+
+    public void createDialog(String userTalkToId){
         Preferences preferences = new Preferences(
                 userTalkToId,
                 MattermostPreference.getInstance().getMyUserId(),
@@ -127,7 +134,6 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
                 "direct_channel_show");
 
         getPresenter().requestSaveData(preferences, userTalkToId);
-
     }
 
     private void setToolbar() {

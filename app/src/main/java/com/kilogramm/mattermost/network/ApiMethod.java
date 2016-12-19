@@ -198,6 +198,7 @@ public interface ApiMethod {
     @POST("api/v3/preferences/save")
     Observable<Boolean> save(@Body List<Preferences> saveData);
 
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -340,6 +341,7 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/commands/execute")
     Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
                                               @Body CommandToNet command);
+
 
 
 }
