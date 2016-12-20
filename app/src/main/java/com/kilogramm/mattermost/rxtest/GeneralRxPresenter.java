@@ -18,7 +18,6 @@ import com.kilogramm.mattermost.model.entity.ThemeProps;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.team.Team;
@@ -116,7 +115,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
-                () -> service.getAllUsers(teamId, mOffset, mLimit)
+                () -> service.getSiteAllUsers(mOffset, mLimit)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (activity, stringUserMap) -> {
@@ -163,7 +162,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, channels.toString());
                     requestUserTeam();
 
-                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
+//                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
 //        restartableFirst(REQUEST_LOAD_CHANNELS,

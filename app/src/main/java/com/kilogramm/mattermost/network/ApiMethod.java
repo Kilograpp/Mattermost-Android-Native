@@ -6,7 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.Channels;
+import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -25,7 +25,6 @@ import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -73,6 +72,13 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<List<Channel>> getChannelsTeamNew(@Path("teamId") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/members")
+    Observable<List<Member>> getMembersTeamNew(@Path("teamId") String teamId);
 
     @Headers({
             "Accept: application/json",
@@ -190,6 +196,14 @@ public interface ApiMethod {
     Observable<Map<String, User>> getAllUsers(@Path("team_id") String team_id,
                                                          @Path("offset") int offset,
                                                          @Path("limit") int limit);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/users/{offset}/{limit}")
+    Observable<Map<String, User>> getSiteAllUsers(@Path("offset") int offset,
+                                              @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",

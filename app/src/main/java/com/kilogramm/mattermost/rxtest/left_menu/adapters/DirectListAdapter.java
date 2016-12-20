@@ -49,7 +49,12 @@ public class DirectListAdapter extends RealmAD<Channel, DirectHolder> {
     @Override
     public void onBindViewHolder(DirectHolder holder, int position) {
         Channel channel = getData().get(position);
-        UserStatus userStatus = getUserStatus(channel.getUser().getId());
+        UserStatus userStatus;
+        try {
+            userStatus = getUserStatus(channel.getUser().getId());
+        } catch (NullPointerException e){
+            userStatus = new UserStatus("0", UserStatus.ONLINE);
+        }
         Member member = getMember(channel.getId());
 
 
