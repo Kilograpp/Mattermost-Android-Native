@@ -119,12 +119,17 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                                     return "You are not from the team";
                                 }
                                 if (statusCode == 500 && requestTag.equals(CREATE_CHANNEL)) {
-                                    return "Name must be 2 or more lowercase alphanumeric characters";
+                                    //return "Name must be 2 or more lowercase alphanumeric characters";
+                                    return "A channel with that URL already exists";
                                 } else {
                                     return "There is no channels for you";
                                 }
-                            case GET_A_CHANNEL:
                             case GET_CHANNEL_STATS:
+                                if (statusCode == 500) {
+                                    return " Could not retrieve the channel stats";
+                                }
+                                break;
+                            case GET_A_CHANNEL:
                             case GET_CHANNEL_MEMBER:
                                 if (statusCode == 500) {
                                     return "You are not from this channel or channel is not from this team";

@@ -17,7 +17,8 @@ import io.realm.annotations.PrimaryKey;
 public class ExtraInfo extends RealmObject implements Parcelable {
 
     @PrimaryKey
-    @SerializedName("id")
+//    @SerializedName("id")
+    @SerializedName("channel_id")
     @Expose
     private String id;
     @SerializedName("member_count")
