@@ -35,6 +35,13 @@ public class Preferences extends RealmObject implements Parcelable {
         this.value = value.toString();
     }
 
+    public Preferences(Preferences preferences) {
+        this.category = preferences.getCategory();
+        this.name = preferences.getName();
+        this.user_id = preferences.getUser_id();
+        this.value = preferences.getValue();
+    }
+
     public String getCategory() {
         return category;
     }

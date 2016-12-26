@@ -11,7 +11,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
-import com.kilogramm.mattermost.model.entity.ListPreferences;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.ThemeProps;
@@ -54,13 +54,16 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_SAVE = 5;
     private static final int REQUEST_INITLOAD = 7;
     private static final int REQUEST_EXTROINFO_DEFAULT_CHANNEL = 8;
+    private static final int REQUEST_CREATE_DIRECT = 9;
 
     private ApiMethod service;
 
     @State
-    ListPreferences listPreferences = new ListPreferences();
+    String currentUserId;
 
     private LogoutData user;
+
+    List<Preferences> preferenceList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -69,11 +72,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         user = new LogoutData();
         MattermostApp application = MattermostApp.getSingleton();
         service = application.getMattermostRetrofitService();
+        currentUserId = MattermostPreference.getInstance().getMyUserId();
         initRequest();
         requestDirectProfile();
     }
-
-
 
     /*//TODO review evgenysuetin
     public void setSelectedLast(String id) {
@@ -201,6 +203,17 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, throwable) ->
                         handleErrorLogin(throwable)
         );
+
+        restartableFirst(REQUEST_SAVE, () ->
+                        service.save(preferenceList)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (activity, aBoolean) -> {
+                    PreferenceRepository.add(preferenceList);
+                }
+                , (activity, throwable) ->
+                        sendShowError(parceError(throwable, SAVE_PREFERENCES))
+        );
     }
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
@@ -252,6 +265,16 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             }
         });
 //        start(REQUEST_LOGOUT);
+    }
+
+    public void requestSave(String name, String idUserToStartDialogWith) {
+        preferenceList.add(new Preferences(
+                idUserToStartDialogWith,
+                currentUserId,
+                true,
+                "direct_channel_show"));
+
+        start(REQUEST_SAVE);
     }
 
     @Override

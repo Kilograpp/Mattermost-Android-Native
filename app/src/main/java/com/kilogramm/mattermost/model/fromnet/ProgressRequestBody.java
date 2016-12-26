@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
@@ -47,7 +48,14 @@ public class ProgressRequestBody extends RequestBody {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
         long lastTimeUpdate = 0;
-        FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileId);
+        Realm realm = Realm.getDefaultInstance();
+        FileToAttach fileToAttach;
+        do {
+            fileToAttach = realm.where(FileToAttach.class)
+                    .equalTo("id", fileId)
+                    .findFirst();
+        } while (fileToAttach == null);
+
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             if (fileLength == 0) {
@@ -64,6 +72,8 @@ public class ProgressRequestBody extends RequestBody {
             if(fileToAttach != null && fileToAttach.isValid()) {
                 FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
             }
+        } finally {
+            realm.close();
         }
     }
 }

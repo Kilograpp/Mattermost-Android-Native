@@ -6,8 +6,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -34,6 +33,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public static final String IMAGE_URL = "image_url";
     public static final String TITLE = "title";
     public static final String PHOTO_LIST = "photo_list";
+    private static final String TAG = "ViewPagerWGesturesAct";
 
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
@@ -188,5 +188,13 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
                     Toast.LENGTH_SHORT);
             errorToast.show();
         });
+    }
+
+    public void setTransparent(float v) {
+        Log.d(TAG, "setTransparent() called with: v = [" + Math.abs(1 - v/100) + "]");
+        getWindow().getDecorView().setAlpha(1);
+        binding.getRoot().setAlpha(Math.abs(1 - v/100));
+        //binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        //binding.getRoot().set.setAlpha(v);
     }
 }

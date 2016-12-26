@@ -118,10 +118,11 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                                 if (statusCode == 403) {
                                     return "You are not from the team";
                                 }
-                                if (statusCode == 500) {
+                                if (statusCode == 500 && requestTag.equals(CREATE_CHANNEL)) {
+                                    return "Name must be 2 or more lowercase alphanumeric characters";
+                                } else {
                                     return "There is no channels for you";
                                 }
-                                break;
                             case GET_A_CHANNEL:
                             case GET_CHANNEL_STATS:
                             case GET_CHANNEL_MEMBER:
@@ -141,7 +142,8 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                                 } else if (statusCode == 501) {
                                     return "File storage is disabled";
                                 } else {
-                                    return null;
+//                                    return null;
+                                    return error.getMessage();
                                 }
                             case GET_A_FILE:
                             case GET_THUMBNAIL:

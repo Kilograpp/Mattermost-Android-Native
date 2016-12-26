@@ -9,7 +9,6 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
-import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -38,7 +37,6 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
-import retrofit2.http.Streaming;
 import rx.Observable;
 
 /**
@@ -183,6 +181,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/preferences/save")
     Observable<Boolean> save(@Body List<Preferences> saveData);
+
 
     @Headers({
             "Accept: application/json",

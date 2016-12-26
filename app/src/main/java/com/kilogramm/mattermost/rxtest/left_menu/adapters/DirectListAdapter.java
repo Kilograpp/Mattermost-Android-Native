@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.rxtest.left_menu.adapters;
 
 import android.app.Service;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -17,20 +16,16 @@ import io.realm.RealmAD;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
-/**
- * Created by Evgeny on 14.11.2016.
- */
 
 public class DirectListAdapter extends RealmAD<Channel, DirectHolder> {
 
-    private static final String TAG = "DIRECT_LIST_ADAPTER";
-    private final Context context;
-    private final RealmResults<UserStatus> userStatuses;
-    private final RealmResults<Member> members;
+    private final Context mContext;
+    private final RealmResults<UserStatus> mUserStatuses;
+    private final RealmResults<Member> mMembers;
 
     private int mSelectedItem = -1;
-    private LayoutInflater inflater;
-    private OnLeftMenuClickListener itemClickListener;
+    private LayoutInflater mInflater;
+    private OnLeftMenuClickListener mItemClickListener;
 
     public DirectListAdapter(RealmResults<Channel> adapterData,
                              Context context,
@@ -38,18 +33,17 @@ public class DirectListAdapter extends RealmAD<Channel, DirectHolder> {
                              RealmResults<Member> members,
                              RealmResults<UserStatus> userStatuses) {
         super(adapterData);
-        this.context = MattermostApp.get(context);
-        this.inflater = (LayoutInflater) this.context.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
-        this.userStatuses = userStatuses;
-        this.userStatuses.addChangeListener(element -> notifyDataSetChanged());
-        this.itemClickListener = listener;
-        this.members = members;
+        this.mContext = MattermostApp.get(context);
+        this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
+        this.mUserStatuses = userStatuses;
+        this.mUserStatuses.addChangeListener(element -> notifyDataSetChanged());
+        this.mItemClickListener = listener;
+        this.mMembers = members;
     }
 
     @Override
     public DirectHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        DirectHolder holder = DirectHolder.create(inflater, parent);
-        return holder;
+        return DirectHolder.create(mInflater, parent);
     }
 
     @Override
@@ -60,9 +54,8 @@ public class DirectListAdapter extends RealmAD<Channel, DirectHolder> {
 
 
         holder.setClickListener(v -> {
-            Log.d(TAG, "onClickItem() holder");
-            if (itemClickListener != null) {
-                itemClickListener.onChannelClick(channel.getId(), channel.getUser().getUsername(),
+            if (mItemClickListener != null) {
+                mItemClickListener.onChannelClick(channel.getId(), channel.getUser().getUsername(),
                         channel.getType());
             }
             setSelectedItem(holder.getAdapterPosition());
@@ -74,30 +67,31 @@ public class DirectListAdapter extends RealmAD<Channel, DirectHolder> {
             holder.setChecked(false);
         }
 
-        holder.bindTo(channel, context, userStatus, member);
-    }
-
-    private Member getMember(String channelId) {
-        RealmQuery<Member> query = members.where().equalTo("channelId", channelId);
-        if (query.count() > 0) {
-            return query.findFirst();
-        } else {
-            return null;
-        }
-    }
-
-    private UserStatus getUserStatus(String userId){
-        RealmQuery<UserStatus> query = userStatuses.where().equalTo("id", userId);
-        if (query.count() > 0) {
-            return query.findFirst();
-        } else {
-            return null;
-        }
+        holder.bindTo(channel, mContext, userStatus, member);
     }
 
     public void setSelectedItem(int selecteditem) {
         this.mSelectedItem = selecteditem;
         notifyDataSetChanged();
     }
+
+    private Member getMember(String channelId) {
+        RealmQuery<Member> query = mMembers.where().equalTo("channelId", channelId);
+        if (query.count() > 0) {
+            return query.findFirst();
+        } else {
+            return null;
+        }
+    }
+
+    private UserStatus getUserStatus(String userId) {
+        RealmQuery<UserStatus> query = mUserStatuses.where().equalTo("id", userId);
+        if (query.count() > 0) {
+            return query.findFirst();
+        } else {
+            return null;
+        }
+    }
+
 
 }

@@ -22,6 +22,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/circle_background"
                 android:gravity="center"
+                android:maxLength="1"
                 android:textSize="20sp" />
 
             <TextView

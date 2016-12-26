@@ -16,24 +16,24 @@
             android:layout_height="wrap_content">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/avatarDirect"
+                android:id="@+id/circleImageAvatarDirect"
                 android:layout_width="@dimen/circle_image_size"
                 android:layout_height="@dimen/circle_image_size"
                 android:layout_centerVertical="true" />
 
             <LinearLayout
-                android:id="@+id/text"
+                android:id="@+id/linearLayoutText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="60dp"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_toEndOf="@+id/avatarDirect"
+                android:layout_toEndOf="@+id/circleImageAvatarDirect"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/directProfileName"
+                    android:id="@+id/textViewDirectProfileName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
@@ -42,7 +42,7 @@
                     tools:text="test" />
 
                 <TextView
-                    android:id="@+id/emailProfile"
+                    android:id="@+id/textViewEmailProfile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -55,7 +55,7 @@
             </LinearLayout>
 
             <CheckBox
-                android:id="@+id/selectDirect"
+                android:id="@+id/checkBoxSelectDirect"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -67,10 +67,10 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@id/avatarDirect"
+                android:layout_below="@id/circleImageAvatarDirect"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="21dp"
-                android:layout_toEndOf="@+id/avatarDirect"
+                android:layout_toEndOf="@+id/circleImageAvatarDirect"
                 android:background="@color/very_light_grey" />
         </RelativeLayout>
 

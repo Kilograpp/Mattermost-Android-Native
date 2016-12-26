@@ -18,8 +18,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +26,7 @@ import java.util.Map;
  * Created by melkshake on 09.11.16.
  */
 
-public class PhotoViewFragment extends Fragment implements VerticalSwipeListener {
+public class PhotoViewFragment extends Fragment {
 
     public static final String IMAGE_URI = "image_uri";
 
@@ -107,10 +105,19 @@ public class PhotoViewFragment extends Fragment implements VerticalSwipeListener
         });
 
 
-        photoBinding.image.setVerticalSwipeListener(() -> getActivity().finish());
-    }
+        photoBinding.image.setVerticalSwipeListener(new VerticalSwipeListener() {
+            @Override
+            public void onSwipe() {
+                getActivity().finish();
+            }
 
-    @Override
-    public void onSwipe() {
+            @Override
+            public void swipe(float beginY, float endY) {
+
+                //Log.d("SWIPE____", "swipe: {\n  beginY = " + beginY + "\n   endY = " + endY + "\n}");
+                ((ViewPagerWGesturesActivity) getActivity()).setTransparent(Math.abs(endY-beginY)/(1.5f));
+            }
+        });
     }
+    
 }
