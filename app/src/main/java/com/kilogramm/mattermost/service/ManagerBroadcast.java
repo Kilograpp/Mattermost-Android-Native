@@ -23,6 +23,8 @@ import com.google.gson.reflect.TypeToken;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
+import com.kilogramm.mattermost.model.entity.Broadcast;
+import com.kilogramm.mattermost.model.entity.BroadcastBilder;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -103,6 +105,7 @@ public class ManagerBroadcast {
         }
         String event = webSocketObj.getEvent();
         Data data = null;
+        Broadcast broadcast = null;
         switch (event) {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
                 break;
@@ -132,6 +135,11 @@ public class ManagerBroadcast {
                 Log.d(TAG, data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_TYPING:
+                broadcast = new BroadcastBilder()
+                        .setChannelId(WebSocketObj.CHANNEL_ID)
+                        .setTeamId(WebSocketObj.TEAM_ID)
+                        .setUserID(WebSocketObj.USER_ID)
+                        .build();
                 data = new WebSocketObj.BuilderData()
                         .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
@@ -187,6 +195,7 @@ public class ManagerBroadcast {
                 data = getPreferenceData(dataJSON);
         }
         webSocketObj.setData(data);
+        webSocketObj.setBroadcast(broadcast);
         return webSocketObj;
     }
 

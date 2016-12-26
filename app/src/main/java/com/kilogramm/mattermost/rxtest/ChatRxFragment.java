@@ -210,7 +210,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if (obj.getChannelId().equals(channelId)) {
+                if (obj.getBroadcast().getChannel_id().equals(channelId)) {
                     if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
                             && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
                         if (obj != null) {

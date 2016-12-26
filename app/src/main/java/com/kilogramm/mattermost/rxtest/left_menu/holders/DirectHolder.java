@@ -35,7 +35,8 @@ public class DirectHolder extends BaseLeftHolder {
     }
 
     public void bindTo(Channel channel, Context context, UserStatus status, Member member) {
-        mBinding.channelName.setText(channel.getUser().getUsername());
+        if (channel.getUser() != null)
+            mBinding.channelName.setText(channel.getUser().getUsername());
         if (member != null) {
             mBinding.unreadedMessage.setText(member.getMentionCount() != 0
                     ? member.getMentionCount().toString()

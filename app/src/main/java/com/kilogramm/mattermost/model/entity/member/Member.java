@@ -29,6 +29,10 @@ public class Member extends RealmObject {
     public Member() {
     }
 
+    public void setMsgCount(Integer msgCount) {
+        this.msgCount = msgCount;
+    }
+
     public String getChannelId() {
         return channelId;
     }

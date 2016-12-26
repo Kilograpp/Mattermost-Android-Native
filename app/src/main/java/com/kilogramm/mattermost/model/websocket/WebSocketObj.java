@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.Broadcast;
 import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -24,6 +25,7 @@ public class WebSocketObj implements Parcelable {
 
     public static final String EVENT_POSTED = "posted";
     public static final String EVENT_CHANNEL_VIEWED = "channel_viewed";
+    public static final String OMIT_USERS = "omit_users";
     public static final String EVENT_NEW_USER = "new_user";
     public static final String EVENT_USER_ADDED = "user_added";
     public static final String EVENT_USER_REMOVE= "user_removed";
@@ -67,6 +69,9 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("data")
     @Expose
     private transient Data data;
+    @SerializedName("broadcast")
+    @Expose
+    private transient Broadcast broadcast;
     @SerializedName("seq_reply")
     @Expose
     private Integer seqReplay;
@@ -93,6 +98,13 @@ public class WebSocketObj implements Parcelable {
     @Expose
     private String senderName;
 
+    public Broadcast getBroadcast() {
+        return broadcast;
+    }
+
+    public void setBroadcast(Broadcast broadcast) {
+        this.broadcast = broadcast;
+    }
 
     public Integer getSeq() {
         return seq;

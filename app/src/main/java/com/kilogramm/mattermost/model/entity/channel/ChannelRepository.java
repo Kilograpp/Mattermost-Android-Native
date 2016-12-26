@@ -54,7 +54,8 @@ public class ChannelRepository {
                 if (channel.getType().equals(Channel.DIRECT)) {
                     userId = getUserId(myId, channel);
                     channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
-                    channel.setUsername(channel.getUser().getUsername());
+                    if (channel.getUser() != null)
+                        channel.setUsername(channel.getUser().getUsername());
                 }
             }
             realm1.copyToRealmOrUpdate(items);

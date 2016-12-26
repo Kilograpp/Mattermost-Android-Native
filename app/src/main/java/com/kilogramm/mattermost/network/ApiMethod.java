@@ -6,6 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -64,6 +65,21 @@ public interface ApiMethod {
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
 
+    //TODO добавила 19.12 для проверки записи channels в бд (меняю только в GeneralRxPresenter)
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/")
+    Observable<List<Channel>> getChannelsTeamNew(@Path("teamId") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/members")
+    Observable<List<Member>> getMembersTeamNew(@Path("teamId") String teamId);
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -106,13 +122,42 @@ public interface ApiMethod {
                                      @Path("lastMessageId") String lastMessageId,
                                      @Path("limit") String limit);
 
+   //TODO was updated by Mattermost to stats
+//    @Headers({
+//            "Accept: application/json",
+//            "X-Request-With: XMLHttpRequest",
+//            "Content-Type: application/json"})
+//    @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
+//    Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
+//                                              @Path("channelId") String channelId);
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{teamId}/channels/{channelId}/extra_info")
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/stats")
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{team_id}/channels/{channel_id}")
+    Observable<Channel> getChannelById(@Path("team_id") String team_id,
+                                       @Path("channel_id") String channel_id);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{team_id}/channels/{channel_id}/members/{user_id}")
+    Observable<Member> getChannelMember(@Path("team_id") String team_id,
+                                         @Path("channel_id") String channel_id,
+                                         @Path("user_id") String user_id);
+
+
+
 
     @Headers({
             "Accept: application/json",
@@ -157,13 +202,37 @@ public interface ApiMethod {
                               @Path("channelId") String channelId,
                               @Body PostEdit post);
 
+//    @Headers({
+//            "Accept: application/json",
+//            "X-Request-With: XMLHttpRequest",
+//            "Content-Type: application/json"})
+//    @GET("api/v3/users/direct_profiles")
+//    Observable<Map<String, User>> getDirectProfile();
+
+//    @Headers({
+//            "Accept: application/json",
+//            "X-Request-With: XMLHttpRequest",
+//            "Content-Type: application/json"})
+//    @GET("api/v3/teams/{team_id}/channels/{channel_id}/stats")
+//    Observable<Stats> getUsersInTeamQuantity(@Path("team_id") String team_id,
+//                                             @Path("channel_id") String channel_id);
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/users/direct_profiles")
-    Observable<Map<String, User>> getDirectProfile();
+    @GET("api/v3/teams/{team_id}/users/{offset}/{limit}")
+    Observable<Map<String, User>> getAllUsers(@Path("team_id") String team_id,
+                                                         @Path("offset") int offset,
+                                                         @Path("limit") int limit);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/users/{offset}/{limit}")
+    Observable<Map<String, User>> getSiteAllUsers(@Path("offset") int offset,
+                                              @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
@@ -325,6 +394,4 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/commands/execute")
     Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
                                               @Body CommandToNet command);
-
-
 }

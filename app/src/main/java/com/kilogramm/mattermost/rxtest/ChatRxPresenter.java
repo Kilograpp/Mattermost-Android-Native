@@ -28,7 +28,6 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
-import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -176,29 +175,33 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void initExtraInfo() {
         restartableFirst(REQUEST_EXTRA_INFO,
                 () -> Observable.defer(() -> Observable.zip(
-                        service.getChannelsTeam(this.teamId)
+                        service.getChannelsTeamNew(this.teamId)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
-                        service.getExtraInfoChannel(this.teamId, this.channelId)
+                        service.getMembersTeamNew(this.teamId)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
-                        (channelsWithMembers, extraInfo) -> {
-                            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+//                        service.getExtraInfoChannel(this.teamId, this.channelId)
+//                                .observeOn(Schedulers.io())
+//                                .subscribeOn(Schedulers.io()),
+                        (channelsWithMembers, members) -> {
+                            ChannelRepository.prepareChannelAndAdd(channelsWithMembers,
                                     MattermostPreference.getInstance().getMyUserId());
-                            MembersRepository.add(channelsWithMembers.getMembers().values());
+                            MembersRepository.add(members);
                             channelType = ChannelRepository.query(new
                                     ChannelRepository.ChannelByIdSpecification(this.channelId))
                                     .first()
                                     .getType();
                             setGoodLayout();
                             RealmList<User> results = new RealmList<>();
-                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
-                            extraInfo.setMembers(results);
-                            ExtroInfoRepository.add(extraInfo);
-                            sendTypeChannel();
-                            return extraInfo;
+//                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
+//                            extraInfo.setMembers(results);
+//                            ExtroInfoRepository.add(extraInfo);
+//                            sendTypeChannel();
+//                            return extraInfo;
+                            return members;
                         }))
-                , (chatRxFragment, extraInfo) -> {
+                , (chatRxFragment, members) -> {
                     requestLoadPosts();
                 }
                 , (chatRxFragment1, throwable) -> {
