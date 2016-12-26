@@ -33,18 +33,18 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private static final int REQUEST_UPLOAD_TO_SERVER = 1;
 
-    private ApiMethod service;
+    private ApiMethod mService;
 
     @State
     String channelId;
     @State
     String fileName;
-    FileToAttach fileToAttach;
+    private FileToAttach mFileToAttach;
 
-    private RequestBody channel_Id;
-    private RequestBody clientId;
+    private RequestBody mChannelIdBody;
+    private RequestBody mClientIdBody;
 
-    FileUtil fileUtil;
+    private FileUtil mFileUtil;
 
     public void requestUploadFileToServer(String channelId) {
         this.channelId = channelId;
@@ -54,62 +54,61 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
-        fileUtil = FileUtil.getInstance();
+        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
+        mFileUtil = FileUtil.getInstance();
         initRequests();
     }
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
-//            sendShowToast("Loading start");
-            String filePath = fileUtil.getPath(Uri.parse(fileToAttach.getUriAsString()));
-            String mimeType = fileUtil.getMimeType(filePath);
+            String filePath = mFileUtil.getPath(Uri.parse(mFileToAttach.getUriAsString()));
+            String mimeType = mFileUtil.getMimeType(filePath);
 
             File file;
             if (filePath != null) {
                 file = new File(filePath);
             } else {
-                file = new File(fileToAttach.getUriAsString());
+                file = new File(mFileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
             if (file.exists()) {
                 Log.d(TAG, "initRequests: file exists");
             }
-            FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getId(), UploadState.UPLOADING);
-            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, fileToAttach.getId());
+            FileToAttachRepository.getInstance().updateUploadStatus(mFileToAttach.getId(), UploadState.UPLOADING);
+            ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, mFileToAttach.getId());
 
             MultipartBody.Part filePart = MultipartBody.Part.createFormData("files", file.getName(), fileBody);
 
-            channel_Id = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
-            clientId = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+            mChannelIdBody = RequestBody.create(MediaType.parse("multipart/form-data"), channelId);
+            mClientIdBody = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
 
-            return service.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, channel_Id, clientId)
+            return mService.uploadFile(MattermostPreference.getInstance().getTeamId(), filePart, mChannelIdBody, mClientIdBody)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
             if (fileUploadResponse.getFilenames() != null
                     && fileUploadResponse.getFilenames().size() != 0) {
-//                sendShowToast("Loading complete");
                 Log.d(TAG, fileUploadResponse.toString());
                 FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
                 FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
-                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileUploadResponse.getFilenames().get(0));
-
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            sendShowUploadErrorToast();
-            Log.d(TAG, "Error");
+            if(!throwable.getMessage().trim().equals("unexpected end of stream")) {
+                String error = parceError(throwable, UPLOAD_A_FILE);
+                if (error != null) {
+                    sendShowError(error);
+                }
+            }
             FileToAttachRepository.getInstance().remove(fileName);
             startRequest();
         });
     }
 
-    private void sendShowUploadErrorToast() {
-        createTemplateObservable(new Object())
-                .subscribe(split((attachedFilesLayout, o)
-                        -> attachedFilesLayout.showUploadErrorToast()));
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split((attachedFilesLayout, o)
+                        -> attachedFilesLayout.showUploadErrorToast(error)));
     }
 
     private void sendAllUploaded() {
@@ -119,8 +118,8 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     }
 
     private void startRequest() {
-        fileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
-        if (fileToAttach == null || channelId == null) {
+        mFileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
+        if (mFileToAttach == null || channelId == null) {
             if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
                 sendAllUploaded();
             }

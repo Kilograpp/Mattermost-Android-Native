@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/search_margin"
         android:layout_marginBottom="@dimen/search_margin_top_bottom"
+        android:layout_marginTop="@dimen/search_margin"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <View
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginEnd="@dimen/search_double_margin"
                 android:layout_marginStart="@dimen/search_margin"
                 android:layout_marginTop="@dimen/search_margin"
                 android:layout_weight="1"
                 android:background="@color/very_light_grey" />
+
             <TextView
-                android:id="@+id/postedDate"
+                android:id="@+id/text_view_posted_date"
                 style="@style/DescriptionBlackTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textStyle="bold"
                 android:layout_marginEnd="@dimen/search_some_margin"
+                android:textStyle="bold"
                 tools:text="DATE" />
         </LinearLayout>
 
@@ -47,9 +48,11 @@
             android:layout_marginLeft="@dimen/search_double_margin"
             android:layout_marginRight="@dimen/search_double_margin"
             android:orientation="horizontal">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/avatarDirect"
                     android:layout_width="@dimen/circle_image_size"
@@ -57,41 +60,47 @@
                     android:layout_gravity="center"
                     android:layout_marginEnd="@dimen/search_margin" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <TextView
                         android:id="@+id/userName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_start"
                         android:layout_weight="1"
+                        android:textColor="@color/black"
                         android:textStyle="bold"
-                        tools:text="userName"
-                        android:textColor="@color/black" />
+                        tools:text="userName" />
+
                     <TextView
                         android:id="@+id/postedTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="4"
-                        tools:text="postedTime"
-                        android:textColor="@color/light_grey" />
+                        android:textColor="@color/light_grey"
+                        tools:text="postedTime" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/foundMessage"
                         style="@style/DescriptionBlackTextStyle"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/search_margin_top_bottom"
                         android:layout_marginEnd="@dimen/search_double_margin"
+                        android:layout_marginTop="@dimen/search_margin_top_bottom"
                         android:layout_weight="4"
                         tools:text="This is an example of found message" />
                 </LinearLayout>

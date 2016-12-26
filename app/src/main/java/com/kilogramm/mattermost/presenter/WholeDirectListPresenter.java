@@ -18,6 +18,7 @@ import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                     PreferenceRepository.update(preferenceList);
                     sendChanges(aBoolean);
                 }, (wholeDirectListActivity, throwable) -> {
-                    throwable.printStackTrace();
+                    sendShowError(parceError(throwable, SAVE_PREFERENCES));
                     requestSave(false);
                 }
         );
@@ -158,7 +159,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                             this.defaultChannelInfo = ExtroInfoRepository.query(
                                     new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).first();
                             wholeDirectListActivity.updateDataList(defaultChannelInfo
-                                    .getMembers().where().notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
+                                    .getMembers().where().isNotNull("id").notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
                         }
                 ));
     }
@@ -170,6 +171,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                     if (name == null)
                         wholeDirectListActivity.updateDataList(
                                 users.where()
+                                        .isNotNull("id")
                                         .notEqualTo("id", currentUserId)
                                         .findAllSorted("username", Sort.ASCENDING));
                     else
@@ -187,6 +189,10 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                                 + name.substring(1))
                                         .findAllSorted("username", Sort.ASCENDING));
                 }));
+    }
+
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 
 }

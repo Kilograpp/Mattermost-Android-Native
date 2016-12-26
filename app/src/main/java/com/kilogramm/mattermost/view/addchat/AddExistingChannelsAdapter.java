@@ -20,18 +20,17 @@ import io.realm.RealmRecyclerViewAdapter;
 public class AddExistingChannelsAdapter extends
         RealmRecyclerViewAdapter<ChannelsDontBelong, AddExistingChannelHolder> {
 
-    private OnChannelItemClickListener channelClickListener;
-
-    private ColorGenerator colorGenerator;
-    private ArrayList<Integer> backgroundColors;
+    private OnChannelItemClickListener mChannelClickListener;
+    private ColorGenerator mColorGenerator;
+    private ArrayList<Integer> mBackgroundColors;
 
     public AddExistingChannelsAdapter(@NonNull Context context,
                                       @Nullable OrderedRealmCollection<ChannelsDontBelong> data,
                                       boolean autoUpdate,
                                       OnChannelItemClickListener listener) {
         super(context, data, autoUpdate);
-        this.channelClickListener = listener;
-        backgroundColors = new ArrayList<>();
+        this.mChannelClickListener = listener;
+        mBackgroundColors = new ArrayList<>();
     }
 
     @Override
@@ -41,27 +40,24 @@ public class AddExistingChannelsAdapter extends
 
     @Override
     public void onBindViewHolder(AddExistingChannelHolder holder, int position) {
-        colorGenerator = ColorGenerator.MATERIAL;
-        for (int i = 0; i < getData().size(); i++) {
-            backgroundColors.add(colorGenerator.getRandomColor());
-        }
+        mColorGenerator = ColorGenerator.MATERIAL;
 
-        holder.bindTo(getData().get(position), backgroundColors.get(position));
-
-        holder.getmBinding().getRoot().setOnClickListener(v -> {
-            if (channelClickListener != null) {
-
-                String channelName = getData().get(position).getDisplayName() == ""
-                        ? getData().get(position).getName()
-                        : getData().get(position).getDisplayName();
-
-                channelClickListener.onChannelItemClick(
-                        getData().get(position).getId(),
-                        channelName,
-                        //getData().get(position).getName(),
-                        holder.getTypeChannel());
+        if (getData() != null) {
+            for (int i = 0; i < getData().size(); i++) {
+                mBackgroundColors.add(mColorGenerator.getRandomColor());
             }
-        });
+
+            holder.bindTo(getData().get(position), mBackgroundColors.get(position));
+
+            holder.getmBinding().getRoot().setOnClickListener(v -> {
+                if (mChannelClickListener != null) {
+                    mChannelClickListener.onChannelItemClick(
+                            getData().get(position).getId(),
+                            getData().get(position).getDisplayName(),
+                            holder.getmTypeChannel());
+                }
+            });
+        }
     }
 
     public interface OnChannelItemClickListener {

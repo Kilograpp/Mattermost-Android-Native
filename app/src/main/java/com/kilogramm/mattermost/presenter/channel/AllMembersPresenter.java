@@ -13,7 +13,8 @@ import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.channel.AllMembersActivity;
+import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.channel.AllMembersChannelActivity;
 
 import icepick.State;
 import io.realm.RealmResults;
@@ -25,7 +26,7 @@ import rx.schedulers.Schedulers;
  * Created by ngers on 01.11.16.
  */
 
-public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
+public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivity> {
     private static final int REQUEST_DB_GETUSERS = 1;
     private static final int REQUEST_SAVE = 2;
     @State
@@ -50,16 +51,14 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
         initSaveRequest();
     }
 
-
     private void initGetUsers() {
         restartableFirst(REQUEST_DB_GETUSERS,
                 () -> ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).asObservable(),
                 (allMembersActivity, o) -> {
                     this.extraInfo = o.first();
                     allMembersActivity.updateDataList(getMembers());
-                });
+                },(allMembersActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
     }
-
 
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE, () -> Observable.defer(
@@ -80,7 +79,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
             listPreferences.getmSaveData().clear();
             MattermostPreference.getInstance().setLastChannelId(channel.getId());
             sendSetFragmentChat();
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+        }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
 
     public void requestSaveData(Preferences data, String userId) {
@@ -96,6 +95,9 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersActivity> {
                         allMembersActivity.startGeneralActivity()));
     }
 
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
 
     public void initPresenter(String id) {
         this.id = id;

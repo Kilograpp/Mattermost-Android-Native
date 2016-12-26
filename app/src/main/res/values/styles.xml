@@ -16,6 +16,10 @@
         <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>
     </style>
 
+
+    <style name="searchActivityStyle" parent="AppTheme">
+        <item name="colorControlActivated">@color/icon_team_color_end</item>
+    </style>
     <style name="TitleBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/title_text_size</item>
@@ -166,6 +170,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="textBigTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="textTitleWhite" parent="@style/textWhite">
         <item name="android:textSize">25sp</item>
         <item name="android:textStyle">bold</item>
@@ -231,4 +240,20 @@
     <style name="ProgressWhite" parent="AppTheme">
         <item name="colorAccent">@color/white</item>
     </style>
+
+    <style name="MaterialDialogSheet" parent="@android:style/Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowAnimationStyle">@style/MaterialDialogSheetAnimation</item>
+    </style>
+
+    <style name="MaterialDialogSheetAnimation">
+        <item name="android:windowEnterAnimation">@anim/bottom_sheet_show</item>
+        <item name="android:windowExitAnimation">@anim/bottom_sheet_hide</item>
+    </style>
+
 </resources>

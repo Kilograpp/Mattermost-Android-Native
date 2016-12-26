@@ -31,15 +31,15 @@ public class WholeDirectListHolder extends RealmViewHolder {
     }
 
     public void bindTo(User user, boolean isShow, Boolean changed) {
-
         directBinding.directProfileName.setText(user.getUsername());
-
         if (user.getFirstName().length() == 0 && user.getLastName().length() == 0)
             directBinding.emailProfile.setVisibility(View.GONE);
-        else
+        else {
+            directBinding.emailProfile.setVisibility(View.VISIBLE);
             directBinding.emailProfile.setText(String.format("%s %s",
                     user.getFirstName(),
                     user.getLastName()));
+        }
 
         if (changed != null) {
             directBinding.selectDirect.setChecked(changed);
@@ -65,14 +65,12 @@ public class WholeDirectListHolder extends RealmViewHolder {
     }
 
     public static String getImageUrl(String userId) {
-        if (userId != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/users/"
-                    + userId
-                    + "/image";
-        } else {
-            return "";
-        }
+        return userId != null
+                ? "https://" +
+                  MattermostPreference.getInstance().getBaseUrl() +
+                  "/api/v3/users/" +
+                  userId +
+                  "/image"
+                : "";
     }
 }

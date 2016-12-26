@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.Context;
@@ -10,13 +11,17 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
@@ -32,7 +37,17 @@ import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.menu.RightMenuAboutAppActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import icepick.State;
 import io.realm.RealmChangeListener;
@@ -54,6 +69,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private static final String TAG = "GeneralRxActivity";
     private static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+    public static final String MESSAGE_ID = "MESSAGE_ID";
 
     private ActivityMenuBinding binding;
 
@@ -64,12 +80,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private String searchMessageId;
     private User user;
-    private RealmChangeListener<User> userRealmChangeListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_menu);
+        setupImageLoaderConfiguration();
+        searchMessageId = getIntent().getStringExtra(MESSAGE_ID);
         setupMenu();
         setupRightMenu();
         showProgressBar();
@@ -112,12 +129,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_CANCELED)
             if (requestCode == ChannelActivity.REQUEST_ID)
-                ((ChatRxFragment) getFragmentManager()
-                        .findFragmentById(binding.contentFrame.getId()))
+                ((ChatRxFragment) getFragmentManager().findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
-                                        .first()
-                                        .getDisplayName());
+                                .first()
+                                .getDisplayName());
 
         if (resultCode == RESULT_OK) {
             if (requestCode == ChannelActivity.REQUEST_ID) {
@@ -127,17 +143,22 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
+
                     setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));/*
-                    leftMenuRxFragment.setSelectItemMenu(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
-                    leftMenuRxFragment.onChannelClick(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
-                            data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
-                            data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));*/
                 }
             }
         }
+    }
+
+    private void setupImageLoaderConfiguration(){
+        final int memoryCacheSize = 1024 * 1024 * 2;
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this.getApplicationContext())
+                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
+//                .imageDownloader(new BaseImageDownloader(this, 15 * 1000, 30 * 1000)) // connectTimeout (15 s), readTimeout (30 s)
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 
     public String getAvatarUrl() {
@@ -156,21 +177,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
         if (users != null) {
             user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
-            user.addChangeListener(userRealmChangeListener = element -> {
+            user.addChangeListener(element -> {
                 Log.d(TAG, "OnChange users");
-                updateHeaderUserName(element);
-                Picasso.with(this)
-                        .load(getAvatarUrl())
-                        .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                        .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                        .into(binding.headerPicture);
+                updateHeaderUserName((User) element);
+                setAvatar();
             });
             updateHeaderUserName(user);
-            Picasso.with(this)
-                    .load(getAvatarUrl())
-                    .error(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                    .placeholder(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                    .into(binding.headerPicture);
+            setAvatar();
         }
         binding.navView.setNavigationItemSelectedListener(item -> {
             binding.drawerLayout.closeDrawer(GravityCompat.END);
@@ -188,21 +201,64 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 case R.id.invite_new_member:
                     InviteUserRxActivity.start(this);
                     break;
-                case R.id.help:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
-                case R.id.report_a_problem:
-                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
-                    break;
+                // TODO раскомментировать когда появится дизайн
+//                case R.id.help:
+//                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+//                    break;
+//                case R.id.report_a_problem:
+//                    Toast.makeText(GeneralRxActivity.this, getString(R.string.in_development), Toast.LENGTH_SHORT).show();
+//                    break;
                 case R.id.about_mattermost:
                     RightMenuAboutAppActivity.start(this);
                     break;
                 case R.id.logout:
-                    getPresenter().requestLogout();
+                    showDialog(1);
                     break;
             }
             return false;
         });
+    }
+
+    private void setAvatar() {
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .showImageOnLoading(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .showImageOnFail(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+
+        ImageLoader.getInstance().displayImage(getAvatarUrl(), binding.headerPicture, options);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_custom_exit, null);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(dialogView);
+
+        return dialogBuilder.create();
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case 1:
+                final AlertDialog alertDialog = (AlertDialog) dialog;
+                Button cancelButton = (Button) alertDialog.findViewById(R.id.log_out);
+                if (cancelButton != null) {
+                    cancelButton.setOnClickListener(v -> getPresenter().requestLogout());
+                    alertDialog.cancel();
+                }
+                break;
+        }
     }
 
     private void updateHeaderUserName(User user) {
@@ -211,7 +267,15 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private void showFiles() {
         Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-        startActivity(intent);
+        if (intent.resolveActivityInfo(MattermostApp.getSingleton()
+                .getApplicationContext().getPackageManager(), 0) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this,
+                    getString(R.string.no_suitable_app),
+                    Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     private void setupMenu() {
@@ -231,10 +295,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     public void setFragmentChat(String channelId, String channelName, String type) {
-        if (currentChannel.equals("")) {
-            replaceFragment(channelId, channelName);
-            leftMenuRxFragment.setSelectItemMenu(channelId, type);
-        }
+        replaceFragment(channelId, channelName);
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
         leftMenuRxFragment.onChannelClick(channelId, channelName, type);
@@ -242,37 +303,29 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void replaceFragment(String channelId, String channelName) {
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
                 !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
-            // For clearing attached files on channel change
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
-
-        if (!channelId.equals(currentChannel)) {
+        if (!channelId.equals(currentChannel) || searchMessageId != null) {
             ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
                     .commit();
             MattermostPreference.getInstance().setLastChannelId(channelId);
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            if (searchMessageId != null) {
-                ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-                currentChannel = channelId;
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
-                        .commit();
-                MattermostPreference.getInstance().setLastChannelId(channelId);
-                binding.drawerLayout.closeDrawer(GravityCompat.START);
-                this.searchMessageId = null;
-            }
         }
         if (searchMessageId != null) {
             searchMessageId = null;
         }
+    }
+
+    public static void startSearch(Context context, String searchMessageId) {
+        Intent starter = new Intent(context, GeneralRxActivity.class);
+        starter.putExtra(MESSAGE_ID, searchMessageId);
+        context.startActivity(starter);
     }
 
     public static void start(Context context, Integer flags) {
@@ -284,7 +337,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private boolean parceIntent(Intent intent) {
-        if (intent.getExtras() != null) {
+        if (intent.getStringExtra(CHANNEL_ID) != null || intent.getStringExtra(CHANNEL_NAME) != null ||
+                intent.getStringExtra(CHANNEL_TYPE) != null) {
             String openChannelId = intent.getStringExtra(CHANNEL_ID);
             String openChannelName = intent.getStringExtra(CHANNEL_NAME);
             String openChannelType = intent.getStringExtra(CHANNEL_TYPE);
@@ -316,7 +370,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         Fragment fragment = getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
@@ -328,5 +383,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     @Override
     public void onChange(String channelId, String name) {
         replaceFragment(channelId, name);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 }

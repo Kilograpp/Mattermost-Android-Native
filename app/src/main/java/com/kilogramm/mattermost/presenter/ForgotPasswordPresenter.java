@@ -9,6 +9,9 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import rx.schedulers.Schedulers;
 
 /**
@@ -16,11 +19,17 @@ import rx.schedulers.Schedulers;
  */
 public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActivity> {
 
+    private static final String EMAIL_PATTERN =
+            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
     private static final int REQUEST_SEND_EMAIL = 1;
 
     private ApiMethod service;
 
     private String userEmail;
+
+    private Pattern pattern;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -29,6 +38,13 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
         service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initSendEmailRequest();
         sendShowProgress(false);
+        pattern = Pattern.compile(EMAIL_PATTERN);
+    }
+
+    public boolean validate(final String value) {
+        Matcher matcher = pattern.matcher(value);
+        return matcher.matches();
+
     }
 
     private void initSendEmailRequest() {
@@ -45,14 +61,18 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
                 }, (forgotPasswordActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendShowProgress(false);
-                    sendShowErrorText(throwable.getMessage());
+                    sendShowErrorText(getError(throwable));
                 });
     }
 
     public void requestSendEmail(String userEmail) {
         this.userEmail = userEmail;
-        sendShowProgress(true);
-        start(REQUEST_SEND_EMAIL);
+        if(validate(userEmail)) {
+            sendShowProgress(true);
+            start(REQUEST_SEND_EMAIL);
+        }else{
+            sendShowErrorText("Please enter a valid e-mail");
+        }
     }
 
     @Override

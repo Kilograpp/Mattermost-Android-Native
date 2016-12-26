@@ -18,28 +18,28 @@ import com.kilogramm.mattermost.model.fromnet.InviteObject;
 
 public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUserAdapter.ViewHolder, InviteObject> {
 
-    private Context context;
+    private Context mContext;
     private boolean shouldCheckNullFields = false;
 
-    private TextWatcher emailTextWatcher;
-    private TextWatcher firstNameTextWatcher;
-    private TextWatcher lastNameTextWatcher;
+    private TextWatcher mTextWatcherEmail;
+    private TextWatcher mTextWatcherFirstName;
+    private TextWatcher mTextWatcheLastNamer;
 
-    private LastItemFocusListener lastItemFocusListener;
+    private LastItemFocusListener mLastItemFocusListener;
 
     public InviteUserAdapter(Context context) {
-        this.context = context;
+        this.mContext = context;
     }
 
     @Override
     public ViewHolder onCreateGenericViewHolder(ViewGroup parent, int viewType) {
-        return ViewHolder.create(LayoutInflater.from(context), parent);
+        return ViewHolder.create(LayoutInflater.from(mContext), parent);
     }
 
     @Override
     public void onBindGenericViewHolder(ViewHolder holder, int position) {
         InviteObject item = getItem(position);
-        holder.binding.memberNumberLabel.setText(String.format("%s%d", context.getString(R.string.member), (position + 1)));
+        holder.binding.memberNumberLabel.setText(String.format("%s%d", mContext.getString(R.string.member), (position + 1)));
         if (position == 0 && getDataCount() <= 1) {
             holder.binding.delete.setVisibility(View.GONE);
         } else {
@@ -62,6 +62,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         if(getDataCount() > 1) {
             notifyItemRangeChanged(position, getData().size() - 1);
         } else if (getDataCount() == 1){
+            if(position == 1) {     // For make Delete button invisible at first item
+                notifyItemChanged(0);
+            }
             notifyItemChanged(position);
         }
     }
@@ -80,11 +83,11 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     }
 
     private void setTextChangeListeners(ViewHolder holder) {
-        holder.binding.editEmail.removeTextChangedListener(emailTextWatcher);
-        holder.binding.editFirstName.removeTextChangedListener(firstNameTextWatcher);
-        holder.binding.editLastName.removeTextChangedListener(lastNameTextWatcher);
+        holder.binding.editEmail.removeTextChangedListener(mTextWatcherEmail);
+        holder.binding.editFirstName.removeTextChangedListener(mTextWatcherFirstName);
+        holder.binding.editLastName.removeTextChangedListener(mTextWatcheLastNamer);
 
-        emailTextWatcher = new TextWatcher() {
+        mTextWatcherEmail = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -98,9 +101,13 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
             @Override
             public void afterTextChanged(Editable s) {
                 getData().get(holder.getAdapterPosition()).setEmail(s.toString());
+                if(holder.binding.inputEmail.isErrorEnabled()){
+                    checkEmailField(holder, getData().get(holder.getAdapterPosition()));
+                }
             }
         };
-        firstNameTextWatcher = new TextWatcher() {
+
+        mTextWatcherFirstName = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -116,7 +123,8 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
                 getData().get(holder.getAdapterPosition()).setFirstName(s.toString());
             }
         };
-        lastNameTextWatcher = new TextWatcher() {
+        
+        mTextWatcheLastNamer = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -133,9 +141,9 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
             }
         };
 
-        holder.binding.editEmail.addTextChangedListener(emailTextWatcher);
-        holder.binding.editFirstName.addTextChangedListener(firstNameTextWatcher);
-        holder.binding.editLastName.addTextChangedListener(lastNameTextWatcher);
+        holder.binding.editEmail.addTextChangedListener(mTextWatcherEmail);
+        holder.binding.editFirstName.addTextChangedListener(mTextWatcherFirstName);
+        holder.binding.editLastName.addTextChangedListener(mTextWatcheLastNamer);
 
         holder.binding.editEmail.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus && holder.getAdapterPosition() >= 0) {
@@ -146,7 +154,7 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         holder.binding.editLastName.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus && holder.getAdapterPosition() >= 0
                     && holder.getAdapterPosition() == getDataCount() - 1) {
-                if (lastItemFocusListener != null) lastItemFocusListener.onGetFocus();
+                if (mLastItemFocusListener != null) mLastItemFocusListener.onGetFocus();
             }
         });
     }
@@ -160,18 +168,18 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
         if (email != null && email.length() > 0) {
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(item.getEmail()).matches()) {
                 holder.binding.inputEmail.setErrorEnabled(true);
-                holder.binding.inputEmail.setError(context.getString(R.string.invalid_email));
+                holder.binding.inputEmail.setError(mContext.getString(R.string.invalid_email));
             } else {
                 holder.binding.inputEmail.setErrorEnabled(false);
             }
         } else if (shouldCheckNullFields) {
             holder.binding.inputEmail.setErrorEnabled(true);
-            holder.binding.inputEmail.setError(context.getString(R.string.invalid_email));
+            holder.binding.inputEmail.setError(mContext.getString(R.string.invalid_email));
         }
     }
 
     public void setLastItemFocusListener(LastItemFocusListener lastItemFocusListener) {
-        this.lastItemFocusListener = lastItemFocusListener;
+        this.mLastItemFocusListener = lastItemFocusListener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

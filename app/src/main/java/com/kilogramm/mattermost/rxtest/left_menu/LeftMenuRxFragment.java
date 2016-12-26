@@ -101,7 +101,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             }
         });
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
+
         initView();
+
         return view;
     }
 
@@ -139,15 +141,15 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     private void handleRequestJoinChannel(Intent data) {
-        onChannelClick(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                data.getStringExtra(AddExistingChannelsActivity.CHANNEL_NAME),
-                data.getStringExtra(AddExistingChannelsActivity.TYPE));
-        setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                data.getStringExtra(AddExistingChannelsActivity.TYPE));
+        onChannelClick(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_NAME),
+                data.getStringExtra(AddExistingChannelsActivity.sTYPE));
+        setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                data.getStringExtra(AddExistingChannelsActivity.sTYPE));
     }
 
     private void handleRequestJoinDirect(Intent data) {
-        String userTalkToId = data.getStringExtra(WholeDirectListActivity.USER_ID);
+        String userTalkToId = data.getStringExtra(WholeDirectListActivity.mUSER_ID);
         Preferences saveData = new Preferences(userTalkToId,
                 MattermostPreference.getInstance().getMyUserId(),
                 true,
@@ -157,31 +159,32 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             getPresenter().requestSaveData(saveData, userTalkToId);
         } else {
             onChannelClick(channels.get(0).getId(), channels.get(0).getUsername(), channels.get(0).getType());
-            setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.CHANNEL_ID),
-                    data.getStringExtra(AddExistingChannelsActivity.TYPE));
+            setSelectItemMenu(data.getStringExtra(AddExistingChannelsActivity.sCHANNEL_ID),
+                    data.getStringExtra(AddExistingChannelsActivity.sTYPE));
         }
     }
 
     private void handleRequestCreateGroup(Intent data) {
         privateListAdapter.setSelectedItem(
-                privateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.CREATED_GROUP_ID)));
-        onChannelClick(data.getStringExtra(CreateNewGroupActivity.CREATED_GROUP_ID),
-                data.getStringExtra(CreateNewGroupActivity.GROUP_NAME),
-                data.getStringExtra(CreateNewGroupActivity.TYPE));
+                privateListAdapter.getPositionById(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID)));
+        onChannelClick(data.getStringExtra(CreateNewGroupActivity.sCREATED_GROUP_ID),
+                data.getStringExtra(CreateNewGroupActivity.sGROUP_NAME),
+                data.getStringExtra(CreateNewGroupActivity.sTYPE));
     }
 
     private void handleRequestCreateChannel(Intent data) {
         channelListAdapter.setSelectedItem(
-                channelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.CREATED_CHANNEL_ID)));
-        onChannelClick(data.getStringExtra(CreateNewChannelActivity.CREATED_CHANNEL_ID),
+                channelListAdapter.getPositionById(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID)));
+        onChannelClick(data.getStringExtra(CreateNewChannelActivity.sCREATED_CHANNEL_ID),
                 data.getStringExtra(CreateNewChannelActivity.CHANNEL_NAME),
-                data.getStringExtra(CreateNewChannelActivity.TYPE));
+                data.getStringExtra(CreateNewChannelActivity.sTYPE));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         members.removeChangeListeners();
+        preferences.removeChangeListeners();
     }
 
     @Override
@@ -190,10 +193,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 "name = " + name + "\n" +
                 "type = " + type + "\n");
         removeSelection(type);
-        if (!itemId.equals(MattermostPreference.getInstance().getLastChannelId())) {
-            sendOnChange(itemId, name);
-            MattermostPreference.getInstance().setLastChannelId(itemId);
-        }
+        sendOnChange(itemId, name);
+        MattermostPreference.getInstance().setLastChannelId(itemId);
     }
 
     private void removeSelection(String type) {
@@ -232,7 +233,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         }
     }
 
-    private void initView() {
+    public void initView() {
         initTeamHeader();
         initChannelList();
         initPrivateList();
@@ -243,7 +244,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         RealmResults<Team> teams = TeamRepository.query();
         for (Team item : teams) {
             if (item.getId().equals(MattermostPreference.getInstance().getTeamId())) {
-                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName().toUpperCase());
+                mBinding.leftMenuHeader.teamHeaderText.setText(item.getDisplayName());
             }
         }
     }
@@ -312,33 +313,34 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     @Override
     public void onRefresh() {
         getPresenter().requestUpdate();
-        mBinding.leftSwipeRefresh.setRefreshing(false);
+    }
+
+    public void setRefreshAnimation(boolean isVisible) {
+        mBinding.leftSwipeRefresh.setRefreshing(isVisible);
     }
 
     public RealmResults<Channel> getDirectChannelData() {
-        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(),Channel.class);
+        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
         for (Preferences preference : preferences) {
-            String name = String.format("%s__%s",preference.getName(),preference.getUser_id());
-            String revertName = String.format("%s__%s",preference.getUser_id(),preference.getName());
-            realmQuery.equalTo("name",name).or().equalTo("name",revertName).or();
+            String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
+            String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
+            realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
         }
         return realmQuery.findAllSorted("username", Sort.ASCENDING);
     }
 
-    private void  selectLastChannel(){
-
+    public void selectLastChannel() {
         RealmResults<Channel> channels = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(MattermostPreference.getInstance().getLastChannelId()));
-        if(channels.size() <= 0){
+        if (channels.size() <= 0) {
             return;
         } else {
             Channel channel = channels.first();
-            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId()+ "\n" +
-                    "name = " + channel.getUsername()+ "\n" +
+            Log.d(TAG, "selectLastChannel Click listener : channelId = " + channel.getId() + "\n" +
+                    "name = " + channel.getUsername() + "\n" +
                     "type = " + channel.getType() + "\n");
             //removeSelection(channel.getType());
-            setSelectItemMenu(channel.getId(),channel.getType());
+            setSelectItemMenu(channel.getId(), channel.getType());
         }
-
     }
 }

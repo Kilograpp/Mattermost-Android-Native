@@ -24,29 +24,30 @@
                 app:titleEnabled="false">
 
                 <LinearLayout
-                    android:id="@+id/layoutName"
+                    android:id="@+id/linearLayoutName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingTop="?android:actionBarSize">
 
                     <TextView
-                        android:id="@+id/channel_icon"
+                        android:id="@+id/textViewChannelIcon"
                         style="@style/textTitleWhite"
                         android:layout_width="@dimen/circle_icon_size"
                         android:layout_height="@dimen/circle_icon_size"
                         android:layout_margin="@dimen/activity_horizontal_margin"
                         android:background="@drawable/circle_background"
                         android:gravity="center"
+                        android:maxLength="1"
                         app:textAllCaps="true" />
 
                     <TextView
-                        android:id="@+id/channelName"
+                        android:id="@+id/textViewChannelName"
                         style="@style/textTitleWhite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:singleLine="true"/>
+                        android:singleLine="true" />
                 </LinearLayout>
 
                 <android.support.v7.widget.Toolbar
@@ -57,7 +58,7 @@
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
                     <TextView
-                        android:id="@+id/toolbarText"
+                        android:id="@+id/TextViewToolbarText"
                         style="@style/textNormalTitleWhite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -84,7 +85,7 @@
         </FrameLayout>
 
         <android.support.v4.widget.NestedScrollView
-            android:id="@+id/layoutData"
+            android:id="@+id/nestedScrollViewLayoutData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
@@ -98,7 +99,7 @@
 
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/header"
+                    android:id="@+id/cardViewHeader"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -117,23 +118,23 @@
                             style="@style/textBigGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_horizontal_margin"
                             android:text="@string/channel_info_header" />
 
                         <TextView
-                            android:id="@+id/header_description"
+                            android:id="@+id/textViewHeaderDescription"
                             style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_vertical_text_margin" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/purpose"
+                    android:id="@+id/cardViewPurpose"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -151,24 +152,24 @@
                             style="@style/textBigGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_horizontal_margin"
                             android:text="@string/channel_info_purpose" />
 
                         <TextView
-                            android:id="@+id/purpose_description"
+                            android:id="@+id/textViewPurposeDescription"
                             style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_vertical_text_margin" />
 
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/url"
+                    android:id="@+id/cardViewUrl"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -178,29 +179,31 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:paddingEnd="@dimen/activity_horizontal_text_margin">
 
                         <TextView
                             style="@style/textBigGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_horizontal_margin"
                             android:text="@string/channel_info_url" />
 
                         <TextView
-                            android:id="@+id/url_description"
+                            android:id="@+id/textViewUrlDescription"
                             style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                            android:layout_marginTop="@dimen/activity_vertical_text_margin" />
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginTop="@dimen/activity_vertical_text_margin"
+                            android:singleLine="true" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/id"
+                    android:id="@+id/cardViewId"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -216,24 +219,24 @@
                             style="@style/textBigGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_horizontal_margin"
                             android:text="@string/channel_info_id" />
 
                         <TextView
-                            android:id="@+id/id_description"
+                            android:id="@+id/textViewIdDescription"
                             style="@style/textBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginTop="@dimen/activity_vertical_text_margin" />
 
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/addMembers"
+                    android:id="@+id/cardViewAddMembers"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -271,17 +274,17 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/countMembers"
+                        android:id="@+id/textViewCountMembers"
                         style="@style/textBigGrey"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:id="@+id/seeAll"
+                        android:id="@+id/textViewSeeAll"
                         style="@style/textNormalBlue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right"
+                        android:layout_gravity="end"
                         android:text="@string/channel_info_see_all" />
                 </FrameLayout>
 
@@ -294,7 +297,7 @@
                     app:cardCornerRadius="0dp">
 
                     <android.support.v7.widget.RecyclerView
-                        android:id="@+id/list"
+                        android:id="@+id/recyclerViewList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:theme="@style/CardView.Light.Blue" />
@@ -302,7 +305,7 @@
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView
-                    android:id="@+id/leave"
+                    android:id="@+id/cardViewLeave"
                     style="@style/CardView.Light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -314,12 +317,12 @@
                     app:theme="@style/CardView.Light.Blue">
 
                     <TextView
+                        android:id="@+id/textViewLeaveDelete"
                         style="@style/textRed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_margin="@dimen/activity_horizontal_margin"
-                        android:text="@string/channel_info_leave_channel" />
+                        android:layout_margin="@dimen/activity_horizontal_margin" />
                 </android.support.v7.widget.CardView>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>

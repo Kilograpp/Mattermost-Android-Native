@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -11,22 +9,22 @@
         <include layout="@layout/toolbar_layout" />
 
         <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-            android:visibility="gone"
             android:id="@+id/circProgressBar"
-            android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
             android:indeterminate="true"
+            android:visibility="gone"
             app:mpb_progressStyle="circular" />
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recViewMoreChannels"
+            android:id="@+id/rec_view_more_channels"
             style="@style/scrollbar_shape_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/noMoreChannels"
@@ -35,22 +33,24 @@
             android:layout_marginTop="100dp"
             android:orientation="vertical"
             android:visibility="gone">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="15sp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
                 android:text="@string/add_channels_no_more"
-                android:layout_margin="10dp"
-                android:layout_gravity="center" />
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_channels_no_more_additional"
+                android:layout_gravity="center"
                 android:layout_margin="10dp"
+                android:text="@string/add_channels_no_more_additional"
                 android:textColor="@color/hint_grey"
-                android:textSize="13sp"
-                android:layout_gravity="center"/>
+                android:textSize="13sp" />
         </LinearLayout>
 
     </LinearLayout>

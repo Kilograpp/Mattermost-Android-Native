@@ -23,7 +23,6 @@ public class ListPreferences implements Parcelable {
         this.preferencesList = preferencesList;
     }
 
-
     public ListPreferences() {
     }
 

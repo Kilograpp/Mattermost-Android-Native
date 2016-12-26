@@ -1,6 +1,5 @@
 package com.kilogramm.mattermost.view.settings;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -8,15 +7,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.ActivityChangeEmailBinding;
 import com.kilogramm.mattermost.databinding.ActivityChangePasswordBinding;
-import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.presenter.settings.EmailEditPresenter;
 import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -28,9 +23,8 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(PasswordChangePresenter.class)
 public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter> {
 
-    ActivityChangePasswordBinding binding;
-
-    ProgressDialog progressDialog;
+    private ActivityChangePasswordBinding mBinding;
+    private MenuItem mMenuItem;
 
     public PasswordChangeActivity() {
     }
@@ -38,9 +32,9 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_change_password);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_change_password);
 
-        setSupportActionBar(binding.toolbar);
+        setSupportActionBar(mBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.edit_password));
     }
@@ -56,9 +50,14 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
+                mMenuItem = item;
+                BaseActivity.hideKeyboard(this);
+                item.setVisible(false);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
                 onClickSave();
                 return true;
             case android.R.id.home:
+                hideKeyboard(this);
                 onBackPressed();
                 return true;
             default:
@@ -68,14 +67,12 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
 
     private void onClickSave() {
         hideKeyboard(this);
-        if(binding.newPassword.getText().toString().equals(binding.newPasswordConfirm.getText().toString())) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.show();
-            progressDialog.setContentView(R.layout.data_processing_progress_layout);
-            getPresenter().requestSave(binding.currentPassword.getText().toString(),
-                    binding.newPassword.getText().toString());
+        if(mBinding.newPassword.getText().toString().equals(mBinding.newPasswordConfirm.getText().toString())) {
+            getPresenter().requestSave(mBinding.currentPassword.getText().toString(),
+                    mBinding.newPassword.getText().toString());
         } else {
             showErrorText(getString(R.string.error_in_confirm_password));
+            hideProgressBar();
         }
     }
 
@@ -88,7 +85,8 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
         Toast.makeText(this, getString(R.string.password_changed), Toast.LENGTH_SHORT).show();
     }
 
-    public void dissmisProgressDialog(){
-        if(progressDialog != null) progressDialog.dismiss();
+    public void hideProgressBar(){
+        mMenuItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
     }
 }

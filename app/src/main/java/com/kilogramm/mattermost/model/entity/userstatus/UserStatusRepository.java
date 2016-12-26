@@ -54,6 +54,7 @@ public class UserStatusRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+
     public static class UserStatusAllSpecification implements RealmSpecification {
         @Override
         public RealmResults<UserStatus> toRealmResults(Realm realm) {

@@ -6,9 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.renderscript.RenderScript;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,16 +26,14 @@ import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.decode.ImageDecoder;
-import com.nostra13.universalimageloader.core.decode.ImageDecodingInfo;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +46,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,12 +58,10 @@ import io.realm.Realm;
  */
 public class FilesView extends GridLayout {
 
-    private static final String TAG = "FileDownloadManager";
+    private static final String TAG = "FilesView";
 
-    private DisplayImageOptions options;
 
     private List<String> fileList = new ArrayList<>();
-    private Drawable backgroundColorId;
 
     public FilesView(Context context) {
         super(context);
@@ -90,32 +86,11 @@ public class FilesView extends GridLayout {
 
     private void init(Context context) {
         inflate(context, R.layout.file_view_layout, this);
-//        setUpImageloader(context);
     }
 
-    private void setUpImageloader(Context context) {
-        Map<String, String> headers = new HashMap();
-        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-
-        options = new DisplayImageOptions.Builder()
-                .imageScaleType(ImageScaleType.EXACTLY)
-                .resetViewBeforeLoading(true)
-                .cacheInMemory(true)
-                .extraForDownloader(headers)
-                .considerExifParams(true)
-                .cacheOnDisc(true)
-                .build();
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-                .diskCacheExtraOptions(300, 300, bitmap -> null)
-                .memoryCacheExtraOptions(300, 300)
-                .defaultDisplayImageOptions(options)
-                .imageDownloader(new AuthDownloader(context))
-                .build();
-        ImageLoader.getInstance().init(config);
-    }
 
     public void setItems(List<String> items) {
+        Log.d(TAG, "items count: " + items.size());
         clearView();
         if (items != null && items.size() != 0) {
             fileList = items;
@@ -127,7 +102,6 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.setControlsClickListener(
                         createControlsClickListener(fileName, fileDownloadListener, binding)
                 );
-
 
                 File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                         + File.separator
@@ -202,8 +176,6 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
-        if (backgroundColorId != null)
-            binding.root.setBackground(backgroundColorId);
         String url = getImageUrl(fileName);
         Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
         Matcher matcher = pattern.matcher(url);
@@ -216,15 +188,30 @@ public class FilesView extends GridLayout {
         } catch (UnsupportedEncodingException e) {
             binding.title.setText(title);
         }
+        String extension = FileUtil.getInstance().getFileExtensionFromUrl(url, true);
+        final String url_thumb;
+        if(extension.equals(".jpg") || extension.equals(".JPG")) {
+            url_thumb = url.replace(extension, "_thumb" + extension);
+        } else {
+            url_thumb = url;
+        }
 
-        Picasso.with(getContext())
-                .load(url)
-                .resize(300, 300)
-                .centerCrop()
-                .placeholder(getContext().getResources().getDrawable(R.drawable.slices))
-                .error(getContext().getResources().getDrawable(R.drawable.slices))
-                .into(binding.image);
-//        ImageLoader.getInstance().displayImage(url, binding.image, options);
+        Map<String, String> headers = new HashMap();
+        headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+                .showImageOnLoading(R.drawable.slices)
+                .showImageOnFail(R.drawable.slices)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .extraForDownloader(headers)
+                .considerExifParams(true)
+                .build();
+
+
+        ImageLoader.getInstance().displayImage(url_thumb, binding.image, options);
 
         this.addView(binding.getRoot());
 
@@ -233,7 +220,6 @@ public class FilesView extends GridLayout {
             if (realmString.getFileSize() <= 0) {
                 new Thread(() -> {
                     long fileSize = getRemoteFileSize(url);
-                    Log.d(TAG, String.valueOf(fileSize));
                     if (fileSize > 0) {
                         binding.fileSize.post(() -> {
                             binding.materialProgressBar.setVisibility(GONE);
@@ -248,17 +234,6 @@ public class FilesView extends GridLayout {
                 binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
             }
         }
-    }
-
-    private void setOpenFileListener(FilesItemLayoutBinding binding, String fileName) {
-        binding.title.setOnClickListener(v -> FileUtil.getInstance().
-                startOpenFileIntent(getContext(),
-                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
-        );
-        binding.icDownloadedFile.setOnClickListener(v -> FileUtil.getInstance().
-                startOpenFileIntent(getContext(),
-                        FileUtil.getInstance().getFileNameFromIdDecoded(fileName))
-        );
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
@@ -352,13 +327,11 @@ public class FilesView extends GridLayout {
     }
 
     private String getImageUrl(String id) {
-        Realm realm = Realm.getDefaultInstance();
-        String s = realm.where(Team.class).findFirst().getId();
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/teams/"
-                    + s
+                    + MattermostPreference.getInstance().getTeamId()
                     + "/files/get" + id;
         } else {
             return "";
@@ -367,12 +340,16 @@ public class FilesView extends GridLayout {
 
     private long getRemoteFileSize(String fileUrl) {
         try {
-            Log.d(TAG, fileUrl);
             URL url = new URL(fileUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-            Log.d(TAG, urlConnection.getResponseMessage());
-            final long file_size = Long.parseLong(urlConnection.getHeaderField("Content-Length"));
+            String contentLength = urlConnection.getHeaderField("Content-Length");
+            final long file_size;
+            if (contentLength != null) {
+                file_size = Long.parseLong(contentLength);
+            } else {
+                file_size = 0;
+            }
             urlConnection.disconnect();
             return file_size;
         } catch (MalformedURLException e) {
@@ -393,7 +370,7 @@ public class FilesView extends GridLayout {
         this.removeAllViews();
     }
 
-    public class AuthDownloader extends BaseImageDownloader {
+    public static class AuthDownloader extends BaseImageDownloader {
 
         public AuthDownloader(Context context) {
             super(context);

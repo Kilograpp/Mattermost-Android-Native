@@ -12,6 +12,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.util.Calendar;
@@ -44,6 +45,16 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
         super.onCreate(savedState);
         service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initRequest();
+    }
+
+    public void requestNewImage(Uri uri){
+        this.imageUri = uri;
+        start(REQUEST_NEW_IMAGE);
+    }
+
+    public void requestSave(User editedUser) {
+        this.editedUser = editedUser;
+        start(REQUEST_SAVE);
     }
 
     private void initRequest() {
@@ -91,6 +102,8 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                             .subscribeOn(Schedulers.io());
                 },(editProfileRxActivity, result) -> {
                     sendGood(editProfileRxActivity.getString(R.string.avatar_updated));
+                    ImageLoader.getInstance().clearDiskCache();
+                    ImageLoader.getInstance().clearMemoryCache();
                     updateAvatarTime();
                     imageUri = null;
                     sendUriNull();
@@ -114,20 +127,17 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
     private void sendError(String error){
         createTemplateObservable(error)
                 .subscribe(split(BaseActivity::showErrorText));
+        sendOnUpdateComplete();
     }
 
     private void sendGood(String good){
         createTemplateObservable(good)
                 .subscribe(split(BaseActivity::showGoodText));
+        sendOnUpdateComplete();
     }
 
-    public void requestNewImage(Uri uri){
-        this.imageUri = uri;
-        start(REQUEST_NEW_IMAGE);
-    }
-
-    public void requestSave(User editedUser) {
-        this.editedUser = editedUser;
-        start(REQUEST_SAVE);
+    private void sendOnUpdateComplete(){
+        createTemplateObservable(null)
+                .subscribe(split((editProfileRxActivity, s) -> editProfileRxActivity.onUpdateComplete()));
     }
 }

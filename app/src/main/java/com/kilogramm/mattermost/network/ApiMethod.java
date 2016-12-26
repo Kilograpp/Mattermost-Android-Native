@@ -13,6 +13,8 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
+import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
@@ -42,7 +44,6 @@ import rx.Observable;
 /**
  * Created by Evgeny on 25.07.2016.
  */
-// TODO некоторые методы не используются, почистить (by Kepar)
 public interface ApiMethod {
 
     @Headers({
@@ -71,7 +72,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channel_id}/")
     Observable<ChannelWithMember> getChannel(@Path("teamId") String teamId,
-                                                  @Path("channel_id") String channelId);
+                                             @Path("channel_id") String channelId);
 
     @Headers({
             "Accept: application/json",
@@ -84,22 +85,18 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/users/status")
-    Observable<Map<String, String>> getStatus(@Body List<String> userIds);
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/page/0/60")
-    Observable<Posts> getPosts(@Path("teamId") String teamId, @Path("channelId") String channelId);
+    Observable<Posts> getPosts(@Path("teamId") String teamId,
+                               @Path("channelId") String channelId);
 
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channelId}/posts/{id}/get")
-    Observable<Posts> getPost(@Path("teamId") String teamId, @Path("channelId") String channelId, @Path("id") String id);
+    Observable<Posts> getPost(@Path("teamId") String teamId,
+                              @Path("channelId") String channelId,
+                              @Path("id") String id);
 
     @Headers({
             "Accept: application/json",
@@ -140,13 +137,6 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/users/profiles_for_dm_list/{teamId}")
-    Observable<Map<String, User>> getProfilesForDMList(@Path("teamId") String teamId);
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
     @POST("api/v3/users/logout")
     Observable<LogoutData> logout(@Body Object object);
 
@@ -157,7 +147,7 @@ public interface ApiMethod {
     @POST("api/v3/teams/{teamId}/channels/{channelId}/posts/{postId}/delete")
     Observable<Post> deletePost(@Path("teamId") String teamId,
                                 @Path("channelId") String channelId,
-                                @Path("postId") String psotId,
+                                @Path("postId") String postId,
                                 @Body Object object);
 
     @Headers({
@@ -217,9 +207,8 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @POST("api/v3/teams/{teamId}/invite_members")
-    Observable<ListInviteObj> invite(
-            @Path("teamId") String teamId,
-            @Body ListInviteObj listInviteObj);
+    Observable<ListInviteObj> invite(@Path("teamId") String teamId,
+                                     @Body ListInviteObj listInviteObj);
 
     @Headers({
             "Accept: application/json",
@@ -228,16 +217,6 @@ public interface ApiMethod {
     @POST("api/v3/teams/{team_id}/channels/create_direct")
     Observable<Channel> createDirect(@Path("team_id") String teamId,
                                      @Body LogoutData user);
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
-    @Streaming
-    @GET("api/v3/teams/{team_id}/files/get{file_id}")
-    Observable<ResponseBody> downloadFile(@Path("team_id") String team_id,
-                                          @Path("file_id") String file_id);
-
 
     @Headers({
             "Accept: application/json",
@@ -287,13 +266,6 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @POST("api/v3/teams/all")
-    Observable<List<Team>> getAllTeams();
-
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
     @POST("api/v3/teams/{team_id}/channels/create")
     Observable<Channel> createChannel(@Path("team_id") String teamId,
                                       @Body Channel creatingChannel);
@@ -335,8 +307,25 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/channels/{channelId}/delete")
+    Observable<Channel> deleteChannel(@Path("teamId") String teamId,
+                                      @Path("channelId") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @POST("api/v3/users/newpassword")
     Observable<ResponseBody> changePassword(@Body PasswordChangePresenter.NewPassword newPassword);
+
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/commands/execute")
+    Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
+                                              @Body CommandToNet command);
 
 
 }

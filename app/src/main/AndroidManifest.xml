@@ -61,7 +61,7 @@
         </activity>
 
         <activity
-            android:name=".view.channel.HeaderActivity"
+            android:name=".view.channel.HeaderChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 
@@ -71,17 +71,18 @@
         </activity>
 
         <activity
-            android:name=".view.channel.NameActivity"
+            android:name=".view.channel.NameChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".view.channel.AllMembersActivity"
+            android:name=".view.channel.AllMembersChannelActivity"
             android:screenOrientation="portrait">
         </activity>
 
         <activity
             android:name=".view.channel.AddMembersActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait">
         </activity>
 
@@ -97,10 +98,12 @@
                 <action android:name="OPEN_DIALOG" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
         </activity>
 
         <activity
             android:name=".view.direct.WholeDirectListActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait" />
 
         <activity
@@ -130,6 +133,7 @@
 
         <activity
             android:name=".view.addchat.AddExistingChannelsActivity"
+            android:theme="@style/searchActivityStyle"
             android:screenOrientation="portrait" />
 
         <activity

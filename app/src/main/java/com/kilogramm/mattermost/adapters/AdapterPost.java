@@ -27,18 +27,20 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     public static final int LOADING_TOP = -2;
     public static final int LOADING_BOTTOM = -3;
 
-    private LayoutInflater inflater;
-    private Context context;
-    private OnItemClickListener<String> listener;
+    private LayoutInflater mInflater;
+    private Context mContext;
+    private OnItemClickListener<String> mListener;
 
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
+    private String mHighlitedPost;
+
     public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
-        this.inflater = LayoutInflater.from(context);
-        this.context = context;
-        this.listener = listener;
+        this.mInflater = LayoutInflater.from(context);
+        this.mContext = context;
+        this.mListener = listener;
     }
 
     @Override
@@ -56,7 +58,6 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public int getItemCount() {
-
         int count = super.getItemCount();
 
         if (isBottomLoading) {
@@ -65,34 +66,7 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         if (isTopLoading) {
             count++;
         }
-        //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
-    }
-
-    public void setLoadingTop(Boolean enabled) {
-        Log.d(TAG, "setLoadingTop(" + enabled + ");");
-        if (isTopLoading != enabled) {
-            isTopLoading = enabled;
-            getItemCount();
-            if (enabled) {
-                notifyItemInserted(0);
-            } else {
-                notifyItemRemoved(0);
-            }
-        }
-    }
-
-    public void setLoadingBottom(Boolean enabled) {
-        Log.d(TAG, "setLoadingBottom(" + enabled + ");");
-        if (isBottomLoading != enabled) {
-            isBottomLoading = enabled;
-            getItemCount();
-            if (enabled) {
-                notifyItemInserted(getItemCount());
-            } else {
-                notifyItemRemoved(getItemCount());
-            }
-        }
     }
 
     @Override
@@ -100,15 +74,15 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         switch (viewType) {
             case ITEM:
                 Log.d(TAG, "bindItem ");
-                return PostViewHolder.createItem(inflater, parent);
+                return PostViewHolder.createItem(mInflater, parent);
             case LOADING_TOP:
                 Log.d(TAG, "bindTop ");
-                return PostViewHolder.createLoadingTop(inflater, parent);
+                return PostViewHolder.createLoadingTop(mInflater, parent);
             case LOADING_BOTTOM:
                 Log.d(TAG, "bindBot ");
-                return PostViewHolder.createLoadingBottom(inflater, parent);
+                return PostViewHolder.createLoadingBottom(mInflater, parent);
             default:
-                return PostViewHolder.createItem(inflater, parent);
+                return PostViewHolder.createItem(mInflater, parent);
         }
     }
 
@@ -138,28 +112,58 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
             if (pos - 1 == -1) {
                 isTitle = true;
             }
-
-            if (holder.getAdapterPosition() >= 1 && !post.isSystemMessage()) {
-                Post postAbove = getItem(holder.getAdapterPosition() - 1);
-                if (postAbove.getUser().getId().equals(post.getUser().getId())) {
-                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
-                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
-                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.INVISIBLE);
+            Post postAbove;
+            if (holder.getAdapterPosition() >= 1 && post != null) {
+                postAbove = getItem(holder.getAdapterPosition() - 1);
+                if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
+                    if (postAbove != null
+                            && postAbove.getUser() != null && post.getUser() != null
+                            && postAbove.getUser().getId().equals(post.getUser().getId())) {
+                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
+                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
+                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
+                    } else {
+                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
                     ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                     ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
                 }
-            } else if(post.isSystemMessage()){
-                ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
             }
 
-            holder.bindToItem(post, context, isTitle, root, listener);
-
+            holder.bindToItem(post, mContext, isTitle, root, mListener);
+            holder.changeChatItemBackground(mContext, mHighlitedPost != null && mHighlitedPost.equals(post.getId()));
         } else {
             holder.bindToLoadingBottom();
+        }
+    }
+
+    public void setLoadingTop(Boolean enabled) {
+        Log.d(TAG, "setLoadingTop(" + enabled + ");");
+        if (isTopLoading != enabled) {
+            isTopLoading = enabled;
+            getItemCount();
+            if (enabled) {
+                notifyItemInserted(0);
+            } else {
+                notifyItemRemoved(0);
+            }
+        }
+    }
+
+    public void setLoadingBottom(Boolean enabled) {
+        Log.d(TAG, "setLoadingBottom(" + enabled + ");");
+        if (isBottomLoading != enabled) {
+            isBottomLoading = enabled;
+            getItemCount();
+            if (enabled) {
+                notifyItemInserted(getItemCount());
+            } else {
+                notifyItemRemoved(getItemCount());
+            }
         }
     }
 
@@ -171,14 +175,20 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         return isBottomLoading;
     }
 
-
     public int getPositionById(String id) {
         int count = super.getPositionById(id);
 
         if (isTopLoading) {
             count++;
         }
-        //Log.d(TAG,"super.getItemCount() = "+super.getItemCount() + "\n count = " + count);
         return count;
+    }
+
+    public String getmHighlitedPost() {
+        return mHighlitedPost;
+    }
+
+    public void setmHighlitedPost(String mHighlitedPost) {
+        this.mHighlitedPost = mHighlitedPost;
     }
 }

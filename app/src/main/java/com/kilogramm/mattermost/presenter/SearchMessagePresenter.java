@@ -1,6 +1,9 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
@@ -13,6 +16,11 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
 
 import icepick.State;
 import io.realm.Realm;
@@ -28,7 +36,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     public static final int REQUEST_SEARCH = 1;
 
     private MattermostApp mMattermostApp;
-    private ApiMethod service;
+    private ApiMethod mService;
 
     private boolean isSearchEmpty;
     private boolean isOrSearch = true; //was by default
@@ -41,10 +49,10 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         super.onCreate(savedState);
 
         mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
+        mService = mMattermostApp.getMattermostRetrofitService();
 
         restartableFirst(REQUEST_SEARCH,
-                () -> service.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
+                () -> mService.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (searchMessageActivity, posts) -> {
@@ -120,12 +128,47 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
         }
         this.isSearchEmpty = false;
 
-        sendHideKeyboard();
+        //sendHideKeyboard();
         sendShowProgressBarVisibility(true);
         sendShowSearchResultVisibility(false);
         sendShowDefaultVisibility(false);
         sendShowDefaultMessageVisibility(false);
 
         start(REQUEST_SEARCH);
+    }
+
+    public static void setSearchHistory(Context context, String key, ArrayList<String> history) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        JSONArray jsonArray = new JSONArray();
+
+        for (String item : history) {
+            jsonArray.put(item);
+        }
+        if (!history.isEmpty()) {
+            editor.putString(key, jsonArray.toString());
+        } else {
+            editor.putString(key, null);
+        }
+        editor.apply();
+    }
+
+    public static ArrayList<String> getSearchHistory(Context context, String key) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String json = preferences.getString(key, null);
+        ArrayList<String> storedHistory = new ArrayList<>();
+
+        if (json != null) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String historyItem = jsonArray.optString(i);
+                    storedHistory.add(historyItem);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return storedHistory;
     }
 }

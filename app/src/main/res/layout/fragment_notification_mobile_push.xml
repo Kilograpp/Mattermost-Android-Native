@@ -21,7 +21,7 @@
                 android:text="@string/mob_push_title_send" />
 
             <android.support.v7.widget.CardView
-                android:id="@+id/all"
+                android:id="@+id/cardViewAll"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
                     android:text="@string/mob_push_all" />
 
                 <ImageView
-                    android:id="@+id/selectAll"
+                    android:id="@+id/imageViewSelectAll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
@@ -47,7 +47,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/mention"
+                android:id="@+id/cardViewMention"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
                     android:text="@string/mob_push_mentions_direct" />
 
                 <ImageView
-                    android:id="@+id/selectMentionsDirect"
+                    android:id="@+id/imageViewSelectMentionsDirect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
@@ -73,7 +73,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/none"
+                android:id="@+id/cardViewNone"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                     android:text="@string/mob_push_never" />
 
                 <ImageView
-                    android:id="@+id/selectNever"
+                    android:id="@+id/imageViewSelectNever"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
@@ -116,7 +116,7 @@
                 android:text="@string/mob_push_title_trigger" />
 
             <android.support.v7.widget.CardView
-                android:id="@+id/online"
+                android:id="@+id/cardViewOnline"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                     android:text="@string/mob_push_on_away_off" />
 
                 <ImageView
-                    android:id="@+id/selectAllTriger"
+                    android:id="@+id/imageViewSelectAllTrigger"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
@@ -142,7 +142,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/away"
+                android:id="@+id/cardViewAway"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -157,7 +157,7 @@
                     android:text="@string/mob_push_away_off" />
 
                 <ImageView
-                    android:id="@+id/selectAwayOff"
+                    android:id="@+id/imageViewSelectAwayOff"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"
@@ -168,7 +168,7 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
-                android:id="@+id/offline"
+                android:id="@+id/cardViewOffline"
                 style="@style/CardView.Light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
                     android:text="@string/mob_push_off" />
 
                 <ImageView
-                    android:id="@+id/selectOff"
+                    android:id="@+id/imageViewSelectOff"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|right"

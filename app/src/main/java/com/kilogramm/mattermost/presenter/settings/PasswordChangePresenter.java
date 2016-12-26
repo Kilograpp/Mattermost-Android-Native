@@ -64,7 +64,7 @@ public class PasswordChangePresenter extends BaseRxPresenter<PasswordChangeActiv
     private void sendGood(String good){
         createTemplateObservable(good)
                 .subscribe(split((passwordChangeActivity, s) -> {
-                    passwordChangeActivity.dissmisProgressDialog();
+                    passwordChangeActivity.hideProgressBar();
                     passwordChangeActivity.showSuccessMessage();
                     passwordChangeActivity.finish();
                 }));
@@ -74,7 +74,7 @@ public class PasswordChangePresenter extends BaseRxPresenter<PasswordChangeActiv
         createTemplateObservable(error)
                 .subscribe(split((passwordChangeActivity, s) -> {
                     passwordChangeActivity.showErrorText(s);
-                    passwordChangeActivity.dissmisProgressDialog();
+                    passwordChangeActivity.hideProgressBar();
                 }));
     }
 
@@ -88,9 +88,6 @@ public class PasswordChangePresenter extends BaseRxPresenter<PasswordChangeActiv
         @SerializedName("new_password")
         @Expose
         String newPassword;
-
-        public NewPassword() {
-        }
 
         public NewPassword(String userId, String currentPassword, String newPassword) {
             this.userId = userId;

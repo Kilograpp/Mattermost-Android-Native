@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -17,29 +18,35 @@
                 android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:focusableInTouchMode="true"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:focusableInTouchMode="true"
                     android:orientation="vertical">
 
                     <include
                         android:id="@+id/left_menu_header"
                         layout="@layout/left_menu_header" />
 
-                    <include
-                        android:id="@+id/fr_channel"
-                        layout="@layout/fragment_menu_channel_list" />
 
-                    <include
-                        android:id="@+id/fr_private"
-                        layout="@layout/fragment_menu_private_list" />
+                        <LinearLayout
+                            android:background="@color/colorPrimary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
 
-                    <include
-                        android:id="@+id/fr_direct"
-                        layout="@layout/fragment_menu_direct_list" />
+                            <include
+                                android:id="@+id/fr_channel"
+                                layout="@layout/fragment_menu_channel_list" />
 
+                            <include
+                                android:id="@+id/fr_private"
+                                layout="@layout/fragment_menu_private_list" />
+
+                            <include
+                                android:id="@+id/fr_direct"
+                                layout="@layout/fragment_menu_direct_list" />
+                        </LinearLayout>
                 </LinearLayout>
-
             </android.support.v4.widget.NestedScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
     </FrameLayout>

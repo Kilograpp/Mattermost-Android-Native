@@ -5,14 +5,16 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.databinding.MembersListBinding;
+import com.kilogramm.mattermost.databinding.ActivityAllMembersChannelBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -27,36 +29,36 @@ import nucleus.factory.RequiresPresenter;
 public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     private static final String CHANNEL_ID = "channel_id";
 
-    MembersListBinding binding;
+    ActivityAllMembersChannelBinding binding;
     AddMembersAdapter addMembersAdapter;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.members_list);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_all_members_channel);
         setToolbar();
         initiationData();
     }
 
-    private void initiationData() {
-        addMembersAdapter = new AddMembersAdapter(this,
-                id -> {
-                    getPresenter().addMember(id);
-                    binding.list.setVisibility(View.INVISIBLE);
-                    binding.progressBar.setVisibility(View.VISIBLE);
-                    hideKeyboard(this);
-                });
-        binding.list.setAdapter(addMembersAdapter);
-        binding.list.setLayoutManager(new LinearLayoutManager(this));
-        binding.searchText.addTextChangedListener(getMassageTextWatcher());
-
-        binding.btnClear.setOnClickListener(view -> {
-            binding.searchText.setText("");
-            hideKeyboard(this);
-        });
-        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        searchView = initSearchView(menu, getMassageTextWatcher());
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
+    }
+
+    public static void start(Context context, String channelId) {
+        Intent starter = new Intent(context, AddMembersActivity.class);
+        starter.putExtra(CHANNEL_ID, channelId);
+        context.startActivity(starter);
+    }
 
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
@@ -68,10 +70,8 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > 0) {
                     updateDataList(getPresenter().getMembers(charSequence.toString()));
-                    binding.btnClear.setVisibility(View.VISIBLE);
                 } else {
                     updateDataList(getPresenter().getMembers());
-                    binding.btnClear.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -83,34 +83,38 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     }
 
     public void requestMember(String s) {
-        binding.list.setVisibility(View.VISIBLE);
+        binding.recView.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
-        binding.searchText.setText("");
+        if (searchView.getQuery().length() == 0)
+            updateDataList(getPresenter().getMembers());
+        searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     public void updateDataList(OrderedRealmCollection<User> realmResult) {
         addMembersAdapter.updateData(realmResult);
         if (realmResult.size() == 0) {
-            binding.listEmpty.setVisibility(View.VISIBLE);
+            binding.textViewListEmpty.setVisibility(View.VISIBLE);
         } else
-            binding.listEmpty.setVisibility(View.INVISIBLE);
+            binding.textViewListEmpty.setVisibility(View.INVISIBLE);
+    }
+
+
+    private void initiationData() {
+        addMembersAdapter = new AddMembersAdapter(this,
+                id -> {
+                    getPresenter().addMember(id);
+                    binding.recView.setVisibility(View.INVISIBLE);
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    hideKeyboard(this);
+                });
+        binding.recView.setAdapter(addMembersAdapter);
+        binding.recView.setLayoutManager(new LinearLayoutManager(this));
+        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
     }
 
     private void setToolbar() {
         setupToolbar(getString(R.string.add_members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-    }
-
-    public static void start(Context context, String channelId) {
-        Intent starter = new Intent(context, AddMembersActivity.class);
-        starter.putExtra(CHANNEL_ID, channelId);
-        context.startActivity(starter);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return super.onOptionsItemSelected(item);
     }
 }

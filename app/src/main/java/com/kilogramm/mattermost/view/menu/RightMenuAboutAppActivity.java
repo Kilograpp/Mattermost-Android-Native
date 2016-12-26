@@ -17,24 +17,19 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 public class RightMenuAboutAppActivity extends BaseActivity {
 
-    private ActivityRightMenuAboutAppBinding binding;
+    private ActivityRightMenuAboutAppBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_right_menu_about_app);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_right_menu_about_app);
 
-        setupToolbar("About Mattermost", true);
+        setupToolbar(getApplicationContext().getResources().getString(R.string.about_mattermost), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
-
-        binding.mattermostOrg.setMovementMethod(LinkMovementMethod.getInstance());
-        binding.kilograppTeam.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    public static void start(Context context) {
-        Intent starter = new Intent(context, RightMenuAboutAppActivity.class);
-        context.startActivity(starter);
+        
+        mBinding.textViewMattermostOrg.setMovementMethod(LinkMovementMethod.getInstance());
+        mBinding.textViewKilograppTeam.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override
@@ -44,5 +39,10 @@ public class RightMenuAboutAppActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static void start(Context context) {
+        Intent starter = new Intent(context, RightMenuAboutAppActivity.class);
+        context.startActivity(starter);
     }
 }

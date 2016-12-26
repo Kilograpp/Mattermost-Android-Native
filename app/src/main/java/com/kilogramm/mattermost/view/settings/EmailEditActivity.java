@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -25,7 +26,9 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(EmailEditPresenter.class)
 public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
 
-    ActivityChangeEmailBinding binding;
+    private ActivityChangeEmailBinding mBinding;
+
+    private MenuItem mMenuItem;
 
     public EmailEditActivity() {
     }
@@ -33,15 +36,15 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_change_email);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_change_email);
 
-        setSupportActionBar(binding.toolbar);
+        setSupportActionBar(mBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.edit_email));
 
         User editedUser = new User(UserRepository.query(new UserRepository.
                 UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
-        binding.currentEmail.setText(editedUser.getEmail());
+        mBinding.currentEmail.setText(editedUser.getEmail());
     }
 
     @Override
@@ -55,10 +58,15 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
+                mMenuItem = item;
+                BaseActivity.hideKeyboard(this);
+                item.setVisible(false);
+                mBinding.progressBar.setVisibility(View.VISIBLE);
                 onClickSave();
                 return true;
             case android.R.id.home:
                 onBackPressed();
+                hideKeyboard(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -67,15 +75,16 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
 
     private void onClickSave() {
         hideKeyboard(this);
-        String newEmail = binding.newEmail.getText().toString();
+        String newEmail = mBinding.newEmail.getText().toString();
         if (newEmail != null && newEmail.length() > 0
                 && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
             User editedUser = new User(UserRepository.query(new UserRepository.
                     UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
-            editedUser.setEmail(binding.newEmail.getText().toString());
+            editedUser.setEmail(mBinding.newEmail.getText().toString());
             getPresenter().requestSave(editedUser);
         } else {
             showErrorText(getString(R.string.invalid_email));
+            hideProgressBar();
         }
     }
 
@@ -85,6 +94,12 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     }
 
     public void showSuccessMessage() {
+        hideProgressBar();
         Toast.makeText(this, getString(R.string.verify_email), Toast.LENGTH_SHORT).show();
+    }
+
+    public void hideProgressBar(){
+        mMenuItem.setVisible(true);
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
     }
 }

@@ -21,11 +21,6 @@ public class SearchParams {
         this.is_or_search = is_or_search;
     }
 
-    public SearchParams(String terms) {
-        this.terms = terms;
-        this.is_or_search = null;
-    }
-
     public String getTerms() {
         return terms;
     }

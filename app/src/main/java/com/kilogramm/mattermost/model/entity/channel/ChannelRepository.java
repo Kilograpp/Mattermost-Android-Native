@@ -99,7 +99,6 @@ public class ChannelRepository {
                 channel.setUser(realm1.where(User.class).equalTo("id", userId).findFirst());
                 channel.setUsername(channel.getUser().getUsername());
             }
-            channel.setTotalMsgCount(channel.getTotalMsgCount()); //TODO fix me
             realm1.copyToRealmOrUpdate(channel);
             realm1.close();
         });
@@ -176,10 +175,10 @@ public class ChannelRepository {
 
         @Override
         public RealmResults<Channel> toRealmResults(Realm realm) {
-            if (type == "O" || type == "P") {
+            if (type.equals(Channel.OPEN) || type.equals(Channel.PRIVATE)) {
                 return realm.where(Channel.class)
                         .equalTo("type", type)
-                        .findAllSorted("name", Sort.ASCENDING);
+                        .findAllSorted("displayName", Sort.ASCENDING);
             } else {
                 return realm.where(Channel.class)
                         .equalTo("type", type)

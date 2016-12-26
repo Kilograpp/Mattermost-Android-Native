@@ -120,7 +120,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                     result = channelMentions;
 
             for (String s : mentions) {
-                if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()))
+                if (!s.equals(getUserName()) && !s.equals(getUserNameMentioned()) && s.length() > 0)
                     if (result.length() != 0)
                         result = result + ",\"" + s + "\"";
                     else

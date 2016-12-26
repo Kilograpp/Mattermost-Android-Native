@@ -19,7 +19,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
  */
 public class WordsTriggerMentionsFragment extends BaseFragment {
 
-    private FragmentNotificationTriggerBinding binding;
+    private FragmentNotificationTriggerBinding mBinding;
 
 
     @Override
@@ -30,52 +30,12 @@ public class WordsTriggerMentionsFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification_trigger,
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification_trigger,
                 container, false);
         initTriggers();
         initChangeListener();
 
-        return binding.getRoot();
-    }
-
-    private void initChangeListener() {
-        binding.selectFirstName.setOnCheckedChangeListener((compoundButton, b) ->
-                getPresenter().setFirstNameTrigger(b));
-        binding.selectChannelMentioned.setOnCheckedChangeListener((compoundButton, b) ->
-                getPresenter().setChannelTrigger(b));
-
-        CompoundButton.OnCheckedChangeListener mention_keysListener = (compoundButton, b) -> setMentionsKeys();
-        binding.selectUserName.setOnCheckedChangeListener(mention_keysListener);
-        binding.selectUserNameMentioned.setOnCheckedChangeListener(mention_keysListener);
-    }
-
-    private void initTriggers() {
-        binding.titleFirstName.setText(binding.titleFirstName.getText()
-                + " \"" + getPresenter().getFirstName() + "\"");
-        binding.selectFirstName.setChecked(getPresenter().isFirstNameTrigger());
-
-        binding.titleUserName.setText(binding.titleUserName.getText()
-                + " \"" + getPresenter().getUserName() + "\"");
-        binding.selectUserName.setChecked(getPresenter().isUserName());
-
-        binding.titleUserNameMentioned.setText(binding.titleUserNameMentioned.getText()
-                + " \"" + getPresenter().getUserNameMentioned() + "\"");
-        binding.selectUserNameMentioned.setChecked(getPresenter().isUserNameMentioned());
-
-        binding.selectChannelMentioned.setChecked(getPresenter().isChannelTrigger());
-
-        binding.otherMention.setText(getPresenter().getOtherMentionsKeys());
-    }
-
-    public String getAllMentions() {
-        String mentionKeys = "";
-        if (binding.selectUserName.isChecked())
-            mentionKeys = mentionKeys + getPresenter().getUserName() + ",";
-        if (binding.selectUserNameMentioned.isChecked())
-            mentionKeys = mentionKeys + getPresenter().getUserNameMentioned() + ",";
-        if (binding.otherMention.getText().toString().trim().length() > 0)
-            mentionKeys = mentionKeys + binding.otherMention.getText().toString();
-        return mentionKeys;
+        return mBinding.getRoot();
     }
 
     @Override
@@ -97,6 +57,46 @@ public class WordsTriggerMentionsFragment extends BaseFragment {
     @Override
     public NotificationPresenter getPresenter() {
         return ((NotificationActivity) getActivity()).getPresenter();
+    }
+
+    public String getAllMentions() {
+        String mentionKeys = "";
+        if (mBinding.checkBoxSelectUserName.isChecked())
+            mentionKeys = mentionKeys + getPresenter().getUserName() + ",";
+        if (mBinding.checkBoxSelectUserNameMentioned.isChecked())
+            mentionKeys = mentionKeys + getPresenter().getUserNameMentioned() + ",";
+        if (mBinding.editTextOtherMention.getText().toString().trim().length() > 0)
+            mentionKeys = mentionKeys + mBinding.editTextOtherMention.getText().toString();
+        return mentionKeys;
+    }
+
+    private void initChangeListener() {
+        mBinding.checkBoxSelectFirstName.setOnCheckedChangeListener((compoundButton, b) ->
+                getPresenter().setFirstNameTrigger(b));
+        mBinding.checkBoxSelectChannelMentioned.setOnCheckedChangeListener((compoundButton, b) ->
+                getPresenter().setChannelTrigger(b));
+
+        CompoundButton.OnCheckedChangeListener mention_keysListener = (compoundButton, b) -> setMentionsKeys();
+        mBinding.checkBoxSelectUserName.setOnCheckedChangeListener(mention_keysListener);
+        mBinding.checkBoxSelectUserNameMentioned.setOnCheckedChangeListener(mention_keysListener);
+    }
+
+    private void initTriggers() {
+        mBinding.textViewTitleFirstName.setText(mBinding.textViewTitleFirstName.getText()
+                + " \"" + getPresenter().getFirstName() + "\"");
+        mBinding.checkBoxSelectFirstName.setChecked(getPresenter().isFirstNameTrigger());
+
+        mBinding.textViewTitleUserName.setText(mBinding.textViewTitleUserName.getText()
+                + " \"" + getPresenter().getUserName() + "\"");
+        mBinding.checkBoxSelectUserName.setChecked(getPresenter().isUserName());
+
+        mBinding.textViewTitleUserNameMentioned.setText(mBinding.textViewTitleUserNameMentioned.getText()
+                + " \"" + getPresenter().getUserNameMentioned() + "\"");
+        mBinding.checkBoxSelectUserNameMentioned.setChecked(getPresenter().isUserNameMentioned());
+
+        mBinding.checkBoxSelectChannelMentioned.setChecked(getPresenter().isChannelTrigger());
+
+        mBinding.editTextOtherMention.setText(getPresenter().getOtherMentionsKeys());
     }
 }
 

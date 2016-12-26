@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.rxtest.left_menu;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -11,6 +12,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 
 import io.realm.RealmList;
 import rx.Observable;
@@ -21,6 +23,7 @@ import rx.schedulers.Schedulers;
  */
 
 public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
+    private static final String TAG = "LeftMenuRxPresenter";
 
     private static final int REQUEST_SAVE = 1;
     private static final int REQUEST_UPDATE = 2;
@@ -54,7 +57,15 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     RealmList<Channel> channelsList = new RealmList<>();
                     channelsList.addAll(channelsWithMembers.getChannels());
                     ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
-                }, (leftMenuRxFragment, throwable) -> throwable.printStackTrace());
+                    sendSetRefreshAnimation(false);
+                    sendUpdateMenuView();
+                    sendSelectLastChannel();
+                }, (leftMenuRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                    sendSetRefreshAnimation(false);
+                    Log.d(TAG, throwable.getMessage());
+                });
+
     }
 
     private void initSaveRequest() {
@@ -98,5 +109,20 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     leftMenuRxFragment.setSelectItemMenu(channel.getId(),
                             channel.getType());
                 }));
+    }
+
+    private void sendSetRefreshAnimation(Boolean bool) {
+        createTemplateObservable(bool).subscribe(split(
+                (leftMenuRxFragment, aBoolean) -> leftMenuRxFragment.setRefreshAnimation(bool)));
+    }
+
+    private void sendUpdateMenuView() {
+        createTemplateObservable(new Object()).subscribe(split(
+                (leftMenuRxFragment, o) -> leftMenuRxFragment.initView()));
+    }
+
+    private void sendSelectLastChannel() {
+        createTemplateObservable(new Object()).subscribe(split(
+                (leftMenuRxFragment, o) -> leftMenuRxFragment.selectLastChannel()));
     }
 }

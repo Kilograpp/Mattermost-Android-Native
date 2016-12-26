@@ -38,6 +38,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -137,10 +138,11 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (generalRxActivity, stringUserMap) -> {
                     UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
-                        Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
+                        Channel channel = ChannelRepository.query(
+                                new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
                         //sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
-                            sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                            sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
                         }
                     } else {
                         Channel channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(
@@ -150,7 +152,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                                 sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
                                 break;
                             default:
-                                sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
+                                sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
                                 break;
                         }
                     }
@@ -201,7 +203,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         );
     }
 
-
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();
@@ -231,7 +232,26 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void requestLogout() {
-        start(REQUEST_LOGOUT);
+        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "Complete logout");
+                MattermostApp.clearDataBaseAfterLogout();
+                MattermostApp.clearPreference();
+                MattermostApp.showMainRxActivity();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                sendShowError("Error logout");
+            }
+
+            @Override
+            public void onNext(LogoutData logoutData) {
+            }
+        });
+//        start(REQUEST_LOGOUT);
     }
 
     @Override

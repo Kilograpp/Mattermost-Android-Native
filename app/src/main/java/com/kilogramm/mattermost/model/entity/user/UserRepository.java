@@ -80,7 +80,7 @@ public class UserRepository {
         );
     }
 
-    public static void updateUserAfterSaveSettings(User user){
+    public static void updateUserAfterSaveSettings(User user) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         Log.d(TAG, "change user");
@@ -95,7 +95,7 @@ public class UserRepository {
     }
 
 
-    public static void updateUserAvataTime(String userId, long time){
+    public static void updateUserAvataTime(String userId, long time) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         User me = realm.where(User.class).equalTo("id", userId).findAll().first();
@@ -154,7 +154,7 @@ public class UserRepository {
 
         @Override
         public RealmResults<User> toRealmResults(Realm realm) {
-            RealmList<User> membersTeam =  realm.where(ExtraInfo.class).equalTo("id",
+            RealmList<User> membersTeam = realm.where(ExtraInfo.class).equalTo("id",
                     realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
                     .findFirst().getMembers();
 
@@ -166,6 +166,21 @@ public class UserRepository {
             }
 
             return realmQuery.findAllSorted("username", Sort.ASCENDING);
+        }
+    }
+
+    public static class UserByNotMiSpecification implements RealmSpecification {
+
+
+        private final String id;
+
+        public UserByNotMiSpecification(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public RealmResults<User> toRealmResults(Realm realm) {
+            return realm.where(User.class).notEqualTo("id",id).findAll();
         }
     }
 

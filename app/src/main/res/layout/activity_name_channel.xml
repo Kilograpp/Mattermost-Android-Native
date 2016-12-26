@@ -18,7 +18,7 @@
                 android:id="@+id/progressBar"
                 android:layout_width="@dimen/image_comment_size"
                 android:layout_height="@dimen/image_comment_size"
-                android:layout_gravity="right|center_vertical"
+                android:layout_gravity="end|center_vertical"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
@@ -39,7 +39,7 @@
                     style="@style/textBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_start"
                     android:text="@string/channel_display_name" />
 
@@ -59,9 +59,9 @@
                         android:orientation="horizontal">
 
                         <EditText
-                            android:id="@+id/displayName"
+                            android:id="@+id/editTextDisplayName"
                             style="@style/textBlack"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:background="@null"
@@ -70,7 +70,7 @@
                             android:padding="@dimen/activity_horizontal_margin" />
 
                         <ImageView
-                            android:id="@+id/btnClearDisplayName"
+                            android:id="@+id/buttonClearDisplayName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -81,15 +81,27 @@
 
                 </android.support.v7.widget.CardView>
 
+                <TextView
+                    android:id="@+id/textViewErrorDisplayName"
+                    style="@style/textRed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/activity_vertical_margin"
+                    android:layout_marginStart="@dimen/activity_vertical_margin"
+                    android:layout_marginTop="@dimen/standart_margin"
+                    android:text="@string/channel_error"
+                    android:visibility="invisible"
+                    android:textSize="12sp" />
+
 
                 <TextView
-                    android:id="@+id/handleDescription"
+                    android:id="@+id/textViewHandleDescription"
                     style="@style/textBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/standart_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_start"
+                    android:layout_marginEnd="@dimen/standart_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
                     android:text="@string/channel_handle_name" />
 
 
@@ -108,9 +120,9 @@
                         android:orientation="horizontal">
 
                         <EditText
-                            android:id="@+id/name"
+                            android:id="@+id/editTextName"
                             style="@style/textBlack"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:background="@null"
@@ -118,9 +130,8 @@
                             android:maxLength="22"
                             android:padding="@dimen/activity_horizontal_margin" />
 
-
                         <ImageView
-                            android:id="@+id/btnClearName"
+                            android:id="@+id/buttonClearName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -132,13 +143,15 @@
                 </android.support.v7.widget.CardView>
 
                 <TextView
+                    android:id="@+id/textViewHandleError"
                     style="@style/textGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_vertical_margin"
+                    android:layout_marginStart="@dimen/activity_vertical_margin"
                     android:layout_marginTop="@dimen/standart_margin"
-                    android:text="Must be lowercase alphanumeric characters"
-                    android:textSize="10sp" />
+                    android:text="@string/channel_info_handle_info"
+                    android:textSize="12sp" />
 
             </LinearLayout>
         </ScrollView>

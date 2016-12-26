@@ -13,10 +13,10 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
-import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
@@ -34,6 +34,9 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private static final int REQUEST_LEAVE = 2;
     private static final int REQUEST_SAVE = 3;
     private static final int REQUEST_CHANNEL = 4;
+    private static final int REQUEST_DELETE = 5;
+
+    private String errorLoadingExtraInfo = "Error loading channel info";
 
     private ApiMethod service;
 
@@ -42,8 +45,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     @State
     ListPreferences listPreferences = new ListPreferences();
 
-    @State
-    ExtraInfo extraInfo;
     @State
     String teamId;
     @State
@@ -61,7 +62,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     }
 
     public void initPresenter(String teamId, String channelId) {
-        Log.d(TAG, "initPresenter");
         this.teamId = teamId;
         this.channelId = channelId;
         this.channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId)).first();
@@ -71,6 +71,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void initRequests() {
         initExtraInfo();
         leaveChannel();
+        deleteChannel();
         initSaveRequest();
     }
 
@@ -86,7 +87,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ExtroInfoRepository.add(extraInfo);
                     start(REQUEST_CHANNEL);
                 }, (channelActivity, throwable) -> {
-                    sendError("Error loading channel info");
+                    sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 }
         );
@@ -99,7 +100,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ChannelRepository.update(channelWithMember.getChannel());
                     requestMembers();
                 }, (channelActivity, throwable) -> {
-                    sendError("Error loading channel info");
+                    sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 }
         );
@@ -110,7 +111,17 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                 () -> service.leaveChannel(this.teamId, this.channelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
-                (channelActivity, channel) -> requestFinish(),
+                (channelActivity, channel) -> requestFinish("leaved"),
+                (channelActivity, throwable) -> sendError(getError(throwable))
+        );
+    }
+
+    private void deleteChannel() {
+        restartableFirst(REQUEST_DELETE,
+                () -> service.deleteChannel(this.teamId, this.channelId)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (channelActivity, channel) -> requestFinish("deleted"),
                 (channelActivity, throwable) -> sendError(getError(throwable))
         );
     }
@@ -134,7 +145,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
             listPreferences.getmSaveData().clear();
             MattermostPreference.getInstance().setLastChannelId(channel.getId());
             sendSetFragmentChat();
-        }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+        }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
     }
 
     public void requestSaveData(Preferences data, String userId) {
@@ -157,9 +168,20 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
         start(REQUEST_LEAVE);
     }
 
+    public void requestDelete() {
+        start(REQUEST_DELETE);
+    }
+
     public Channel getChannel() {
         return channel;
     }
+    public int getMemberCount() {
+        return Integer.parseInt(ExtroInfoRepository.query(
+                new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId))
+                .first()
+                .getMember_count());
+    }
+
 
     private void requestMembers() {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) ->
@@ -167,10 +189,11 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId)).first())));
     }
 
-    private void requestFinish() {
+    private void requestFinish(String s) {
         createTemplateObservable(new Object()).subscribe(split((channelActivity, o) -> {
             Toast.makeText(channelActivity,
-                    String.format("You've just leaved %s %s",
+                    String.format("You've %s %s %s",
+                                s,
                                 this.channel.getDisplayName(),
                                 channel.getType().equals(Channel.OPEN) ? "channel" : "private group"),
                     Toast.LENGTH_SHORT).show();
@@ -189,5 +212,9 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void sendCloseActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((channelActivity, o) -> channelActivity.finish()));
+    }
+
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 }

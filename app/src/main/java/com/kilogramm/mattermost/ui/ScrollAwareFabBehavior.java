@@ -34,7 +34,7 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
                 dyUnconsumed);
         if (dyConsumed < 0) {
             animateFabDown(child);
-        } else if (dyConsumed > 0) {
+        } else if (dyConsumed > 20) {
             animateFabUp(child);
         }
     }
@@ -49,7 +49,7 @@ public class ScrollAwareFabBehavior extends FloatingActionButton.Behavior {
 
     public void animateFabUp(FloatingActionButton child) {
         if(isEnabled){
-            child.show();
+//            child.show();
             child.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
 
         }

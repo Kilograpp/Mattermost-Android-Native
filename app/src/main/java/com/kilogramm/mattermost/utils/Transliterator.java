@@ -72,9 +72,9 @@ public class Transliterator {
         charMap.put('ч', "ch");
         charMap.put('ш', "sh");
         charMap.put('щ', "sh");
-        charMap.put('ъ', "'");
+        charMap.put('ъ', "");
         charMap.put('ы', "y");
-        charMap.put('ь', "'");
+        charMap.put('ь', "");
         charMap.put('э', "e");
         charMap.put('ю', "u");
         charMap.put('я', "ya");

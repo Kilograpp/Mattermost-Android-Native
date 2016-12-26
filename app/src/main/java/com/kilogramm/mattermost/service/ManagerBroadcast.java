@@ -15,7 +15,6 @@ import android.graphics.Shader;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -62,8 +61,8 @@ import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImag
  */
 public class ManagerBroadcast {
     public static final String TAG = "ObjectUtil";
-    public static final String CHANNEL_ID = "CHANNEL_ID";
-    public static final String CHANNEL_NAME = "CHANNEL_NAME";
+    public static final String CHANNEL_ID = "sCHANNEL_ID";
+    public static final String CHANNEL_NAME = "sCHANNEL_NAME";
     public static final String CHANNEL_TYPE = "CHANNEL_TYPE";
     private static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     private static final String CLOSE_NOTIFICATION = "CLOSE_NOTIFICATION";
@@ -120,9 +119,13 @@ public class ManagerBroadcast {
                         .build();
 
                 savePost(data.getPost());
+                String MuUserId = MattermostPreference.getInstance().getMyUserId();
                 if (data.getMentions().length() > 0
-                        && !data.getPost().getUserId()
-                        .equals(MattermostPreference.getInstance().getMyUserId())) {
+                        && data.getMentions().equals("[\"" + MuUserId + "\"]")
+                        && !data.getPost().getChannelId().equals(
+                        MattermostPreference.getInstance().getLastChannelId())
+                        && !data.getPost().getUserId().equals(MuUserId)) {
+
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
@@ -209,12 +212,10 @@ public class ManagerBroadcast {
                 .build();
     }
 
-    private static void createNotificationNEW(Post post, Context context) {
+    private void createNotificationNEW(Post post, Context context) {
         if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())) {
             return;
         }
-
-        Notification notification;
 
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -234,39 +235,28 @@ public class ManagerBroadcast {
         remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Notification.Builder builder = new Notification.Builder(context)
-                    .setSmallIcon(R.mipmap.icon)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent)
-                    .setContent(remoteViews)
-                    .setAutoCancel(true);
-
-            notification = builder.build();
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(post.getChannelId().hashCode(), notification);
-            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
-        } else {
-            NotificationCompat.Builder builderCompat = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.ic_mm)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pIntent)
-                    .setContent(remoteViews)
-                    .setAutoCancel(true);
-
-            notification = builderCompat.build();
-            notificationManager.notify(post.getChannelId().hashCode(), notification);
-            Log.d(TAG, "createNotificationNEW: channeld" + post.getChannelId().hashCode());
-        }
+        Notification.Builder notificationBuilder = showNotification(context);
+        notificationBuilder.setContent(remoteViews);
+        notificationBuilder.setContentIntent(pIntent);
+        notificationBuilder.build().flags = Notification.FLAG_AUTO_CANCEL;
 
         Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(() ->
                 Picasso.with(context.getApplicationContext())
                         .load(getImageUrl(post.getUserId()))
                         .transform(new RoundTransformation(90, 0))
-                        .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notification));
+                        .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notificationBuilder.build()));
+
+        notificationManager.notify(post.getChannelId().hashCode(), notificationBuilder.build());
+    }
+
+    private static Notification.Builder showNotification(Context context) {
+        return new Notification.Builder(context)
+                .setSmallIcon(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
+                        R.mipmap.icon : R.drawable.ic_mm)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setAutoCancel(true);
     }
 
     private static String setNotificationTitle(Channel channel, String userId) {
@@ -314,13 +304,15 @@ public class ManagerBroadcast {
     private static Intent closeNotificationIntent(Context context, int id) {
         Intent intent = new Intent(context.getApplicationContext(), CloseButtonReceiver.class);
         intent.putExtra(NOTIFICATION_ID, NOTIFY_ID);
-//        intent.putExtra(NOTIFICATION_ID, id);
         intent.setAction(CLOSE_NOTIFICATION);
         return intent;
     }
 
     private static void savePost(Post post) {
-        PostRepository.prepareAndAddPost(post);
+        if (PostRepository.query(post.getPendingPostId()) != null)
+            PostRepository.merge(post);
+        else
+            PostRepository.prepareAndAddPost(post);
     }
 
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {

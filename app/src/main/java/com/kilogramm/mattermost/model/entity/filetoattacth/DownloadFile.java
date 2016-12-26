@@ -22,12 +22,12 @@ import java.io.OutputStream;
 
 public class DownloadFile extends AsyncTask<Uri, Void, String> {
 
-    private Context context;
-    private DownloadFileListener downloadFileListener;
+    private Context mContext;
+    private DownloadFileListener mDownloadFileListener;
 
     public DownloadFile(Context context, DownloadFileListener downloadFileListener) {
-        this.context = context;
-        this.downloadFileListener = downloadFileListener;
+        this.mContext = context;
+        this.mDownloadFileListener = downloadFileListener;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class DownloadFile extends AsyncTask<Uri, Void, String> {
             }
 
             path = dir.getAbsolutePath() + File.separator + name;
-            try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
+            try (InputStream inputStream = mContext.getContentResolver().openInputStream(uri);
                  OutputStream output = new FileOutputStream(path)) {
                 byte[] buffer = new byte[32 * 1024];
                 int read;
@@ -68,10 +68,10 @@ public class DownloadFile extends AsyncTask<Uri, Void, String> {
     protected void onPostExecute(String filePath) {
         super.onPostExecute(filePath);
         if (!TextUtils.isEmpty(filePath)) {
-            downloadFileListener.onDownloadedFile(filePath);
+            mDownloadFileListener.onDownloadedFile(filePath);
         } else {
-            Toast.makeText(context, context.getString(R.string.error_retrieving_data), Toast.LENGTH_LONG).show();
-            downloadFileListener.onError();
+            Toast.makeText(mContext, mContext.getString(R.string.error_retrieving_data), Toast.LENGTH_LONG).show();
+            mDownloadFileListener.onError();
         }
     }
 

@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -18,7 +19,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -36,16 +36,23 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
+import com.kilogramm.mattermost.adapters.command.CommandAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.CommandObject;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -57,22 +64,30 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.ui.ScrollAwareFabBehavior;
 import com.kilogramm.mattermost.view.BaseActivity;
+import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.Realm;
@@ -88,6 +103,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         AttachedFilesLayout.AllUploadedListener {
 
     private static final String TAG = "ChatRxFragment";
+
     private static final String CHANNEL_ID = "channel_id";
     private static final String CHANNEL_NAME = "channel_name";
     private static final String CHANNEL_IS_SEARCH = "isSearch";
@@ -122,20 +138,29 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     boolean isMessageTextOpen = false;
     @State
     String searchMessageId = null;
+    @State
+    int positionItemMessage;
+    @State
+    boolean isFocus = false;
+    @State
+    boolean isFirstLoad = true;
+
+    @State
+    int removeablePosition = -1;
 
     private Uri fileFromCamera;
 
     private Post rootPost;
 
-    private Realm realm;
-
     private AdapterPost adapter;
     private UsersDropDownListAdapter dropDownListAdapter;
+    private CommandAdapter commandAdapter;
 
     private BroadcastReceiver brReceiverTyping;
-    private BroadcastReceiver brReceiverNotifications;
 
     private ScrollAwareFabBehavior fabBehavior;
+
+    Map<String, String> mapType;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,7 +168,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         this.channelId = getArguments().getString(CHANNEL_ID);
         this.channelName = getArguments().getString(CHANNEL_NAME);
         this.searchMessageId = getArguments().getString(CHANNEL_IS_SEARCH);
-        this.realm = Realm.getDefaultInstance();
         this.teamId = MattermostPreference.getInstance().getTeamId();
         getPresenter().initPresenter(teamId, channelId);
     }
@@ -175,9 +199,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-        setBottomToolbarOnClickListeners();
+//        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
         setButtonAddFileOnClickListener();
         setDropDownUserList();
+        setupCommandList();
         setAttachedFilesLayout();
 
         brReceiverTyping = new BroadcastReceiver() {
@@ -185,39 +210,36 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             public void onReceive(Context context, Intent intent) {
                 WebSocketObj obj = intent.getParcelableExtra(MattermostService.BROADCAST_MESSAGE);
                 Log.d(TAG, obj.getEvent());
-                if (obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)) {
-                    getActivity().runOnUiThread(() -> {// TODO зачем эта обработка?
-                        if (obj.getData() != null) {
-                            updateEditedPosition(obj.getData().getPost().getId());
+                if (obj.getChannelId().equals(channelId)) {
+                    if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
+                            && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+                        if (obj != null) {
+                            if (mapType != null)
+                                mapType.remove(obj.getUserId());
+                            getActivity().runOnUiThread(() -> showTyping(null));
                         }
-                    });
-                } else {
-                    if (obj.getChannelId().equals(channelId)) {
-                        getActivity().runOnUiThread(() -> showTyping());
+                    } else if (obj.getEvent().equals(WebSocketObj.EVENT_TYPING)) {
+                        getActivity().runOnUiThread(() -> showTyping(obj));
                     }
                 }
             }
         };
 
-        brReceiverNotifications = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Intent intentService = new Intent(context, MattermostService.class);
-                context.startService(intentService);
-            }
-        };
-
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
-        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
+        intentFilter.addAction(WebSocketObj.EVENT_POSTED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
 
         binding.fab.hide();
-        binding.fab.setOnClickListener(v -> binding.rev.scrollToPosition(adapter.getItemCount() - 1));
-        CoordinatorLayout.LayoutParams params =
-                (CoordinatorLayout.LayoutParams) binding.fab.getLayoutParams();
+        binding.fab.setOnClickListener(v -> {
+            if(searchMessageId == null) {
+                binding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            } else {
+                searchMessageId = null;
+                setupListChat(channelId);
+            }
+        });
+
         fabBehavior = new ScrollAwareFabBehavior(getActivity(), null);
-        params.setBehavior(fabBehavior);
-        binding.fab.requestLayout();
 
         if (searchMessageId != null) {
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
@@ -226,27 +248,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             getPresenter().requestExtraInfo();
         }
 
-        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
-
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (v == binding.writingMessage && !hasFocus) {
                 InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
-    }
-
-    private void updateEditedPosition(String id) {
-        invalidateByPosition(adapter.getPositionById(id));
-    }
-
-    public void slideToMessageById() {
-        binding.rev.smoothScrollToPosition(adapter.getPositionById(searchMessageId));
-    }
-
-
-    public void setChannelName(String channelName) {
-        this.channelName = channelName;
+        if(adapter.getItemCount() > 0) {
+            binding.rev.smoothScrollToPosition(adapter.getItemCount() - 1);
+        }
     }
 
     @Override
@@ -262,6 +272,55 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(channelId.hashCode());
         Log.d(TAG, "onResume: channeld" + channelId.hashCode());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        channelId = null;
+        getActivity().unregisterReceiver(brReceiverTyping);
+    }
+
+    @Override
+    protected void setupTypingText(String text) {
+        super.setupTypingText(text);
+    }
+
+    public void slideToMessageById() {
+        if (adapter != null) {
+            adapter.setmHighlitedPost(searchMessageId);
+            positionItemMessage = adapter.getPositionById(searchMessageId);
+        }
+
+        isFocus = false;
+        binding.rev.smoothScrollToPosition(positionItemMessage);
+
+        binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int pFirst = layoutManager.findFirstVisibleItemPosition();
+                int pLast = layoutManager.findLastVisibleItemPosition();
+                Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
+
+                if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                    isFocus = true;
+                    Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
+                }
+
+                if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
+                    Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
+                    if (adapter != null) adapter.setmHighlitedPost(null);
+                    adapter.notifyDataSetChanged();
+                    isFocus = false;
+                }
+            }
+        });
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 
     private void checkNeededPermissions() {
@@ -284,9 +343,51 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.attachedFilesLayout.setVisibility(View.GONE);
         }
         binding.attachedFilesLayout.setEmptyListListener(this);
-        binding.attachedFilesLayout.setAllUploadedListener(this);
+        binding.attachedFilesLayout.setmAllUploadedListener(this);
     }
 
+    private void setupCommandList(){
+        commandAdapter = new CommandAdapter(getActivity(), getCommandList(null),command -> {
+            Toast.makeText(getActivity(), command.getCommand(), Toast.LENGTH_SHORT).show();
+            binding.writingMessage.setText(command.getCommand() + " ");
+            binding.writingMessage.setSelection(binding.writingMessage.getText().length());
+        });
+        binding.commandLayout.setAdapter(commandAdapter);
+        binding.commandLayout.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.writingMessage.addTextChangedListener(getCommandListener());
+    }
+
+    private TextWatcher getCommandListener(){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                commandAdapter.updateDate(getCommandList(s.toString()));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+    }
+
+    private List<CommandObject> getCommandList(String commandWrite){
+        if(commandWrite!=null && !commandWrite.equals("")) {
+            return Stream.of(CommandObject.getCommandList())
+                    .filter(value -> value.getCommand().startsWith(commandWrite))
+                    .sorted()
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    // TODO: 12.12.2016 dropdownmenu
     private void setDropDownUserList() {
         dropDownListAdapter = new UsersDropDownListAdapter(getActivity(), this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
@@ -320,40 +421,37 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
-                    binding.fab.hide();
+//                    binding.fab.hide();
                 } else {
-                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
-                        fabBehavior.animateFabUp(binding.fab);
-                    }
+//                    if (results.size() - ((LinearLayoutManager) binding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition() > 4) {
+//                        fabBehavior.animateFabUp(binding.fab);
+//                    }
                 }
             }
         });
         adapter = new AdapterPost(getActivity(), results, this);
         binding.rev.setAdapter(adapter);
         binding.rev.setListener(this);
-        //setupPaginationListener();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy()");
-        channelId = null;
-        getActivity().unregisterReceiver(brReceiverTyping);
-    }
-
-    public String getChId() {
-        return this.channelId;
     }
 
     public void setBtnSendOnClickListener() {
         binding.btnSend.setOnClickListener(view -> {
             fabBehavior.lockBehavior();
             if (!binding.btnSend.getText().equals("Save"))
-                sendMessage();
+                if(binding.writingMessage.getText().toString().startsWith("/")) {
+                    sendCommand();
+                } else {
+                    sendMessage();
+                }
             else
                 editMessage();
         });
+    }
+
+    private void sendCommand() {
+        getPresenter().requestSendCommand(new CommandToNet(this.channelId,
+                        binding.writingMessage.getText().toString(),
+                        Boolean.FALSE.toString()));
     }
 
     public void setListenerToRootView() {
@@ -362,11 +460,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
             if (heightDiff > 100) {
                 isOpenedKeyboard = true;
-            } else if (isOpenedKeyboard == true) {
+            } else if (isOpenedKeyboard) {
                 isOpenedKeyboard = false;
             }
         });
     }
+
+    boolean isSendTyping;
 
     public TextWatcher getMassageTextWatcher() {
         return new TextWatcher() {
@@ -376,10 +476,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                if (charSequence.length() > 0 ||
+                if (charSequence.toString().trim().length() > 0 ||
                         (FileToAttachRepository.getInstance().haveFilesToAttach() &&
                                 !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    if (!isSendTyping) {
+                        isSendTyping = true;
+                        MattermostService.Helper.create(getActivity()).sendUserTuping(channelId);
+                        binding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
+                    }
                 } else {
                     binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
                 }
@@ -392,7 +497,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         };
     }
-
 
     private void getUserList(String text) {
         Log.d(TAG, "getUserList: true");
@@ -487,7 +591,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    //==========================MVP methods==================================================
+//==========================MVP methods==================================================
 
     private void sendMessage() {
         Post post = new Post();
@@ -504,10 +608,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        String message = post.getMessage().trim();
         if (
-                post.getMessage().length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
-                        post.getMessage().length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
-                        post.getMessage().length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                message.length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        message.length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        message.length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
                 ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
@@ -515,7 +620,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } else {
             if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                 Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
-            } else if (post.getMessage().length() <= 0) {
+            } else if (message.length() <= 0) {
                 Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
             }
         }
@@ -542,12 +647,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.btnSend.setText(getString(R.string.send));
     }
 
-    public void setMasseageLayout(int visible) {
-        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
+    public void setMessageLayout(int visible) {
+//        binding.bottomToolbar.bottomToolbarLayout.setVisibility(visible);
         binding.sendingMessageContainer.setVisibility(visible);
         binding.line.setVisibility(visible);
     }
-
 
     private Long getTimePost() {
         Long currentTime = Calendar.getInstance().getTimeInMillis();
@@ -569,21 +673,25 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
-                if (bottomRow == ((LinearLayoutManager) recyclerView.getLayoutManager())
-                        .findLastCompletelyVisibleItemPosition()) {
+                int lastVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
+                        .findLastVisibleItemPosition();
+                if (bottomRow == lastVisiblePosition) {
                     binding.swipeRefreshLayout
                             .setEnabled(true);
-                    fabBehavior.animateFabDown(binding.fab);
+//                    fabBehavior.animateFabDown(binding.fab);
+                    binding.fab.hide();
                 } else {
+                    binding.fab.show();
                     binding.swipeRefreshLayout
                             .setEnabled(false);
+//                    if(!binding.fab.isShown()) fabBehavior.animateFabUp(binding.fab);
                 }
             }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == 2)
+                if (newState == 1)
                     BaseActivity.hideKeyboard(getActivity());
             }
         });
@@ -596,16 +704,16 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             binding.rev.setCanPagination(false);
             fabBehavior.lockBehavior();
             getPresenter().requestLoadPosts();
-            binding.fab.hide();
+//            binding.fab.hide();
         });
     }
 
-    private void setBottomToolbarOnClickListeners() {
+/*    private void setBottomToolbarOnClickListeners() {
         binding.bottomToolbar.writeText.setOnClickListener(view -> OnClickAddText());
         binding.bottomToolbar.makePhoto.setOnClickListener(view -> makePhoto());
         binding.bottomToolbar.addExistedPhoto.setOnClickListener(view -> OnClickOpenGallery());
         binding.bottomToolbar.addDocs.setOnClickListener(view -> OnClickChooseDoc());
-    }
+    }*/
 
     public void OnClickChooseDoc() {
         pickFile();
@@ -683,7 +791,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void openFile(Context context, String minmeType, int requestCode) {
-
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType(minmeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -711,9 +818,65 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void showEmptyList() {
-        Log.d(TAG, "showEmptyList()");
+    private void showDialog() {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            makePhoto();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            openGallery();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            pickFile();
+            mBottomSheetDialog.cancel();
+        });
+    }
+
+    public void showEmptyList(String channelId) {
         binding.progressBar.setVisibility(View.GONE);
+
+        Channel channel = ChannelRepository.query(
+                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+
+        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
+                .format(new Date(channel.getCreateAt()));
+
+        binding.emptyListTitle.setVisibility(View.VISIBLE);
+        binding.emptyListMessage.setVisibility(View.VISIBLE);
+        if (channel.getType().equals(Channel.DIRECT)) {
+            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListMessage.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+        } else {
+            binding.emptyListTitle.setText(String.format(
+                    getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
+
+            String emptyListMessage = String.format(
+                    getResources().getString(R.string.empty_dialog_beginning_message),
+                    channel.getDisplayName(), createAtDate);
+
+            if (channel.getType().equals(Channel.OPEN)) {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + " " + getResources().getString(R.string.empty_dialog_group_message)));
+            } else {
+                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                        + " " + getResources().getString(R.string.empty_dialog_private_message)));
+            }
+            binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
+            binding.emptyListInviteOthers.setOnClickListener(
+                    v -> AddMembersActivity.start(getActivity(), channel.getId()));
+            binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
+        }
         binding.emptyList.setVisibility(View.VISIBLE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
     }
@@ -725,6 +888,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.emptyList.setVisibility(View.GONE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
         fabBehavior.unlockBehavior();
+        if(isFirstLoad && adapter.getItemCount() > 0) {
+            binding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            isFirstLoad = false;
+        }
     }
 
     public void setRefreshing(boolean b) {
@@ -734,9 +901,89 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.setCanPaginationBot(true);
     }
 
-    public void showTyping() {
-        binding.typing.setVisibility(View.VISIBLE);
-        binding.typing.postDelayed(() -> binding.typing.setVisibility(View.GONE), TYPING_DURATION);
+    public void initTypingText() {
+        if (!getPresenter().getChannelType().equals("D"))
+            getPresenter().requestGetCountUsersStatus();
+        else
+            getPresenter().requestUserStatus();
+    }
+
+    public void showTyping(WebSocketObj obj) {
+        String typing = getStringTyping(obj);
+        if (typing != null) {
+            setupTypingText(typing);
+            binding.getRoot().postDelayed(() -> {
+                sendUsersStatus(obj);
+            }, TYPING_DURATION);
+        } else
+            sendUsersStatus(null);
+    }
+
+    private void sendUsersStatus(WebSocketObj obj) {
+        if (getPresenter().getChannelType() != null) {
+            if (!getPresenter().getChannelType().equals("D")) {
+                if (obj != null)
+                    mapType.remove(obj.getUserId());
+                if (mapType.size() == 0)
+                    getPresenter().requestGetCountUsersStatus();
+            } else {
+                getPresenter().requestUserStatus();
+            }
+        } else setupTypingText("");
+    }
+
+    public String getStringTyping(WebSocketObj obj) {
+        StringBuffer result = new StringBuffer();
+        if (getPresenter().getChannelType() != null) {
+            if (getPresenter().getChannelType().equals("D")) {
+                if (obj != null) {
+                    return getString(R.string.typing);
+                } else return null;
+            } else {
+                if (mapType == null) {
+                    mapType = new HashMap<>();
+                }
+                if (obj != null) {
+                    mapType.put(obj.getUserId(),
+                            UserRepository
+                                    .query(new UserRepository.UserByIdSpecification(obj.getUserId()))
+                                    .first()
+                                    .getUsername());
+                }
+                int count = 0;
+                if (mapType.size() == 1) {
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        result.append(item.getValue() + " " + getString(R.string.typing));
+                    }
+                    return result.toString();
+                }
+
+                if (mapType.size() == 2) {
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        count++;
+                        if (count == 2)
+                            result.append(item.getValue() + " " + getString(R.string.typing));
+                        else
+                            result.append(item.getValue() + " and ");
+                    }
+                    return result.toString();
+                }
+                if (mapType.size() > 2)
+                    for (Map.Entry<String, String> item : mapType.entrySet()) {
+                        count++;
+                        if (count == 1)
+                            result.append(item.getValue() + ", ");
+                        else if (count == 2) {
+                            result.append(String.format("%s and %d %s",
+                                    item.getValue(),
+                                    mapType.size() - 2,
+                                    getString(R.string.typing)));
+                            return result.toString();
+                        }
+                    }
+            }
+        }
+        return null;
     }
 
     public String getMessage() {
@@ -764,20 +1011,23 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         if (cursorPos < nameBufferStart.length())
             nameBufferStart.delete(cursorPos, nameBufferStart.length());
-        String[] username = nameBufferStart.toString().split("@");
-        nameBufferStart = new StringBuffer();
-        int count = 1;
-        if (username.length == 0) {
-            nameBufferStart.append(String.format("@%s ", s));
+        if (nameBufferStart.charAt(cursorPos - 1) == '@') {
+            nameBufferStart.append(String.format("%s ", s));
+        } else {
+            String[] username = nameBufferStart.toString().split("@");
+            nameBufferStart = new StringBuffer();
+            int count = 1;
+            if (username.length == 0) {
+                nameBufferStart.append(String.format("@%s ", s));
+            }
+            for (String element : username) {
+                if (count == username.length)
+                    nameBufferStart.append(String.format("%s ", s));
+                else
+                    nameBufferStart.append(String.format("%s@", element));
+                count++;
+            }
         }
-        for (String element : username) {
-            if (count == username.length)
-                nameBufferStart.append(String.format("%s ", s));
-            else
-                nameBufferStart.append(String.format("%s@", element));
-            count++;
-        }
-
         StringBuffer nameBufferEnd = new StringBuffer(binding.writingMessage.getText());
         if (cursorPos < nameBufferStart.length())
             nameBufferEnd.delete(0, cursorPos);
@@ -790,6 +1040,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
             Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
+            removeablePosition = adapter.getPositionById(item);
             switch (view.getId()) {
                 case R.id.sendStatusError:
                     showErrorSendMenu(view, post);
@@ -802,6 +1053,10 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     break;
             }
         }
+    }
+
+    public void notifyItem() {
+        if (removeablePosition != -1) adapter.notifyItemChanged(removeablePosition);
     }
 
     private void dispatchTakePictureIntent() {
@@ -880,9 +1135,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                             .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
                             .show();
                     break;
+                case R.id.copy:
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(PostViewHolder.getMarkdownPost(post.getMessage(), getActivity()));
+                    Toast.makeText(getActivity(), "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
+                    break;
                 case R.id.reply:
                     rootPost = post;
-                    showEditView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
+                    showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
                     break;
             }
             return true;
@@ -891,6 +1151,21 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void showEditView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> {
+            binding.writingMessage.setText(null);
+            closeEditView();
+        });
+        binding.writingMessage.setText(rootPost.getMessage());
+        binding.writingMessage.setSelection(rootPost.getMessage().length());
+    }
+
+    private void showReplayView(String message, String type) {
+        showView(message, type);
+        binding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    private void showView(String message, String type) {
         Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
 
         if (type.equals(REPLY_MESSAGE))
@@ -907,6 +1182,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private String getMessageLink(String postId) {
+        Realm realm = Realm.getDefaultInstance();
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/"
@@ -974,7 +1250,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onEmptyList() {
         hideAttachedFilesLayout();
-        if (binding.writingMessage.getText().length() > 0) {
+        if (binding.writingMessage.getText().toString().trim().length() > 0) {
             binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
         } else {
             binding.btnSend.setTextColor(getResources().getColor(R.color.grey));
@@ -982,11 +1258,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void setButtonAddFileOnClickListener() {
-        binding.buttonAttachFile.setOnClickListener(view -> pickFile());
+        binding.buttonAttachFile.setOnClickListener(view -> showDialog());
     }
 
     @Override
     public void onAllUploaded() {
         binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        setupTypingText("");
+    }
+
+
 }

@@ -54,6 +54,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     String mEditEmail = "";
     @State
     String mEditPassword = "";
+    @State
+    boolean firstLoginBad = false;
 
     private ObservableBoolean isEnabledSignInButton;
     private ObservableField<String> siteName;
@@ -79,19 +81,16 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                 Log.d(TAG, error.getMessage());
                 Toast.makeText(getView(), error.getMessage(), Toast.LENGTH_SHORT).show();
             } catch (IOException e1) {
-                Log.d(TAG, "Message not has body.");
                 e1.printStackTrace();
             }
         } else {
             Toast.makeText(getView(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "SystemException, stackTrace: \n");
             e.printStackTrace();
         }
     }
 
     private boolean canClickSignIn() {
-        return mEditEmail.length() != 0 &&
-                mEditPassword.length() != 0 && isValidEmail(mEditEmail);
+        return mEditEmail.length() != 0 && mEditPassword.length() != 0 && isValidEmail(mEditEmail);
     }
 
     private boolean isValidEmail(String email) {
@@ -100,6 +99,11 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         return m.matches();
     }
 
+    @Override
+    protected void onTakeView(LoginRxActivity loginRxActivity) {
+        super.onTakeView(loginRxActivity);
+        setRedTextForgotPassword(firstLoginBad);
+    }
     //======================== Network ============================================================
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
@@ -192,21 +196,17 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        Log.d(TAG, "OnCreate()");
         mRealm = Realm.getDefaultInstance();
         isEnabledSignInButton = new ObservableBoolean(false);
         siteName = new ObservableField<>(mRealm.where(ClientCfg.class).findFirst().getSiteName());
         isVisibleProgress = new ObservableInt(View.GONE);
 
         initRequestLogin();
-
         initRequestInitLoad();
-
     }
 
     private void initRequestInitLoad() {
         restartableFirst(REQUEST_INITLOAD, () -> {
-
             MattermostApp application = MattermostApp.getSingleton();
             ApiMethod service = application.getMattermostRetrofitService();
             isVisibleProgress.set(View.VISIBLE);
@@ -216,7 +216,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity, initObject) -> {
             List<Team> teams = saveDataAfterLogin(initObject);
             isOpenChatScreen = (teams.size() == 1);
-            Log.d(TAG, "Complete");
             isVisibleProgress.set(View.GONE);
             isEnabledSignInButton.set(true);
             if (isOpenChatScreen) {
@@ -228,7 +227,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
-            sendShowError(getError(throwable));
+//            sendShowError(getError(throwable));
+            sendShowError(parceError(throwable, null));
         });
     }
 
@@ -236,8 +236,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         restartableFirst(REQUEST_LOGIN, () -> {
             MattermostApp application = MattermostApp.getSingleton();
             ApiMethod service = application.getMattermostRetrofitService();
-
-            getView().hideKeyboard(getView());
+            sendHideKeyboard();
             isVisibleProgress.set(View.VISIBLE);
             return service.login(new LoginData(mEditEmail, mEditPassword, "")).cache()
                     .subscribeOn(Schedulers.newThread())
@@ -249,11 +248,24 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
-            sendShowError(getError(throwable));
+            firstLoginBad = true;
+            setRedTextForgotPassword(firstLoginBad);
+//            sendShowError(getError(throwable));
+            sendShowError(parceError(throwable, LOGIN));
         });
     }
+
     private void sendShowError(String error) {
         createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
+
+    private void setRedTextForgotPassword(boolean isRed) {
+        createTemplateObservable(isRed).subscribe(split(LoginRxActivity::setRedColorForgotPasswordText));
+    }
+
+    private void sendHideKeyboard() {
+        createTemplateObservable(new Object())
+                .subscribe(split((loginRxActivity, o) -> loginRxActivity.hideKeyboard()));
     }
 }
 

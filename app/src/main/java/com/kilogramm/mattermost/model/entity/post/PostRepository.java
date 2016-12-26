@@ -5,11 +5,10 @@ import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.user.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -38,6 +37,9 @@ public class PostRepository {
             if (realm.where(Post.class).equalTo("id", item.getId()).findAll().size() != 0) {
                 Post post = realm.where(Post.class).equalTo("id", item.getId()).findFirst();
                 post.deleteFromRealm();
+                RealmResults<Post> comment = realm.where(Post.class)
+                        .equalTo("rootId", item.getId()).findAll();
+                comment.deleteAllFromRealm();
             }
         });
     }
@@ -67,18 +69,57 @@ public class PostRepository {
     }
 
     public static void merge(Collection<Post> posts, Specification specification) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery realmQuery = query(specification).where().notEqualTo("updateAt", Post.NO_UPDATE);
         RealmResults realmResults = query(specification);
-        List<Post> deleteFromRealm = new ArrayList<>();
-        List<Post> postsFromServer = new ArrayList<>();
-        postsFromServer.addAll(posts);
         for (Post post : posts) {
-            if (query(post.getId()) != null) {
-                postsFromServer.remove(post);
+            if (realmResults.where().equalTo("id", post.getId()).findFirst() != null) {
+                prepareAndUpdatePost(post);
+            } else {
+                prepareAndAddPost(post);
             }
+            realmQuery.notEqualTo("id", post.getId());
         }
-        for (Post post : postsFromServer) {
-            prepareAndAddPost(post);
-        }
+        realm.executeTransaction(realm1 -> realmQuery.findAll().deleteAllFromRealm());
+    }
+
+//    public static void merge(Collection<Post> posts, Specification specification) {
+//        RealmResults realmResults = query(specification);
+//        List<Post> deleteFromRealm = new ArrayList<>();
+//        List<Post> postsFromServer = new ArrayList<>();
+//        postsFromServer.addAll(posts);
+//        for (Post post : posts) {
+//            if (query(post.getId()) != null) {
+//                postsFromServer.remove(post);
+//            }
+//        }
+//        for (Post post : postsFromServer) {
+//            prepareAndAddPost(post);
+//        }
+//    }
+
+    public static void merge(Post item) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            Post post = realm.where(Post.class)
+                    .equalTo("id", item.getPendingPostId()).findFirst();
+            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                post.setProps(null);
+            } else {
+                post.setProps(item.getProps());
+            }
+            post.setId(item.getId());
+            post.setCreateAt(item.getCreateAt());
+            post.setUpdateAt(item.getUpdateAt());
+            post.setDeleteAt(item.getDeleteAt());
+            post.setRootId(item.getRootId());
+            post.setParentId(item.getParentId());
+            post.setOriginalId(item.getOriginalId());
+            post.setType(item.getType());
+            post.setHashtags(item.getHashtags());
+            post.setPendingPostId(item.getPendingPostId());
+            post.setFilenames(item.getFilenames());
+        });
     }
 
     public static void prepareAndAddPost(Post post) {
@@ -88,7 +129,7 @@ public class PostRepository {
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
-        if (post.getProps().getFrom_webhook() == null) {
+        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
             /*post.getProps().getAttachments().get(0).setText(
@@ -99,24 +140,47 @@ public class PostRepository {
         add(post);
     }
 
-    public static void prepareAndAdd(Posts posts) {
+    public static void prepareAndUpdatePost(Post post) {
         Realm realm = Realm.getDefaultInstance();
-        for (Post post : posts.getPosts().values()) {
-            if (post.isSystemMessage())
-                post.setUser(new User("System", "System", "System"));
-            else
-                post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
-            post.setViewed(true);
-            //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-            if (post.getProps().getFrom_webhook() == null) {
-                post.setProps(null);
-            } else{}
+        if (!post.isSystemMessage())
+            post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+        else
+            post.setUser(new User("System", "System", "System"));
+        post.setViewed(true);
+
+        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
+            post.setProps(null);
+        } else {
+            /*post.getProps().getAttachments().get(0).setText(
+                    Processor.process(post.getProps().getAttachments().get(0).getText(),
+                            Configuration.builder().forceExtentedProfile().build()));*/
+        }
+        //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+        update(post);
+    }
+
+    public static void prepareAndAdd(Posts posts) {
+            Realm realm = Realm.getDefaultInstance();
+
+            realm.beginTransaction();
+            for (Post post : posts.getPosts().values()) {
+                if (post.isSystemMessage())
+                    post.setUser(new User("System", "System", "System"));
+                else
+                    post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+                post.setViewed(true);
+                //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+                if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
+                    post.setProps(null);
+                } else {
+                }
                 /*post.getProps().getAttachments().get(0).setText(
                         Processor.process(post.getProps().getAttachments().get(0).getText(),
                                 Configuration.builder().forceExtentedProfile().build()));*/
 
-        }
-        add(posts.getPosts().values());
+            }
+            realm.insertOrUpdate(posts.getPosts().values());
+            realm.commitTransaction();
     }
 
     public static void updateUpdateAt(String postId, long update) {
