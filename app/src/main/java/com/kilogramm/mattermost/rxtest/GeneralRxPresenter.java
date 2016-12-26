@@ -37,6 +37,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -162,7 +163,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, channels.toString());
                     requestUserTeam();
 
-//                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
+                    //start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
 //        restartableFirst(REQUEST_LOAD_CHANNELS,
@@ -180,11 +181,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM,
-                () -> service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
+                () -> Observable.just("test"),
                 (generalRxActivity, stringUserMap) -> {
-                    UserRepository.add(stringUserMap.values());
+                    Log.d(TAG, "initRequest: " + stringUserMap);
+                    //UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
                         Channel channel = ChannelRepository.query(
                                 new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();

@@ -96,8 +96,10 @@ public class ManagerBroadcast {
     private WebSocketObj parseWebSocketObject(String json, Context context) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
+        JSONObject broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
+        webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
         Log.d(TAG, jsonObject.toString());
         webSocketObj = new Gson().fromJson(jsonObject.toString(), WebSocketObj.class);
         if (webSocketObj.getSeqReplay() != null) {
@@ -113,6 +115,11 @@ public class ManagerBroadcast {
                 String mentions = null;
                 if (dataJSON.has(WebSocketObj.MENTIONS))
                     mentions = dataJSON.getString(WebSocketObj.MENTIONS);
+                broadcast = new BroadcastBilder()
+                        .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                        .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
+                        .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                        .build();
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
@@ -136,9 +143,9 @@ public class ManagerBroadcast {
                 break;
             case WebSocketObj.EVENT_TYPING:
                 broadcast = new BroadcastBilder()
-                        .setChannelId(WebSocketObj.CHANNEL_ID)
-                        .setTeamId(WebSocketObj.TEAM_ID)
-                        .setUserID(WebSocketObj.USER_ID)
+                        .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                        .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
+                        .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
                         .build();
                 data = new WebSocketObj.BuilderData()
                         .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
@@ -327,10 +334,15 @@ public class ManagerBroadcast {
     }
 
     private static void savePost(Post post) {
-        if (PostRepository.query(post.getPendingPostId()) != null)
+        String pendingPostId = post.getPendingPostId();
+        Log.d(TAG, "savePost() called with: post = [" + pendingPostId + "]");
+        if (PostRepository.query(pendingPostId) != null) {
+            Log.d(TAG, "savePost: merge from ws");
             PostRepository.merge(post);
-        else
+        } else  {
+            Log.d(TAG, "savePost: add new from ws");
             PostRepository.prepareAndAddPost(post);
+        }
     }
 
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {

@@ -250,7 +250,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
-                    PostRepository.merge(post);
+                    if (PostRepository.query(post.getPendingPostId()) != null) {
+                        Log.d(TAG, "initSendToServer: merge from http");
+                        PostRepository.merge(post);
+                    }
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
