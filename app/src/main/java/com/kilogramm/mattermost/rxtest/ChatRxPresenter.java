@@ -5,15 +5,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.common.util.concurrent.AbstractScheduledService;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -33,6 +37,8 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import icepick.State;
 import io.realm.Realm;
@@ -231,18 +237,50 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
-                    sendRefreshing(false);
-                    if (!isEmpty) {
-                        sendShowList();
+                    List<Observable<FileInfo>> observables = new ArrayList<>();
+                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
+                        for (String s : entry.getValue().getFilenames()) {
+                            observables.add(service.getFileInfo(teamId, channelId, s)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(Schedulers.io()));
+                        }
                     }
-                    setGoodLayout();
-                    Log.d(TAG, "Complete load post");
+
+                    /*.subscribe(fileInfo -> {
+                                        FileInfoRepository.getInstance().add(fileInfo);
+                                    }*/
+                    Observable.merge(observables).subscribe(new Subscriber<FileInfo>() {
+                        @Override
+                        public void onCompleted() {
+                            sendFinishLoadPosts();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            sendError("cannot get file");
+                        }
+
+                        @Override
+                        public void onNext(FileInfo fileInfo) {
+                            Log.d(TAG, "onNext: " + fileInfo.getId());
+                            FileInfoRepository.getInstance().add(fileInfo);
+                        }
+                    });
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
 //                    sendShowList();
                     sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
+    }
+
+    private void sendFinishLoadPosts() {
+        sendRefreshing(false);
+        if (!isEmpty) {
+            sendShowList();
+        }
+        setGoodLayout();
+        Log.d(TAG, "Complete load post");
     }
 
     private void initSendToServer() {

@@ -6,6 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -122,7 +123,7 @@ public interface ApiMethod {
                                      @Path("lastMessageId") String lastMessageId,
                                      @Path("limit") String limit);
 
-   //TODO was updated by Mattermost to stats
+    //TODO was updated by Mattermost to stats
 //    @Headers({
 //            "Accept: application/json",
 //            "X-Request-With: XMLHttpRequest",
@@ -143,6 +144,15 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channel_id}/posts/{fileId}/get_file_infos")
+    Observable<FileInfo> getFileInfo(@Path("teamId") String teamId,
+                                     @Path("channel_id") String channel_id,
+                                     @Path("fileId") String fileId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}")
     Observable<Channel> getChannelById(@Path("team_id") String team_id,
                                        @Path("channel_id") String channel_id);
@@ -153,10 +163,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}/members/{user_id}")
     Observable<Member> getChannelMember(@Path("team_id") String team_id,
-                                         @Path("channel_id") String channel_id,
-                                         @Path("user_id") String user_id);
-
-
+                                        @Path("channel_id") String channel_id,
+                                        @Path("user_id") String user_id);
 
 
     @Headers({
@@ -223,8 +231,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/users/{offset}/{limit}")
     Observable<Map<String, User>> getAllUsers(@Path("team_id") String team_id,
-                                                         @Path("offset") int offset,
-                                                         @Path("limit") int limit);
+                                              @Path("offset") int offset,
+                                              @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
@@ -232,7 +240,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/users/{offset}/{limit}")
     Observable<Map<String, User>> getSiteAllUsers(@Path("offset") int offset,
-                                              @Path("limit") int limit);
+                                                  @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
