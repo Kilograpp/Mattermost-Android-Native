@@ -330,9 +330,7 @@ public class FilesView extends GridLayout {
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/teams/"
-                    + MattermostPreference.getInstance().getTeamId()
-                    + "/files/get" + id;
+                    + "/api/v3/files/" + id + "/get" ;
         } else {
             return "";
         }

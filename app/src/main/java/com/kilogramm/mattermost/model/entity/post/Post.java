@@ -63,7 +63,7 @@ public class Post extends RealmObject implements Parcelable {
     @SerializedName("hashtags")
     @Expose
     private String hashtags;
-    @SerializedName("filenames")
+    @SerializedName("file_ids")
     @Expose
     private RealmList<RealmString> filenames = new RealmList<>();
     @SerializedName("pending_post_id")
