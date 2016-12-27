@@ -62,7 +62,6 @@ public class FilesView extends GridLayout {
 
     private static final String TAG = "FilesView";
 
-    // TODO probably deprecated
     private List<FileInfo> fileList = new ArrayList<>();
 
     public FilesView(Context context) {
@@ -90,7 +89,7 @@ public class FilesView extends GridLayout {
         inflate(context, R.layout.file_view_layout, this);
     }
 
-
+// region commented
     /*public void setItems(List<String> items) {
         Log.d(TAG, "items count: " + items.size());
         clearView();
@@ -158,6 +157,7 @@ public class FilesView extends GridLayout {
             clearView();
         }
     }*/
+    //endregion
 
     public void setFileForPost(String postId) {
         clearView();
@@ -168,47 +168,42 @@ public class FilesView extends GridLayout {
             for (FileInfo fileInfo : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.
                         from(getContext()), R.layout.files_item_layout, this, false);
-//                FileDownloadManager.FileDownloadListener fileDownloadListener =
-//                        createDownloadListener(binding);
-//                binding.downloadFileControls.setControlsClickListener(
-//                        createControlsClickListener(fileInfo, fileDownloadListener, binding)
-//                );
-//
-//                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
-//                        + File.separator
-//                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileInfo));
-//
-//
-//                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileInfo);
-//                if (fileToAttach != null &&
-//                        (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
-//                                fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
-//                    binding.downloadFileControls.showProgressControls();
-//                    FileDownloadManager.getInstance().addListener(fileInfo, fileDownloadListener);
-//                } else if (fileToAttach != null &&
-//                        fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
-//                    setupFileClickListeners(binding, fileInfo);
-//                    binding.downloadFileControls.setVisibility(GONE);
-//                    binding.icDownloadedFile.setVisibility(VISIBLE);
-//                } else if (fileToAttach != null && file.exists()) {
-//                    binding.downloadFileControls.setVisibility(GONE);
-//                    binding.icDownloadedFile.setVisibility(VISIBLE);
-//                } else {
-//                    binding.downloadFileControls.hideProgressControls();
-//                }
-//
+                FileDownloadManager.FileDownloadListener fileDownloadListener =
+                        createDownloadListener(binding);
+                binding.downloadFileControls.setControlsClickListener(
+                        createControlsClickListener(fileInfo, fileDownloadListener, binding)
+                );
+
+                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator
+                        + fileInfo.getmName());
+
+                if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
+                        fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                    binding.downloadFileControls.showProgressControls();
+                    FileDownloadManager.getInstance().addListener(fileInfo, fileDownloadListener);
+                } else if (fileInfo.getUploadState() == UploadState.DOWNLOADED) {
+                    setupFileClickListeners(binding, fileInfo);
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else if (file.exists()) {
+                    binding.downloadFileControls.setVisibility(GONE);
+                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                } else {
+                    binding.downloadFileControls.hideProgressControls();
+                }
+
                 if (fileInfo.getmMimeType() != null && fileInfo.getmMimeType().contains("image")) {
                     binding.image.setVisibility(VISIBLE);
                     binding.circleFrame.setVisibility(GONE);
 
-//                    binding.title.setOnClickListener(v -> {
-//                        if (file.exists()) {
-//                            createDialog(fileInfo, binding);
-//                        } else {
-//                            downloadFile(fileInfo, createDownloadListener(binding));
-//                        }
-//                    });
-
+                    binding.title.setOnClickListener(v -> {
+                        if (file.exists()) {
+                            createDialog(fileInfo, binding);
+                        } else {
+                            downloadFile(fileInfo, createDownloadListener(binding));
+                        }
+                    });
 
                     initAndAddItem(binding, fileInfo);
 
@@ -227,10 +222,10 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName) {
+    private void setupFileClickListeners(FilesItemLayoutBinding binding, FileInfo fileInfo) {
         OnClickListener fileClickListener = v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
-                    + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                    + File.separator + fileInfo.getmName());
             if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
                     .getApplicationContext().getPackageManager(), 0) != null) {
                 getContext().startActivity(intent);
@@ -246,18 +241,6 @@ public class FilesView extends GridLayout {
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, FileInfo fileInfo) {
-//        String url = getImageUrl(fileInfo);
-//        Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
-//        Matcher matcher = pattern.matcher(url);
-//        String title = "";
-//        if (matcher.find()) {
-//            title = matcher.group(1);
-//        }
-//        try {
-//            binding.title.setText(URLDecoder.decode(title, "utf-8"));
-//        } catch (UnsupportedEncodingException e) {
-//            binding.title.setText(title);
-//        }
         binding.title.setText(fileInfo.getmName());
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
@@ -273,34 +256,15 @@ public class FilesView extends GridLayout {
                 .considerExifParams(true)
                 .build();
 
-
-        String thumb_url = "https://mattermost.kilograpp.com/api/v3/files/"
+        String thumb_url = "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/files/"
                 + fileInfo.getId()
                 + "/get_thumbnail";
         ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
         binding.fileSize.setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
 
         this.addView(binding.getRoot());
-
-       /* RealmString realmString = RealmStringRepository.getInstance().get(fileInfo);
-        if (realmString != null) {
-            if (realmString.getFileSize() <= 0) {
-                new Thread(() -> {
-                    long fileSize = getRemoteFileSize(url);
-                    if (fileSize > 0) {
-                        binding.fileSize.post(() -> {
-                            binding.materialProgressBar.setVisibility(GONE);
-                            binding.fileSize.setText(FileUtil.getInstance()
-                                    .convertFileSize(fileSize));
-                            RealmStringRepository.getInstance().updateFileSize(fileInfo, fileSize);
-                        });
-                    }
-                }).start();
-            } else {
-                binding.materialProgressBar.setVisibility(GONE);
-                binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
-            }
-        }*/
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
@@ -310,7 +274,10 @@ public class FilesView extends GridLayout {
                 binding.downloadFileControls.post(() -> {
                     binding.downloadFileControls.setVisibility(GONE);
                     binding.icDownloadedFile.setVisibility(VISIBLE);
-                    setupFileClickListeners(binding, fileId);
+                    FileInfo fileInfo = FileInfoRepository.getInstance().get(fileId);
+                    if (fileInfo != null && fileInfo.isValid()) {
+                        setupFileClickListeners(binding, fileInfo);
+                    }
                 });
             }
 
@@ -330,7 +297,7 @@ public class FilesView extends GridLayout {
         };
     }
 
-    private DownloadFileControls.ControlsClickListener createControlsClickListener(String fileName,
+    private DownloadFileControls.ControlsClickListener createControlsClickListener(FileInfo fileInfo,
                                                                                    FileDownloadManager.FileDownloadListener fileDownloadListener,
                                                                                    FilesItemLayoutBinding binding) {
         return new DownloadFileControls.ControlsClickListener() {
@@ -338,32 +305,32 @@ public class FilesView extends GridLayout {
             public void onClickDownload() {
                 File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                         + File.separator
-                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                        + fileInfo.getmName());
                 if (file.exists()) {
-                    binding.downloadFileControls.post(() -> createDialog(fileName, binding));
+//                    binding.downloadFileControls.post(() -> createDialog(fileName, binding));
                 } else {
-                    downloadFile(fileName, fileDownloadListener);
+                    downloadFile(fileInfo, fileDownloadListener);
                 }
-                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
-                if (fileToAttach != null) {
-                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
-                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-                        binding.downloadFileControls.showProgressControls();
-                    }
-                }
+//                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
+//                if (fileToAttach != null) {
+//                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+//                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+//                        binding.downloadFileControls.showProgressControls();
+//                    }
+//                }
             }
 
             @Override
             public void onClickCancel() {
-                FileToAttachRepository.getInstance().remove(fileName);
-                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
+//                FileToAttachRepository.getInstance().remove(fileName);
+//                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
             }
         };
     }
 
-    private void createDialog(String fileName, FilesItemLayoutBinding binding) {
+    private void createDialog(FileInfo fileInfo, FilesItemLayoutBinding binding) {
 
-        FileDownloadManager.FileDownloadListener fileDownloadListener = createDownloadListener(binding);
+       /* FileDownloadManager.FileDownloadListener fileDownloadListener = createDownloadListener(binding);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(getContext().getString(R.string.file_exists));
@@ -372,7 +339,7 @@ public class FilesView extends GridLayout {
             dialog.dismiss();
         });
         builder.setPositiveButton(R.string.replace, (dialog, which) ->
-                downloadFile(fileName, fileDownloadListener));
+                downloadFile(fileInfo, fileDownloadListener));
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
             Intent intent = null;
             intent = FileUtil.getInstance().
@@ -390,17 +357,7 @@ public class FilesView extends GridLayout {
             }
             binding.downloadFileControls.hideProgressControls();
         });
-        builder.show();
-    }
-
-    private String getImageUrl(String id) {
-        if (id != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/files/" + id + "/get";
-        } else {
-            return "";
-        }
+        builder.show();*/
     }
 
     private long getRemoteFileSize(String fileUrl) {
@@ -426,8 +383,8 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void downloadFile(String fileName, FileDownloadManager.FileDownloadListener fileDownloadListener) {
-        FileDownloadManager.getInstance().addItem(fileName, fileDownloadListener);
+    private void downloadFile(FileInfo fileInfo, FileDownloadManager.FileDownloadListener fileDownloadListener) {
+        FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
     }
 
     private void clearView() {

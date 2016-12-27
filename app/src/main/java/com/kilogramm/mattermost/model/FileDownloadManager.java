@@ -12,6 +12,8 @@ import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -46,9 +48,9 @@ public class FileDownloadManager {
                 getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
-    public void addItem(String fileId, FileDownloadListener fileDownloadListener) {
-        fileDownloadListeners.put(fileId, fileDownloadListener);
-        FileToAttachRepository.getInstance().addForDownload(fileId);
+    public void addItem(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
+        fileDownloadListeners.put(fileInfo.getId(), fileDownloadListener);
+        FileInfoRepository.getInstance().addForDownload(fileInfo);
         startDownload();
     }
 
@@ -57,18 +59,18 @@ public class FileDownloadManager {
         startDownload();
     }
 
-    public void startDownload() {
-        if (!FileToAttachRepository.getInstance().haveDownloadingFile()) {
-            FileToAttach fileToAttach = FileToAttachRepository.getInstance().getUndownloadedFile();
-            if (fileToAttach != null && fileToAttach.isValid()) {
-                FileToAttachRepository.getInstance().updateUploadStatus(fileToAttach.getFileName(), UploadState.DOWNLOADING);
-                downloadFile(fileToAttach.getFileName());
+    private void startDownload() {
+        if (!FileInfoRepository.getInstance().haveDownloadingFile()) {
+            FileInfo fileInfo = FileInfoRepository.getInstance().getUndownloadedFile();
+            if (fileInfo != null && fileInfo.isValid()) {
+                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADING);
+                downloadFile(fileInfo);
             }
         }
     }
 
-    private void downloadFile(String fileId) {
-        this.fileId = fileId;
+    private void downloadFile(FileInfo fileInfo) {
+        this.fileId = fileInfo.getId();
 
         final ConnectivityManager connectivityManager =
                 (ConnectivityManager) MattermostApp.getSingleton()
@@ -84,17 +86,15 @@ public class FileDownloadManager {
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://"
                 + MattermostPreference.getInstance().getBaseUrl()
-                + "/"
-                + "api/v3/teams/"
-                + MattermostPreference.getInstance().getTeamId()
-                + "/files/get"
-                + fileId));
+                + "/api/v3/files/"
+                + fileId
+                + "/get"));
 
         request.setDescription(MattermostApp.getSingleton().getApplicationContext().getString(R.string.downloading));
-        request.setTitle(FileUtil.getInstance().getFileNameFromIdDecoded(fileId));
+        request.setTitle(fileInfo.getmName());
         request.addRequestHeader("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + FileUtil.getInstance().getFileNameFromIdDecoded(fileId))));
+        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
 
         downloadId = manager.enqueue(request);
 
@@ -115,7 +115,7 @@ public class FileDownloadManager {
                     bytes_downloaded = cursor.getInt(cursor
                             .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                     bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                } catch (CursorIndexOutOfBoundsException e){
+                } catch (CursorIndexOutOfBoundsException e) {
                     e.printStackTrace();
                     cursor.close();
                     break;
@@ -123,14 +123,16 @@ public class FileDownloadManager {
 
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
+                    cursor.close();
                     onDownloadFail(fileId);
                     break;
                 } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
                     downloading = false;
-                    if (fileDownloadListeners.get(fileId) != null) {
+                    if (fileDownloadListeners.containsKey(fileId)) {
                         fileDownloadListeners.get(fileId).onComplete(fileId);
                     }
-                    FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
+                    FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
+                    cursor.close();
                     startDownload();
                 }
 
@@ -151,20 +153,20 @@ public class FileDownloadManager {
         }).start();
     }
 
-    public synchronized void stopDownloadCurrentFile(String fileId) {
-        if(this.fileId != null && fileId != null && this.fileId.equals(fileId)) {
+    public synchronized void stopDownloadCurrentFile(FileInfo fileInfo) {
+        if (this.fileId != null && fileInfo != null && this.fileId.equals(fileInfo.getId())) {
             manager.remove(downloadId);
             FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
-                    + File.separator + FileUtil.getInstance().getFileNameFromId(fileId));
+                    + File.separator + fileInfo.getmName());
         }
     }
 
-    public void addListener(String fileId, FileDownloadListener fileDownloadListener){
-        fileDownloadListeners.put(fileId, fileDownloadListener);
+    public void addListener(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
+        fileDownloadListeners.put(fileInfo.getId(), fileDownloadListener);
     }
 
-    private void onDownloadFail(String fileId){
-        FileToAttachRepository.getInstance().remove(fileId);
+    private void onDownloadFail(String fileId) {
+        FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.FAILED);
         if (fileDownloadListeners.get(fileId) != null) {
             fileDownloadListeners.get(fileId).onError(fileId);
         }

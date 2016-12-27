@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.UploadState;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -27,6 +28,7 @@ public class FileInfo extends RealmObject implements Parcelable {
     @SerializedName("width") @Expose int mWidth;
     @SerializedName("height") @Expose int mHeight;
     @SerializedName("has_preview_image") @Expose boolean hasPreviewImage;
+    private String uploadState;
 
     public String getId() {
         return id;
@@ -42,6 +44,14 @@ public class FileInfo extends RealmObject implements Parcelable {
 
     public long getmSize() {
         return mSize;
+    }
+
+    public UploadState getUploadState() {
+        return (uploadState != null) ? UploadState.valueOf(uploadState) : null;
+    }
+
+    public void setUploadState(UploadState uploadState) {
+        this.uploadState = uploadState.toString();
     }
 
     @Override

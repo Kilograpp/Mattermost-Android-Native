@@ -162,8 +162,8 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     }
 
     private void downloadFile(String fileName) {
-        findViewById(R.id.action_download).setVisibility(View.GONE);
-        FileDownloadManager.getInstance().addItem(fileName, this);
+//        findViewById(R.id.action_download).setVisibility(View.GONE);
+//        FileDownloadManager.getInstance().addItem(fileName, this);
     }
 
     @Override

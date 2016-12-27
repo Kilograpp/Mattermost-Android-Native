@@ -33,6 +33,26 @@ public class FileInfoRepository {
 
     // region Update methods
 
+    public void addForDownload(FileInfo fileInfo) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+                fileInfo.setUploadState(UploadState.WAITING_FOR_DOWNLOAD);
+                realm1.copyToRealmOrUpdate(fileInfo);
+
+        });
+    }
+
+    public void updateUploadStatus(String fileId, UploadState status) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            FileInfo fileInfo = realm1.where(FileInfo.class)
+                    .equalTo("id", fileId)
+                    .findFirst();
+            if (fileInfo != null) {
+                fileInfo.setUploadState(status);
+            }
+        });
+    }
 
     // endregion
 
@@ -57,9 +77,24 @@ public class FileInfoRepository {
                 .findFirst();
     }
 
+    public FileInfo getUndownloadedFile() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileInfo.class)
+                .equalTo("uploadState", UploadState.WAITING_FOR_DOWNLOAD.name())
+                .findFirst();
+    }
+
     // endregion
 
     // region Check methods
+
+    public boolean haveDownloadingFile() {
+        Realm realm = Realm.getDefaultInstance();
+        FileInfo fileInfo = realm.where(FileInfo.class)
+                .equalTo("uploadState", UploadState.DOWNLOADING.name())
+                .findFirst();
+        return fileInfo != null && fileInfo.isValid();
+    }
 
     // endregion
 
@@ -73,7 +108,7 @@ public class FileInfoRepository {
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-//        realm.close();
+        realm.close();
     }
 
     // endregion
