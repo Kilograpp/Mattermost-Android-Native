@@ -23,7 +23,7 @@ import rx.schedulers.Schedulers;
  */
 
 public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
-    private static final int REQUEST_DB_GETUSERS = 1;
+    private static final int REQUEST_DB_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
 
     @State
@@ -45,7 +45,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     public void initPresenter(String id) {
         this.mId = id;
-        start(REQUEST_DB_GETUSERS);
+        start(REQUEST_DB_GET_USERS);
     }
 
     public void addMember(String id) {
@@ -81,15 +81,14 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     }
 
     private void initGetUsers() {
-        restartableFirst(REQUEST_DB_GETUSERS,
+        restartableFirst(REQUEST_DB_GET_USERS,
                 () -> ExtroInfoRepository.query(
                         new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
                 (addMembersActivity, o) -> {
                     this.mExtraInfo = o.first();
-                    addMembersActivity.updateDataList(
-                            UserRepository
-                                    .query(new UserRepository.UserByNotIdsSpecification(
-                                            mExtraInfo.getMembers(), null)));
+                    addMembersActivity.updateDataList(UserRepository.query(
+                            new UserRepository.UserByNotIdsSpecification(
+                                    mExtraInfo.getMembers(), null)));
                 });
     }
 
@@ -99,9 +98,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         mId, new Members(mUser_id))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (addMembersActivity, user) -> {
-                    updateMembers(user.getUser_id());
-                }
+                (addMembersActivity, user) -> updateMembers(user.getUser_id())
                 , (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
                     errorUpdateMembers(throwable.getMessage());
@@ -120,8 +117,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void errorUpdateMembers(String s) {
         createTemplateObservable(new Object())
-                .subscribe(split((addMembersActivity, openChatObject)
-                        -> addMembersActivity.requestMember(s)));
+                .subscribe(split((addMembersActivity, openChatObject) ->
+                        addMembersActivity.requestMember(s)));
     }
-
 }

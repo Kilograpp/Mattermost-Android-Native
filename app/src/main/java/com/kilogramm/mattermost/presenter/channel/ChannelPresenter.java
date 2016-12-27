@@ -114,9 +114,9 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, extraInfo) -> {
-                    RealmList<User> results = new RealmList<>();
-                    results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
-                    extraInfo.setMembers(results);
+//                    RealmList<User> results = new RealmList<>();
+//                    results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
+//                    extraInfo.setMembers(results);
                     ExtroInfoRepository.add(extraInfo);
                     start(REQUEST_CHANNEL);
                 }, (channelActivity, throwable) -> {

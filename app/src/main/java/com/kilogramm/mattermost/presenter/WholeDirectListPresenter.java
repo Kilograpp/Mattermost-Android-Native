@@ -91,7 +91,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, stringUserMap) -> {
-                    Map<String, User> test = stringUserMap;
                     thisTeamDirects.addAll(stringUserMap.values());
                     if (stringUserMap.keySet().size() == 100) {
                         this.mOffset += 1;
@@ -109,10 +108,9 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     private void sendChanges(boolean aBoolean) {
         Iterable<Observable<LogoutData>> list = new ArrayList<>();
         for (Preferences preferences : preferenceList) {
-            if (PreferenceRepository
-                    .query(new PreferenceRepository
-                            .PreferenceByNameSpecification(preferences.getName()))
-                    .size() > 0)
+            if (PreferenceRepository.query(
+                    new PreferenceRepository
+                            .PreferenceByNameSpecification(preferences.getName())).size() > 0)
                 ((ArrayList) list).add(addParticipantRx(preferences.getName()));
         }
 
