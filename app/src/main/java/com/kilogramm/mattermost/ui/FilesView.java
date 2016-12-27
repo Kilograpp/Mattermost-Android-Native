@@ -307,30 +307,26 @@ public class FilesView extends GridLayout {
                         + File.separator
                         + fileInfo.getmName());
                 if (file.exists()) {
-//                    binding.downloadFileControls.post(() -> createDialog(fileName, binding));
+                    binding.downloadFileControls.post(() -> createDialog(fileInfo, binding));
                 } else {
                     downloadFile(fileInfo, fileDownloadListener);
                 }
-//                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileName);
-//                if (fileToAttach != null) {
-//                    if (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
-//                            fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-//                        binding.downloadFileControls.showProgressControls();
-//                    }
-//                }
+                if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
+                        fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
+                    binding.downloadFileControls.showProgressControls();
+                }
             }
 
             @Override
             public void onClickCancel() {
-//                FileToAttachRepository.getInstance().remove(fileName);
-//                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileName);
+                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), null);
+                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileInfo);
             }
         };
     }
 
     private void createDialog(FileInfo fileInfo, FilesItemLayoutBinding binding) {
-
-       /* FileDownloadManager.FileDownloadListener fileDownloadListener = createDownloadListener(binding);
+        FileDownloadManager.FileDownloadListener fileDownloadListener = createDownloadListener(binding);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(getContext().getString(R.string.file_exists));
@@ -346,7 +342,7 @@ public class FilesView extends GridLayout {
                     createOpenFileIntent(
                             FileUtil.getInstance().getDownloadedFilesDir()
                                     + File.separator
-                                    + FileUtil.getInstance().getFileNameFromIdDecoded(fileName));
+                                    + fileInfo.getmName());
             if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
                     .getApplicationContext().getPackageManager(), 0) != null) {
                 getContext().startActivity(intent);
@@ -357,30 +353,7 @@ public class FilesView extends GridLayout {
             }
             binding.downloadFileControls.hideProgressControls();
         });
-        builder.show();*/
-    }
-
-    private long getRemoteFileSize(String fileUrl) {
-        try {
-            URL url = new URL(fileUrl);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.addRequestProperty("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
-            String contentLength = urlConnection.getHeaderField("Content-Length");
-            final long file_size;
-            if (contentLength != null) {
-                file_size = Long.parseLong(contentLength);
-            } else {
-                file_size = 0;
-            }
-            urlConnection.disconnect();
-            return file_size;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return 0L;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return 0L;
-        }
+        builder.show();
     }
 
     private void downloadFile(FileInfo fileInfo, FileDownloadManager.FileDownloadListener fileDownloadListener) {
