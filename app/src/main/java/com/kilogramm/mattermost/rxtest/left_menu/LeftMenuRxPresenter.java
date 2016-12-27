@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 
 import io.realm.RealmList;
@@ -58,7 +59,8 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private void initChannelUpdateRequest() {
         restartableFirst(REQUEST_UPDATE,
-                () -> mService.getChannelsTeam(this.mTeamId)
+                () -> ServerMethod.getInstance()
+                        .getChannelsTeam(mTeamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (leftMenuRxFragment, channelsWithMembers) -> {

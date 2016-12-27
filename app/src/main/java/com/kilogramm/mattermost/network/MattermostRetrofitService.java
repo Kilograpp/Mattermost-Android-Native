@@ -70,7 +70,6 @@ public class MattermostRetrofitService {
         return create();
     }
 
-
     public static Interceptor getAuthInterceptor() {
         return chain -> {
             Request original = chain.request();

@@ -284,7 +284,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @POST("api/v3/teams/{team_id}/channels/create_direct")
     Observable<Channel> createDirect(@Path("team_id") String teamId,
-                                     @Body LogoutData user);
+                                     @Body User user);
 
     @Headers({
             "Accept: application/json",
