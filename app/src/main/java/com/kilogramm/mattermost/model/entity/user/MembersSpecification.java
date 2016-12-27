@@ -20,7 +20,6 @@ public class MembersSpecification implements RealmSpecification {
 
     @Override
     public RealmResults<User> toRealmResults(Realm realm) {
-        
         return null;
     }
 }

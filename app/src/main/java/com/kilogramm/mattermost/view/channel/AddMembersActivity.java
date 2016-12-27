@@ -101,8 +101,7 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
 
 
     private void initiationData() {
-        addMembersAdapter = new AddMembersAdapter(this,
-                id -> {
+        addMembersAdapter = new AddMembersAdapter(this,id -> {
                     getPresenter().addMember(id);
                     binding.recView.setVisibility(View.INVISIBLE);
                     binding.progressBar.setVisibility(View.VISIBLE);

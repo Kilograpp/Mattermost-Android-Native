@@ -11,6 +11,7 @@ import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.Users;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
@@ -84,6 +85,16 @@ public interface ApiMethod {
     Observable<List<Member>> getMembersTeamNew(@Path("teamId") String teamId);
 
 
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{team_id}/channels/{channel_id}/users/not_in_channel/{offset}/{limit}")
+    Observable<Users> getUsersNotInChannel(@Path("teamId") String teamId,
+                                           @Path("channel_id") String channelId,
+                                           @Path("offset") int offset,
+                                           @Path("limit") int limit);
 
 
     @Headers({
