@@ -16,6 +16,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityPhotoViewerBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 public class ViewPagerWGesturesActivity extends BaseActivity implements FileDownloadManager.FileDownloadListener {
 
-    public static final String IMAGE_URL = "image_url";
+    public static final String OPENED_FILE = "OPENED_FILE";
     public static final String TITLE = "title";
     public static final String PHOTO_LIST = "photo_list";
     private static final String TAG = "ViewPagerWGesturesAct";
@@ -38,16 +39,15 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
 
-    private ArrayList<String> photosList;
-    private String clickedImageUri;
+    private ArrayList<FileInfo> photosList;
+    private FileInfo mOpenedFile;
 
     Toast errorToast;
 
-    public static void start(Context context, String title, String imageUrl, ArrayList<String> photoList) {
+    public static void start(Context context, String title, FileInfo openedFile, ArrayList<FileInfo> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
-        starter
-                .putExtra(TITLE, title)
-                .putExtra(IMAGE_URL, imageUrl)
+        starter.putExtra(TITLE, title)
+                .putExtra(OPENED_FILE, openedFile)
                 .putExtra(PHOTO_LIST, photoList);
         context.startActivity(starter);
     }
@@ -58,19 +58,25 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
 
-        photosList = getIntent().getStringArrayListExtra(PHOTO_LIST);
-        clickedImageUri = getIntent().getStringExtra(IMAGE_URL);
-
-        String toolbarTitle = (photosList.indexOf(clickedImageUri) + 1)
-                + " из " + photosList.size();
-
+        photosList = getIntent().getParcelableArrayListExtra(PHOTO_LIST);
+        mOpenedFile = getIntent().getParcelableExtra(OPENED_FILE);
+        String toolbarTitle = "";
+        if(mOpenedFile != null){
+            int index = 0;
+            for (FileInfo fileInfo : photosList) {
+                ++index;
+                if(fileInfo.getId().equals(mOpenedFile.getId())){
+                    toolbarTitle = index + " из " + photosList.size();
+                }
+            }
+        }
         setupToolbar(toolbarTitle, true);
         setColorScheme(R.color.black, R.color.black);
 
         adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
         binding.viewPager.setAdapter(adapter);
-        binding.viewPager.setCurrentItem(photosList.indexOf(clickedImageUri));
+        binding.viewPager.setCurrentItem(photosList.indexOf(mOpenedFile));
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -80,7 +86,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
             public void onPageSelected(int position) {
                 String toolbarTitle = (position + 1) + " из " + photosList.size();
                 setupToolbar(toolbarTitle, true);
-                setupDownloadIcon(photosList.get(position));
+//                setupDownloadIcon(photosList.get(position));
             }
 
             @Override
@@ -89,7 +95,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         });
 
         setupDownloadIcon(null);
-        findViewById(R.id.action_download).setOnClickListener(v -> {
+        /*findViewById(R.id.action_download).setOnClickListener(v -> {
             String fileId = photosList.get(binding.viewPager.getCurrentItem());
             File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator
@@ -99,35 +105,26 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
             } else {
                 downloadFile(fileId);
             }
-        });
+        });*/
     }
 
     private void setupDownloadIcon(String fileName) {
-        String workingFileUri = fileName != null ? fileName : clickedImageUri;
-        FileToAttach fileToAttach = FileToAttachRepository.getInstance().
-                get(workingFileUri);
-        File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
-                + File.separator
-                + FileUtil.getInstance().getFileNameFromIdDecoded(workingFileUri));
-
-        if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD){
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-        } else if(fileToAttach != null && file.exists()){
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-        } else {
-            FileToAttachRepository.getInstance().updateUploadStatus(workingFileUri,
-                    UploadState.WAITING_FOR_DOWNLOAD);
-            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
-        }
-/*
-        if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD
-                || fileToAttach != null && file.exists()) {
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-        } else {
-            FileToAttachRepository.getInstance().updateUploadStatus(workingFileUri,
-                    UploadState.WAITING_FOR_DOWNLOAD);
-            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
-        }*/
+//        String workingFileUri = fileName != null ? fileName : clickedImageUri;
+//        FileToAttach fileToAttach = FileToAttachRepository.getInstance().
+//                get(workingFileUri);
+//        File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+//                + File.separator
+//                + FileUtil.getInstance().getFileNameFromIdDecoded(workingFileUri));
+//
+//        if(fileToAttach != null && fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD){
+//            findViewById(R.id.action_download).setVisibility(View.GONE);
+//        } else if(fileToAttach != null && file.exists()){
+//            findViewById(R.id.action_download).setVisibility(View.GONE);
+//        } else {
+//            FileToAttachRepository.getInstance().updateUploadStatus(workingFileUri,
+//                    UploadState.WAITING_FOR_DOWNLOAD);
+//            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+//        }
     }
 
     @Override
@@ -166,7 +163,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
     private void downloadFile(String fileName) {
         findViewById(R.id.action_download).setVisibility(View.GONE);
-//        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
         FileDownloadManager.getInstance().addItem(fileName, this);
     }
 
@@ -182,7 +178,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public void onError(String fileId) {
         binding.viewPager.post(() -> {
             findViewById(R.id.action_download).setVisibility(View.VISIBLE);
-            if(errorToast != null) errorToast.cancel();
+            if (errorToast != null) errorToast.cancel();
             errorToast = Toast.makeText(this,
                     this.getString(R.string.error_during_file_download),
                     Toast.LENGTH_SHORT);
@@ -191,9 +187,8 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     }
 
     public void setTransparent(float v) {
-        Log.d(TAG, "setTransparent() called with: v = [" + Math.abs(1 - v/100) + "]");
         getWindow().getDecorView().setAlpha(1);
-        binding.getRoot().setAlpha(Math.abs(1 - v/100));
+        binding.getRoot().setAlpha(Math.abs(1 - v / 100));
         //binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         //binding.getRoot().set.setAlpha(v);
     }

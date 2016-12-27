@@ -20,6 +20,8 @@ import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
@@ -60,8 +62,8 @@ public class FilesView extends GridLayout {
 
     private static final String TAG = "FilesView";
 
-
-    private List<String> fileList = new ArrayList<>();
+    // TODO probably deprecated
+    private List<FileInfo> fileList = new ArrayList<>();
 
     public FilesView(Context context) {
         super(context);
@@ -89,7 +91,7 @@ public class FilesView extends GridLayout {
     }
 
 
-    public void setItems(List<String> items) {
+    /*public void setItems(List<String> items) {
         Log.d(TAG, "items count: " + items.size());
         clearView();
         if (items != null && items.size() != 0) {
@@ -155,6 +157,74 @@ public class FilesView extends GridLayout {
         } else {
             clearView();
         }
+    }*/
+
+    public void setFileForPost(String postId) {
+        clearView();
+        List<FileInfo> items = FileInfoRepository.getInstance().queryForPostId(postId);
+        if (items != null && items.size() != 0) {
+            fileList.clear();
+            fileList.addAll(items);
+            for (FileInfo fileInfo : items) {
+                FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.
+                        from(getContext()), R.layout.files_item_layout, this, false);
+//                FileDownloadManager.FileDownloadListener fileDownloadListener =
+//                        createDownloadListener(binding);
+//                binding.downloadFileControls.setControlsClickListener(
+//                        createControlsClickListener(fileInfo, fileDownloadListener, binding)
+//                );
+//
+//                File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
+//                        + File.separator
+//                        + FileUtil.getInstance().getFileNameFromIdDecoded(fileInfo));
+//
+//
+//                FileToAttach fileToAttach = FileToAttachRepository.getInstance().get(fileInfo);
+//                if (fileToAttach != null &&
+//                        (fileToAttach.getUploadState() == UploadState.DOWNLOADING ||
+//                                fileToAttach.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD)) {
+//                    binding.downloadFileControls.showProgressControls();
+//                    FileDownloadManager.getInstance().addListener(fileInfo, fileDownloadListener);
+//                } else if (fileToAttach != null &&
+//                        fileToAttach.getUploadState() == UploadState.DOWNLOADED) {
+//                    setupFileClickListeners(binding, fileInfo);
+//                    binding.downloadFileControls.setVisibility(GONE);
+//                    binding.icDownloadedFile.setVisibility(VISIBLE);
+//                } else if (fileToAttach != null && file.exists()) {
+//                    binding.downloadFileControls.setVisibility(GONE);
+//                    binding.icDownloadedFile.setVisibility(VISIBLE);
+//                } else {
+//                    binding.downloadFileControls.hideProgressControls();
+//                }
+//
+                if (fileInfo.getmMimeType() != null && fileInfo.getmMimeType().contains("image")) {
+                    binding.image.setVisibility(VISIBLE);
+                    binding.circleFrame.setVisibility(GONE);
+
+//                    binding.title.setOnClickListener(v -> {
+//                        if (file.exists()) {
+//                            createDialog(fileInfo, binding);
+//                        } else {
+//                            downloadFile(fileInfo, createDownloadListener(binding));
+//                        }
+//                    });
+
+
+                    initAndAddItem(binding, fileInfo);
+
+                    binding.image.setOnClickListener(view ->
+                            ViewPagerWGesturesActivity.start(getContext(),
+                                    binding.title.getText().toString(),
+                                    fileInfo,
+                                    (ArrayList<FileInfo>) fileList)
+                    );
+                } else {
+                    initAndAddItem(binding, fileInfo);
+                }
+            }
+        } else {
+            clearView();
+        }
     }
 
     private void setupFileClickListeners(FilesItemLayoutBinding binding, String fileName) {
@@ -175,27 +245,20 @@ public class FilesView extends GridLayout {
         binding.title.setOnClickListener(fileClickListener);
     }
 
-    private void initAndAddItem(FilesItemLayoutBinding binding, String fileName) {
-        String url = getImageUrl(fileName);
-        Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
-        Matcher matcher = pattern.matcher(url);
-        String title = "";
-        if (matcher.find()) {
-            title = matcher.group(1);
-        }
-        try {
-            binding.title.setText(URLDecoder.decode(title, "utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            binding.title.setText(title);
-        }
-        String extension = FileUtil.getInstance().getFileExtensionFromUrl(url, true);
-        final String url_thumb;
-        if(extension.equals(".jpg") || extension.equals(".JPG")) {
-            url_thumb = url.replace(extension, "_thumb" + extension);
-        } else {
-            url_thumb = url;
-        }
-
+    private void initAndAddItem(FilesItemLayoutBinding binding, FileInfo fileInfo) {
+//        String url = getImageUrl(fileInfo);
+//        Pattern pattern = Pattern.compile(".*?([^\\/]*$)");
+//        Matcher matcher = pattern.matcher(url);
+//        String title = "";
+//        if (matcher.find()) {
+//            title = matcher.group(1);
+//        }
+//        try {
+//            binding.title.setText(URLDecoder.decode(title, "utf-8"));
+//        } catch (UnsupportedEncodingException e) {
+//            binding.title.setText(title);
+//        }
+        binding.title.setText(fileInfo.getmName());
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -211,11 +274,15 @@ public class FilesView extends GridLayout {
                 .build();
 
 
-        ImageLoader.getInstance().displayImage(url_thumb, binding.image, options);
+        String thumb_url = "https://mattermost.kilograpp.com/api/v3/files/"
+                + fileInfo.getId()
+                + "/get_thumbnail";
+        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
+        binding.fileSize.setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
 
         this.addView(binding.getRoot());
 
-        RealmString realmString = RealmStringRepository.getInstance().get(fileName);
+       /* RealmString realmString = RealmStringRepository.getInstance().get(fileInfo);
         if (realmString != null) {
             if (realmString.getFileSize() <= 0) {
                 new Thread(() -> {
@@ -225,7 +292,7 @@ public class FilesView extends GridLayout {
                             binding.materialProgressBar.setVisibility(GONE);
                             binding.fileSize.setText(FileUtil.getInstance()
                                     .convertFileSize(fileSize));
-                            RealmStringRepository.getInstance().updateFileSize(fileName, fileSize);
+                            RealmStringRepository.getInstance().updateFileSize(fileInfo, fileSize);
                         });
                     }
                 }).start();
@@ -233,7 +300,7 @@ public class FilesView extends GridLayout {
                 binding.materialProgressBar.setVisibility(GONE);
                 binding.fileSize.setText(FileUtil.getInstance().convertFileSize(realmString.getFileSize()));
             }
-        }
+        }*/
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {
@@ -330,7 +397,7 @@ public class FilesView extends GridLayout {
         if (id != null) {
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/files/" + id + "/get" ;
+                    + "/api/v3/files/" + id + "/get";
         } else {
             return "";
         }

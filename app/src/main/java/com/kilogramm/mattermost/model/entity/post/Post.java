@@ -329,6 +329,10 @@ public class Post extends RealmObject implements Parcelable {
         }
     }
 
+    public RealmList<FileInfo> getmFileInfos() {
+        return mFileInfos;
+    }
+
     @Override
     public int describeContents() {
         return 0;

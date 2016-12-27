@@ -114,7 +114,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     @BindingAdapter("bind:items")
     public static void setItems(FilesView v, Post post){
         if(post!=null) {
-            v.setItems(post.getFilenames());
+//            v.setItems(post.getFilenames());
+            v.setFileForPost(post.getId());
         }
     }
 

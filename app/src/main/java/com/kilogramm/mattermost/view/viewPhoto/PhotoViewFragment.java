@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -31,13 +32,13 @@ public class PhotoViewFragment extends Fragment {
     public static final String IMAGE_URI = "image_uri";
 
     private FragmentPhotoViewBinding photoBinding;
-    private String imageUri;
+    private FileInfo mFileInfo;
 
-    static PhotoViewFragment newInstance(String imageUri) {
+    static PhotoViewFragment newInstance(FileInfo fileInfo) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
 
         Bundle arguments = new Bundle();
-        arguments.putString(IMAGE_URI, imageUri);
+        arguments.putParcelable(IMAGE_URI, fileInfo);
         photoViewFragment.setArguments(arguments);
 
         return photoViewFragment;
@@ -47,7 +48,7 @@ public class PhotoViewFragment extends Fragment {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         if (getArguments() != null) {
-            this.imageUri = getArguments().getString(IMAGE_URI);
+            this.mFileInfo = getArguments().getParcelable(IMAGE_URI);
         }
     }
 
@@ -73,7 +74,10 @@ public class PhotoViewFragment extends Fragment {
                 .considerExifParams(true)
                 .build();
 
-        ImageLoader.getInstance().loadImage(FileUtil.getInstance().getImageUrl(imageUri), options, new ImageLoadingListener() {
+        String preview_url = "https://mattermost.kilograpp.com/api/v3/files/"
+                + mFileInfo.getId()
+                + "/get_preview";
+        ImageLoader.getInstance().loadImage(preview_url, options, new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
 

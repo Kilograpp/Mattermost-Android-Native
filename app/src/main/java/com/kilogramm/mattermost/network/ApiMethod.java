@@ -144,10 +144,10 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{teamId}/channels/{channel_id}/posts/{fileId}/get_file_infos")
-    Observable<FileInfo> getFileInfo(@Path("teamId") String teamId,
+    @GET("api/v3/teams/{teamId}/channels/{channel_id}/posts/{postId}/get_file_infos")
+    Observable<List<FileInfo>> getFileInfo(@Path("teamId") String teamId,
                                      @Path("channel_id") String channel_id,
-                                     @Path("fileId") String fileId);
+                                     @Path("postId") String postId);
 
     @Headers({
             "Accept: application/json",

@@ -237,19 +237,18 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     PostRepository.prepareAndAdd(posts);
                     PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
                     requestUpdateLastViewedAt();
-                    List<Observable<FileInfo>> observables = new ArrayList<>();
+                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        for (String s : entry.getValue().getFilenames()) {
-                            observables.add(service.getFileInfo(teamId, channelId, s)
+//                        for (String s : entry.getValue().getFilenames()) {
+                        if(entry.getValue().getFilenames().size() > 0) {
+                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io()));
                         }
+//                        }
                     }
 
-                    /*.subscribe(fileInfo -> {
-                                        FileInfoRepository.getInstance().add(fileInfo);
-                                    }*/
-                    Observable.merge(observables).subscribe(new Subscriber<FileInfo>() {
+                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
                         @Override
                         public void onCompleted() {
                             sendFinishLoadPosts();
@@ -257,13 +256,17 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                         @Override
                         public void onError(Throwable e) {
+                            e.printStackTrace();
                             sendError("cannot get file");
                         }
 
                         @Override
-                        public void onNext(FileInfo fileInfo) {
-                            Log.d(TAG, "onNext: " + fileInfo.getId());
-                            FileInfoRepository.getInstance().add(fileInfo);
+                        public void onNext(List<FileInfo> fileInfos) {
+                            if(fileInfos == null) return;
+                            for (FileInfo fileInfo : fileInfos) {
+                                Log.d(TAG, "onNext: " + fileInfo.getId());
+                                FileInfoRepository.getInstance().add(fileInfo);
+                            }
                         }
                     });
                 }, (chatRxFragment1, throwable) -> {
@@ -363,8 +366,40 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         return;
                     }
                     PostRepository.prepareAndAdd(posts);
-                    sendShowList();
-                    sendDisableShowLoadMoreTop();
+
+                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
+                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
+                        if(entry.getValue().getFilenames().size() > 0) {
+                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(Schedulers.io()));
+                        }
+                    }
+
+                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+                        @Override
+                        public void onCompleted() {
+                            sendShowList();
+                            sendDisableShowLoadMoreTop();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            sendError("cannot get file");
+                        }
+
+                        @Override
+                        public void onNext(List<FileInfo> fileInfos) {
+                            if(fileInfos == null) return;
+                            for (FileInfo fileInfo : fileInfos) {
+                                Log.d(TAG, "onNext: " + fileInfo.getId());
+                                FileInfoRepository.getInstance().add(fileInfo);
+                            }
+                        }
+                    });
+
+
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
@@ -382,8 +417,42 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         return;
                     }
                     PostRepository.prepareAndAdd(posts);
-                    sendShowList();
-                    sendDisableShowLoadMoreBot();
+
+                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
+                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
+                        if(entry.getValue().getFilenames().size() > 0) {
+                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(Schedulers.io()));
+                        }
+                    }
+
+                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+                        @Override
+                        public void onCompleted() {
+
+                            sendShowList();
+                            sendDisableShowLoadMoreBot();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            sendError("cannot get file");
+                        }
+
+                        @Override
+                        public void onNext(List<FileInfo> fileInfos) {
+                            if(fileInfos == null) return;
+                            for (FileInfo fileInfo : fileInfos) {
+                                Log.d(TAG, "onNext: " + fileInfo.getId());
+                                FileInfoRepository.getInstance().add(fileInfo);
+                            }
+                        }
+                    });
+
+
+
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
                     sendError(throwable.getMessage());

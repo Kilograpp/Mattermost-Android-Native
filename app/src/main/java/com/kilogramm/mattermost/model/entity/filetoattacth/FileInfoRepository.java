@@ -26,9 +26,7 @@ public class FileInfoRepository {
 
     public void add(FileInfo item) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            realm1.copyToRealm(item);
-        });
+        realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(item));
     }
 
     //endregion
@@ -43,6 +41,13 @@ public class FileInfoRepository {
     public RealmResults<FileInfo> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(FileInfo.class).findAll();
+    }
+
+    public RealmResults<FileInfo> queryForPostId(String postId) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileInfo.class)
+                .equalTo("mPostId", postId)
+                .findAll();
     }
 
     public FileInfo get(String id) {
