@@ -145,7 +145,15 @@ public interface ApiMethod {
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);
 
-
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{team_id}/channels/{channel_id}/users/{offset}/{limit}")
+    Observable<Map<String, User>> getUsersInChannel(@Path("team_id") String team_id,
+                                                    @Path("channel_id") String channel_id,
+                                                    @Path("offset") int offset,
+                                                    @Path("limit") int limit);
 
 
     @Headers({
