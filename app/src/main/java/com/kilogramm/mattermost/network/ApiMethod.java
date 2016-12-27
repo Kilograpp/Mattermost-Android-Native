@@ -58,6 +58,9 @@ public interface ApiMethod {
     @POST("api/v3/users/send_password_reset")
     Observable<ForgotData> forgotPassword(@Body ForgotData forgotData);
 
+
+
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -65,7 +68,7 @@ public interface ApiMethod {
     @GET("api/v3/teams/{teamId}/channels/")
     Observable<ChannelsWithMembers> getChannelsTeam(@Path("teamId") String teamId);
 
-    //TODO добавила 19.12 для проверки записи channels в бд (меняю только в GeneralRxPresenter)
+    //TODO теперь приходит не ChannelsWithMembers, а List<Channel>. потихоньку заменяю везде
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -79,6 +82,9 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/members")
     Observable<List<Member>> getMembersTeamNew(@Path("teamId") String teamId);
+
+
+
 
     @Headers({
             "Accept: application/json",
@@ -122,7 +128,7 @@ public interface ApiMethod {
                                      @Path("lastMessageId") String lastMessageId,
                                      @Path("limit") String limit);
 
-   //TODO was updated by Mattermost to stats
+    //TODO was updated by Mattermost to stats
 //    @Headers({
 //            "Accept: application/json",
 //            "X-Request-With: XMLHttpRequest",
@@ -139,6 +145,9 @@ public interface ApiMethod {
     Observable<ExtraInfo> getExtraInfoChannel(@Path("teamId") String teamId,
                                               @Path("channelId") String channelId);
 
+
+
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -153,10 +162,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}/members/{user_id}")
     Observable<Member> getChannelMember(@Path("team_id") String team_id,
-                                         @Path("channel_id") String channel_id,
-                                         @Path("user_id") String user_id);
-
-
+                                        @Path("channel_id") String channel_id,
+                                        @Path("user_id") String user_id);
 
 
     @Headers({
@@ -223,8 +230,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/users/{offset}/{limit}")
     Observable<Map<String, User>> getAllUsers(@Path("team_id") String team_id,
-                                                         @Path("offset") int offset,
-                                                         @Path("limit") int limit);
+                                              @Path("offset") int offset,
+                                              @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
@@ -232,7 +239,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/users/{offset}/{limit}")
     Observable<Map<String, User>> getSiteAllUsers(@Path("offset") int offset,
-                                              @Path("limit") int limit);
+                                                  @Path("limit") int limit);
 
     @Headers({
             "Accept: application/json",
@@ -291,7 +298,8 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/more")
-    Observable<ChannelsWithMembers> channelsMore(@Path("team_id") String teamId);
+//    Observable<ChannelsWithMembers> channelsMore(@Path("team_id") String teamId);
+    Observable<List<Channel>> channelsMore(@Path("team_id") String teamId);
 
     @Headers({
             "Accept: application/json",
@@ -300,6 +308,15 @@ public interface ApiMethod {
     @POST("api/v3/teams/{team_id}/channels/{channel_id}/join")
     Observable<Channel> joinChannel(@Path("team_id") String teamId,
                                     @Path("channel_id") String channelId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{team_id}/channels/name/{channel_name}/join")
+    Observable<Channel> joinChannelName(@Path("team_id") String team_id,
+                                        @Path("channel_name") String channel_name);
+
 
     @Headers({
             "Accept: application/json",

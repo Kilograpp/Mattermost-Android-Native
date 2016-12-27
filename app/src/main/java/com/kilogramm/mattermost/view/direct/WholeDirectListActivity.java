@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityWholeDirectListBinding;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -23,8 +24,13 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.presenter.WholeDirectListPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
+import java.util.List;
+
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -55,7 +61,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
                 break;
             case R.id.action_done:
                 if (mAdapter.getmChangesMap().size() > 0) {
-                    getPresenter().savePreferences(mAdapter.getmChangesMap());
+                    getPresenter().requestSavePreferences(mAdapter.getmChangesMap());
                     mDoneItem = item;
                     mDoneItem.setVisible(false);
                     mSearchItem.setVisible(false);
@@ -96,9 +102,23 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         };
     }
 
-    public void updateDataList(OrderedRealmCollection<User> realmResult) {
-        mAdapter.updateData(realmResult);
-        if (realmResult.size() == 0) {
+    public void updateDataList(List<User> thisTeamDirects) {
+        RealmQuery<User> directUsers = Realm.getDefaultInstance().where(User.class);
+        String currentUserId = MattermostPreference.getInstance().getMyUserId();
+
+        for (int i = 0; i < thisTeamDirects.size(); i++) {
+            if (!thisTeamDirects.get(i).getId().equals(currentUserId)
+                    && !thisTeamDirects.get(i).getId().equals("null")) {
+                if (thisTeamDirects.size() > 1) {
+                    directUsers.equalTo("id", thisTeamDirects.get(i).getId()).or();
+                } else {
+                    directUsers.equalTo("id", thisTeamDirects.get(i).getId());
+                }
+            }
+        }
+
+        mAdapter.updateData(directUsers.findAllSorted("username", Sort.ASCENDING));
+        if (directUsers.findAllSorted("username", Sort.ASCENDING).size() == 0) {
             mBinding.listEmpty.setVisibility(View.VISIBLE);
         } else
             mBinding.listEmpty.setVisibility(View.INVISIBLE);
@@ -129,7 +149,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         setupToolbar(getString(R.string.title_direct_list), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
         setRecycleView();
-        getPresenter().getUsers();
+        getPresenter().requestGetDirectUsers();
     }
 
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
