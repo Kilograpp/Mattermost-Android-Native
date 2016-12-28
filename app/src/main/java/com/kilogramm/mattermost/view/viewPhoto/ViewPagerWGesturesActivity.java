@@ -25,6 +25,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by melkshake on 08.11.16.
@@ -40,16 +41,16 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
 
-    private ArrayList<FileInfo> photosList;
+    private ArrayList<FileInfo> photosList = new ArrayList<>();
     private FileInfo mOpenedFile;
 
     Toast errorToast;
 
-    public static void start(Context context, String title, FileInfo openedFile, ArrayList<FileInfo> photoList) {
+    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
         starter.putExtra(TITLE, title)
                 .putExtra(OPENED_FILE, openedFile)
-                .putExtra(PHOTO_LIST, photoList);
+                .putStringArrayListExtra(PHOTO_LIST, photoList);
         context.startActivity(starter);
     }
 
@@ -59,14 +60,16 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
 
-        photosList = getIntent().getParcelableArrayListExtra(PHOTO_LIST);
-        mOpenedFile = getIntent().getParcelableExtra(OPENED_FILE);
-
+        List<String> photosIdList = getIntent().getStringArrayListExtra(PHOTO_LIST);
+        for (String photoId : photosIdList) {
+            photosList.add(FileInfoRepository.getInstance().get(photoId));
+        }
+        String mOpenedFileId = getIntent().getStringExtra(OPENED_FILE);
+        mOpenedFile = FileInfoRepository.getInstance().get(mOpenedFileId);
 
         adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
         binding.viewPager.setAdapter(adapter);
-
 
         String toolbarTitle = "";
         if (mOpenedFile != null) {
@@ -114,17 +117,10 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     }
 
     private void setupDownloadIcon(FileInfo fileInfo) {
-        File file = new File(FileUtil.getInstance().getDownloadedFilesDir()
-                + File.separator
-                + fileInfo.getmName());
-
-        if (fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-            findViewById(R.id.action_download).setVisibility(View.GONE);
-        } else if (file.exists()) {
+        if (fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD
+                || fileInfo.getUploadState() == UploadState.DOWNLOADING) {
             findViewById(R.id.action_download).setVisibility(View.GONE);
         } else {
-            FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
-                    UploadState.WAITING_FOR_DOWNLOAD);
             findViewById(R.id.action_download).setVisibility(View.VISIBLE);
         }
     }

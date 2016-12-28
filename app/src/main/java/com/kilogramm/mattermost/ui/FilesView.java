@@ -62,8 +62,6 @@ public class FilesView extends GridLayout {
 
     private static final String TAG = "FilesView";
 
-    private List<FileInfo> fileList = new ArrayList<>();
-
     public FilesView(Context context) {
         super(context);
         init(context);
@@ -163,8 +161,6 @@ public class FilesView extends GridLayout {
         clearView();
         List<FileInfo> items = FileInfoRepository.getInstance().queryForPostId(postId);
         if (items != null && items.size() != 0) {
-            fileList.clear();
-            fileList.addAll(items);
             for (FileInfo fileInfo : items) {
                 FilesItemLayoutBinding binding = DataBindingUtil.inflate(LayoutInflater.
                         from(getContext()), R.layout.files_item_layout, this, false);
@@ -207,12 +203,16 @@ public class FilesView extends GridLayout {
 
                     initAndAddItem(binding, fileInfo);
 
-                    binding.image.setOnClickListener(view ->
-                            ViewPagerWGesturesActivity.start(getContext(),
-                                    binding.title.getText().toString(),
-                                    fileInfo,
-                                    (ArrayList<FileInfo>) fileList)
-                    );
+                    binding.image.setOnClickListener(view -> {
+                        ArrayList<String> fileIdList = new ArrayList<>();
+                        for (FileInfo item : items) {
+                            fileIdList.add(item.getId());
+                        }
+                        ViewPagerWGesturesActivity.start(getContext(),
+                                binding.title.getText().toString(),
+                                fileInfo.getId(),
+                                fileIdList);
+                    });
                 } else {
                     initAndAddItem(binding, fileInfo);
                 }
@@ -370,7 +370,6 @@ public class FilesView extends GridLayout {
     }
 
     private void clearView() {
-        fileList.clear();
         this.removeAllViews();
     }
 
