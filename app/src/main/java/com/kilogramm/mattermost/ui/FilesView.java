@@ -334,8 +334,12 @@ public class FilesView extends GridLayout {
             binding.downloadFileControls.hideProgressControls();
             dialog.dismiss();
         });
-        builder.setPositiveButton(R.string.replace, (dialog, which) ->
-                downloadFile(fileInfo, fileDownloadListener));
+        builder.setPositiveButton(R.string.replace, (dialog, which) ->{
+                FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
+                + File.separator
+                + fileInfo.getmName());
+                downloadFile(fileInfo, fileDownloadListener);
+        });
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
             Intent intent = null;
             intent = FileUtil.getInstance().

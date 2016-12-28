@@ -32,6 +32,8 @@ public class MattermostRetrofitService {
         headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client;
 
+
+        // TODO поменять для релизной сборки
         client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
                 .addInterceptor(getAuthInterceptor())

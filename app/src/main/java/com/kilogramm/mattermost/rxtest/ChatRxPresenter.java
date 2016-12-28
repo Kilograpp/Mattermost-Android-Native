@@ -239,42 +239,44 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     requestUpdateLastViewedAt();
                     List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-//                        for (String s : entry.getValue().getFilenames()) {
                         if(entry.getValue().getFilenames().size() > 0) {
                             observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io()));
                         }
-//                        }
                     }
-
-                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
-                        @Override
-                        public void onCompleted() {
-                            sendFinishLoadPosts();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            sendError("cannot get file");
-                        }
-
-                        @Override
-                        public void onNext(List<FileInfo> fileInfos) {
-                            if(fileInfos == null) return;
-                            for (FileInfo fileInfo : fileInfos) {
-                                Log.d(TAG, "onNext: " + fileInfo.getId());
-                                FileInfoRepository.getInstance().add(fileInfo);
-                            }
-                        }
-                    });
+                    getFileInfos(observables);
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
 //                    sendShowList();
                     sendError(getError(throwable));
                     throwable.printStackTrace();
                 });
+    }
+
+    private void getFileInfos(List<Observable<List<FileInfo>>> observables){
+        Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "onCompleted: ");
+                sendFinishLoadPosts();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                sendError("cannot get file");
+            }
+
+            @Override
+            public void onNext(List<FileInfo> fileInfos) {
+                if(fileInfos == null) return;
+                for (FileInfo fileInfo : fileInfos) {
+                    Log.d(TAG, "onNext: " + fileInfo.getId());
+                    FileInfoRepository.getInstance().add(fileInfo);
+                }
+            }
+        });
     }
 
     private void sendFinishLoadPosts() {
@@ -379,6 +381,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
                         @Override
                         public void onCompleted() {
+                            Log.d(TAG, "onCompleted: ");
                             sendShowList();
                             sendDisableShowLoadMoreTop();
                         }
@@ -430,7 +433,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
                         @Override
                         public void onCompleted() {
-
+                            Log.d(TAG, "onCompleted: ");
                             sendShowList();
                             sendDisableShowLoadMoreBot();
                         }
@@ -485,6 +488,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
+    // TODO прочекать отображение файлов
     private void initLoadBeforeAndAfter() {
         restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
                         Observable.defer(() -> Observable.zip(
