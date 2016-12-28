@@ -330,16 +330,19 @@ public class FilesView extends GridLayout {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(getContext().getString(R.string.file_exists));
+
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
             binding.downloadFileControls.hideProgressControls();
             dialog.dismiss();
         });
+
         builder.setPositiveButton(R.string.replace, (dialog, which) ->{
                 FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
                 + File.separator
                 + fileInfo.getmName());
                 downloadFile(fileInfo, fileDownloadListener);
         });
+
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
             Intent intent = null;
             intent = FileUtil.getInstance().
@@ -355,8 +358,10 @@ public class FilesView extends GridLayout {
                         getContext().getString(R.string.no_suitable_app),
                         Toast.LENGTH_SHORT).show();
             }
+
             binding.downloadFileControls.hideProgressControls();
         });
+
         builder.show();
     }
 

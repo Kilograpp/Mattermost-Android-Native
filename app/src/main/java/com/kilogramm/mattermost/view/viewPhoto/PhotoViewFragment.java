@@ -119,7 +119,7 @@ public class PhotoViewFragment extends Fragment {
             public void swipe(float beginY, float endY) {
 
                 //Log.d("SWIPE____", "swipe: {\n  beginY = " + beginY + "\n   endY = " + endY + "\n}");
-                ((ViewPagerWGesturesActivity) getActivity()).setTransparent(Math.abs(endY-beginY)/(1.5f));
+               // ((ViewPagerWGesturesActivity) getActivity()).setTransparent(Math.abs(endY-beginY)/(1.5f));
             }
         });
     }
