@@ -118,7 +118,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     }
 
     public class Members {
-        @SerializedName("mUser_id")
+        @SerializedName("user_id")
         @Expose
         String user_id;
 
