@@ -10,10 +10,9 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
@@ -37,8 +36,12 @@ import rx.schedulers.Schedulers;
 public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListActivity> {
     private static final String TAG = "WholeDirListPresenter";
     private static final int REQUEST_SAVE_PREFERENCES = 1;
+    private static final int REQUEST_GET_DIRECT_USERS = 2;
 
-    private ApiMethod service;
+    private ApiMethod mService;
+    private int mOffset;
+    private int mLimit;
+
     @State
     String name;
     @State
@@ -47,30 +50,67 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     String id;
     @State
     String currentUserId;
+    @State
+    String teamId;
+    @State
+    User directUsers;
 
-    List<Preferences> preferenceList = new ArrayList<>();
+    private List<Preferences> preferenceList = new ArrayList<>();
+    private List<User> thisTeamDirects = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
+
+        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
-        initGetUsers();
+        teamId = MattermostPreference.getInstance().getTeamId();
+
+        mOffset = 0;
+        mLimit = 100;
+
+        initRequests();
     }
 
-    public Observable<Channel> addParticipantRx(String name) {
-        LogoutData logoutData = new LogoutData(name);
-        return service.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
+    private void initRequests() {
+        restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
+                        mService.save(preferenceList)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (wholeDirectListActivity, aBoolean) -> {
+                    PreferenceRepository.update(preferenceList);
+                    sendChanges(aBoolean);
+                }, (wholeDirectListActivity, throwable) -> {
+                    sendShowError(parceError(throwable, SAVE_PREFERENCES));
+                    requestSave(false);
+                }
+        );
 
+        restartableFirst(REQUEST_GET_DIRECT_USERS, () ->
+                        mService.getAllUsers(teamId, mOffset, mLimit)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (wholeDirectListActivity, stringUserMap) -> {
+                    thisTeamDirects.addAll(stringUserMap.values());
+                    if (stringUserMap.keySet().size() == 100) {
+                        this.mOffset += 1;
+                        requestGetDirectUsers();
+                    }
+                    sendUpdateDataList(thisTeamDirects);
+                }, (wholeDirectListActivity, throwable) -> sendShowError(throwable.getMessage()));
+    }
+
+    private Observable<Channel> addParticipantRx(String name) {
+        LogoutData logoutData = new LogoutData(name);
+        return mService.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
     }
 
     private void sendChanges(boolean aBoolean) {
         Iterable<Observable<LogoutData>> list = new ArrayList<>();
         for (Preferences preferences : preferenceList) {
-            if (PreferenceRepository
-                    .query(new PreferenceRepository
-                            .PreferenceByNameSpecification(preferences.getName()))
-                    .size() > 0)
+            if (PreferenceRepository.query(
+                    new PreferenceRepository
+                            .PreferenceByNameSpecification(preferences.getName())).size() > 0)
                 ((ArrayList) list).add(addParticipantRx(preferences.getName()));
         }
 
@@ -92,23 +132,8 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 });
     }
 
-    private void initGetUsers() {
-        restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
-                        service.save(preferenceList)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (wholeDirectListActivity, aBoolean) -> {
-                    PreferenceRepository.update(preferenceList);
-                    sendChanges(aBoolean);
-                }, (wholeDirectListActivity, throwable) -> {
-                    sendShowError(parceError(throwable, SAVE_PREFERENCES));
-                    requestSave(false);
-                }
-        );
-    }
-
-    public void savePreferences(Map<String, Boolean> chouseUser) {
-        for (Map.Entry<String, Boolean> user : chouseUser.entrySet()) {
+    public void requestSavePreferences(Map<String, Boolean> chooseUser) {
+        for (Map.Entry<String, Boolean> user : chooseUser.entrySet()) {
             preferenceList.add(new Preferences(
                     user.getKey(),
                     currentUserId,
@@ -150,29 +175,21 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 countDelete > 0 ? countDelete + " conversations have been removed" : "");
     }
 
-    public void getUsers() {
-        this.id = ChannelRepository.query(new ChannelByHadleSpecification("town-square")).first().getId();
-        createTemplateObservable(new Object())
-                .subscribe(split((wholeDirectListActivity, o) -> {
-                            this.defaultChannelInfo = ExtroInfoRepository.query(
-                                    new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).first();
-                            wholeDirectListActivity.updateDataList(defaultChannelInfo
-                                    .getMembers().where().isNotNull("id").notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
-                        }
-                ));
+    public void requestGetDirectUsers() {
+        start(REQUEST_GET_DIRECT_USERS);
     }
 
     public void getSearchUsers(String name) {
         this.name = name;
         createTemplateObservable(defaultChannelInfo.getMembers())
                 .subscribe(split((wholeDirectListActivity, users) -> {
-                    if (name == null)
+                    if (name == null) {
                         wholeDirectListActivity.updateDataList(
                                 users.where()
                                         .isNotNull("id")
                                         .notEqualTo("id", currentUserId)
                                         .findAllSorted("username", Sort.ASCENDING));
-                    else
+                    } else {
                         wholeDirectListActivity.updateDataList(
                                 users.where()
                                         .notEqualTo("id", currentUserId)
@@ -186,6 +203,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                         .contains("lastName", name.substring(0, 1).toUpperCase()
                                                 + name.substring(1))
                                         .findAllSorted("username", Sort.ASCENDING));
+                    }
                 }));
     }
 
@@ -193,4 +211,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 
+    private void sendUpdateDataList(List<User> directUsers) {
+        createTemplateObservable(directUsers).subscribe(split((WholeDirectListActivity::updateDataList)));
+    }
 }

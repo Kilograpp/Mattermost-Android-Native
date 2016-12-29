@@ -57,7 +57,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
     public static final String TYPE_CHANNEL = "type_channel";
-    public static final String SEARCH_HISTORY = "search_history";
+//    public static final String SEARCH_HISTORY = "search_history";
 
     private ActivitySearchBinding mBinding;
     private SearchMessageAdapter mAdapter;

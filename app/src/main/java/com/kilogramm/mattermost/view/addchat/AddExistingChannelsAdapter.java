@@ -53,7 +53,7 @@ public class AddExistingChannelsAdapter extends
                 if (mChannelClickListener != null) {
                     mChannelClickListener.onChannelItemClick(
                             getData().get(position).getId(),
-                            getData().get(position).getDisplayName(),
+                            getData().get(position).getName(),
                             holder.getmTypeChannel());
                 }
             });

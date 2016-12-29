@@ -23,7 +23,7 @@ import rx.schedulers.Schedulers;
  */
 
 public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
-    private static final int REQUEST_DB_GETUSERS = 1;
+    private static final int REQUEST_DB_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
 
     @State
@@ -31,21 +31,31 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     @State
     String mId;
 
+    private String mTeamId;
+
     private ApiMethod mService;
     private String mUser_id;
+    private String mChannelId;
+    private int mOffset;
+    private int mLimit;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mattermostApp = MattermostApp.getSingleton();
         mService = mattermostApp.getMattermostRetrofitService();
+        mTeamId = MattermostPreference.getInstance().getTeamId();
+
+        mOffset = 0;
+        mLimit = 100;
+
         initGetUsers();
         addMembers();
     }
 
     public void initPresenter(String id) {
         this.mId = id;
-        start(REQUEST_DB_GETUSERS);
+        start(REQUEST_DB_GET_USERS);
     }
 
     public void addMember(String id) {
@@ -54,17 +64,58 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     }
 
     public RealmResults<User> getMembers(String name) {
-        return UserRepository
-                .query(new UserRepository.UserByNotIdsSpecification(
-                        mExtraInfo.getMembers(), name));
+        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
+                mExtraInfo.getMembers(), name));
     }
 
     public RealmResults<User> getMembers() {
-        return UserRepository
-                .query(new UserRepository.UserByNotIdsSpecification(
-                        mExtraInfo.getMembers(), null));
+        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
+                mExtraInfo.getMembers(), null));
     }
 
+    private void initGetUsers() {
+        restartableFirst(REQUEST_DB_GET_USERS, () ->
+                ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
+                (addMembersActivity, o) -> {
+                    this.mExtraInfo = o.first();
+                    addMembersActivity.updateDataList(UserRepository.query(
+                            new UserRepository.UserByNotIdsSpecification(
+                                    mExtraInfo.getMembers(), null)));
+                });
+
+//        restartableFirst(REQUEST_DB_GET_USERS, () ->
+//                        mService.getUsersNotInChannel(mTeamId, mChannelId, mOffset, mLimit)
+//                                .subscribeOn(Schedulers.io())
+//                                .observeOn(Schedulers.io()),
+//                (addMembersActivity, users) -> updateMembers(users.getUsers().values()),
+//                (addMembersActivity, throwable) -> throwable.printStackTrace());
+    }
+
+    private void addMembers() {
+        restartableFirst(REQUEST_ADD_MEMBERS, () ->
+                        mService.addMember(mTeamId, mId, new Members(mUser_id))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                (addMembersActivity, user) -> updateMembers(user.getUser_id()),
+                (generalRxActivity1, throwable) -> {
+                    throwable.printStackTrace();
+                    errorUpdateMembers(throwable.getMessage());
+                });
+    }
+
+    private void updateMembers(String id) {
+        createTemplateObservable(new Object()).subscribe(split((addMembersActivity, openChatObject) -> {
+                    ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
+                            new UserRepository.UserByIdSpecification(id)).first());
+                    addMembersActivity.requestMember("User added");
+                }));
+    }
+
+    private void errorUpdateMembers(String s) {
+        createTemplateObservable(new Object())
+                .subscribe(split((addMembersActivity, openChatObject) ->
+                        addMembersActivity.requestMember(s)));
+    }
 
     public class Members {
         @SerializedName("mUser_id")
@@ -79,49 +130,4 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
             this.user_id = user_id;
         }
     }
-
-    private void initGetUsers() {
-        restartableFirst(REQUEST_DB_GETUSERS,
-                () -> ExtroInfoRepository.query(
-                        new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
-                (addMembersActivity, o) -> {
-                    this.mExtraInfo = o.first();
-                    addMembersActivity.updateDataList(
-                            UserRepository
-                                    .query(new UserRepository.UserByNotIdsSpecification(
-                                            mExtraInfo.getMembers(), null)));
-                });
-    }
-
-    private void addMembers() {
-        restartableFirst(REQUEST_ADD_MEMBERS,
-                () -> mService.addMember(MattermostPreference.getInstance().getTeamId(),
-                        mId, new Members(mUser_id))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                (addMembersActivity, user) -> {
-                    updateMembers(user.getUser_id());
-                }
-                , (generalRxActivity1, throwable) -> {
-                    throwable.printStackTrace();
-                    errorUpdateMembers(throwable.getMessage());
-                });
-    }
-
-    private void updateMembers(String id) {
-        createTemplateObservable(new Object())
-                .subscribe(split((addMembersActivity, openChatObject) -> {
-                    ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
-                            new UserRepository.UserByIdSpecification(id))
-                            .first());
-                    addMembersActivity.requestMember("User added");
-                }));
-    }
-
-    private void errorUpdateMembers(String s) {
-        createTemplateObservable(new Object())
-                .subscribe(split((addMembersActivity, openChatObject)
-                        -> addMembersActivity.requestMember(s)));
-    }
-
 }

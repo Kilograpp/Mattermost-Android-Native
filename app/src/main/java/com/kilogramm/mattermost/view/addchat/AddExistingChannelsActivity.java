@@ -57,7 +57,7 @@ public class AddExistingChannelsActivity
 
     @Override
     public void onChannelItemClick(String joinChannelId, String channelName, String type) {
-        getPresenter().requestAddChat(joinChannelId);
+        getPresenter().requestAddChat(joinChannelId, channelName.toLowerCase());
     }
 
     @Override

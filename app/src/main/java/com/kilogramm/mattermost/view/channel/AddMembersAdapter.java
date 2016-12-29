@@ -23,8 +23,7 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
 
     OnItemClickListener onItemClickListener;
 
-    public AddMembersAdapter(@NonNull Context context,
-                             OnItemClickListener onItemClickListener) {
+    public AddMembersAdapter(@NonNull Context context, OnItemClickListener onItemClickListener) {
         super(context, null, true);
         this.onItemClickListener = onItemClickListener;
     }
