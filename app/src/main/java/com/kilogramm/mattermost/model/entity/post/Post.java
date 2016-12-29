@@ -74,7 +74,6 @@ public class Post extends RealmObject implements Parcelable {
     @Expose
     private Prop props;
     private User user;
-    private RealmList<FileInfo> mFileInfos;
 
     private Boolean viewed = false;
 
@@ -327,10 +326,6 @@ public class Post extends RealmObject implements Parcelable {
         for (FileToAttach attachedFile : attachedFiles) {
             this.filenames.add(new RealmString(attachedFile.getFileName()));
         }
-    }
-
-    public RealmList<FileInfo> getmFileInfos() {
-        return mFileInfos;
     }
 
     @Override

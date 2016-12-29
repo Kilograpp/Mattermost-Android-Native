@@ -9,6 +9,8 @@ import android.util.Log;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.UploadState;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
@@ -86,11 +88,16 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
-            if (fileUploadResponse.getFilenames() != null
-                    && fileUploadResponse.getFilenames().size() != 0) {
+            if (fileUploadResponse.getFile_infos() != null
+                    && fileUploadResponse.getFile_infos().size() != 0) {
                 Log.d(TAG, fileUploadResponse.toString());
-                FileToAttachRepository.getInstance().updateName(fileName, fileUploadResponse.getFilenames().get(0));
-                FileToAttachRepository.getInstance().updateUploadStatus(fileUploadResponse.getFilenames().get(0), UploadState.UPLOADED);
+                FileInfo fileInfo = fileUploadResponse.getFile_infos().get(0);
+                FileToAttachRepository.getInstance().updateName(fileName, fileInfo.getmName());
+                FileToAttachRepository.getInstance().updateUploadStatus(fileInfo.getmName(),
+                                UploadState.UPLOADED);
+                FileToAttachRepository.getInstance().updateIdFromServer(fileInfo.getmName(),
+                        fileInfo.getId());
+                FileInfoRepository.getInstance().add(fileInfo);
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {

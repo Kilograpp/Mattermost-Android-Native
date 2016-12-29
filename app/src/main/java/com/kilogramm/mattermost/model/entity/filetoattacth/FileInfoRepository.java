@@ -38,7 +38,6 @@ public class FileInfoRepository {
         realm.executeTransaction(realm1 -> {
                 fileInfo.setUploadState(UploadState.WAITING_FOR_DOWNLOAD);
                 realm1.copyToRealmOrUpdate(fileInfo);
-
         });
     }
 
@@ -50,6 +49,18 @@ public class FileInfoRepository {
                     .findFirst();
             if (fileInfo != null) {
                 fileInfo.setUploadState(status);
+            }
+        });
+    }
+
+    public void updatePostId(String fileId, String postId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            FileInfo fileInfo = realm1.where(FileInfo.class)
+                    .equalTo("id", fileId)
+                    .findFirst();
+            if (fileInfo != null) {
+                fileInfo.setmPostId(postId);
             }
         });
     }

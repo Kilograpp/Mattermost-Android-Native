@@ -11,6 +11,7 @@ import io.realm.annotations.PrimaryKey;
 public class FileToAttach extends RealmObject {
     @PrimaryKey
     private long id;
+    private String idFromServer;
     private String fileName;
     private String filePath;
     private String uriAsString;
@@ -112,5 +113,13 @@ public class FileToAttach extends RealmObject {
 
     public void setTemporary(boolean temporary) {
         isTemporary = temporary;
+    }
+
+    public String getIdFromServer() {
+        return idFromServer;
+    }
+
+    public void setIdFromServer(String idFromServer) {
+        this.idFromServer = idFromServer;
     }
 }

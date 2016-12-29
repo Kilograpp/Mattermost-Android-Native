@@ -235,7 +235,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     }
                     List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if(entry.getValue().getFilenames().size() > 0) {
+                        if (entry.getValue().getFilenames().size() > 0) {
                             observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io()));
@@ -265,7 +265,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                         @Override
                         public void onNext(List<FileInfo> fileInfos) {
-                            if(fileInfos == null) return;
+                            if (fileInfos == null) return;
                             for (FileInfo fileInfo : fileInfos) {
                                 Log.d(TAG, "onNext: " + fileInfo.getId());
                                 FileInfoRepository.getInstance().add(fileInfo);
@@ -295,6 +295,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
                     PostRepository.merge(post);
+                    if (post.getFilenames() != null) {
+                        for (String fileId : post.getFilenames()) {
+                            FileInfoRepository.getInstance().updatePostId(fileId, post.getId());
+                        }
+                    }
                     requestUpdateLastViewedAt();
                     sendOnItemAdded();
                     sendShowList();
@@ -370,7 +375,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     }
                     List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if(entry.getValue().getFilenames().size() > 0) {
+                        if (entry.getValue().getFilenames().size() > 0) {
                             observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io()));
@@ -396,7 +401,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                         @Override
                         public void onNext(List<FileInfo> fileInfos) {
-                            if(fileInfos == null) return;
+                            if (fileInfos == null) return;
                             for (FileInfo fileInfo : fileInfos) {
                                 Log.d(TAG, "onNext: " + fileInfo.getId());
                                 FileInfoRepository.getInstance().add(fileInfo);
@@ -422,7 +427,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                     List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if(entry.getValue().getFilenames().size() > 0) {
+                        if (entry.getValue().getFilenames().size() > 0) {
                             observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io()));
@@ -448,7 +453,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
                         @Override
                         public void onNext(List<FileInfo> fileInfos) {
-                            if(fileInfos == null) return;
+                            if (fileInfos == null) return;
                             for (FileInfo fileInfo : fileInfos) {
                                 Log.d(TAG, "onNext: " + fileInfo.getId());
                                 FileInfoRepository.getInstance().add(fileInfo);
