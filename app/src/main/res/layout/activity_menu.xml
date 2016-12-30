@@ -38,7 +38,7 @@
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@color/colorPrimary"/>
+            android:background="@color/colorPrimary" />
 
         <FrameLayout
             android:id="@+id/right_menu"
@@ -73,6 +73,9 @@
                         style="@style/TextAppearance.AppCompat.Title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:textColor="@android:color/white"
                         tools:text="Toolbar Title" />
 

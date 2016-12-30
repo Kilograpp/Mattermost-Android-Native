@@ -172,10 +172,11 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     private void setupRightMenu() {
         binding.profile.setOnClickListener(view -> ProfileRxActivity.start(this,
                 MattermostPreference.getInstance().getMyUserId()));
-        RealmResults users = UserRepository.query(
-                new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId()));
+        RealmResults users = UserRepository.query(new UserRepository.UserByIdSpecification(
+                MattermostPreference.getInstance().getMyUserId()));
         if (users != null) {
-            user = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
+            user = UserRepository.query(new UserRepository.UserByIdSpecification(
+                    MattermostPreference.getInstance().getMyUserId())).first();
             user.addChangeListener(element -> {
                 Log.d(TAG, "OnChange users");
                 updateHeaderUserName((User) element);

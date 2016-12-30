@@ -193,7 +193,7 @@
     <string name="create_new_group_error"> \t Group name is required \n </string>
     <string name="create_new_channel_ref">Private Groups are only visible to select team members.
         Any member of a Private Group can add additional members.</string>
-    <string name="create_new_ch_gr_handler_rec">Please use only Latin letters, digits and
+    <string name="create_new_ch_gr_handler_rec">Please use only lower case Latin letters, digits and
         symbol \'-\'</string>
 
     <string name="empty_dialog_invite">+ Invite others to this channel</string>
