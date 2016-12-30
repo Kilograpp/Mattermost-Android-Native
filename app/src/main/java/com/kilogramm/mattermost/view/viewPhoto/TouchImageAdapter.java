@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +18,13 @@ import java.util.List;
 public class TouchImageAdapter extends FragmentPagerAdapter {
 
     List<PhotoViewFragment> photoViewFragmentList;
-    private ArrayList<String> photosList;
+    private ArrayList<FileInfo> photosList;
 
-    public TouchImageAdapter(FragmentManager fm, ArrayList<String> photosList) {
+    public TouchImageAdapter(FragmentManager fm, ArrayList<FileInfo> photosList) {
         super(fm);
         this.photosList = photosList;
         photoViewFragmentList = new ArrayList<>();
-        for (String photo : photosList) {
+        for (FileInfo photo : photosList) {
             PhotoViewFragment fragment = PhotoViewFragment.newInstance(photo);
             photoViewFragmentList.add(fragment);
         }

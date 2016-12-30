@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 
 import java.util.List;
 
@@ -10,15 +11,15 @@ import java.util.List;
  */
 
 public class FileUploadResponse {
-    @SerializedName("filenames")
+    @SerializedName("file_infos")
     @Expose
-    List<String> filenames;
+    List<FileInfo> file_infos;
     @SerializedName("client_ids")
     @Expose
     List<String> client_ids;
 
-    public List<String> getFilenames() {
-        return filenames;
+    public List<FileInfo> getFile_infos() {
+        return file_infos;
     }
 
     public List<String> getClient_ids() {
@@ -28,7 +29,7 @@ public class FileUploadResponse {
     @Override
     public String toString() {
         return "FileUploadResponse{" +
-                "filenames=" + filenames +
+                "file_infos=" + file_infos +
                 ", client_ids=" + client_ids +
                 '}';
     }

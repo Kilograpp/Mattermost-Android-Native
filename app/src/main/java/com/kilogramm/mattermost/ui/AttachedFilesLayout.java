@@ -158,7 +158,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     public List<String> getAttachedFiles() {
         List<String> fileNames = new ArrayList<>();
         for (FileToAttach fileToAttach : mAttachedFilesAdapter.getData()) {
-            fileNames.add(fileToAttach.getFileName());
+            fileNames.add(fileToAttach.getIdFromServer());
         }
         return fileNames;
     }

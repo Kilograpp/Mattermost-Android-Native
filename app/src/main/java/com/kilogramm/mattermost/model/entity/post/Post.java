@@ -8,6 +8,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.model.entity.Prop;
 import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.user.User;
 
@@ -63,7 +64,7 @@ public class Post extends RealmObject implements Parcelable {
     @SerializedName("hashtags")
     @Expose
     private String hashtags;
-    @SerializedName("filenames")
+    @SerializedName("file_ids")
     @Expose
     private RealmList<RealmString> filenames = new RealmList<>();
     @SerializedName("pending_post_id")

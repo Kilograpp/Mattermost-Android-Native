@@ -6,6 +6,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
@@ -58,9 +59,6 @@ public interface ApiMethod {
 
     @POST("api/v3/users/send_password_reset")
     Observable<ForgotData> forgotPassword(@Body ForgotData forgotData);
-
-
-
 
     @Headers({
             "Accept: application/json",
@@ -139,7 +137,7 @@ public interface ApiMethod {
                                      @Path("lastMessageId") String lastMessageId,
                                      @Path("limit") String limit);
 
-    //TODO was updated by Mattermost to stats
+   //TODO was updated by Mattermost to stats
 //    @Headers({
 //            "Accept: application/json",
 //            "X-Request-With: XMLHttpRequest",
@@ -166,6 +164,15 @@ public interface ApiMethod {
                                                     @Path("offset") int offset,
                                                     @Path("limit") int limit);
 
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channel_id}/posts/{postId}/get_file_infos")
+    Observable<List<FileInfo>> getFileInfo(@Path("teamId") String teamId,
+                                     @Path("channel_id") String channel_id,
+                                     @Path("postId") String postId);
 
     @Headers({
             "Accept: application/json",

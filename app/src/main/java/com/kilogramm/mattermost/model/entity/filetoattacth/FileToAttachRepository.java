@@ -91,6 +91,18 @@ public class FileToAttachRepository {
         });
     }
 
+    public void updateIdFromServer(String fileName, String idFromServer) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
+                    .equalTo("fileName", fileName)
+                    .findFirst();
+            if (fileToAttach != null) {
+                fileToAttach.setIdFromServer(idFromServer);
+            }
+        });
+    }
+
     public void updateUploadStatus(long id, UploadState status) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -195,7 +207,7 @@ public class FileToAttachRepository {
         realm.beginTransaction();
         RealmResults<FileToAttach> fileToAttachRealmResults = realm.where(FileToAttach.class).findAll();
         realm.commitTransaction();
-        return fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0;
+        return fileToAttachRealmResults.size() > 0;
     }
 
     public boolean haveDownloadingFile() {
