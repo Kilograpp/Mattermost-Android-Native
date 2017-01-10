@@ -32,8 +32,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     private static final int REQUEST_ADD_CHAT = 2;
     private static final int REQUEST_JOIN_CHANNEL = 3;
 
-    private MattermostApp mMattermostApp;
-    private ApiMethod service;
 
     private String teamId;
     private List<ChannelsDontBelong> moreChannels;
@@ -45,8 +43,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         user = new LogoutData();
-        mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
         teamId = MattermostPreference.getInstance().getTeamId();
         moreChannels = new ArrayList<>();
         initRequest();
@@ -88,7 +84,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
 
         restartableFirst(REQUEST_ADD_CHAT, () ->
                         ServerMethod.getInstance()
-                                .joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
+                                .joinChannel(MattermostPreference.getInstance().getTeamId(), mChannelId)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (generalRxActivity, channel) -> requestJoinChannel(),
@@ -98,7 +94,8 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                 });
 
         restartableFirst(REQUEST_JOIN_CHANNEL, () ->
-                        service.joinChannelName(teamId, mChannelName)
+                        ServerMethod.getInstance()
+                                .joinChannelName(teamId, mChannelName)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                 , (addExistingChannelsActivity, channel) -> makeChannelsTeamRequest(channel)

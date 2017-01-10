@@ -9,9 +9,11 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
@@ -37,7 +39,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     private static final int REQUEST_SAVE_PREFERENCES = 1;
     private static final int REQUEST_GET_DIRECT_USERS = 2;
 
-    private ApiMethod mService;
     private int mOffset;
     private int mLimit;
 
@@ -60,13 +61,10 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
         teamId = MattermostPreference.getInstance().getTeamId();
-
         mOffset = 0;
         mLimit = 100;
-
         initRequests();
     }
 
@@ -75,10 +73,12 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         user.setId(name);
         return ServerMethod.getInstance()
                 .createDirect(MattermostPreference.getInstance().getTeamId(), user);
+    }
 
     private void initRequests() {
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
-                        mService.save(preferenceList)
+                        ServerMethod.getInstance()
+                                .save(preferenceList)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> {
@@ -91,7 +91,8 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         );
 
         restartableFirst(REQUEST_GET_DIRECT_USERS, () ->
-                        mService.getAllUsers(teamId, mOffset, mLimit)
+                        ServerMethod.getInstance()
+                                .getAllUsers(teamId, mOffset, mLimit)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, stringUserMap) -> {

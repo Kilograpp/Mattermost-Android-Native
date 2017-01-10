@@ -5,7 +5,6 @@ import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -39,7 +38,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private String errorLoadingExtraInfo = "Error loading channel info";
 
-    private ApiMethod mService;
 
     private User mUser = new User();
 
@@ -56,8 +54,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
 

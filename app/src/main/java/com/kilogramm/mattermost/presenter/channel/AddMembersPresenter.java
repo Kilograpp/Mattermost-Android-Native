@@ -32,7 +32,6 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private String mTeamId;
 
-    private ApiMethod mService;
     private String mUser_id;
     private String mChannelId;
     private int mOffset;
@@ -41,8 +40,6 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mattermostApp = MattermostApp.getSingleton();
-        mService = mattermostApp.getMattermostRetrofitService();
         mTeamId = MattermostPreference.getInstance().getTeamId();
 
         mOffset = 0;
@@ -92,7 +89,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void addMembers() {
         restartableFirst(REQUEST_ADD_MEMBERS, () ->
-                        mService.addMember(mTeamId, mId, new Members(mUser_id))
+                        ServerMethod.getInstance()
+                                .addMember(mTeamId, mId, new Members(mUser_id))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (addMembersActivity, user) -> updateMembers(user.getUser_id()),

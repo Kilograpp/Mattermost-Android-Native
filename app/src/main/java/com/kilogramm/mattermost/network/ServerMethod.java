@@ -203,7 +203,7 @@ public class ServerMethod {
         return mApi.invite(teamId, listInviteObj);
     }
 
-    public Observable<ChannelsWithMembers> channelsMore(String teamId) {
+    public Observable<List<Channel>> channelsMore(String teamId) {
         return mApi.channelsMore(teamId);
     }
 
@@ -225,5 +225,13 @@ public class ServerMethod {
 
     public Observable<Map<String, User>> getUsersInChannel(String team_id, String channel_id, int offset, int limit) {
         return mApi.getUsersInChannel(team_id, channel_id, offset, limit);
+    }
+
+    public Observable<Map<String, User>> getAllUsers(String team_id, int offset, int limit){
+        return mApi.getAllUsers(team_id, offset, limit);
+    }
+
+    public Observable<Channel> joinChannelName( String team_id, String channel_name){
+        return mApi.joinChannelName(team_id, channel_name);
     }
 }

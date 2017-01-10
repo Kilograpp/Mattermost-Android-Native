@@ -438,15 +438,5 @@ public interface ApiMethod {
     Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
                                               @Body CommandToNet command);
 
-    @Headers({
-            "Accept: application/json",
-            "X-Request-With: XMLHttpRequest",
-            "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/channels/{channel_id}/users/{offset}/{limit}")
-    Observable<Map<String, User>> getUsersInChannel(@Path("team_id") String team_id,
-                                              @Path("channel_id") String channel_id,
-                                              @Path("offset") int offset,
-                                              @Path("limit") int limit);
-
 
 }

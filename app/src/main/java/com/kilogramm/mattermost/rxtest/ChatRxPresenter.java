@@ -5,13 +5,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.common.util.concurrent.AbstractScheduledService;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -35,6 +33,7 @@ import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpec
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,7 @@ import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
