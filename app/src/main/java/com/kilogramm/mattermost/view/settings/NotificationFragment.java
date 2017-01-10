@@ -45,7 +45,7 @@ public class NotificationFragment extends BaseFragment<NotificationPresenter> {
 
         mBinding.textViewDescriptionWordsTrigger.setText(getPresenter().getMentionsAll());
         mBinding.textViewDescriptionMobPush.setText(getMobPushNotificationDescriptions());
-        mBinding.textViewEmailSetting.setText(getPresenter().getEmailSetting().toString());
+        mBinding.textViewEmailSetting.setText(getPresenter().getEmailSetting());
 
         return view;
     }

@@ -13,14 +13,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 
@@ -206,11 +205,10 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
 
     private void initRequestInitLoad() {
         restartableFirst(REQUEST_INITLOAD, () -> {
-            MattermostApp application = MattermostApp.getSingleton();
-            ApiMethod service = application.getMattermostRetrofitService();
             isVisibleProgress.set(View.VISIBLE);
-            return service.initLoad()
-                    .subscribeOn(Schedulers.newThread())
+            return ServerMethod.getInstance()
+                    .initLoad()
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread());
         }, (loginRxActivity, initObject) -> {
             List<Team> teams = saveDataAfterLogin(initObject);
@@ -233,12 +231,12 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
 
     private void initRequestLogin() {
         restartableFirst(REQUEST_LOGIN, () -> {
-            MattermostApp application = MattermostApp.getSingleton();
-            ApiMethod service = application.getMattermostRetrofitService();
             sendHideKeyboard();
             isVisibleProgress.set(View.VISIBLE);
-            return service.login(new LoginData(mEditEmail, mEditPassword, "")).cache()
-                    .subscribeOn(Schedulers.newThread())
+            return ServerMethod.getInstance()
+                    .login(new LoginData(mEditEmail, mEditPassword, ""))
+                    .cache()
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread());
         }, (loginRxActivity, user) -> {
             MattermostPreference.getInstance().setMyUserId(user.getId());
@@ -248,7 +246,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
             firstLoginBad = true;
-            setRedTextForgotPassword(firstLoginBad);
+            setRedTextForgotPassword(true);
 //            sendShowError(getError(throwable));
             sendShowError(parceError(throwable, LOGIN));
         });

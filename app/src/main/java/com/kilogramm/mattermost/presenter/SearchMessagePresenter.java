@@ -12,7 +12,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.FoundMessagesIds;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
@@ -36,7 +36,6 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     public static final int REQUEST_SEARCH = 1;
 
     private MattermostApp mMattermostApp;
-    private ApiMethod mService;
 
     private boolean isSearchEmpty;
     private boolean isOrSearch = true; //was by default
@@ -48,11 +47,9 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
 
-        mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
-
         restartableFirst(REQUEST_SEARCH,
-                () -> mService.searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
+                () -> ServerMethod.getInstance()
+                        .searchForPosts(MattermostPreference.getInstance().getTeamId(), new SearchParams(terms, isOrSearch))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (searchMessageActivity, posts) -> {

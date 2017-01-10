@@ -4,13 +4,12 @@ import android.os.Bundle;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 
@@ -31,14 +30,11 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     @State
     String mId;
 
-    private ApiMethod mService;
     private String mUser_id;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mattermostApp = MattermostApp.getSingleton();
-        mService = mattermostApp.getMattermostRetrofitService();
         initGetUsers();
         addMembers();
     }
@@ -95,14 +91,12 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void addMembers() {
         restartableFirst(REQUEST_ADD_MEMBERS,
-                () -> mService.addMember(MattermostPreference.getInstance().getTeamId(),
+                () -> ServerMethod.getInstance().addMember(MattermostPreference.getInstance().getTeamId(),
                         mId, new Members(mUser_id))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (addMembersActivity, user) -> {
-                    updateMembers(user.getUser_id());
-                }
-                , (generalRxActivity1, throwable) -> {
+                (addMembersActivity, user) -> updateMembers(user.getUser_id()),
+                (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
                     errorUpdateMembers(throwable.getMessage());
                 });

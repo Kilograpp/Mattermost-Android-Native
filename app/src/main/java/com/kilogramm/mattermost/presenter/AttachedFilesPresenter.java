@@ -95,7 +95,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
             throwable.printStackTrace();
-            if(!throwable.getMessage().trim().equals("unexpected end of stream")) {
+            if (!throwable.getMessage().trim().equals("unexpected end of stream")) {
                 String error = parceError(throwable, UPLOAD_A_FILE);
                 if (error != null) {
                     sendShowError(error);
@@ -108,7 +108,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void sendShowError(String error) {
         createTemplateObservable(error).subscribe(split((attachedFilesLayout, o)
-                        -> attachedFilesLayout.showUploadErrorToast(error)));
+                -> attachedFilesLayout.showUploadErrorToast(error)));
     }
 
     private void sendAllUploaded() {

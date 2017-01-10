@@ -10,6 +10,7 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -64,7 +65,8 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
 
     private void initSave() {
         restartableFirst(REQUEST_SAVE,
-                () -> service.updateUser(editedUser)
+                () -> ServerMethod.getInstance()
+                        .updateUser(editedUser)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                 ,(editProfileRxActivity, user) -> {
@@ -107,9 +109,7 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                     updateAvatarTime();
                     imageUri = null;
                     sendUriNull();
-                },(editProfileRxActivity, throwable) -> {
-                    sendError(getError(throwable));
-                });
+                },(editProfileRxActivity, throwable) -> sendError(getError(throwable)));
     }
 
     private void updateAvatarTime(){

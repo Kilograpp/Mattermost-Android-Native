@@ -3,9 +3,8 @@ package com.kilogramm.mattermost.presenter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 
@@ -25,7 +24,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
 
     private static final int REQUEST_SEND_EMAIL = 1;
 
-    private ApiMethod service;
 
     private String userEmail;
 
@@ -35,7 +33,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         this.userEmail = "";
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initSendEmailRequest();
         sendShowProgress(false);
         pattern = Pattern.compile(EMAIL_PATTERN);
@@ -49,7 +46,8 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
 
     private void initSendEmailRequest() {
         restartableFirst(REQUEST_SEND_EMAIL,
-                () -> service.forgotPassword(new ForgotData(userEmail))
+                () -> ServerMethod.getInstance()
+                        .forgotPassword(new ForgotData(userEmail))
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                 , (forgotPasswordActivity, forgotData) -> {

@@ -36,6 +36,7 @@ import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -96,10 +97,16 @@ public class ManagerBroadcast {
     private WebSocketObj parseWebSocketObject(String json, Context context) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
-        JSONObject broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
+        JSONObject broadcastJSON = null;
+        if(jsonObject.has(WebSocketObj.BROADCAST))
+            broadcastJSON= jsonObject.getJSONObject(WebSocketObj.BROADCAST);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
+        if(jsonObject.has(WebSocketObj.BROADCAST))
+            webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
+        else {
+            webSocketObj.setBroadcast(null);
+        }
         Log.d(TAG, jsonObject.toString());
         webSocketObj = new Gson().fromJson(jsonObject.toString(), WebSocketObj.class);
         if (webSocketObj.getSeqReplay() != null) {
@@ -175,7 +182,8 @@ public class ManagerBroadcast {
                         jsonObject.getString(WebSocketObj.CHANNEL_ID)));
                 break;
             case WebSocketObj.EVENT_DIRECT_ADDED:
-                service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
+                ServerMethod.getInstance()
+                        .extraInfo(MattermostPreference.getInstance().getTeamId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe(channelsWithMembers -> {

@@ -1,14 +1,9 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-
-import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.fromnet.InviteObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +12,7 @@ import java.util.List;
  * Created by kepar on 17.11.16.
  */
 
-public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.ViewHolder, T extends Object> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public abstract class HeaderFooterRecyclerArrayAdapter<VH extends RecyclerView.ViewHolder, T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<T> items;
     private List<View> headers = new ArrayList<>();
     private List<View> footers = new ArrayList<>();

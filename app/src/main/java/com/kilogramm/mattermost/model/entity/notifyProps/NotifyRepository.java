@@ -51,15 +51,13 @@ public class NotifyRepository {
     public static RealmResults<NotifyProps> query(Specification specification) {
         RealmSpecification realmSpecification = (RealmSpecification) specification;
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<NotifyProps> realmResults = realmSpecification.toRealmResults(realm);
-        return realmResults;
+        return realmSpecification.toRealmResults(realm);
     }
 
     public static RealmResults<NotifyProps> query() {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<NotifyProps> realmResults = realm.where(NotifyProps.class)
+        return realm.where(NotifyProps.class)
                 .findAll();
-        return realmResults;
     }
 
 

@@ -7,7 +7,6 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -40,12 +39,9 @@ public class MembersRepository {
         realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
 
-    public static void update(Map<String, Member> items) {
+    public static void update(List<Member> items) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            for (Map.Entry<String, Member> item : items.entrySet())
-                realm1.insertOrUpdate(item.getValue());
-        });
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(items));
     }
 
 

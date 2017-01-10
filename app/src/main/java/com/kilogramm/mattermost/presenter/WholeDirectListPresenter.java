@@ -5,18 +5,18 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
@@ -38,7 +38,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     private static final String TAG = "WholeDirListPresenter";
     private static final int REQUEST_SAVE_PREFERENCES = 1;
 
-    private ApiMethod service;
     @State
     String name;
     @State
@@ -53,14 +52,15 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
         initGetUsers();
     }
 
     public Observable<Channel> addParticipantRx(String name) {
-        LogoutData logoutData = new LogoutData(name);
-        return service.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
+        User user = new User();
+        user.setId(name);
+        return ServerMethod.getInstance()
+                .createDirect(MattermostPreference.getInstance().getTeamId(), user);
 
     }
 
@@ -94,7 +94,8 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
 
     private void initGetUsers() {
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
-                        service.save(preferenceList)
+                        ServerMethod.getInstance()
+                                .save(preferenceList)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> {

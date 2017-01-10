@@ -3,11 +3,10 @@ package com.kilogramm.mattermost.presenter.channel;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.NameChannelActivity;
 
@@ -22,8 +21,6 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
     private static final String TAG = "NamePresenter";
     private static final int REQUEST_UPDATE_CHANNEL = 1;
 
-    private ApiMethod mService;
-
     @State
     String mTeamId;
     @State
@@ -33,8 +30,6 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
@@ -53,7 +48,8 @@ public class NamePresenter extends BaseRxPresenter<NameChannelActivity> {
 
     private void initName() {
         restartableFirst(REQUEST_UPDATE_CHANNEL,
-                () -> mService.updateChannel(this.mTeamId, mChannel)
+                () -> ServerMethod.getInstance()
+                        .updateChannel(this.mTeamId, mChannel)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (nameActivity, channel) -> {

@@ -42,9 +42,7 @@ public class PreferenceRepository {
 
     public static void update(Preferences item) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            realm1.insertOrUpdate(item);
-        });
+        realm.executeTransaction(realm1 -> realm1.insertOrUpdate(item));
     }
 
     public static void update(String name, String value) {

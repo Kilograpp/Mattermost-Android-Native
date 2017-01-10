@@ -5,7 +5,6 @@ import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -15,17 +14,13 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
-import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
-import java.util.List;
-
 import icepick.State;
 import io.realm.RealmList;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -43,9 +38,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private String errorLoadingExtraInfo = "Error loading channel info";
 
-    private ApiMethod mService;
 
-    private LogoutData mUser;
+    private User mUser = new User();
 
     @State
     ListPreferences listPreferences = new ListPreferences();
@@ -60,9 +54,6 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
-
         initRequests();
     }
 
@@ -75,7 +66,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     public void requestSaveData(Preferences data, String userId) {
         listPreferences.getmSaveData().clear();
         listPreferences.getmSaveData().add(data);
-        mUser.setUserId(userId);
+        mUser.setId(userId);
         start(REQUEST_SAVE);
     }
 
@@ -112,30 +103,29 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void initExtraInfo() {
         restartableFirst(REQUEST_EXTRA_INFO,
-                () -> Observable.defer(() -> Observable.zip(
-                        mService.getExtraInfoChannel(mTeamId,mChannelId)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        mService.getUsersInChannel(mTeamId,mChannelId,0,100)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        (extraInfo, members) -> {
-                            RealmList<User> results = new RealmList<>();
-                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(Stream.of(members.values()).collect(Collectors.toList()))));
-                            extraInfo.setMembers(results);
-                            return extraInfo;
-                        }))
-                , (channelActivity, extraInfo) -> {
-                    ExtroInfoRepository.add(extraInfo);
+                () -> ServerMethod.getInstance()
+                        .extraInfoChannel(MattermostPreference.getInstance().getTeamId(),mChannelId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                ,(channelActivity, extraInfoWithOutMember) -> {
+                    RealmList<User> results = new RealmList<>();
+                    results.addAll(UserRepository.query(
+                            new UserRepository.UserByIdsSpecification(
+                                    Stream.of(extraInfoWithOutMember.getMembers().values())
+                                            .collect(Collectors.toList())
+                            )
+                    ));
+                    extraInfoWithOutMember.getExtraInfo().setMembers(results);
+                    ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_CHANNEL);
-                }
-                , (chatRxFragment1, throwable) -> {
+                },(channelActivity, throwable) -> {
                     sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 });
 
         restartableFirst(REQUEST_CHANNEL,
-                () -> mService.getChannel(this.mTeamId, this.mChannelId)
+                () -> ServerMethod.getInstance()
+                        .getChannel(this.mTeamId, this.mChannelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channelWithMember) -> {
@@ -150,7 +140,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void leaveChannel() {
         restartableFirst(REQUEST_LEAVE,
-                () -> mService.leaveChannel(this.mTeamId, this.mChannelId)
+                () -> ServerMethod.getInstance()
+                        .leaveChannel(this.mTeamId, this.mChannelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("leaved"),
@@ -160,7 +151,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private void deleteChannel() {
         restartableFirst(REQUEST_DELETE,
-                () -> mService.deleteChannel(this.mTeamId, this.mChannelId)
+                () -> ServerMethod.getInstance()
+                        .deleteChannel(this.mTeamId, this.mChannelId)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("deleted"),
@@ -169,30 +161,20 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     }
 
     private void initSaveRequest() {
-        restartableFirst(REQUEST_SAVE, () -> Observable.defer(
-                () -> Observable.zip(
-                        mService.save(listPreferences.getmSaveData())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        mService.createDirect(MattermostPreference.getInstance().getTeamId(), mUser)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (aBoolean, channel) -> {
-                            if (aBoolean == Boolean.FALSE) {
-                                return null;
-                            }
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
-                            return channel;
-                        })), (generalRxActivity, channel) -> {
-            listPreferences.getmSaveData().clear();
-            MattermostPreference.getInstance().setLastChannelId(channel.getId());
-            sendSetFragmentChat();
-        }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
-
-        List<Preferences> preferenceList = PreferenceRepository.query();
+        restartableFirst(REQUEST_SAVE,
+                () -> ServerMethod.getInstance()
+                        .saveOrCreateDirectChannel(listPreferences.getmSaveData(),
+                                MattermostPreference.getInstance().getTeamId(), mUser.getId())
+                , (generalRxActivity, channel) -> {
+                    ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getId());
+                    listPreferences.getmSaveData().clear();
+                    MattermostPreference.getInstance().setLastChannelId(channel.getId());
+                    sendSetFragmentChat();
+                }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
 
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
-                        mService.save(PreferenceRepository.query())
+                        ServerMethod.getInstance()
+                                .save(PreferenceRepository.query())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> sendSetFragmentChat(),

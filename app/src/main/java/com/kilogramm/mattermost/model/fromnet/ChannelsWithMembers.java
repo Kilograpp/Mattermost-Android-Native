@@ -2,12 +2,10 @@ package com.kilogramm.mattermost.model.fromnet;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.member.Member;
 
-import java.util.Map;
-
-import io.realm.RealmList;
+import java.util.List;
 
 /**
  * Created by Evgeny on 03.08.2016.
@@ -16,26 +14,30 @@ public class ChannelsWithMembers {
 
     @SerializedName("channels")
     @Expose
-    private RealmList<Channel> channels;
+    private List<Channel> channels;
 
     @SerializedName("members")
     @Expose
-    private Map<String,Member> members;
+    private List<Member> members;
 
-
-    public Map<String, Member> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Map<String, Member> members) {
+    public ChannelsWithMembers(List<Channel> channels, List<Member> members) {
+        this.channels = channels;
         this.members = members;
     }
 
-    public RealmList<Channel> getChannels() {
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<Member> members) {
+        this.members = members;
+    }
+
+    public List<Channel> getChannels() {
         return channels;
     }
 
-    public void setChannels(RealmList<Channel> channels) {
+    public void setChannels(List<Channel> channels) {
         this.channels = channels;
     }
 }

@@ -21,11 +21,11 @@ import io.realm.RealmResults;
  * Created by Evgeny on 10.10.2016.
  */
 public class AdapterPost extends RealmAD<Post, PostViewHolder> {
-    public static final String TAG = "AdapterPost";
+    private static final String TAG = "AdapterPost";
 
-    public static final int ITEM = -1;
-    public static final int LOADING_TOP = -2;
-    public static final int LOADING_BOTTOM = -3;
+    private static final int ITEM = -1;
+    private static final int LOADING_TOP = -2;
+    private static final int LOADING_BOTTOM = -3;
 
     private LayoutInflater mInflater;
     private Context mContext;

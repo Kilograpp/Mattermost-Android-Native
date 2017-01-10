@@ -11,7 +11,7 @@ import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.net.URI;
 import java.util.regex.Matcher;
@@ -45,9 +45,9 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         mMattermostApp = MattermostApp.getSingleton();
 
         restartableFirst(REQUEST_CHECK, () -> {
-            ApiMethod service = mMattermostApp.getMattermostRetrofitService();
             sendVisibleProgress(true);
-            return service.initLoad()
+            return ServerMethod.getInstance()
+                    .initLoad()
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io());
         }, (mainActivity, initObject) -> {

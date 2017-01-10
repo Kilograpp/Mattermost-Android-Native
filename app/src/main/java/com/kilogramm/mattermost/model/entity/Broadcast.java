@@ -89,7 +89,7 @@ public class Broadcast implements Parcelable {
     protected Broadcast(Parcel in) {
         this.channel_id = in.readString();
         int omit_usersSize = in.readInt();
-        this.omit_users = new HashMap<String, Boolean>(omit_usersSize);
+        this.omit_users = new HashMap<>(omit_usersSize);
         for (int i = 0; i < omit_usersSize; i++) {
             String key = in.readString();
             Boolean value = (Boolean) in.readValue(Boolean.class.getClassLoader());

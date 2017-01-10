@@ -2,11 +2,10 @@ package com.kilogramm.mattermost.presenter.settings;
 
 import android.os.Bundle;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.settings.EmailEditActivity;
@@ -23,20 +22,19 @@ public class EmailEditPresenter extends BaseRxPresenter<EmailEditActivity> {
 
     private static final int REQUEST_SAVE = 1;
 
-    private ApiMethod service;
 
     private User editedUser;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initSave();
     }
 
     private void initSave() {
         restartableFirst(REQUEST_SAVE,
-                () -> service.updateUser(editedUser)
+                () -> ServerMethod.getInstance()
+                        .updateUser(editedUser)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                 , (editProfileRxActivity, user) -> {

@@ -30,16 +30,12 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
-
-import java.util.ArrayList;
+import com.kilogramm.mattermost.network.ServerMethod;
 
 import icepick.State;
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -66,8 +62,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_LOAD_AFTER = 9;
 
     private static final int REQUEST_LOAD_FOUND_MESSAGE = 12;
-
-    private ApiMethod service;
 
     private Toast mToast;
 
@@ -112,7 +106,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        service = mMattermostApp.getMattermostRetrofitService();
         limit = "60";
         initRequests();
     }
@@ -143,7 +136,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initSendCommand() {
         restartableFirst(REQUEST_SEND_COMMAND,
-                () -> service.executeCommand(this.teamId, this.command)
+                () -> ServerMethod.getInstance()
+                        .executeCommand(teamId,command)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (chatRxFragment, commandFromNet) -> {
@@ -173,38 +167,22 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initExtraInfo() {
-        restartableFirst(REQUEST_EXTRA_INFO,
-                () -> Observable.defer(() -> Observable.zip(
-                        service.getChannelsTeamNew(this.teamId)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-                        service.getMembersTeamNew(this.teamId)
-                                .observeOn(Schedulers.io())
-                                .subscribeOn(Schedulers.io()),
-//                        service.getExtraInfoChannel(this.teamId, this.channelId)
-//                                .observeOn(Schedulers.io())
-//                                .subscribeOn(Schedulers.io()),
-                        (channelsWithMembers, members) -> {
-                            ChannelRepository.prepareChannelAndAdd(channelsWithMembers,
-                                    MattermostPreference.getInstance().getMyUserId());
-                            MembersRepository.add(members);
-                            channelType = ChannelRepository.query(new
-                                    ChannelRepository.ChannelByIdSpecification(this.channelId))
-                                    .first()
-                                    .getType();
-                            setGoodLayout();
-                            RealmList<User> results = new RealmList<>();
-//                            results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
-//                            extraInfo.setMembers(results);
-//                            ExtroInfoRepository.add(extraInfo);
-//                            sendTypeChannel();
-//                            return extraInfo;
-                            return members;
-                        }))
-                , (chatRxFragment, members) -> {
+        restartableFirst(REQUEST_EXTRA_INFO, () ->
+                ServerMethod.getInstance()
+                        .extraInfo(this.teamId)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (chatRxFragment, channelsWithMembers) -> {
+                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
+                            MattermostPreference.getInstance().getMyUserId());
+                    MembersRepository.add(channelsWithMembers.getMembers());
+                    channelType = ChannelRepository.query(new
+                            ChannelRepository.ChannelByIdSpecification(this.channelId))
+                            .first()
+                            .getType();
+                    setGoodLayout();
                     requestLoadPosts();
-                }
-                , (chatRxFragment1, throwable) -> {
+                },(chatRxFragment, throwable) -> {
                     sendError(getError(throwable));
                     final ConnectivityManager connectivityManager =
                             (ConnectivityManager) MattermostApp.getSingleton()
@@ -219,7 +197,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initLoadPosts() {
         restartableFirst(REQUEST_LOAD_POSTS, () ->
-                        service.getPosts(teamId, channelId)
+                        ServerMethod.getInstance()
+                                .getPosts(teamId, channelId)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.computation()),
                 (chatRxFragment, posts) -> {
@@ -246,7 +225,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initSendToServer() {
-        restartableFirst(REQUEST_SEND_TO_SERVER, () -> service.sendPost(teamId, channelId, forSendPost)
+        restartableFirst(REQUEST_SEND_TO_SERVER,
+                () -> ServerMethod.getInstance()
+                        .sendPost(teamId, channelId, forSendPost)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
@@ -270,7 +251,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initUpdateLastViewedAt() {
-        restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () -> service.updatelastViewedAt(teamId, channelId)
+        restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () ->
+                ServerMethod.getInstance()
+                        .updateLastViewedAt(teamId, channelId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
@@ -282,7 +265,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initDeletePost() {
-        restartableFirst(REQUEST_DELETE_POST, () -> service.deletePost(teamId, channelId, forDeletePost.getId(), new Object())
+        restartableFirst(REQUEST_DELETE_POST,
+                () -> ServerMethod.getInstance()
+                        .deletePost(teamId, channelId, forDeletePost.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
@@ -297,7 +282,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initEditPost() {
-        restartableFirst(REQUEST_EDIT_POST, () -> service.editPost(teamId, channelId, forEditPost)
+        restartableFirst(REQUEST_EDIT_POST,
+                () -> ServerMethod.getInstance()
+                        .editPost(teamId, channelId, forEditPost)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (chatRxFragment, post1) -> {
@@ -317,7 +304,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         restartableFirst(REQUEST_LOAD_BEFORE,
                 () -> {
                     Log.d(TAG, "initLoadBefore");
-                    return service.getPostsBefore(teamId, channelId, lastmessageId, limit)
+                    return ServerMethod.getInstance()
+                            .getPostsBefore(teamId, channelId, lastmessageId, limit)
                             .subscribeOn(Schedulers.io())
                             .observeOn(Schedulers.io());
                 },
@@ -339,9 +327,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private void initLoadAfter() {
         restartableFirst(REQUEST_LOAD_AFTER,
-                () -> service.getPostsAfter(teamId, channelId, firstmessageId, limit)
+                () -> ServerMethod.getInstance()
+                        .getPostsAfter(teamId, channelId, firstmessageId, limit)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()), (chatRxFragment, posts) -> {
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, posts) -> {
                     if (posts.getPosts() == null) {
                         sendCanPaginationBot(false);
                         return;
@@ -382,31 +372,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initLoadBeforeAndAfter() {
-        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE, () ->
-                        Observable.defer(() -> Observable.zip(
-                                service.getExtraInfoChannel(teamId, channelId)
-                                        .observeOn(Schedulers.io())
-                                        .subscribeOn(Schedulers.io()),
-                                service.getPostsBefore(teamId, channelId, searchMessageId, limit)
-                                        .observeOn(Schedulers.io())
-                                        .subscribeOn(Schedulers.io()),
-                                service.getPost(teamId, channelId, searchMessageId)
-                                        .observeOn(Schedulers.io())
-                                        .subscribeOn(Schedulers.io()),
-                                service.getPostsAfter(teamId, channelId, searchMessageId, limit)
-                                        .observeOn(Schedulers.io())
-                                        .subscribeOn(Schedulers.io()),
-                                (extraInfo, postsBef, foundPosts, postsAft) -> {
-                                    ArrayList<Posts> allPosts = new ArrayList<>();
-                                    if (postsAft.getPosts() != null) {
-                                        allPosts.add(postsAft);
-                                    }
-                                    allPosts.add(foundPosts);
-                                    if (postsBef.getPosts() != null) {
-                                        allPosts.add(postsBef);
-                                    }
-                                    return allPosts;
-                                }))
+        restartableFirst(REQUEST_LOAD_FOUND_MESSAGE,
+                () -> ServerMethod.getInstance()
+                        .loadBeforeAndAfter(teamId,channelId,searchMessageId,limit)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
                 , (chatRxFragment, postsAll) -> {
                     PostRepository.remove(new PostByChannelId(channelId));
                     if (postsAll == null) {

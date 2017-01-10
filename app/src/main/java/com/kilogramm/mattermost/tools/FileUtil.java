@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -338,7 +337,7 @@ public class FileUtil {
                 if (matcher.find()) {
                     int dotPos = filename.lastIndexOf('.');
                     if (0 <= dotPos) {
-                        if(withDot) return filename.substring(dotPos);
+                        if (withDot) return filename.substring(dotPos);
                         else return filename.substring(dotPos + 1);
                     }
                 }
