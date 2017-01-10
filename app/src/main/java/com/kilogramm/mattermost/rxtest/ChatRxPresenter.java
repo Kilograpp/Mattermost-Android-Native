@@ -229,22 +229,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         @Override
                         public void onCompleted() {
                             Log.d(TAG, "onCompleted: ");
-                            PostRepository.remove(new PostByChannelId(channelId));
-                            PostRepository.prepareAndAdd(posts);
-                            PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
-                            requestUpdateLastViewedAt();
-                            sendFinishLoadPosts();
+                            mergePosts(posts);
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
                             sendError("cannot get file");
-                            PostRepository.remove(new PostByChannelId(channelId));
-                            PostRepository.prepareAndAdd(posts);
-                            PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
-                            requestUpdateLastViewedAt();
-                            sendFinishLoadPosts();
+                            mergePosts(posts);
                         }
 
                         @Override
@@ -271,6 +263,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         }
         setGoodLayout();
         Log.d(TAG, "Complete load post");
+    }
+
+    private void mergePosts(Posts posts){
+        PostRepository.remove(new PostByChannelId(channelId));
+        PostRepository.prepareAndAdd(posts);
+        PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
+        requestUpdateLastViewedAt();
+        sendFinishLoadPosts();
     }
 
     private void initSendToServer() {
@@ -369,41 +369,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendCanPaginationTop(false);
                         return;
                     }
-                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
-                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if (entry.getValue().getFilenames().size() > 0) {
-                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io()));
-                        }
-                    }
-
-                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.d(TAG, "onCompleted: ");
-                            PostRepository.prepareAndAdd(posts);
-                            sendShowList();
-                            sendDisableShowLoadMoreTop();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            sendError("cannot get file");
-                            sendShowList();
-                            sendDisableShowLoadMoreTop();
-                        }
-
-                        @Override
-                        public void onNext(List<FileInfo> fileInfos) {
-                            if (fileInfos == null) return;
-                            for (FileInfo fileInfo : fileInfos) {
-                                Log.d(TAG, "onNext: " + fileInfo.getId());
-                                FileInfoRepository.getInstance().add(fileInfo);
-                            }
-                        }
-                    });
+                    getFilesInfo(posts, false);
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
@@ -422,48 +388,58 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendCanPaginationBot(false);
                         return;
                     }
-
-                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
-                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if (entry.getValue().getFilenames().size() > 0) {
-                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io()));
-                        }
-                    }
-
-                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.d(TAG, "onCompleted: ");
-                            PostRepository.prepareAndAdd(posts);
-                            sendShowList();
-                            sendDisableShowLoadMoreBot();
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            sendError("cannot get file");
-                            sendShowList();
-                            sendDisableShowLoadMoreBot();
-                        }
-
-                        @Override
-                        public void onNext(List<FileInfo> fileInfos) {
-                            if (fileInfos == null) return;
-                            for (FileInfo fileInfo : fileInfos) {
-                                Log.d(TAG, "onNext: " + fileInfo.getId());
-                                FileInfoRepository.getInstance().add(fileInfo);
-                            }
-                        }
-                    });
-
+                    getFilesInfo(posts, true);
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
                 });
+    }
+
+    private void getFilesInfo(Posts posts, boolean isBot){
+        List<Observable<List<FileInfo>>> observables = new ArrayList<>();
+        for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
+            if (entry.getValue().getFilenames().size() > 0) {
+                observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()));
+            }
+        }
+
+        Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "onCompleted: ");
+                PostRepository.prepareAndAdd(posts);
+                sendShowList();
+                if (isBot){
+                    sendDisableShowLoadMoreBot();
+                }else {
+                    sendDisableShowLoadMoreTop();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+                sendError("cannot get file");
+                sendShowList();
+                if (isBot){
+                    sendDisableShowLoadMoreBot();
+                }else {
+                    sendDisableShowLoadMoreTop();
+                }
+            }
+
+            @Override
+            public void onNext(List<FileInfo> fileInfos) {
+                if (fileInfos == null) return;
+                for (FileInfo fileInfo : fileInfos) {
+                    Log.d(TAG, "onNext: " + fileInfo.getId());
+                    FileInfoRepository.getInstance().add(fileInfo);
+                }
+            }
+        });
     }
 
     private void initGetUsers() {
@@ -504,7 +480,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendCanPaginationBot(false);
                         return;
                     }
-
                     try {
                         for (Posts posts : postsAll) {
                             PostRepository.prepareAndAdd(posts);

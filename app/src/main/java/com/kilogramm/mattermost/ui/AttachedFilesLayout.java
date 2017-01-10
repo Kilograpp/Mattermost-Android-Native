@@ -106,6 +106,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     public void addItems(List<Uri> uriList, String channelId) {
+        Log.d(TAG, "addItems: " + uriList.size());
         this.mChannelId = channelId;
         if (this.mUriList == null) this.mUriList = new ArrayList<>();
         this.mUriList.addAll(uriList);
@@ -113,6 +114,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void uploadNext() {
+        Log.d(TAG, "uploadNext: ");
         if (mUriList.size() > 0) {
             addItem(mUriList.get(0));
             mUriList.remove(mUriList.get(0));
@@ -120,7 +122,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void addItem(Uri uri) {
-        Log.d(TAG, "Attaching file: " + uri.toString());
+        Log.d(TAG, "addItem: " + uri.toString());
         if(FileToAttachRepository.getInstance().getFilesForAttach().size() == FILE_TO_ATTACH_MAX){
             Toast.makeText(getContext(), String.format("%s %d", getContext().getString(R.string.too_much_files), FILE_TO_ATTACH_MAX + 1), Toast.LENGTH_SHORT).show();
             return;
@@ -137,6 +139,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void uploadFileToServer(Uri uri, String filePath, String channelId, boolean isTemporaryFile) {
+        Log.d(TAG, "uploadFileToServer: " + uri.toString());
         final File file = new File(filePath);
         if(file.length() > 1024 * 1024 * 50){
             Log.d(TAG, "file too big");
@@ -144,7 +147,11 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
             return;
         }
         if (file.exists()) {
-            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(), filePath, uri.toString(), UploadState.WAITING_FOR_UPLOAD, isTemporaryFile));
+            FileToAttachRepository.getInstance().add(new FileToAttach(file.getName(),
+                    filePath,
+                    uri.toString(),
+                    UploadState.WAITING_FOR_UPLOAD,
+                    isTemporaryFile));
             if (!FileToAttachRepository.getInstance().haveUploadingFile()) {
                 getPresenter().requestUploadFileToServer(channelId);
             }

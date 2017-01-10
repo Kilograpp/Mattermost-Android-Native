@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.model.entity.filetoattacth;
 
+import android.util.Log;
+
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.tools.FileUtil;
 
@@ -13,6 +15,8 @@ import io.realm.RealmResults;
  */
 public class FileToAttachRepository {
 
+    private static final String TAG = "FileToAttachRepository";
+
     private static FileToAttachRepository mInstance;
 
     public static FileToAttachRepository getInstance() {
@@ -25,6 +29,7 @@ public class FileToAttachRepository {
     //region Add methods
 
     public void add(FileToAttach item) {
+        Log.d(TAG, "add: ");
         Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
@@ -67,11 +72,11 @@ public class FileToAttachRepository {
 
     // region Update methods
 
-    public void updateName(String oldName, String fileName) {
+    public void updateName(long id, String fileName) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("fileName", oldName)
+                    .equalTo("id", id)
                     .findFirst();
             if (fileToAttach != null) {
                 fileToAttach.setFileName(fileName);
@@ -79,23 +84,11 @@ public class FileToAttachRepository {
         });
     }
 
-    public void updateUploadStatus(String fileName, UploadState status) {
+    public void updateIdFromServer(long id, String idFromServer) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
             FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
-                    .findFirst();
-            if (fileToAttach != null) {
-                fileToAttach.setUploadState(status);
-            }
-        });
-    }
-
-    public void updateIdFromServer(String fileName, String idFromServer) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm1.where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
+                    .equalTo("id", id)
                     .findFirst();
             if (fileToAttach != null) {
                 fileToAttach.setIdFromServer(idFromServer);
@@ -165,8 +158,8 @@ public class FileToAttachRepository {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(FileToAttach.class)
                 .equalTo("uploadState", UploadState.WAITING_FOR_UPLOAD.name())
-                .or()
-                .equalTo("uploadState", UploadState.UPLOADING.name())
+//                .or()
+//                .equalTo("uploadState", UploadState.UPLOADING.name())
                 .findFirst();
     }
 
@@ -233,15 +226,15 @@ public class FileToAttachRepository {
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });
-//        realm.close();
+        realm.close();
     }
 
-    public void remove(String fileName) {
+    public void remove(long id) {
         final Realm realm = Realm.getDefaultInstance();
 
         realm.executeTransaction(realm1 -> {
             RealmResults<FileToAttach> fileToAttachList = realm.where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
+                    .equalTo("id", id)
                     .findAll();
             fileToAttachList.deleteFirstFromRealm();
         });

@@ -42,6 +42,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     @State
     String fileName;
     private FileToAttach mFileToAttach;
+    private long mCurrentFileId;
 
     private RequestBody mChannelIdBody;
     private RequestBody mClientIdBody;
@@ -49,6 +50,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     private FileUtil mFileUtil;
 
     public void requestUploadFileToServer(String channelId) {
+        Log.d(TAG, "requestUploadFileToServer: ");
         this.channelId = channelId;
         startRequest();
     }
@@ -63,6 +65,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
+            Log.d(TAG, "initRequests: ");
             String filePath = mFileUtil.getPath(Uri.parse(mFileToAttach.getUriAsString()));
             String mimeType = mFileUtil.getMimeType(filePath);
 
@@ -88,27 +91,32 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
+            Log.d(TAG, "initRequests: success");
             if (fileUploadResponse.getFile_infos() != null
                     && fileUploadResponse.getFile_infos().size() != 0) {
                 Log.d(TAG, fileUploadResponse.toString());
                 FileInfo fileInfo = fileUploadResponse.getFile_infos().get(0);
-                FileToAttachRepository.getInstance().updateName(fileName, fileInfo.getmName());
-                FileToAttachRepository.getInstance().updateUploadStatus(fileInfo.getmName(),
+                FileToAttachRepository.getInstance().updateName(mCurrentFileId, fileInfo.getmName());
+                FileToAttachRepository.getInstance().updateUploadStatus(mCurrentFileId,
                                 UploadState.UPLOADED);
-                FileToAttachRepository.getInstance().updateIdFromServer(fileInfo.getmName(),
+                FileToAttachRepository.getInstance().updateIdFromServer(mCurrentFileId,
                         fileInfo.getId());
                 FileInfoRepository.getInstance().add(fileInfo);
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
+            Log.d(TAG, "initRequests: fail", throwable);
             throwable.printStackTrace();
+            // TODO обработать различные ошибки (чтобы при отмене ничего не выводилось)
             if (!throwable.getMessage().trim().equals("unexpected end of stream")) {
                 String error = parceError(throwable, UPLOAD_A_FILE);
                 if (error != null) {
                     sendShowError(error);
                 }
+            } else {
+                sendShowError("Cannot upload a file");
             }
-            FileToAttachRepository.getInstance().remove(fileName);
+            FileToAttachRepository.getInstance().remove(mCurrentFileId);
             startRequest();
         });
     }
@@ -125,12 +133,16 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     }
 
     private void startRequest() {
+        Log.d(TAG, "startRequest: ");
         mFileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
         if (mFileToAttach == null || channelId == null) {
+            Log.d(TAG, "startRequest: no files for upload");
             if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
                 sendAllUploaded();
             }
             return;
+        } else {
+            mCurrentFileId = mFileToAttach.getId();
         }
         start(REQUEST_UPLOAD_TO_SERVER);
     }
