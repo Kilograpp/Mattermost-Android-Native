@@ -61,6 +61,7 @@ public class PostRepository {
 
     public static Post query(String id) {
         Realm realm = Realm.getDefaultInstance();
+        realm.waitForChange();
         return realm.where(Post.class).equalTo("id", id).findFirst();
     }
 
