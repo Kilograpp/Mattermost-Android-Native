@@ -26,7 +26,6 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -110,18 +109,24 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
             if (!thisTeamDirects.get(i).getId().equals(currentUserId)
                     && !thisTeamDirects.get(i).getId().equals("null")) {
                 if (thisTeamDirects.size() > 1) {
-                    directUsers.equalTo("id", thisTeamDirects.get(i).getId()).or();
+                    if(i==thisTeamDirects.size()-1){
+                        directUsers.equalTo("id", thisTeamDirects.get(i).getId());
+                    } else {
+                        directUsers.equalTo("id", thisTeamDirects.get(i).getId()).or();
+                    }
                 } else {
                     directUsers.equalTo("id", thisTeamDirects.get(i).getId());
                 }
             }
         }
 
-        mAdapter.updateData(directUsers.findAllSorted("username", Sort.ASCENDING));
         if (directUsers.findAllSorted("username", Sort.ASCENDING).size() == 0) {
             mBinding.listEmpty.setVisibility(View.VISIBLE);
-        } else
+        } else {
             mBinding.listEmpty.setVisibility(View.INVISIBLE);
+            mAdapter.updateData(directUsers.findAllSorted("username", Sort.ASCENDING));
+        }
+
     }
 
     public void setRecycleView() {

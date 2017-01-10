@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import icepick.State;
+import io.realm.RealmList;
 import io.realm.Sort;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -56,7 +59,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     User directUsers;
 
     private List<Preferences> preferenceList = new ArrayList<>();
-    private List<User> thisTeamDirects = new ArrayList<>();
+    private List<User> thisTeamDirects = new RealmList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -194,29 +197,28 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
 
     public void getSearchUsers(String name) {
         this.name = name;
-        createTemplateObservable(defaultChannelInfo.getMembers())
+        createTemplateObservable(thisTeamDirects)
                 .subscribe(split((wholeDirectListActivity, users) -> {
-                    if (name == null) {
-                        wholeDirectListActivity.updateDataList(
-                                users.where()
-                                        .isNotNull("id")
-                                        .notEqualTo("id", currentUserId)
-                                        .findAllSorted("username", Sort.ASCENDING));
+                    List<User> findedUsers = new ArrayList<>();
+                    if (name == null || name.equals("")) {
+                        findedUsers = Stream.of(users)
+                                .filter(value -> !value.getId().equals(currentUserId))
+                                .sorted((o1, o2) -> o1.getUsername().compareTo(o2.getUsername()))
+                                .collect(Collectors.toList());
+                        wholeDirectListActivity.updateDataList(findedUsers);
                     } else {
-                        wholeDirectListActivity.updateDataList(
-                                users.where()
-                                        .notEqualTo("id", currentUserId)
-                                        .contains("username", name.toLowerCase())
-                                        .or()
-                                        .notEqualTo("id", currentUserId)
-                                        .contains("firstName", name.substring(0, 1).toUpperCase()
-                                                + name.substring(1))
-                                        .or()
-                                        .notEqualTo("id", currentUserId)
-                                        .contains("lastName", name.substring(0, 1).toUpperCase()
-                                                + name.substring(1))
-                                        .findAllSorted("username", Sort.ASCENDING));
+                        findedUsers = Stream.of(users)
+                                .filter(value -> (!value.getId().equals(currentUserId)
+                                        && (value.getUsername().contains(name.toLowerCase())
+                                        || value.getFirstName().contains(name.substring(0, 1).toUpperCase() + name.substring(1))
+                                        || value.getLastName().contains(name.substring(0, 1).toUpperCase() + name.substring(1)))))
+                                .sorted((o1, o2) -> o1.getUsername().compareTo(o2.getUsername()))
+                                .collect(Collectors.toList());
+                        if(findedUsers.size()!=0){
+                            wholeDirectListActivity.updateDataList(findedUsers);
+                        }
                     }
+
                 }));
     }
 
