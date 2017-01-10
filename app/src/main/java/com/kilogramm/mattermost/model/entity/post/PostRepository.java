@@ -1,5 +1,7 @@
 package com.kilogramm.mattermost.model.entity.post;
 
+import android.util.Log;
+
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -15,6 +17,8 @@ import io.realm.RealmResults;
  * Created by Evgeny on 19.09.2016.
  */
 public class PostRepository {
+
+    private static final String TAG = "PostRepository";
 
     public static void add(Post item) {
         Realm realm = Realm.getDefaultInstance();
@@ -99,27 +103,38 @@ public class PostRepository {
 //    }
 
     public static void merge(Post item) {
+        Log.d(TAG, "merge: start");
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            Post post = realm.where(Post.class)
-                    .equalTo("id", item.getPendingPostId()).findFirst();
-            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
-                post.setProps(null);
-            } else {
-                post.setProps(item.getProps());
+        realm.beginTransaction();
+            try {
+                    Post post = realm.where(Post.class)
+                            .equalTo("id", item.getPendingPostId()).findFirst();
+                    if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                        post.setProps(null);
+                    } else {
+                        post.setProps(item.getProps());
+                    }
+                    Log.d(TAG, "merge() called with: item.id = [" + item.getId() + "]\n     post.id = [" + post.getId() + "}");
+                    if (!post.getId().equals(item.getId())) {
+                        post.setId(item.getId());
+                    }
+                    post.setCreateAt(item.getCreateAt());
+                    post.setUpdateAt(item.getUpdateAt());
+                    post.setDeleteAt(item.getDeleteAt());
+                    post.setRootId(item.getRootId());
+                    post.setParentId(item.getParentId());
+                    post.setOriginalId(item.getOriginalId());
+                    post.setType(item.getType());
+                    post.setHashtags(item.getHashtags());
+                    post.setPendingPostId(item.getPendingPostId());
+                    post.setFilenames(item.getFilenames());
+
+            } catch (Exception e){
+                e.printStackTrace();
             }
-            post.setId(item.getId());
-            post.setCreateAt(item.getCreateAt());
-            post.setUpdateAt(item.getUpdateAt());
-            post.setDeleteAt(item.getDeleteAt());
-            post.setRootId(item.getRootId());
-            post.setParentId(item.getParentId());
-            post.setOriginalId(item.getOriginalId());
-            post.setType(item.getType());
-            post.setHashtags(item.getHashtags());
-            post.setPendingPostId(item.getPendingPostId());
-            post.setFilenames(item.getFilenames());
-        });
+        realm.commitTransaction();
+        realm.close();
+        Log.d(TAG, "merge: end");
     }
 
     public static void prepareAndAddPost(Post post) {

@@ -1,22 +1,16 @@
 package com.kilogramm.mattermost.view.search;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -27,11 +21,6 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.presenter.SearchMessagePresenter;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.ArrayList;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -45,10 +34,10 @@ import nucleus.factory.RequiresPresenter;
 
 @RequiresPresenter(SearchMessagePresenter.class)
 public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
-        implements  TextView.OnEditorActionListener,
-                    SearchMessageAdapter.OnJumpClickListener {
+        implements TextView.OnEditorActionListener,
+        SearchMessageAdapter.OnJumpClickListener {
 
-//    private final int DELAY_SEARCH = 2000;
+    //    private final int DELAY_SEARCH = 2000;
     private final int DELAY_SEARCH = 100;
 
     private static final String TEAM_ID = "team_id";

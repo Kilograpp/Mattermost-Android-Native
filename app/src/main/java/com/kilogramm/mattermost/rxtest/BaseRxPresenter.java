@@ -3,7 +3,6 @@ package com.kilogramm.mattermost.rxtest;
 import android.os.Bundle;
 
 import com.google.gson.Gson;
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.error.HttpError;
 
 import java.io.IOException;

@@ -306,15 +306,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int pFirst = layoutManager.findFirstVisibleItemPosition();
                 int pLast = layoutManager.findLastVisibleItemPosition();
-                Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
+                //Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
 
                 if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
                     isFocus = true;
-                    Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
+                    //Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
                 }
 
                 if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
-                    Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
+                    //Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
                     if (adapter != null) adapter.setmHighlitedPost(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
@@ -927,9 +927,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         String typing = getStringTyping(obj);
         if (typing != null) {
             setupTypingText(typing);
-            binding.getRoot().postDelayed(() -> {
-                sendUsersStatus(obj);
-            }, TYPING_DURATION);
+            binding.getRoot().postDelayed(() -> sendUsersStatus(obj), TYPING_DURATION);
         } else
             sendUsersStatus(null);
     }

@@ -4,15 +4,10 @@ import android.os.Bundle;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.BaseActivity;
-import com.kilogramm.mattermost.view.settings.EmailEditActivity;
 import com.kilogramm.mattermost.view.settings.PasswordChangeActivity;
 
 import rx.schedulers.Schedulers;
@@ -27,20 +22,19 @@ public class PasswordChangePresenter extends BaseRxPresenter<PasswordChangeActiv
 
     private static final int REQUEST_SAVE = 1;
 
-    private ApiMethod service;
 
     private NewPassword newPassword;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initSave();
     }
 
     private void initSave() {
         restartableFirst(REQUEST_SAVE,
-                () -> service.changePassword(newPassword)
+                () -> ServerMethod.getInstance()
+                        .changePassword(newPassword)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                 ,(editProfileRxActivity, user) -> {

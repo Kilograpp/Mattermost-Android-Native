@@ -416,4 +416,13 @@ public class Post extends RealmObject implements Parcelable {
             return new Post[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id='" + id + '\'' +
+                ", message='" + message + '\'' +
+                ", pendingPostId='" + pendingPostId + '\'' +
+                '}';
+    }
 }

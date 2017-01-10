@@ -131,8 +131,7 @@ public class ChannelRepository {
 
     public static RealmResults<Channel> query(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
-        return realmResults;
+        return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
     // region Specification

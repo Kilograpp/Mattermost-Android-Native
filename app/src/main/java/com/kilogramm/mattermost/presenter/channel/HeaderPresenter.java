@@ -5,11 +5,10 @@ import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.HeaderChannelActivity;
 
@@ -23,8 +22,6 @@ import rx.schedulers.Schedulers;
 public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     private static final String TAG = "HeaderPresenter";
     private static final int REQUEST_UPDATE_HEADER = 1;
-
-    private ApiMethod mService;
 
     @State
     String mTeamId;
@@ -42,8 +39,6 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
@@ -91,7 +86,8 @@ public class HeaderPresenter extends BaseRxPresenter<HeaderChannelActivity> {
 
     private void initHeader() {
         restartableFirst(REQUEST_UPDATE_HEADER,
-                () -> mService.updateHeader(this.mTeamId, new ChannelHeader(mChannelId, mHeader))
+                () -> ServerMethod.getInstance()
+                        .updateHeader(this.mTeamId, new ChannelHeader(mChannelId, mHeader))
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (headerActivity, channel) -> {

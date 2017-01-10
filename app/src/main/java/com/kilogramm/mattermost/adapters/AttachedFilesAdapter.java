@@ -13,7 +13,6 @@ import com.kilogramm.mattermost.databinding.AttachedFileLayoutBinding;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
-import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.io.IOException;

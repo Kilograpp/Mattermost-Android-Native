@@ -3,13 +3,12 @@ package com.kilogramm.mattermost.presenter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
@@ -45,7 +44,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-
         user = new LogoutData();
         mMattermostApp = MattermostApp.getSingleton();
         service = mMattermostApp.getMattermostRetrofitService();
@@ -61,7 +59,8 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
 
     private void initRequest() {
         restartableFirst(REQUEST_CHANNELS_MORE,
-                () -> service.channelsMore(teamId)
+                () -> ServerMethod.getInstance()
+                        .channelsMore(teamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (addExistingChannelsActivity, channelsList) -> {
@@ -88,7 +87,8 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                 });
 
         restartableFirst(REQUEST_ADD_CHAT, () ->
-                        service.joinChannel(teamId, mChannelId)
+                        ServerMethod.getInstance()
+                                .joinChannel(MattermostPreference.getInstance().getTeamId(), channelId)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (generalRxActivity, channel) -> requestJoinChannel(),
@@ -108,12 +108,13 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     }
 
     private void makeChannelsTeamRequest(Channel channel) {
-        service.getChannelsTeamNew(teamId)
+        ServerMethod.getInstance()
+                .getChannelsTeam(MattermostPreference.getInstance().getTeamId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(channelsWithMembers -> {
+                .subscribe(channels -> {
                     RealmList<Channel> channelsList = new RealmList<>();
-                    channelsList.addAll(channelsWithMembers);
+                    channelsList.addAll(channels);
                     ChannelRepository.remove(new ChannelRepository.ChannelByTypeSpecification("O"));
                     ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
                     String channelName = Objects.equals(channel.getDisplayName(), "") ? channel.getName() : channel.getDisplayName();

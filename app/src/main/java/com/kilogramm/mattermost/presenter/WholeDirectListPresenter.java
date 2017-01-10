@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
@@ -15,7 +14,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
@@ -61,8 +60,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-
-        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
+        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
         teamId = MattermostPreference.getInstance().getTeamId();
 
@@ -71,6 +69,12 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
 
         initRequests();
     }
+
+    public Observable<Channel> addParticipantRx(String name) {
+        User user = new User();
+        user.setId(name);
+        return ServerMethod.getInstance()
+                .createDirect(MattermostPreference.getInstance().getTeamId(), user);
 
     private void initRequests() {
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
@@ -100,10 +104,6 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 }, (wholeDirectListActivity, throwable) -> sendShowError(throwable.getMessage()));
     }
 
-    private Observable<Channel> addParticipantRx(String name) {
-        LogoutData logoutData = new LogoutData(name);
-        return mService.createDirect(MattermostPreference.getInstance().getTeamId(), logoutData);
-    }
 
     private void sendChanges(boolean aBoolean) {
         Iterable<Observable<LogoutData>> list = new ArrayList<>();
@@ -177,6 +177,18 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
 
     public void requestGetDirectUsers() {
         start(REQUEST_GET_DIRECT_USERS);
+    }
+
+    public void getUsers() {
+        this.id = ChannelRepository.query(new ChannelByHadleSpecification("town-square")).first().getId();
+        createTemplateObservable(new Object())
+                .subscribe(split((wholeDirectListActivity, o) -> {
+                            this.defaultChannelInfo = ExtroInfoRepository.query(
+                                    new ExtroInfoRepository.ExtroInfoByIdSpecification(id)).first();
+                            wholeDirectListActivity.updateDataList(defaultChannelInfo
+                                    .getMembers().where().isNotNull("id").notEqualTo("id", currentUserId).findAllSorted("username", Sort.ASCENDING));
+                        }
+                ));
     }
 
     public void getSearchUsers(String name) {

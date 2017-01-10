@@ -2,10 +2,9 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.os.Bundle;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 
 import icepick.State;
 import rx.android.schedulers.AndroidSchedulers;
@@ -21,12 +20,10 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
     @State
     ListInviteObj listInvite;
 
-    private ApiMethod service;
 
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        service = MattermostApp.getSingleton().getMattermostRetrofitService();
         initRequest();
     }
 
@@ -36,7 +33,8 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
 
     private void initInviteRequest() {
         restartableFirst(REQUEST_INVITE,
-                () -> service.invite(MattermostPreference.getInstance().getTeamId(), listInvite)
+                () -> ServerMethod.getInstance()
+                        .invite(MattermostPreference.getInstance().getTeamId(), listInvite)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()),
                 (inviteUserRxActivity, o) -> sendInviteOk(),

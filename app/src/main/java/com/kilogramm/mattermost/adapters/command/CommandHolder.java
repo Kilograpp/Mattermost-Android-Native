@@ -12,7 +12,6 @@ import com.kilogramm.mattermost.model.entity.CommandObject;
  */
 public class CommandHolder extends RecyclerView.ViewHolder {
 
-    private static final String TAG = "CommandHolder";
     public ItemCommandBinding mBinding;
 
     private CommandHolder(ItemCommandBinding binding) {
@@ -29,9 +28,7 @@ public class CommandHolder extends RecyclerView.ViewHolder {
     public void bindTo(CommandObject command, CommandClickListener clickListener){
         mBinding.command.setText(String.format("%s %s", command.getCommand(), command.getHint()));
         mBinding.description.setText(command.getDescription());
-        mBinding.getRoot().setOnClickListener(v -> {
-            clickListener.onCommandClick(command);
-        });
+        mBinding.getRoot().setOnClickListener(v -> clickListener.onCommandClick(command));
     }
 
 }

@@ -5,11 +5,10 @@ import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.channel.PurposeActivity;
 
@@ -23,8 +22,6 @@ import rx.schedulers.Schedulers;
 public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
     private static final String TAG = "PurposePresenter";
     private static final int REQUEST_UPDATE_PURPOSE = 1;
-
-    private ApiMethod mService;
 
     @State
     String mTeamId;
@@ -42,8 +39,6 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
-        mService = mMattermostApp.getMattermostRetrofitService();
 
         initRequests();
     }
@@ -63,7 +58,8 @@ public class PurposePresenter extends BaseRxPresenter<PurposeActivity> {
 
     private void initPurpose() {
         restartableFirst(REQUEST_UPDATE_PURPOSE,
-                () -> mService.updatePurpose(this.mTeamId, new ChannelPurpose(mChannelId, mPurpose))
+                () -> ServerMethod.getInstance()
+                        .updatePurpose(this.mTeamId, new ChannelPurpose(mChannelId, mPurpose))
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (purposeActivity, channel) -> {

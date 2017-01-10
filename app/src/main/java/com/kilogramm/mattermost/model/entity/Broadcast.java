@@ -1,15 +1,19 @@
 package com.kilogramm.mattermost.model.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by ngers on 20.12.16.
  */
 
-public class Broadcast {
+public class Broadcast implements Parcelable {
 
     @SerializedName("channel_id")
     @Expose
@@ -62,4 +66,48 @@ public class Broadcast {
     public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.channel_id);
+        if(this.omit_users!=null) {
+            dest.writeInt(this.omit_users.size());
+            for (Map.Entry<String, Boolean> entry : this.omit_users.entrySet()) {
+                dest.writeString(entry.getKey());
+                dest.writeValue(entry.getValue());
+            }
+        }
+        dest.writeString(this.team_id);
+        dest.writeString(this.user_id);
+    }
+
+    protected Broadcast(Parcel in) {
+        this.channel_id = in.readString();
+        int omit_usersSize = in.readInt();
+        this.omit_users = new HashMap<>(omit_usersSize);
+        for (int i = 0; i < omit_usersSize; i++) {
+            String key = in.readString();
+            Boolean value = (Boolean) in.readValue(Boolean.class.getClassLoader());
+            this.omit_users.put(key, value);
+        }
+        this.team_id = in.readString();
+        this.user_id = in.readString();
+    }
+
+    public static final Parcelable.Creator<Broadcast> CREATOR = new Parcelable.Creator<Broadcast>() {
+        @Override
+        public Broadcast createFromParcel(Parcel source) {
+            return new Broadcast(source);
+        }
+
+        @Override
+        public Broadcast[] newArray(int size) {
+            return new Broadcast[size];
+        }
+    };
 }

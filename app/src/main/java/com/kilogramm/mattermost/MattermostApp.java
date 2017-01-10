@@ -21,6 +21,7 @@ import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.MattermostRetrofitService;
 import com.kilogramm.mattermost.network.PicassoService;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.MainRxActivity;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.FilesView;
@@ -57,6 +58,7 @@ public class MattermostApp extends Application {
 
     public void refreshMattermostRetrofitService() {
         mattermostRetrofitService = MattermostRetrofitService.refreshRetrofitService();
+        ServerMethod.buildServerMethod(mattermostRetrofitService);
     }
 
     public ApiMethod getMattermostRetrofitService() throws IllegalArgumentException {
@@ -83,7 +85,6 @@ public class MattermostApp extends Application {
         Realm.compactRealm(configuration);
         Realm.removeDefaultConfiguration();
         Realm.setDefaultConfiguration(configuration);
-
         PicassoService.create(getApplicationContext());
         MattermostPreference.createInstance(getApplicationContext());
 
@@ -104,10 +105,11 @@ public class MattermostApp extends Application {
                 .imageDownloader(new FilesView.AuthDownloader(this))
                 .build();
         ImageLoader.getInstance().init(config);
+        ServerMethod.buildServerMethod(getMattermostRetrofitService());
     }
 
     public static rx.Observable<LogoutData> logout() {
-     return  MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
+        return MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());
     }

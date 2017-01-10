@@ -94,6 +94,7 @@ public class User extends RealmObject implements Parcelable {
 
     }
 
+
     public User(User user){
         this.id = user.getId();
         this.createAt=user.getCreateAt();

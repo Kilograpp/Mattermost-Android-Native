@@ -3,10 +3,6 @@ package com.kilogramm.mattermost.ui;
 /**
  * Created by kepar on 29.11.16.
  */
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -15,11 +11,13 @@ import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.kilogramm.mattermost.R;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EllipsizingTextView extends TextView {
     private static String ELLIPSIS;
@@ -28,7 +26,7 @@ public class EllipsizingTextView extends TextView {
         void ellipsizeStateChanged(boolean ellipsized);
     }
 
-    private final List<EllipsizeListener> ellipsizeListeners = new ArrayList<EllipsizeListener>();
+    private final List<EllipsizeListener> ellipsizeListeners = new ArrayList<>();
     private boolean isEllipsized;
     private boolean isStale = true;
     private boolean programmaticChange;

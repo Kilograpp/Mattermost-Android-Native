@@ -36,7 +36,8 @@ public class UserByNameSearchSpecification implements RealmSpecification {
         }
         realmQuery.equalTo("id", "materMostAll").or().equalTo("id","materMostChannel");
         if (name == null)
-            return realmQuery.findAll().where()
+            return realmQuery.findAll()
+                    .where()
                     .isNotNull("id")
                     .notEqualTo("id", currentUser)
                     .equalTo("deleteAt", 0L)

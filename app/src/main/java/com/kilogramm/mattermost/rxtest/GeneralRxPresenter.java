@@ -24,9 +24,8 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.error.HttpError;
-import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -55,7 +55,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private static final int REQUEST_EXTROINFO_DEFAULT_CHANNEL = 8;
 //    private static final int REQUEST_CREATE_DIRECT = 9;
 
-    private ApiMethod service;
     private int mOffset;
     private int mLimit;
     private LogoutData user;
@@ -72,8 +71,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         super.onCreate(savedState);
 
         user = new LogoutData();
-        MattermostApp application = MattermostApp.getSingleton();
-        service = application.getMattermostRetrofitService();
         currentUserId = MattermostPreference.getInstance().getMyUserId();
         teamId = MattermostPreference.getInstance().getTeamId();
         mOffset = 0;
@@ -115,7 +112,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
-                () -> service.getSiteAllUsers(mOffset, mLimit)
+                () -> ServerMethod.getInstance()
+                        .getSiteAllUsers(mOffset, mLimit)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (activity, stringUserMap) -> {
@@ -150,7 +148,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_LOAD_CHANNELS,
-                () -> service.getChannelsTeamNew(teamId)
+                () -> ServerMethod.getInstance()
+                        .getChannelsTeam(teamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (activity, channelsCollection) -> {
@@ -162,7 +161,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, channels.toString());
                     requestUserTeam();
 
-//                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
+                    //start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
 //        restartableFirst(REQUEST_LOAD_CHANNELS,
@@ -180,11 +179,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
 //                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM,
-                () -> service.getTeamUsers(MattermostPreference.getInstance().getTeamId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
+                () -> Observable.just("test"),
                 (generalRxActivity, stringUserMap) -> {
-                    UserRepository.add(stringUserMap.values());
+                    Log.d(TAG, "initRequest: " + stringUserMap);
+                    //UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
                         Channel channel = ChannelRepository.query(
                                 new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
@@ -207,7 +205,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 }, (generalRxActivity1, throwable) -> throwable.printStackTrace());
 
         restartableFirst(REQUEST_LOGOUT,
-                () -> service.logout(new Object())
+                () -> ServerMethod.getInstance()
+                        .logout()
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (generalRxActivity, logoutData) -> {
@@ -221,9 +220,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 });
 
         restartableFirst(REQUEST_INITLOAD, () ->
-                        service.initLoad()
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
+                ServerMethod.getInstance()
+                        .initLoad()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
                 (generalRxActivity, initObject) -> {
                     saveDataAfterLogin(initObject);
                     sendShowChooseTeam();
@@ -232,7 +232,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         handleErrorLogin(throwable)
         );
 
-        restartableFirst(REQUEST_EXTROINFO_DEFAULT_CHANNEL, () ->
+        /*restartableFirst(REQUEST_EXTROINFO_DEFAULT_CHANNEL, () ->
                         service.getExtraInfoChannel(MattermostPreference.getInstance().getTeamId(),
                                 ChannelRepository.query(
                                         new ChannelByHadleSpecification("town-square"))
@@ -248,12 +248,13 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 },
                 (generalRxActivity, throwable) ->
                         handleErrorLogin(throwable)
-        );
+        );*/
 
         restartableFirst(REQUEST_SAVE, () ->
-                        service.save(preferenceList)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
+                ServerMethod.getInstance()
+                        .save(preferenceList)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
                 (activity, aBoolean) ->
                     PreferenceRepository.add(preferenceList)
                 , (activity, throwable) ->

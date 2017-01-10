@@ -2,10 +2,9 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
@@ -20,7 +19,6 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
     private static final int REQUEST_CREATE_CHANNEL = 1;
 //    private static final int REQUEST_GET_INFO = 2;
 
-    private ApiMethod mService;
     private Channel mCreateChannel;
     private String mTeamId;
     private String mChannelId;
@@ -30,7 +28,6 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
 
-        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
         mCreateChannel = new Channel();
         mTeamId = MattermostPreference.getInstance().getTeamId();
 
@@ -39,7 +36,8 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
 
     private void initRequests() {
         restartableFirst(REQUEST_CREATE_CHANNEL,
-                () -> mService.createChannel(mTeamId, mCreateChannel)
+                () -> ServerMethod.getInstance()
+                        .createChannel(mTeamId, mCreateChannel)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
                 (createNewChGrActivity, channel) -> {

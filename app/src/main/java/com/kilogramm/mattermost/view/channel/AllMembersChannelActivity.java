@@ -101,7 +101,7 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
     private void initiationData() {
         allMembersAdapter = new AllMembersAdapter(
                 this,
-                id -> openDirect(id), null);
+                this::openDirect, null);
         binding.recView.setAdapter(allMembersAdapter);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));

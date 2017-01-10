@@ -53,6 +53,7 @@ public class WebSocketObj implements Parcelable {
     public static final String SEQ_REPLAY = "seq_reply";
     public static final String ALL_USER_STATUS = "all_user_status";
     public static final String PREFERENCES = "preference";
+    public static final String BROADCAST = "broadcast";
     @SerializedName("team_id")
     @Expose
     private String teamId;
@@ -66,12 +67,13 @@ public class WebSocketObj implements Parcelable {
     @Expose
     private String event;
     private transient String dataJSON;
+    private transient String broadcastJSON;
     @SerializedName("data")
     @Expose
     private transient Data data;
     @SerializedName("broadcast")
     @Expose
-    private transient Broadcast broadcast;
+    private Broadcast broadcast;
     @SerializedName("seq_reply")
     @Expose
     private Integer seqReplay;
@@ -163,6 +165,10 @@ public class WebSocketObj implements Parcelable {
     }
 
     public WebSocketObj() {
+    }
+
+    public void setBroadcastJSON(String broadcastJSON) {
+        this.broadcastJSON = broadcastJSON;
     }
 
     public static class BuilderData {
@@ -257,6 +263,7 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.channelId);
         dest.writeString(this.userId);
         dest.writeString(this.event);
+        dest.writeParcelable(this.broadcast, flags);
         dest.writeValue(this.seqReplay);
         dest.writeValue(this.seq);
         dest.writeString(this.channelDisplayName);
@@ -271,6 +278,7 @@ public class WebSocketObj implements Parcelable {
         this.channelId = in.readString();
         this.userId = in.readString();
         this.event = in.readString();
+        this.broadcast = in.readParcelable(Broadcast.class.getClassLoader());
         this.seqReplay = (Integer) in.readValue(Integer.class.getClassLoader());
         this.seq = (Integer) in.readValue(Integer.class.getClassLoader());
         this.channelDisplayName = in.readString();

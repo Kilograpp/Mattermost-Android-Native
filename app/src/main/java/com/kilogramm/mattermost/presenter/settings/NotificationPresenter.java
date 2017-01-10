@@ -10,7 +10,7 @@ import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.settings.NotificationActivity;
 
@@ -32,7 +32,6 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     @State
     User mUser;
 
-    private ApiMethod mService;
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -40,7 +39,6 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
         MattermostApp mMattermostApp = MattermostApp.getSingleton();
         this.mUser = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
         this.mNotifyProps = new NotifyProps(NotifyRepository.query().first());
-        mService = mMattermostApp.getMattermostRetrofitService();
         initRequests();
     }
 
@@ -225,7 +223,8 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
 
     private void saveNotification() {
         restartableFirst(REQUEST_UPDATE_NOTIFY, () ->
-                        mService.updateNotify(new NotifyUpdate(mNotifyProps, mUser.getId()))
+                        ServerMethod.getInstance()
+                                .updateNotify(new NotifyUpdate(mNotifyProps, mUser.getId()))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (notificationActivity, user) -> {

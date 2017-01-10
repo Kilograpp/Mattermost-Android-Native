@@ -3,18 +3,15 @@ package com.kilogramm.mattermost.rxtest.left_menu;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
-import com.kilogramm.mattermost.network.ApiMethod;
+import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 
-import io.realm.RealmList;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 
@@ -24,7 +21,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     private static final int REQUEST_SAVE = 1;
     private static final int REQUEST_UPDATE = 2;
 
-    private ApiMethod mService;
     private ListPreferences mListPreferences = new ListPreferences();
     private LogoutData mUser;
 
@@ -34,7 +30,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         mUser = new LogoutData();
-        mService = MattermostApp.getSingleton().getMattermostRetrofitService();
         mTeamId = MattermostPreference.getInstance().getTeamId();
         initRequest();
     }
@@ -58,13 +53,12 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private void initChannelUpdateRequest() {
         restartableFirst(REQUEST_UPDATE,
-                () -> mService.getChannelsTeam(this.mTeamId)
+                () -> ServerMethod.getInstance()
+                        .getChannelsTeam(mTeamId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                (leftMenuRxFragment, channelsWithMembers) -> {
-                    RealmList<Channel> channelsList = new RealmList<>();
-                    channelsList.addAll(channelsWithMembers.getChannels());
-                    ChannelRepository.prepareChannelAndAdd(channelsList, MattermostPreference.getInstance().getMyUserId());
+                (leftMenuRxFragment, channels) -> {
+                    ChannelRepository.prepareChannelAndAdd(channels, MattermostPreference.getInstance().getMyUserId());
                     sendSetRefreshAnimation(false);
                     sendUpdateMenuView();
                     sendSelectLastChannel();
@@ -78,23 +72,20 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE,
-                () -> Observable.defer(() -> Observable.zip(
-                        mService.save(mListPreferences.getmSaveData())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        mService.createDirect(MattermostPreference.getInstance().getTeamId(), mUser)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                        (aBoolean, channel) -> {
-                            if (!aBoolean)
-                                return null;
-                            ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
-                            return channel;
-                        })), (generalRxActivity, channel) -> {
-                    mListPreferences.getmSaveData().clear();
-                    if (channel.getId() != null)
-                        sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-                }, (generalRxActivity, throwable) -> throwable.printStackTrace());
+                () -> ServerMethod.getInstance()
+                    .saveOrCreateDirectChannel(mListPreferences.getmSaveData(),
+                            mTeamId,
+                            mUser.getUserId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io()),
+                (leftMenuRxFragment, channel) -> {
+                    if(channel!=null) {
+                        ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
+                        mListPreferences.getmSaveData().clear();
+                        if (channel.getId() != null)
+                            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                    }
+                }, (leftMenuRxFragment, throwable) -> throwable.printStackTrace());
     }
 
     private void sendSetFragmentChat(String channelId, String name, String type) {

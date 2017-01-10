@@ -1,10 +1,7 @@
 package com.kilogramm.mattermost.model.entity.realmstring;
 
 import com.kilogramm.mattermost.model.entity.RealmString;
-import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -69,7 +66,7 @@ public class RealmStringRepository {
     }
     // endregion
 
-     // region Delete methods
+    // region Delete methods
 
     public void remove(String fileName) {
         final Realm realm = Realm.getDefaultInstance();

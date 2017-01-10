@@ -160,7 +160,7 @@ public class Data implements Parcelable {
         this.teamId = in.readString();
         this.status = in.readString();
         int statusMapSize = in.readInt();
-        this.statusMap = new HashMap<String, String>(statusMapSize);
+        this.statusMap = new HashMap<>(statusMapSize);
         for (int i = 0; i < statusMapSize; i++) {
             String key = in.readString();
             String value = in.readString();
