@@ -107,6 +107,8 @@ public class AttachedFilesAdapter extends RealmRecyclerViewAdapter<FileToAttach,
                 holder.binding.progressWait.setVisibility(View.GONE);
             }
         }
+
+        //TODO удалять также из таблицы FileInfo
         holder.binding.close.setOnClickListener(v -> {
             FileToAttach fileToAttach1 = getItem(position);
             if (fileToAttach1 != null && fileToAttach1.isValid()) {
