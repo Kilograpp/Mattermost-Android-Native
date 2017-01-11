@@ -2,6 +2,8 @@ package com.kilogramm.mattermost.presenter.channel;
 
 import android.os.Bundle;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -11,9 +13,12 @@ import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 
 import icepick.State;
+import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.schedulers.Schedulers;
 
@@ -22,8 +27,9 @@ import rx.schedulers.Schedulers;
  */
 
 public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
-    private static final int REQUEST_DB_GET_USERS = 1;
+    private static final int REQUEST_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
+    private static final int REQUEST_GET_EXTRA_INFO = 3;
 
     @State
     ExtraInfo mExtraInfo;
@@ -31,7 +37,6 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     String mId;
 
     private String mTeamId;
-
     private String mUser_id;
     private String mChannelId;
     private int mOffset;
@@ -41,17 +46,17 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         mTeamId = MattermostPreference.getInstance().getTeamId();
+        mId = MattermostPreference.getInstance().getMyUserId();
 
         mOffset = 0;
         mLimit = 100;
 
-        initGetUsers();
-        addMembers();
+        initRequests();
     }
 
-    public void initPresenter(String id) {
-        this.mId = id;
-        start(REQUEST_DB_GET_USERS);
+    public void initPresenter(String channelId) {
+        this.mChannelId = channelId;
+        start(REQUEST_GET_EXTRA_INFO);
     }
 
     public void addMember(String id) {
@@ -69,22 +74,42 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                 mExtraInfo.getMembers(), null));
     }
 
-    private void initGetUsers() {
-        restartableFirst(REQUEST_DB_GET_USERS, () ->
-                ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(mId)).asObservable(),
-                (addMembersActivity, o) -> {
-                    this.mExtraInfo = o.first();
-                    addMembersActivity.updateDataList(UserRepository.query(
-                            new UserRepository.UserByNotIdsSpecification(
-                                    mExtraInfo.getMembers(), null)));
-                });
+    private void initRequests() {
+        getExtraInfo();
+        getUsers();
+        addMembers();
+    }
 
-//        restartableFirst(REQUEST_DB_GET_USERS, () ->
-//                        mService.getUsersNotInChannel(mTeamId, mChannelId, mOffset, mLimit)
-//                                .subscribeOn(Schedulers.io())
-//                                .observeOn(Schedulers.io()),
-//                (addMembersActivity, users) -> updateMembers(users.getUsers().values()),
-//                (addMembersActivity, throwable) -> throwable.printStackTrace());
+    private void getExtraInfo() {
+        restartableFirst(REQUEST_GET_EXTRA_INFO,
+                () -> ServerMethod.getInstance()
+                        .extraInfoChannel(mTeamId, mChannelId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                , (channelActivity, extraInfoWithOutMember) -> {
+                    RealmList<User> results = new RealmList<>();
+                    results.addAll(UserRepository.query(
+                            new UserRepository.UserByIdsSpecification(
+                                    Stream.of(extraInfoWithOutMember.getMembers().values())
+                                            .collect(Collectors.toList())
+                            )
+                    ));
+                    extraInfoWithOutMember.getExtraInfo().setMembers(results);
+                    ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
+                    start(REQUEST_GET_USERS);
+                }, (channelActivity, throwable) -> sendShowError(throwable.getMessage()));
+    }
+
+    private void getUsers() {
+        restartableFirst(REQUEST_GET_USERS, () -> {
+            Realm.getDefaultInstance().waitForChange();
+            return ExtroInfoRepository.query(
+                    new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).asObservable();
+        }, (addMembersActivity, extraInfo) -> {
+            this.mExtraInfo = extraInfo.first();
+            addMembersActivity.updateDataList(UserRepository.query(
+                    new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), null)));
+        }, (addMembersActivity, throwable) -> throwable.printStackTrace());
     }
 
     private void addMembers() {
@@ -102,16 +127,20 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void updateMembers(String id) {
         createTemplateObservable(new Object()).subscribe(split((addMembersActivity, openChatObject) -> {
-                    ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
-                            new UserRepository.UserByIdSpecification(id)).first());
-                    addMembersActivity.requestMember("User added");
-                }));
+            ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
+                    new UserRepository.UserByIdSpecification(id)).first());
+            addMembersActivity.requestMember("User added");
+        }));
     }
 
     private void errorUpdateMembers(String s) {
         createTemplateObservable(new Object())
                 .subscribe(split((addMembersActivity, openChatObject) ->
                         addMembersActivity.requestMember(s)));
+    }
+
+    private void sendShowError(String error) {
+        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
     }
 
     public class Members {

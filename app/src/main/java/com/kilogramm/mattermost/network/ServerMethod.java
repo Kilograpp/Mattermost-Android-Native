@@ -231,7 +231,11 @@ public class ServerMethod {
         return mApi.getAllUsers(team_id, offset, limit);
     }
 
-    public Observable<Channel> joinChannelName( String team_id, String channel_name){
+    public Observable<Channel> joinChannelName(String team_id, String channel_name){
         return mApi.joinChannelName(team_id, channel_name);
+    }
+
+    public Observable<Map<String, User>> getUsersNotInChannel(String team_id, String channel_id, int offset, int limit) {
+        return mApi.getUsersNotInChannel(team_id, channel_id, offset, limit);
     }
 }

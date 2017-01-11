@@ -171,7 +171,6 @@ public class UserRepository {
 
     public static class UserByNotMiSpecification implements RealmSpecification {
 
-
         private final String id;
 
         public UserByNotMiSpecification(String id) {
@@ -183,5 +182,4 @@ public class UserRepository {
             return realm.where(User.class).notEqualTo("id",id).findAll();
         }
     }
-
 }

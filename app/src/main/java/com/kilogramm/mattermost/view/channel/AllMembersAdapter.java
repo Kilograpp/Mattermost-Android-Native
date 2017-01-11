@@ -62,8 +62,8 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
                 holder.binding.textViewStatus.setText(user.getRoles());
                 holder.binding.textViewStatus.setTextColor(holder.binding.getRoot().getContext()
                         .getResources().getColor(R.color.title_grey));
-            } else if (getStatus(user.getId()).equals(UserStatus.ONLINE)) {
-                holder.binding.textViewStatus.setText(UserStatus.ONLINE);
+//            } else if (getStatus(user.getId()).equals(UserStatus.ONLINE)) {
+//                holder.binding.textViewStatus.setText(UserStatus.ONLINE);
             } else {
                 holder.binding.textViewStatus.setText("");
             }

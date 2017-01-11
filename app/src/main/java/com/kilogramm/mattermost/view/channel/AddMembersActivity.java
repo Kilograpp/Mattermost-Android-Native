@@ -27,7 +27,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(AddMembersPresenter.class)
 public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_ID = "CHANNEL_ID";
 
     ActivityAllMembersChannelBinding binding;
     AddMembersAdapter addMembersAdapter;
@@ -99,14 +99,13 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             binding.textViewListEmpty.setVisibility(View.INVISIBLE);
     }
 
-
     private void initiationData() {
-        addMembersAdapter = new AddMembersAdapter(this,id -> {
-                    getPresenter().addMember(id);
-                    binding.recView.setVisibility(View.INVISIBLE);
-                    binding.progressBar.setVisibility(View.VISIBLE);
-                    hideKeyboard(this);
-                });
+        addMembersAdapter = new AddMembersAdapter(this, id -> {
+            getPresenter().addMember(id);
+            binding.recView.setVisibility(View.INVISIBLE);
+            binding.progressBar.setVisibility(View.VISIBLE);
+            hideKeyboard(this);
+        });
         binding.recView.setAdapter(addMembersAdapter);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));

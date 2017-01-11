@@ -89,10 +89,10 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}/users/not_in_channel/{offset}/{limit}")
-    Observable<Users> getUsersNotInChannel(@Path("teamId") String teamId,
-                                           @Path("channel_id") String channelId,
-                                           @Path("offset") int offset,
-                                           @Path("limit") int limit);
+    Observable<Map<String, User>> getUsersNotInChannel(@Path("team_id") String team_id,
+                                                       @Path("channel_id") String channel_id,
+                                                       @Path("offset") int offset,
+                                                       @Path("limit") int limit);
 
 
     @Headers({

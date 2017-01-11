@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.network;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
+import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 
