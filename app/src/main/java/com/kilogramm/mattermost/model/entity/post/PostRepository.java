@@ -64,6 +64,7 @@ public class PostRepository {
         return realm.where(Post.class).equalTo("id", id).findFirst();
     }
 
+
     public static void removeTempPost(String sendedPostId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
