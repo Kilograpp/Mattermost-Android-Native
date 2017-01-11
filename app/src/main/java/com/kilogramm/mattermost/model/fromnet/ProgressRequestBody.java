@@ -55,11 +55,16 @@ public class ProgressRequestBody extends RequestBody {
         long uploaded = 0;
         long lastTimeUpdate = 0;
         Realm realm = Realm.getDefaultInstance();
-        realm.waitForChange();
         FileToAttach fileToAttach;
-        fileToAttach = realm.where(FileToAttach.class)
-                .equalTo("id", fileId)
-                .findFirst();
+        do {
+            fileToAttach = realm.where(FileToAttach.class)
+                    .equalTo("id", fileId)
+                    .findFirst();
+            if(fileToAttach == null) {
+                realm.waitForChange();
+            }
+        } while (fileToAttach == null);
+
         try (FileInputStream in = new FileInputStream(mFile)) {
             int read;
             if (fileLength == 0) {
