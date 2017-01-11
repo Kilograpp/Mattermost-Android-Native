@@ -30,7 +30,6 @@ public class PostRepository {
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
     }
 
-
     public static void update(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
