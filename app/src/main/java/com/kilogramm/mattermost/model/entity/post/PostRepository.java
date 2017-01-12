@@ -30,6 +30,7 @@ public class PostRepository {
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
     }
 
+
     public static void update(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
@@ -64,6 +65,7 @@ public class PostRepository {
         realm.waitForChange();
         return realm.where(Post.class).equalTo("id", id).findFirst();
     }
+
 
     public static void removeTempPost(String sendedPostId) {
         Realm realm = Realm.getDefaultInstance();
