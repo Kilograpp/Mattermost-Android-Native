@@ -196,7 +196,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupListChat(channelId);
         setupRefreshListener();
         setBtnSendOnClickListener();
-//        binding.bottomToolbar.getRoot().setVisibility(View.GONE);
         setButtonAddFileOnClickListener();
         setDropDownUserList();
         setupCommandList();
@@ -211,11 +210,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         && obj.getBroadcast().getChannel_id().equals(channelId)) {
                     if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
                             && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
-                        if (obj != null) {
-                            if (mapType != null)
-                                mapType.remove(obj.getUserId());
-                            getActivity().runOnUiThread(() -> showTyping(null));
-                        }
+                        if (mapType != null)
+                            mapType.remove(obj.getUserId());
+                        getActivity().runOnUiThread(() -> showTyping(null));
                     } else if (obj.getEvent().equals(WebSocketObj.EVENT_TYPING)) {
                         getActivity().runOnUiThread(() -> showTyping(obj));
                     }
