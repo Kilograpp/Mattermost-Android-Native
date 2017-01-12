@@ -56,7 +56,14 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
+
+    /**
+     * Code for "send new post to server" request
+     *
+     * @see #initSendToServer()
+     */
     private static final int REQUEST_SEND_TO_SERVER = 4;
+
     private static final int REQUEST_DELETE_POST = 5;
     private static final int REQUEST_EDIT_POST = 6;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 7;
@@ -256,6 +263,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
+    /**
+     * Indicates that posts was loaded for {@link #initLoadPosts()} request
+     */
     private void sendFinishLoadPosts() {
         sendRefreshing(false);
         if (!isEmpty) {
@@ -265,6 +275,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         Log.d(TAG, "Complete load post");
     }
 
+    /**
+     * Merge incoming posts with having ones in DB. For {@link #initLoadPosts()} request
+     *
+     * @param posts incoming posts from server
+     */
     private void mergePosts(Posts posts){
         PostRepository.remove(new PostByChannelId(channelId));
         PostRepository.prepareAndAdd(posts);
@@ -273,6 +288,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         sendFinishLoadPosts();
     }
 
+    /**
+     * Initialization of "new post send to server" request. Sends the {@link #forSendPost} object
+     */
     private void initSendToServer() {
         restartableFirst(REQUEST_SEND_TO_SERVER,
                 () -> ServerMethod.getInstance()
