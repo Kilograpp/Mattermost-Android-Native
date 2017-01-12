@@ -629,6 +629,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                         message.length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
                         message.length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
                 ) {
+            PostRepository.updateUnsentPosts();// TODO: 12.01.17
+            adapter.notifyDataSetChanged();
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
             //WebSocketService.with(context).sendTyping(channelId, teamId.getId());

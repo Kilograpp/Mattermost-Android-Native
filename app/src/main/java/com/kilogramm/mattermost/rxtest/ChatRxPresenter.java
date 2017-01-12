@@ -266,7 +266,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void mergePosts(Posts posts){
-        PostRepository.remove(new PostByChannelId(channelId));
+//        PostRepository.remove(new PostByChannelId(channelId));
         PostRepository.prepareAndAdd(posts);
         PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
         requestUpdateLastViewedAt();
@@ -510,15 +510,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
-        if (isSendingPost) return;
+//        if (isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         isSendingPost = true;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
-
         start(REQUEST_SEND_TO_SERVER);
-
         Post forSavePost = new Post(forSendPost);
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
@@ -531,9 +529,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServerError(Post post) {
-        if (isSendingPost) return;
+//        if (isSendingPost) return;
+        Log.i("PRFIX", "requestSendToServerError: id " + post.getId());
         isSendingPost = true;
         forSendPost = post;
+        post.setUpdateAt(null);// TODO: 12.01.17
         post.setId(null);
         post.setUser(null);
         post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());

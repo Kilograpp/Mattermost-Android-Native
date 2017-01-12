@@ -211,4 +211,18 @@ public class PostRepository {
             }
         });
     }
+
+    // TODO: 12.01.17
+
+    public static long getTmpUpdateTime(){
+        return System.currentTimeMillis() + 3153600000000L;
+    }
+
+    public static void updateUnsentPosts(){
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Post> unsentPosts = realm.where(Post.class).equalTo("updateAt", 0).findAllSorted("createAt");
+        for(Post post : unsentPosts){
+            realm.executeTransaction(realm1 -> post.setCreateAt(getTmpUpdateTime()));
+        }
+    }
 }
