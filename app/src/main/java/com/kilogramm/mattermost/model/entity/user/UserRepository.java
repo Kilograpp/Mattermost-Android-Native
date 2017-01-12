@@ -154,8 +154,8 @@ public class UserRepository {
 
         @Override
         public RealmResults<User> toRealmResults(Realm realm) {
-            RealmList<User> membersTeam = realm.where(ExtraInfo.class).equalTo("id",
-                    realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
+            RealmList<User> membersTeam = realm.where(ExtraInfo.class).equalTo(
+                    "id", realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
                     .findFirst().getMembers();
 
             RealmQuery realmQuery = membersTeam.where();

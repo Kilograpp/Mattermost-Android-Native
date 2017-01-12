@@ -16,10 +16,13 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import icepick.State;
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -41,6 +44,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private String mChannelId;
     private int mOffset;
     private int mLimit;
+
+    List<User> usersNotInChannel = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -76,7 +81,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void initRequests() {
         getExtraInfo();
-        getUsers();
+        requestGetUsersNotInChannel();
         addMembers();
     }
 
@@ -96,20 +101,38 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     ));
                     extraInfoWithOutMember.getExtraInfo().setMembers(results);
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
+//                    getUsers(extraInfoWithOutMember.getExtraInfo().getMembers());
                     start(REQUEST_GET_USERS);
                 }, (channelActivity, throwable) -> sendShowError(throwable.getMessage()));
     }
 
-    private void getUsers() {
-        restartableFirst(REQUEST_GET_USERS, () -> {
-            Realm.getDefaultInstance().waitForChange();
-            return ExtroInfoRepository.query(
-                    new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).asObservable();
-        }, (addMembersActivity, extraInfo) -> {
-            this.mExtraInfo = extraInfo.first();
-            addMembersActivity.updateDataList(UserRepository.query(
-                    new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), null)));
-        }, (addMembersActivity, throwable) -> throwable.printStackTrace());
+//    private void getUsers(RealmList<User> members) {
+//        createTemplateObservable(members)
+//                .subscribe(split((addMembersActivity, usersNotInChannel) -> addMembersActivity
+//                        .updateDataList(UserRepository.query(new UserRepository.UserByNotIdsSpecification(
+//                                usersNotInChannel, null)))));
+//    }
+
+    private void requestGetUsersNotInChannel() {
+        restartableFirst(REQUEST_GET_USERS,
+                () -> ServerMethod.getInstance()
+                        .getUsersNotInChannel(mTeamId, mChannelId, mOffset, mLimit)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                , (addMembersActivity, stringUserMap) -> {
+                    if (stringUserMap.keySet().size() == 100) {
+                        this.mOffset += 1;
+                        start(REQUEST_GET_USERS);
+                    } else {
+                        usersNotInChannel.addAll(stringUserMap.values());
+                        addMembersActivity.refreshAdapter(usersNotInChannel);
+//                        UserRepository.add(usersNotInChannel);
+                    }
+                }, (addMembersActivity, throwable) -> sendShowError(throwable.getMessage()));
+    }
+
+    public ArrayList<User> getUsersNotInChannel() {
+        return (ArrayList)usersNotInChannel;
     }
 
     private void addMembers() {

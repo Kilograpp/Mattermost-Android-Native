@@ -89,7 +89,7 @@
 //
 //            @Override
 //            protected boolean matchesSafely(final RecyclerView view) {
-//                AdapterPost.MyViewHolder viewHolder = (AdapterPost.MyViewHolder) view.findViewHolderForAdapterPosition(position);
+//                AdapterPost.AddMembersHolder viewHolder = (AdapterPost.AddMembersHolder) view.findViewHolderForAdapterPosition(position);
 //                if (viewHolder == null) {
 //                    // has no item on such position
 //                    return false;
