@@ -12,7 +12,6 @@ import com.kilogramm.mattermost.databinding.ItemAddMembersBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmViewHolder;
@@ -27,9 +26,8 @@ public class AddMembersAdapterNotRealm extends RecyclerView.Adapter<AddMembersAd
     private OnItemClickListener onItemClickListener;
     private List<User> usersNotFromChannel;
 
-    public AddMembersAdapterNotRealm(OnItemClickListener onItemClickListener/*, ArrayList<User> usersNotInChannel*/) {
+    public AddMembersAdapterNotRealm(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-//        this.usersNotFromChannel = usersNotInChannel;
     }
 
     @Override
@@ -84,7 +82,6 @@ public class AddMembersAdapterNotRealm extends RecyclerView.Adapter<AddMembersAd
     }
 
     public void updateData(List<User> usersNotInChannel) {
-//        this.usersNotFromChannel.clear();
         setUsersNotFromChannel(usersNotInChannel);
         notifyDataSetChanged();
     }

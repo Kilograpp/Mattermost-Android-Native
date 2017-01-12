@@ -101,17 +101,9 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     ));
                     extraInfoWithOutMember.getExtraInfo().setMembers(results);
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
-//                    getUsers(extraInfoWithOutMember.getExtraInfo().getMembers());
                     start(REQUEST_GET_USERS);
                 }, (channelActivity, throwable) -> sendShowError(throwable.getMessage()));
     }
-
-//    private void getUsers(RealmList<User> members) {
-//        createTemplateObservable(members)
-//                .subscribe(split((addMembersActivity, usersNotInChannel) -> addMembersActivity
-//                        .updateDataList(UserRepository.query(new UserRepository.UserByNotIdsSpecification(
-//                                usersNotInChannel, null)))));
-//    }
 
     private void requestGetUsersNotInChannel() {
         restartableFirst(REQUEST_GET_USERS,
@@ -126,13 +118,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     } else {
                         usersNotInChannel.addAll(stringUserMap.values());
                         addMembersActivity.refreshAdapter(usersNotInChannel);
-//                        UserRepository.add(usersNotInChannel);
                     }
                 }, (addMembersActivity, throwable) -> sendShowError(throwable.getMessage()));
-    }
-
-    public ArrayList<User> getUsersNotInChannel() {
-        return (ArrayList)usersNotInChannel;
     }
 
     private void addMembers() {
