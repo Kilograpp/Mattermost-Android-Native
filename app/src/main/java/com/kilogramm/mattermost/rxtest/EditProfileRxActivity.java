@@ -137,26 +137,16 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_YOUR_SELECT_PICTURE) {
-                FileUtil.getInstance().getBitmap(outputFileUri, data)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Uri>() {
-                            @Override
-                            public void onCompleted() {
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                                showErrorText(e.getMessage());
-                            }
-
-                            @Override
-                            public void onNext(Uri uri) {
-                                setAvatar(uri);
-                                selectedImageUri = uri;
-                            }
-                        });
+                    boolean isCamera;
+                    if (data == null) {
+                        isCamera = true;
+                    } else {
+                        final String action = data.getAction();
+                        isCamera = action != null || data.getData() == null;
+                    }
+                    Uri uri = isCamera ? outputFileUri : data.getData();
+                    setAvatar(uri);
+                    selectedImageUri = uri;
             }
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(getApplicationContext(), "Failed to capture image", Toast.LENGTH_SHORT)
@@ -240,18 +230,22 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             exif = new ExifInterface(FileUtil.getInstance()
                                     .getFileByUri(bitmapUri));
                             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                            boolean wasRotation = false;
                             Matrix matrix = new Matrix();
                             if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
                                 matrix.postRotate(90);
+                                wasRotation = true;
                             } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
                                 matrix.postRotate(180);
+                                wasRotation = true;
                             } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
                                 matrix.postRotate(270);
+                                wasRotation = true;
                             }
                             myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),
                                     myBitmap.getHeight(), matrix, true);
-
-                            if (isCamera) {
+                            // TODO Проверить с другими файлами, мб тоже их надо руками переворачивать
+                            if (wasRotation) {
                                 writeBitmapToFile(myBitmap);
                             }
                         } catch (IOException e) {
@@ -404,15 +398,14 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             } else {
                 showDialog();
             }
-
-
         });
+
         Map<String, String> headers = new HashMap();
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.EXACTLY)
                 .showImageOnLoading(this.getResources().getDrawable(R.drawable.ic_person_grey_24dp))
-                .showImageOnFail(R.drawable.slices)
+                .showImageOnFail(R.drawable.ic_person_grey_24dp)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)

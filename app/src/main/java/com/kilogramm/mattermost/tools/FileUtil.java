@@ -166,15 +166,6 @@ public class FileUtil {
                 Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost";
     }
 
-    public String getFileNameFromId(String fileId) {
-        Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
-        Matcher matcher = pattern.matcher(fileId);
-        if (matcher.matches()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
     public String getFileNameFromIdDecoded(String fileId) {
         Pattern pattern = Pattern.compile("\\/.*\\/(.*)");
         Matcher matcher = pattern.matcher(fileId);
@@ -234,21 +225,6 @@ public class FileUtil {
         }
     }
 
-    public Observable<Uri> getBitmap(Uri outputFileUri, Intent data) {
-        return Observable.create(subscriber -> {
-            final boolean isCamera;
-            isCamera = isCamera(data);
-            if (isCamera) {
-                subscriber.onNext(outputFileUri);
-                subscriber.onCompleted();
-            } else {
-                Uri selectedImageUri = data == null ? null : data.getData();
-                subscriber.onNext(selectedImageUri);
-                subscriber.onCompleted();
-            }
-        });
-    }
-
     public Observable<Bitmap> getBitmap(String filePath, int inSampleSize) {
         return Observable.create(subscriber -> {
             File file = new File(filePath);
@@ -264,26 +240,14 @@ public class FileUtil {
         });
     }
 
-    private boolean isCamera(Intent data) {
-        boolean isCamera;
-        if (data == null) {
-            isCamera = true;
-        } else {
-            final String action = data.getAction();
-            if (action == null) {
-                isCamera = data.getData() == null;
-            } else {
-                isCamera = true;
-            }
-        }
-        return isCamera;
-    }
-
     public String getFileByUri(Uri imageUri) {
         String path;
         try {
             File dir = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + File.separator + "Mattermost");
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
 
             path = dir.getAbsolutePath() + File.separator + "img_" + System.currentTimeMillis() + ".jpg";
             InputStream input = mContext.getContentResolver().openInputStream(imageUri);
@@ -302,18 +266,6 @@ public class FileUtil {
             return null;
         }
         return path;
-    }
-
-    public String getImageUrl(String id) {
-        if (id != null) {
-            return "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/teams/"
-                    + MattermostPreference.getInstance().getTeamId()
-                    + "/files/get" + id;
-        } else {
-            return "";
-        }
     }
 
     public String getFileExtensionFromUrl(String url, boolean withDot) {

@@ -63,7 +63,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/users/"
                     + post.getUser().getId()
-                    + "/image";
+                    + "/image?time="
+                    + post.getUser().getLastPictureUpdate();
         } else {
             return null;
         }
