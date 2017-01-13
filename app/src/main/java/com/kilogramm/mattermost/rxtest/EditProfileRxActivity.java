@@ -159,8 +159,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                         });
             }
         } else if (resultCode == RESULT_CANCELED) {
-            Toast.makeText(getApplicationContext(),
-                    "Failed to capture image", Toast.LENGTH_SHORT)
+            Toast.makeText(getApplicationContext(), "Failed to capture image", Toast.LENGTH_SHORT)
                     .show();
         }
     }
@@ -204,19 +203,19 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         context.startActivity(starter);
     }
 
-    public void onUpdateComplete(){
+    public void onUpdateComplete() {
         hideProgressBar();
     }
 
-    private void showProgressBar(){
+    private void showProgressBar() {
         BaseActivity.hideKeyboard(this);
         mMenuItem.setVisible(false);
         mBinding.progressBar.setVisibility(View.VISIBLE);
     }
 
-    private void hideProgressBar(){
+    private void hideProgressBar() {
         mMenuItem.setVisible(true);
-        mBinding.progressBar.setVisibility(View.INVISIBLE);
+        mBinding.progressBar.setVisibility(View.GONE);
     }
 
     private void setAvatar(final Uri bitmapUri) {
@@ -252,7 +251,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                             myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),
                                     myBitmap.getHeight(), matrix, true);
 
-                            if(isCamera) {
+                            if (isCamera) {
                                 writeBitmapToFile(myBitmap);
                             }
                         } catch (IOException e) {
@@ -263,7 +262,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 });
     }
 
-    private void writeBitmapToFile(final Bitmap bitmap){
+    private void writeBitmapToFile(final Bitmap bitmap) {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.show();
         mProgressDialog.setContentView(R.layout.data_processing_progress_layout);
@@ -282,7 +281,7 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
                 e.printStackTrace();
             } finally {
                 mBinding.changeAvatar.post(() -> {
-                    if(mProgressDialog != null) mProgressDialog.cancel();
+                    if (mProgressDialog != null) mProgressDialog.cancel();
                 });
                 try {
                     if (out != null) {
@@ -364,7 +363,8 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
             save = true;
         }
         if (!save) {
-            Toast.makeText(this, "No changes.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No changes", Toast.LENGTH_SHORT).show();
+            hideProgressBar();
         }
     }
 
