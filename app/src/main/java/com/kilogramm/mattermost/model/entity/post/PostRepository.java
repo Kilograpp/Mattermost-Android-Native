@@ -30,6 +30,7 @@ public class PostRepository {
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
     }
 
+
     public static void update(Post item) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
@@ -64,6 +65,7 @@ public class PostRepository {
         return realm.where(Post.class).equalTo("id", id).findFirst();
     }
 
+
     public static void removeTempPost(String sendedPostId) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
@@ -87,51 +89,36 @@ public class PostRepository {
         realm.executeTransaction(realm1 -> realmQuery.findAll().deleteAllFromRealm());
     }
 
-//    public static void merge(Collection<Post> posts, Specification specification) {
-//        RealmResults realmResults = query(specification);
-//        List<Post> deleteFromRealm = new ArrayList<>();
-//        List<Post> postsFromServer = new ArrayList<>();
-//        postsFromServer.addAll(posts);
-//        for (Post post : posts) {
-//            if (query(post.getId()) != null) {
-//                postsFromServer.remove(post);
-//            }
-//        }
-//        for (Post post : postsFromServer) {
-//            prepareAndAddPost(post);
-//        }
-//    }
-
     public static void merge(Post item) {
         Log.d(TAG, "merge: start");
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-            try {
-                    Post post = realm.where(Post.class)
-                            .equalTo("id", item.getPendingPostId()).findFirst();
-                    if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
-                        post.setProps(null);
-                    } else {
-                        post.setProps(item.getProps());
-                    }
-                    Log.d(TAG, "merge() called with: item.id = [" + item.getId() + "]\n     post.id = [" + post.getId() + "}");
-                    if (!post.getId().equals(item.getId())) {
-                        post.setId(item.getId());
-                    }
-                    post.setCreateAt(item.getCreateAt());
-                    post.setUpdateAt(item.getUpdateAt());
-                    post.setDeleteAt(item.getDeleteAt());
-                    post.setRootId(item.getRootId());
-                    post.setParentId(item.getParentId());
-                    post.setOriginalId(item.getOriginalId());
-                    post.setType(item.getType());
-                    post.setHashtags(item.getHashtags());
-                    post.setPendingPostId(item.getPendingPostId());
-                    post.setFilenames(item.getFilenames());
-
-            } catch (Exception e){
-                e.printStackTrace();
+        try {
+            Post post = realm.where(Post.class)
+                    .equalTo("id", item.getPendingPostId()).findFirst();
+            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                post.setProps(null);
+            } else {
+                post.setProps(item.getProps());
             }
+            Log.d(TAG, "merge() called with: item.id = [" + item.getId() + "]\n     post.id = [" + post.getId() + "}");
+            if (!post.getId().equals(item.getId())) {
+                post.setId(item.getId());
+            }
+            post.setCreateAt(item.getCreateAt());
+            post.setUpdateAt(item.getUpdateAt());
+            post.setDeleteAt(item.getDeleteAt());
+            post.setRootId(item.getRootId());
+            post.setParentId(item.getParentId());
+            post.setOriginalId(item.getOriginalId());
+            post.setType(item.getType());
+            post.setHashtags(item.getHashtags());
+            post.setPendingPostId(item.getPendingPostId());
+            post.setFilenames(item.getFilenames());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         realm.commitTransaction();
         realm.close();
         Log.d(TAG, "merge: end");
@@ -144,7 +131,7 @@ public class PostRepository {
         else
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
-        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
+        if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
             /*post.getProps().getAttachments().get(0).setText(
@@ -163,7 +150,7 @@ public class PostRepository {
             post.setUser(new User("System", "System", "System"));
         post.setViewed(true);
 
-        if (post.getProps()==null || post.getProps().getFrom_webhook() == null) {
+        if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
             post.setProps(null);
         } else {
             /*post.getProps().getAttachments().get(0).setText(
@@ -175,27 +162,27 @@ public class PostRepository {
     }
 
     public static void prepareAndAdd(Posts posts) {
-            Realm realm = Realm.getDefaultInstance();
+        Realm realm = Realm.getDefaultInstance();
 
-            realm.beginTransaction();
-            for (Post post : posts.getPosts().values()) {
-                if (post.isSystemMessage())
-                    post.setUser(new User("System", "System", "System"));
-                else
-                    post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
-                post.setViewed(true);
-                //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-                if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
-                    post.setProps(null);
-                } else {
-                }
+        realm.beginTransaction();
+        for (Post post : posts.getPosts().values()) {
+            if (post.isSystemMessage())
+                post.setUser(new User("System", "System", "System"));
+            else
+                post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
+            post.setViewed(true);
+            //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
+            if (post.getProps() == null || post.getProps().getFrom_webhook() == null) {
+                post.setProps(null);
+            } else {
+            }
                 /*post.getProps().getAttachments().get(0).setText(
                         Processor.process(post.getProps().getAttachments().get(0).getText(),
                                 Configuration.builder().forceExtentedProfile().build()));*/
 
-            }
-            realm.insertOrUpdate(posts.getPosts().values());
-            realm.commitTransaction();
+        }
+        realm.insertOrUpdate(posts.getPosts().values());
+        realm.commitTransaction();
     }
 
     public static void updateUpdateAt(String postId, long update) {
