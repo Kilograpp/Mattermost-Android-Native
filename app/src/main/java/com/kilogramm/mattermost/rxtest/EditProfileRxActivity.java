@@ -137,16 +137,16 @@ public class EditProfileRxActivity extends BaseActivity<EditProfileRxPresenter> 
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CODE_YOUR_SELECT_PICTURE) {
-                    boolean isCamera;
-                    if (data == null) {
-                        isCamera = true;
-                    } else {
-                        final String action = data.getAction();
-                        isCamera = action != null || data.getData() == null;
-                    }
-                    Uri uri = isCamera ? outputFileUri : data.getData();
-                    setAvatar(uri);
-                    selectedImageUri = uri;
+                boolean isCamera;
+                if (data == null) {
+                    isCamera = true;
+                } else {
+                    final String action = data.getAction();
+                    isCamera = action != null || data.getData() == null;
+                }
+                Uri uri = isCamera ? outputFileUri : data.getData();
+                setAvatar(uri);
+                selectedImageUri = uri;
             }
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(getApplicationContext(), "Failed to capture image", Toast.LENGTH_SHORT)
