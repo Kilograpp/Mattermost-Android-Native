@@ -20,12 +20,18 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
     public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
     public static final String USER_TYPING = "USER_TYPING";
+    public static final String START_LOAD_USER_DATA = "START_LOAD_USER_DATA";
+    public static final String CANCEL_LOAD_USER_DATA = "CANCEL_LOAD_USER_DATA";
+    public static final String CANCEL_ALL_LOAD_USER_DATA = "CANCEL_ALL_LOAD_USER_DATA";
+    public static final String USER_ID = "USER_ID";
+
     public static final String CHANNEL_ID = "sCHANNEL_ID";
     public static final String BROADCAST_MESSAGE = "broadcast_message";
 
     private static String TAG = "MattermostService";
 
     private WebSocketManager mWebSocketManager;
+    private LoadUserService mLoadUserService;
     private ManagerBroadcast managerBroadcast;
     private MattermostNotificationManager mattermostNotificationManager;
 
@@ -35,6 +41,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
         Log.d(TAG, "onCreate");
         mWebSocketManager = new WebSocketManager(this);
         managerBroadcast = new ManagerBroadcast(this);
+        mLoadUserService =  new LoadUserService();
         mattermostNotificationManager = new MattermostNotificationManager(this);
     }
 
@@ -58,6 +65,22 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
         if (USER_TYPING.equals(intent.getAction())) {
             mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
+        }
+
+
+
+        if (START_LOAD_USER_DATA.equals(intent.getAction())) {
+            mLoadUserService.startLoadUser(intent.getStringExtra(USER_ID));
+            //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
+        }
+
+        if (CANCEL_LOAD_USER_DATA.equals(intent.getAction())) {
+            //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
+            mLoadUserService.cancelLoadUser(intent.getStringExtra(USER_ID));
+        }
+
+        if (CANCEL_ALL_LOAD_USER_DATA.equals(intent.getAction())) {
+            //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
         }
 
         //return Service.START_STICKY;
@@ -127,5 +150,30 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
             mContext.startService(intent);
             return this;
         }
+
+        public Helper startLoadUser(String userId) {
+            Intent intent = new Intent(mContext, MattermostService.class);
+            intent.putExtra(USER_ID,userId);
+            intent.setAction(START_LOAD_USER_DATA);
+            mContext.startService(intent);
+            return this;
+        }
+
+        public Helper cancelLoadUser(String userId) {
+            Intent intent = new Intent(mContext, MattermostService.class);
+            intent.putExtra(USER_ID,userId);
+            intent.setAction(CANCEL_LOAD_USER_DATA);
+            mContext.startService(intent);
+            return this;
+        }
+
+        public Helper cancelAllLoadUser(String userId) {
+            Intent intent = new Intent(mContext, MattermostService.class);
+            intent.putExtra(USER_ID,userId);
+            intent.setAction(CANCEL_ALL_LOAD_USER_DATA);
+            mContext.startService(intent);
+            return this;
+        }
+
     }
 }

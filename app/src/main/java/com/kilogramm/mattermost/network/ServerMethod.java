@@ -231,6 +231,9 @@ public class ServerMethod {
     public Observable<Map<String, User>> getAllUsers(String team_id, int offset, int limit){
         return mApi.getAllUsers(team_id, offset, limit);
     }
+    public Observable<Map<String, User>> getUsersById(List<String> ids){
+        return mApi.getUsersById(ids);
+    }
 
     public Observable<Channel> joinChannelName(String team_id, String channel_name){
         return mApi.joinChannelName(team_id, channel_name);

@@ -166,6 +166,12 @@ public interface ApiMethod {
                                                     @Path("offset") int offset,
                                                     @Path("limit") int limit);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/id")
+    Observable<Map<String, User>> getUsersById(@Body List<String> ids);
 
     @Headers({
             "Accept: application/json",
