@@ -24,7 +24,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserByNameSearchSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
@@ -45,6 +44,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -70,6 +70,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_LOAD_AFTER = 9;
 
     private static final int REQUEST_LOAD_FOUND_MESSAGE = 12;
+    private static final int REQUEST_HTTP_GETUSERS = 16;
 
     private ApiMethod service;
 
@@ -140,7 +141,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         initGetUsers();
         initGetStatusUser();
         initGetUserStatusList();
-//        initSendToServerError();
+        //initSendToServerError();
         initLoadBeforeAndAfter();
         initSendCommand();
     }
@@ -443,9 +444,18 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void initGetUsers() {
-        restartableFirst(REQUEST_DB_GETUSERS,
-                () -> UserRepository.query((new UserByNameSearchSpecification(search, cursorPos))).asObservable(),
-                (chatRxFragment, o) -> sendDropDown(o));
+        restartableFirst(REQUEST_HTTP_GETUSERS,
+                () -> ServerMethod.getInstance()
+                        .getAutocompleteUsers(MattermostPreference.getInstance().getTeamId(),
+                                channelId, search)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io()),
+                (chatRxFragment1, autocompleteUsers) -> {
+                    chatRxFragment1.setDropDownUser(autocompleteUsers);
+                },
+                (chatRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                });
     }
 
     private void initGetUserStatusList() {
@@ -578,10 +588,16 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         }
     }
 
-    public void requestGetUsers(String search, int cursorPos) {
+    /*public void requestGetUsers(String search, int cursorPos) {
         this.search = search;
         this.cursorPos = cursorPos;
         start(REQUEST_DB_GETUSERS);
+    }*/
+
+    public void requestGetUsers(String search, int cursorPos) {
+        this.search = search;
+        this.cursorPos = cursorPos;
+        start(REQUEST_HTTP_GETUSERS);
     }
 
     public void requestGetCountUsersStatus() {
@@ -657,11 +673,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void sendCanPaginationBot(Boolean b) {
         createTemplateObservable(b).subscribe(split(
                 ChatRxFragment::setCanPaginationBot));
-    }
-
-    private void sendDropDown(RealmResults<User> users) {
-        createTemplateObservable(users).subscribe(split(
-                ChatRxFragment::setDropDown));
     }
 
     private void sendTypingText(RealmResults<UserStatus> users) {

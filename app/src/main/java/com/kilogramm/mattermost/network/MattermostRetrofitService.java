@@ -43,6 +43,7 @@ public class MattermostRetrofitService {
         } else {
             client = new OkHttpClient.Builder()
                     .addInterceptor(getAuthInterceptor())
+                    .addInterceptor(logging)
                     .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                     .readTimeout(TIMEOUT, TimeUnit.SECONDS)
                     .addNetworkInterceptor(new StethoInterceptor())
