@@ -733,11 +733,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 chatRxFragment.invalidateAdapter()));
     }
 
-    private void sendSetDropDown(RealmResults<User> results) {
-        createTemplateObservable(results).subscribe(split(
-                ChatRxFragment::setDropDown));
-    }
-
     private void sendDisableShowLoadMoreTop() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
                 chatRxFragment.disableShowLoadMoreTop()));
@@ -822,19 +817,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.slideToMessageById()));
     }
     //endregion
-
-    public void getUsers(String search) {
-        RealmResults<User> users;
-        String currentUser = MattermostPreference.getInstance().getMyUserId();
-        Realm realm = Realm.getDefaultInstance();
-        if (search == null)
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).findAllSorted("username", Sort.ASCENDING);
-        else {
-            String[] username = search.split("@");
-            users = realm.where(User.class).isNotNull("id").notEqualTo("id", currentUser).contains("username", username[username.length - 1]).findAllSorted("username", Sort.ASCENDING);
-        }
-        sendSetDropDown(users);
-    }
 
     private void getLastMessageId() {
         RealmResults<Post> realmList = PostRepository.query(new PostByChannelId(channelId));
