@@ -204,6 +204,7 @@ public class PostRepository {
     public static void updateUpdateAt(String postId, long update) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
+            Log.i("PRFIX", "updateUpdateAt: TIME: " + System.currentTimeMillis());
             RealmResults<Post> posts = realm1.where(Post.class).equalTo("id", postId).findAll();
             if (posts.size() != 0) {
                 Post post = posts.first();
@@ -220,9 +221,11 @@ public class PostRepository {
 
     public static void updateUnsentPosts(){
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> unsentPosts = realm.where(Post.class).equalTo("updateAt", 0).findAllSorted("createAt");
+        RealmResults<Post> unsentPosts = realm.where(Post.class).lessThan("updateAt", 0).findAll();
         for(Post post : unsentPosts){
-            realm.executeTransaction(realm1 -> post.setCreateAt(getTmpUpdateTime()));
+            realm.executeTransaction(realm1 -> post.setCreateAt(System.currentTimeMillis() + 1000000L));
         }
     }
+
+
 }

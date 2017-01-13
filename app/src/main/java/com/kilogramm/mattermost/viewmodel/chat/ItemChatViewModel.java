@@ -98,7 +98,6 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getProgressSendVisibility() {//// TODO: 12.01.17
-        Log.i("PRFIX", "getProgressSendVisibility: " + post.getUpdateAt() + " id: " + post.getId());
         if (post.getUpdateAt() == null)
             return progressSendVisibility;
         else
@@ -106,6 +105,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getProgressErrorSendVisibility() {
+        Log.i("PRFIX", "SET STATE: TIME: " + System.currentTimeMillis());
         if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE)
             return progressErrorSendVisibility;
         else
