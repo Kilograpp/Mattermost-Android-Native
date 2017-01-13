@@ -144,7 +144,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 //        ((ChatListItemBinding) mBinding).filesViewRoot.setItems(post.getFilenames());
         ((ChatListItemBinding) mBinding).filesViewRoot.setFileForPost(post.getId());
         ((ChatListItemBinding) mBinding).linearLayoutRootPost.setVisibility(View.VISIBLE);
-        ((ChatListItemBinding) mBinding).nickRootPost.setText(post.getUser().getUsername());
+        if(post.getUser()!=null) {
+            ((ChatListItemBinding) mBinding).nickRootPost.setText(post.getUser().getUsername());
+        }
         ((ChatListItemBinding) mBinding).getViewModel()
                 .loadImage(((ChatListItemBinding) mBinding).avatarRootPost,
                         ((ChatListItemBinding) mBinding).getViewModel().getUrl(post));

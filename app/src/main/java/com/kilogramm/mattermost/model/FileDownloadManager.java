@@ -25,12 +25,15 @@ import java.util.Map;
 /**
  * Created by kepar on 20.10.16.
  */
-
 public class FileDownloadManager {
     private static final String TAG = "FileDownloaderManager";
 
     private static FileDownloadManager instance;
 
+    /**
+     * Every listener is for every added to download file. Key - file id,
+     * value - an instance of {@link FileDownloadListener}
+     */
     private Map<String, FileDownloadListener> fileDownloadListeners;
 
     private DownloadManager manager;
@@ -48,14 +51,15 @@ public class FileDownloadManager {
                 getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
+    /**
+     * Add item for download. FileDownloadListener adds to {@link #fileDownloadListeners}
+     *
+     * @param fileInfo             the object contains information for file downloading
+     * @param fileDownloadListener the listener to indicate downloading progress
+     */
     public void addItem(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
         fileDownloadListeners.put(fileInfo.getId(), fileDownloadListener);
         FileInfoRepository.getInstance().addForDownload(fileInfo);
-        startDownload();
-    }
-
-    public void addItem(String fileId) {
-        FileToAttachRepository.getInstance().addForDownload(fileId);
         startDownload();
     }
 
@@ -109,7 +113,7 @@ public class FileDownloadManager {
 
                 Cursor cursor = manager.query(q);
                 cursor.moveToFirst();
-                int bytes_downloaded;
+                int bytes_downloaded = 0;
                 int bytes_total;
                 try {
                     bytes_downloaded = cursor.getInt(cursor
@@ -134,6 +138,7 @@ public class FileDownloadManager {
                     FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
                     cursor.close();
                     startDownload();
+                    break;
                 }
 
                 if (bytes_total > 0) {

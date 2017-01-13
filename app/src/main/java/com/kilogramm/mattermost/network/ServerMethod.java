@@ -9,6 +9,7 @@ import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
@@ -231,7 +232,15 @@ public class ServerMethod {
         return mApi.getAllUsers(team_id, offset, limit);
     }
 
-    public Observable<Channel> joinChannelName( String team_id, String channel_name){
+    public Observable<Channel> joinChannelName(String team_id, String channel_name){
         return mApi.joinChannelName(team_id, channel_name);
+    }
+
+    public Observable<AutocompleteUsers> getAutocompleteUsers(String teamId, String channelId, String term) {
+        return mApi.getAutocompleteUsers(teamId, channelId, term);
+    }
+
+    public Observable<Map<String, User>> getUsersNotInChannel(String team_id, String channel_id, int offset, int limit) {
+        return mApi.getUsersNotInChannel(team_id, channel_id, offset, limit);
     }
 }

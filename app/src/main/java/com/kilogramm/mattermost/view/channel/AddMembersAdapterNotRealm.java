@@ -1,8 +1,8 @@
 package com.kilogramm.mattermost.view.channel;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -12,35 +12,39 @@ import com.kilogramm.mattermost.databinding.ItemAddMembersBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
-import io.realm.RealmRecyclerViewAdapter;
+import java.util.List;
+
 import io.realm.RealmViewHolder;
 
 /**
- * Created by ngers on 01.11.16.
+ * Created by melkshake on 12.01.17.
  */
 
-public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersAdapter.MyViewHolder> {
+public class AddMembersAdapterNotRealm extends RecyclerView.Adapter<AddMembersAdapterNotRealm.AddMembersHolder> {
 
-    OnItemClickListener onItemClickListener;
+    private static final String TAG = "AdapterNOTRealm";
+    private OnItemClickListener onItemClickListener;
+    private List<User> usersNotFromChannel;
 
-    public AddMembersAdapter(@NonNull Context context, OnItemClickListener onItemClickListener) {
-        super(context, null, true);
+    public AddMembersAdapterNotRealm(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AddMembersHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder: ");
         ItemAddMembersBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
                 R.layout.item_add_members,
                 parent,
                 false);
-        return new MyViewHolder(binding);
+        return new AddMembersHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        User user = getItem(position);
+    public void onBindViewHolder(AddMembersHolder holder, int position) {
+        User user = usersNotFromChannel.get(position);
+        Log.d(TAG, "onBindViewHolder: " + user.getId());
         if (user.getId() != null) {
             holder.binding.textViewMemberName.setText(user.getUsername());
 
@@ -60,6 +64,15 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
         }
     }
 
+    @Override
+    public int getItemCount() {
+        return usersNotFromChannel == null ? 0 : this.usersNotFromChannel.size();
+    }
+
+    public void setUsersNotFromChannel(List<User> usersNotFromChannel) {
+        this.usersNotFromChannel = usersNotFromChannel;
+    }
+
     public String getImageUrl(User user) {
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
@@ -68,15 +81,21 @@ public class AddMembersAdapter extends RealmRecyclerViewAdapter<User,AddMembersA
                 + "/image";
     }
 
-    public static class MyViewHolder extends RealmViewHolder {
+    public void updateData(List<User> usersNotInChannel) {
+        setUsersNotFromChannel(usersNotInChannel);
+        notifyDataSetChanged();
+    }
+
+    public static class AddMembersHolder extends RealmViewHolder {
         ItemAddMembersBinding binding;
-        private MyViewHolder(ItemAddMembersBinding binding) {
+
+        private AddMembersHolder(ItemAddMembersBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(String id);
     }
 }

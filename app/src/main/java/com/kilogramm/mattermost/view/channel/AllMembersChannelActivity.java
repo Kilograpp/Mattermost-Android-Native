@@ -33,7 +33,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(AllMembersPresenter.class)
 public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter> {
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_ID = "CHANNEL_ID";
 
     ActivityAllMembersChannelBinding binding;
     AllMembersAdapter allMembersAdapter;

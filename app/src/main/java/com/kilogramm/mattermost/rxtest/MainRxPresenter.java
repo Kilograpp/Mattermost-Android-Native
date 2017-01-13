@@ -1,8 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Patterns;
@@ -26,7 +23,6 @@ import rx.schedulers.Schedulers;
  * Created by Evgeny on 03.10.2016.
  */
 public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
-    private final String ERROR_NO_CONNECTION = "No connection to the internet";
     private final String URI_STRING = "https://mattermost.kilograpp.com";
     private final String URL_NOT_VALID = "Url is not valid https://";
 
@@ -101,17 +97,10 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             return;
         }
 
-//        this.url = url;
-
-        final ConnectivityManager connectivityManager = (
-                ConnectivityManager) MattermostApp.getSingleton()
-                .getApplicationContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-        if (ni == null || !ni.isConnectedOrConnecting()) {
-            sendShowError(ERROR_NO_CONNECTION);
-        } else {
+        if (isNetworkAvailable()) {
             start(REQUEST_CHECK);
+        } else {
+            sendShowError(parceError(null, NO_NETWORK));
         }
     }
 

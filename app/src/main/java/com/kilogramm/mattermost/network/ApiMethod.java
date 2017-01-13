@@ -13,6 +13,7 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.Users;
+import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
@@ -40,6 +41,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -89,10 +91,10 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}/users/not_in_channel/{offset}/{limit}")
-    Observable<Users> getUsersNotInChannel(@Path("teamId") String teamId,
-                                           @Path("channel_id") String channelId,
-                                           @Path("offset") int offset,
-                                           @Path("limit") int limit);
+    Observable<Map<String, User>> getUsersNotInChannel(@Path("team_id") String team_id,
+                                                       @Path("channel_id") String channel_id,
+                                                       @Path("offset") int offset,
+                                                       @Path("limit") int limit);
 
 
     @Headers({
@@ -438,5 +440,12 @@ public interface ApiMethod {
     Observable<CommandFromNet> executeCommand(@Path("teamId") String teamId,
                                               @Body CommandToNet command);
 
-
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/{channelId}/users/autocomplete")
+    Observable<AutocompleteUsers> getAutocompleteUsers(@Path("teamId") String teamId,
+                                                       @Path("channelId") String channelId,
+                                                       @Query("term") String term);
 }

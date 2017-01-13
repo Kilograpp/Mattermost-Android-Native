@@ -1,8 +1,12 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.google.gson.Gson;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.error.HttpError;
 
 import java.io.IOException;
@@ -39,6 +43,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
     public static final String USER_PREFERENCES = "USER_PREFERENCES";
     public static final String UPLOAD_A_FILE = "UPLOAD_A_FILE";
     public static final String UPDATE_CHANNEL = "UPDATE_CHANNEL";
+    public static final String NO_NETWORK = "NO_NETWORK";
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -90,7 +95,9 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
 
     // TODO вот альтернативный метод для обработки ошибок, посмотрите плз
     public static String parceError(Throwable e, String requestTag) {
-        if (e instanceof HttpException) {
+        if (e == null && requestTag.equals(NO_NETWORK)) {
+            return "No connection to the network";
+        } else if (e instanceof HttpException) {
             try {
                 HttpError error = new Gson().fromJson(((HttpException) e).response()
                         .errorBody()
@@ -217,5 +224,14 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         } else {
             return e.getMessage();
         }
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) MattermostApp.getSingleton()
+                        .getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+        return !(ni == null || !ni.isConnectedOrConnecting());
     }
 }

@@ -154,8 +154,8 @@ public class UserRepository {
 
         @Override
         public RealmResults<User> toRealmResults(Realm realm) {
-            RealmList<User> membersTeam = realm.where(ExtraInfo.class).equalTo("id",
-                    realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
+            RealmList<User> membersTeam = realm.where(ExtraInfo.class).equalTo(
+                    "id", realm.where(Channel.class).equalTo("name", "town-square").findFirst().getId())
                     .findFirst().getMembers();
 
             RealmQuery realmQuery = membersTeam.where();
@@ -171,7 +171,6 @@ public class UserRepository {
 
     public static class UserByNotMiSpecification implements RealmSpecification {
 
-
         private final String id;
 
         public UserByNotMiSpecification(String id) {
@@ -183,5 +182,4 @@ public class UserRepository {
             return realm.where(User.class).notEqualTo("id",id).findAll();
         }
     }
-
 }
