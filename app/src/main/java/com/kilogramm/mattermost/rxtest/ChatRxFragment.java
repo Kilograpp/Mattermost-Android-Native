@@ -46,7 +46,6 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
-import com.kilogramm.mattermost.adapters.UsersDropDownListAdapter;
 import com.kilogramm.mattermost.adapters.command.CommandAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
@@ -64,8 +63,10 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.rxtest.autocomplete_list.adapter.UsersDropDownListAdapterV2;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -152,7 +153,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     private Post rootPost;
 
     private AdapterPost adapter;
-    private UsersDropDownListAdapter dropDownListAdapter;
+    private UsersDropDownListAdapterV2 dropDownListAdapter;
     private CommandAdapter commandAdapter;
 
     private BroadcastReceiver brReceiverTyping;
@@ -374,7 +375,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.cardViewCommandCardView.setVisibility(View.INVISIBLE);
                 else
                     binding.cardViewCommandCardView.setVisibility(View.VISIBLE);
-
             }
 
             @Override
@@ -397,26 +397,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     // TODO: 12.12.2016 dropdownmenu
     private void setDropDownUserList() {
-        dropDownListAdapter = new UsersDropDownListAdapter(getActivity(), this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapterV2(null, getActivity(), this::addUserLinkMessage);
         binding.idRecUser.setAdapter(dropDownListAdapter);
         binding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.writingMessage.addTextChangedListener(getMassageTextWatcher());
         setListenerToRootView();
         binding.writingMessage.setOnClickListener(view ->
                 getUserList(((EditText) view).getText().toString()));
-    }
-
-    public void setDropDown(RealmResults<User> realmResult) {
-        if (binding.writingMessage.getText().length() > 0) {
-            dropDownListAdapter.updateData(realmResult);
-        } else {
-            dropDownListAdapter.updateData(null);
-        }
-        if (dropDownListAdapter.getItemCount() == 0)
-            binding.cardViewDropDown.setVisibility(View.INVISIBLE);
-        else
-            binding.cardViewDropDown.setVisibility(View.VISIBLE);
-
     }
 
     public static ChatRxFragment createFragment(String channelId, String channelName, String searchMessageId) {
@@ -511,14 +498,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         int cursorPos = binding.writingMessage.getSelectionStart();
         if (cursorPos > 0 && text.contains("@")) {
             if (text.charAt(cursorPos - 1) == '@') {
-                getPresenter().requestGetUsers(null, cursorPos);
+                getPresenter().requestGetUsers("", cursorPos);
             } else {
                 getPresenter().requestGetUsers(
                         text, cursorPos);
             }
         } else {
             Log.d(TAG, "getUserList: false");
-            setDropDown(null);
+            setDropDownUser(null);
         }
     }
 
@@ -1265,5 +1252,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         setupTypingText("");
     }
 
-
+    public void setDropDownUser(AutocompleteUsers autocompleteUsers) {
+        if (binding.writingMessage.getText().length() > 0) {
+            dropDownListAdapter.updateData(autocompleteUsers);
+        } else {
+            dropDownListAdapter.updateData(null);
+        }
+        if (dropDownListAdapter.getItemCount() == 0)
+            binding.cardViewDropDown.setVisibility(View.INVISIBLE);
+        else
+            binding.cardViewDropDown.setVisibility(View.VISIBLE);
+    }
 }

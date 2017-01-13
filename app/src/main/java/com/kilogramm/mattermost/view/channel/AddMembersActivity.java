@@ -19,7 +19,9 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 
-import io.realm.OrderedRealmCollection;
+import java.util.List;
+
+import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -27,11 +29,12 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(AddMembersPresenter.class)
 public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_ID = "CHANNEL_ID";
 
     ActivityAllMembersChannelBinding binding;
-    AddMembersAdapter addMembersAdapter;
     SearchView searchView;
+
+    private AddMembersAdapterNotRealm addMembersAdapterNotRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,29 +94,32 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
-    public void updateDataList(OrderedRealmCollection<User> realmResult) {
-        addMembersAdapter.updateData(realmResult);
-        if (realmResult.size() == 0) {
-            binding.textViewListEmpty.setVisibility(View.VISIBLE);
-        } else
-            binding.textViewListEmpty.setVisibility(View.INVISIBLE);
+    public void updateDataList(RealmResults<User> realmResult) {
+        addMembersAdapterNotRealm.setUsersNotFromChannel(realmResult);
+        binding.textViewListEmpty.setVisibility(
+                realmResult.size() == 0 ? View.VISIBLE : View.GONE);
     }
 
-
     private void initiationData() {
-        addMembersAdapter = new AddMembersAdapter(this,id -> {
-                    getPresenter().addMember(id);
-                    binding.recView.setVisibility(View.INVISIBLE);
-                    binding.progressBar.setVisibility(View.VISIBLE);
-                    hideKeyboard(this);
-                });
-        binding.recView.setAdapter(addMembersAdapter);
+        addMembersAdapterNotRealm = new AddMembersAdapterNotRealm(id -> {
+            getPresenter().addMember(id);
+            binding.recView.setVisibility(View.GONE);
+            binding.progressBar.setVisibility(View.VISIBLE);
+            hideKeyboard(this);
+        }/*, getPresenter().getUsersNotInChannel()*/);
+
+        binding.recView.setAdapter(addMembersAdapterNotRealm);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
+
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
     }
 
     private void setToolbar() {
         setupToolbar(getString(R.string.add_members_toolbar), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+    }
+
+    public void refreshAdapter(List<User> usersNotInChannel) {
+        addMembersAdapterNotRealm.updateData(usersNotInChannel);
     }
 }
