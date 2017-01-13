@@ -94,6 +94,10 @@ public class FileDownloadManager {
         request.setTitle(fileInfo.getmName());
         request.addRequestHeader("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
         request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
 
         downloadId = manager.enqueue(request);
@@ -123,6 +127,7 @@ public class FileDownloadManager {
 
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
+                    int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
                     cursor.close();
                     onDownloadFail(fileId);
                     break;
