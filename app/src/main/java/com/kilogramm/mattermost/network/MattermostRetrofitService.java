@@ -33,7 +33,7 @@ public class MattermostRetrofitService {
         OkHttpClient client;
         if (BuildConfig.DEBUG) {
             client = new OkHttpClient.Builder()
-//                    .addInterceptor(logging)
+                    .addInterceptor(logging)
                     .addInterceptor(getAuthInterceptor())
                     .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                     .readTimeout(TIMEOUT, TimeUnit.SECONDS)
