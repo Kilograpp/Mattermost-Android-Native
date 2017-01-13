@@ -61,17 +61,6 @@
             </LinearLayout>
         </android.support.design.widget.AppBarLayout>
 
-
-        <!--<android.support.design.widget.FloatingActionButton
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            app:backgroundTint="@color/white"
-            app:layout_anchor="@id/appbar"
-            app:layout_anchorGravity="bottom|right"
-            app:srcCompat="@drawable/ic_camera_alt_grey_24dp" />-->
-
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -196,63 +185,18 @@
                             android:textColor="@color/black"
                             tools:text="Maria Reynolds" />
 
-                        <!--<View-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="1dp"-->
-                            <!--android:layout_marginBottom="10dp"-->
-                            <!--android:layout_marginTop="10dp"-->
-                            <!--android:background="@color/light_grey" />-->
-
-                        <!--<TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
-                            android:paddingStart="15dp"
-                            android:text="PASSWORD"
-                            android:textColor="@color/grey" />
-
-                        <TextView
-                            android:id="@+id/password"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="15dp"
-                            android:textColor="@color/black"
-                            tools:text="Maria Reynolds" />-->
-
-
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 
-                <!-- <android.support.v7.widget.CardView
-                     android:id="@+id/notification"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_marginTop="15dp"
-                     app:cardBackgroundColor="@color/white"
-                     app:contentPaddingBottom="10dp"
-                     app:contentPaddingTop="10dp">
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:visibility="invisible"
+                    app:cardBackgroundColor="@color/white"
+                    app:contentPaddingBottom="10dp"
+                    app:contentPaddingTop="10dp" />
 
-                     <LinearLayout
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:gravity="center_vertical"
-                         android:orientation="horizontal">
-
-                         <ImageView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:paddingEnd="15dp"
-                             android:paddingStart="15dp"
-                             app:srcCompat="@drawable/ic_notifications_grey_24dp" />
-
-                         <TextView
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:text="Notification"
-                             android:textColor="@color/black" />
-
-                     </LinearLayout>
-                 </android.support.v7.widget.CardView>-->
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
     </android.support.design.widget.CoordinatorLayout>
