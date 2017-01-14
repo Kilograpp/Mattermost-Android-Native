@@ -60,7 +60,8 @@ public class Data implements Parcelable {
                 String teamId,
                 String status,
                 Map<String, String> statusMap,
-                Preferences preference) {
+                Preferences preference,
+                String userId) {
         this.channelDisplayName = channelDisplayName;
         this.channelType = channelType;
         this.mentions = mentions;
@@ -70,6 +71,7 @@ public class Data implements Parcelable {
         this.status = status;
         this.statusMap = statusMap;
         this.preference = preference;
+        this.userId = userId;
     }
 
     public Map<String, String> getStatusMap() {
