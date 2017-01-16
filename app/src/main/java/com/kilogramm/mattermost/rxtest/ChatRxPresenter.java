@@ -23,7 +23,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
@@ -41,7 +40,6 @@ import java.util.Map;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -286,7 +284,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
      * @param posts incoming posts from server
      */
     private void mergePosts(Posts posts) {
-        PostRepository.remove(new PostByChannelId(channelId));
+//        PostRepository.remove(new PostByChannelId(channelId));
         PostRepository.prepareAndAdd(posts);
         PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
         requestUpdateLastViewedAt();
@@ -322,6 +320,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     isSendingPost = false;
                     sendError(getError(throwable));
                     setErrorPost(forSendPost.getPendingPostId());
+                    sendIvalidateAdapter();
                     throwable.printStackTrace();
                     Log.d(TAG, "Error create post " + throwable.getMessage());
                 });
@@ -369,6 +368,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendIvalidateAdapter();
                 }, (chatRxFragment1, throwable) -> {
                     Post post = new Post(PostRepository.query(new PostByIdSpecification(forEditPost.getId())).first());
+                    Log.i("PRFIX", "initEditPost: ");
                     post.setUpdateAt(updateAt);
                     PostRepository.update(post);
                     sendIvalidateAdapter();
@@ -603,15 +603,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
-        if (isSendingPost) return;
+//        if (isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         isSendingPost = true;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
-
-        start(REQUEST_SEND_TO_SERVER);
-
         Post forSavePost = new Post(forSendPost);
         forSavePost.setId(sendedPostId);
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
@@ -620,13 +617,22 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         //TODO markdown cpp
         //forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
+        PostRepository.updateUnsentPosts();// TODO: 12.01.17
+        sendIvalidateAdapter();
         PostRepository.add(forSavePost);
+        start(REQUEST_SEND_TO_SERVER);
+
     }
 
     public void requestSendToServerError(Post post) {
-        if (isSendingPost) return;
+//        if (isSendingPost) return;
         isSendingPost = true;
         forSendPost = post;
+
+//        post.setUpdateAt(null);// TODO: 12.01.17
+        Post post1 = PostRepository.query(new PostByIdSpecification(post.getId())).first();
+        Realm.getDefaultInstance().executeTransaction(realm -> post1.setUpdateAt(null));
+        sendIvalidateAdapter();
         post.setId(null);
         post.setUser(null);
         post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());
@@ -839,6 +845,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void setErrorPost(String sendedPostId) {
+        Log.i("PRFIX", "setErrorPost: WAT DA FUK??!");
         PostRepository.updateUpdateAt(sendedPostId, Post.NO_UPDATE);
         /*Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);

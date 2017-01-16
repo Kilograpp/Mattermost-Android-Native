@@ -4,6 +4,7 @@ import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -97,7 +98,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         return new ObservableInt(View.GONE);
     }
 
-    public ObservableInt getProgressSendVisibility() {
+    public ObservableInt getProgressSendVisibility() {//// TODO: 12.01.17
         if (post.getUpdateAt() == null)
             return progressSendVisibility;
         else
@@ -105,6 +106,7 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public ObservableInt getProgressErrorSendVisibility() {
+        Log.i("PRFIX", "SET STATE: TIME: " + System.currentTimeMillis());
         if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE)
             return progressErrorSendVisibility;
         else
