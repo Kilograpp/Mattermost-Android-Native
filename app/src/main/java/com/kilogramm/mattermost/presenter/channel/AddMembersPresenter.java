@@ -70,13 +70,14 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     }
 
     public RealmResults<User> getMembers(String name) {
+        updateExtraInfo();
         return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
                 mExtraInfo.getMembers(), name));
     }
 
     public RealmResults<User> getMembers() {
-        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
-                mExtraInfo.getMembers(), null));
+        updateExtraInfo();
+        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), null));
     }
 
     private void initRequests() {
@@ -125,10 +126,11 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private void addMembers() {
         restartableFirst(REQUEST_ADD_MEMBERS, () ->
                         ServerMethod.getInstance()
-                                .addMember(mTeamId, mId, new Members(mUser_id))
+                                .addMember(mTeamId, mChannelId, new Members(mUser_id))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                (addMembersActivity, user) -> updateMembers(user.getUser_id()),
+                (addMembersActivity, user) ->
+                        updateMembers(user.getUser_id()),
                 (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
                     errorUpdateMembers(throwable.getMessage());
@@ -137,6 +139,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void updateMembers(String id) {
         createTemplateObservable(new Object()).subscribe(split((addMembersActivity, openChatObject) -> {
+            updateExtraInfo();
             ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
                     new UserRepository.UserByIdSpecification(id)).first());
             addMembersActivity.requestMember("User added");
@@ -151,6 +154,11 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void sendShowError(String error) {
         createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+    }
+
+    private void updateExtraInfo(){
+        if(mChannelId != null && mExtraInfo == null)
+        mExtraInfo = ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first();
     }
 
     public class Members {
