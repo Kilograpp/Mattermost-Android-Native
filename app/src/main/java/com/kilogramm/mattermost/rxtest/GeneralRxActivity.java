@@ -73,6 +73,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private LeftMenuRxFragment leftMenuRxFragment;
 
+    private ChatRxFragment mCurrentFragment;
+
     @State
     String currentChannel = "";
 
@@ -180,6 +182,13 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 Log.d(TAG, "OnChange users");
                 updateHeaderUserName((User) element);
                 setAvatar();
+                // TODO сделано для того, что аватарка юзера в списке обновилась.
+                // Но я вообще не уверен, что это верный. В идеале надо пробежаться
+                // по списку и найти только сообщения пользователя. И лишь у них вызвать
+                // notifyItemChanged()
+                if(mCurrentFragment != null) {
+                    mCurrentFragment.invalidateAdapter();
+                }
             });
             updateHeaderUserName(user);
             setAvatar();
@@ -309,10 +318,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
         if (!channelId.equals(currentChannel) || searchMessageId != null) {
-            ChatRxFragment rxFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+            mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
-                    .replace(binding.contentFrame.getId(), rxFragment, FRAGMENT_TAG)
+                    .replace(binding.contentFrame.getId(), mCurrentFragment, FRAGMENT_TAG)
                     .commit();
             MattermostPreference.getInstance().setLastChannelId(channelId);
         }
