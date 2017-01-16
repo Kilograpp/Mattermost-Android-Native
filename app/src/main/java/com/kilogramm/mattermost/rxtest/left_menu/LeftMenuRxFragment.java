@@ -44,6 +44,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import nucleus.factory.RequiresPresenter;
 
 import static android.app.Activity.RESULT_OK;
@@ -74,6 +75,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     private RealmResults<Member> mMembers;
     private RealmResults<Preferences> mPreferences;
+    private RealmResults<UserMember> mUserMembers;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -102,6 +104,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 mPrivateListAdapter.notifyDataSetChanged();
             }
         });
+        mUserMembers = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
+        mUserMembers.addChangeListener(element -> invalidateDirect());
+
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
 
         initView();
@@ -117,6 +122,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         super.onDestroy();
         mMembers.removeChangeListeners();
         mPreferences.removeChangeListeners();
+        mUserMembers.removeChangeListeners();
     }
 
 
@@ -189,13 +195,20 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     public RealmResults<Channel> getDirectChannelData() {
+        String my_id = MattermostPreference.getInstance().getMyUserId();
         RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
         for (Preferences preference : mPreferences) {
             String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
             String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
             realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
         }
-        return realmQuery.findAllSorted("username", Sort.ASCENDING);
+        RealmQuery<Channel> channelQuery = realmQuery.findAll().where();
+        for (UserMember userMember : mUserMembers) {
+            String name = String.format("%s__%s", userMember.getUserId(), my_id);
+            String revertName = String.format("%s__%s", my_id, userMember.getUserId());
+            channelQuery.equalTo("name", name).or().equalTo("name", revertName).or();
+        }
+        return channelQuery.findAllSorted("username", Sort.ASCENDING);
     }
 
     public void selectLastChannel() {

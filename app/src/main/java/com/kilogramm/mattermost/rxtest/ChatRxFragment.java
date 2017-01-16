@@ -1192,6 +1192,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void invalidateAdapter() {
+        if(adapter!=null)
         adapter.notifyDataSetChanged();
     }
 

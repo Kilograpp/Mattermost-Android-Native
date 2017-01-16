@@ -251,7 +251,7 @@ public class ServerMethod {
     public Observable<ResponseLeftMenuData> loadLeftMenu(List<String> ids, String teamId) {
         return Observable.defer(() -> Observable.zip(
                 mApi.getUserByIds(ids),
-                mApi.getUserMembersByIds(ids),
+                mApi.getUserMembersByIds(teamId, ids),
                 mApi.getChannelsTeamNew(teamId),
                 mApi.getMembersTeamNew(teamId),
                 (stringUserMap, userMembers, channels, members) -> {

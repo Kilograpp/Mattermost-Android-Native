@@ -467,7 +467,8 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @POST("api/v3/teams/{teamId}/members/ids")
-    Observable<List<UserMember>> getUserMembersByIds(@Body List<String> ids);
+    Observable<List<UserMember>> getUserMembersByIds(@Path("teamId") String teamId,
+                                                     @Body List<String> ids);
 
 
 }
