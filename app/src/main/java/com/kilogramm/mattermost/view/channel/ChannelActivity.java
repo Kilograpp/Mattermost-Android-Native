@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -220,7 +221,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         }
     }
 
-
     private String getMessageLink(String name) {
         return "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
@@ -233,10 +233,9 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 + name;
     }
 
-
     private void openDirect(String id) {
-        String userId = MattermostPreference.getInstance().getMyUserId();
-        if (!userId.equals(id)) {
+        String myId = MattermostPreference.getInstance().getMyUserId();
+        if (!myId.equals(id)) {
             RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
             if (channels.size() > 0) {
                 MattermostPreference.getInstance().setLastChannelId(
@@ -245,13 +244,14 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 PreferenceRepository.update(
                         new PreferenceRepository
                                 .PreferenceByNameSpecification(
-                                channels.first().getUser().getId()),"true");
+                                channels.first().getUser().getId()), "true");
                 getPresenter().savePreferences();
-//                startGeneralActivity();
-            } else startDialog(id);
+                startGeneralActivity();
+            } else {
+                startDialog(id);
+            }
         }
     }
-
 
     private void startDialog(String userTalkToId) {
         Preferences preferences = new Preferences(
@@ -261,7 +261,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 "direct_channel_show");
 
         getPresenter().requestSaveData(preferences, userTalkToId);
-
     }
 
     private void initClick() {
