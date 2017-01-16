@@ -3,14 +3,22 @@ package com.kilogramm.mattermost.rxtest.left_menu;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.member.MembersRepository;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.entity.usermember.UserMemberRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.schedulers.Schedulers;
 
@@ -20,11 +28,13 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
 
     private static final int REQUEST_SAVE = 1;
     private static final int REQUEST_UPDATE = 2;
+    private static final int REQUEST_INIT = 3;
 
     private ListPreferences mListPreferences = new ListPreferences();
     private LogoutData mUser;
 
     private String mTeamId;
+    private List<String> mDirectIds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -47,8 +57,38 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void initRequest() {
+        initLeftMenuRequest();
         initSaveRequest();
         initChannelUpdateRequest();
+    }
+
+    private void initLeftMenuRequest() {
+        restartableFirst(REQUEST_INIT,() ->
+                ServerMethod.getInstance()
+                        .loadLeftMenu(mDirectIds, MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                , (leftMenuRxFragment, responseLeftMenuData) -> {
+                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
+                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
+                    ChannelRepository.add(responseLeftMenuData.getChannels());
+                    MembersRepository.add(responseLeftMenuData.getMembers());
+                    sendUpdateMenuView();
+                    sendShowLeftMenu();
+                }, (leftMenuRxFragment, throwable) -> {
+                    sendErrorLoading(throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+    }
+
+    private void sendShowLeftMenu() {
+        createTemplateObservable(new Object())
+                .subscribe(split((leftMenuRxFragment, o) -> leftMenuRxFragment.showLeftMenu()));
+    }
+
+    private void sendErrorLoading(String message) {
+        createTemplateObservable(message)
+                .subscribe(split((leftMenuRxFragment, s) -> leftMenuRxFragment.showErrorLoading(message)));
     }
 
     private void initChannelUpdateRequest() {
@@ -112,5 +152,14 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     private void sendSelectLastChannel() {
         createTemplateObservable(new Object()).subscribe(split(
                 (leftMenuRxFragment, o) -> leftMenuRxFragment.selectLastChannel()));
+    }
+
+    public void requestInit(List<Preferences> preferences) {
+        this.mDirectIds.clear();
+        List<String> ids = Stream.of(preferences)
+                .map(Preferences::getName)
+                .collect(Collectors.toList());
+        this.mDirectIds.addAll(ids);
+        start(REQUEST_INIT);
     }
 }

@@ -23,6 +23,7 @@ import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
 import com.kilogramm.mattermost.presenter.settings.PasswordChangePresenter;
+import com.kilogramm.mattermost.rxtest.left_menu.model.ResponseLeftMenuData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,11 +229,11 @@ public class ServerMethod {
         return mApi.getUsersInChannel(team_id, channel_id, offset, limit);
     }
 
-    public Observable<Map<String, User>> getAllUsers(String team_id, int offset, int limit){
+    public Observable<Map<String, User>> getAllUsers(String team_id, int offset, int limit) {
         return mApi.getAllUsers(team_id, offset, limit);
     }
 
-    public Observable<Channel> joinChannelName(String team_id, String channel_name){
+    public Observable<Channel> joinChannelName(String team_id, String channel_name) {
         return mApi.joinChannelName(team_id, channel_name);
     }
 
@@ -242,5 +243,18 @@ public class ServerMethod {
 
     public Observable<Map<String, User>> getUsersNotInChannel(String team_id, String channel_id, int offset, int limit) {
         return mApi.getUsersNotInChannel(team_id, channel_id, offset, limit);
+    }
+
+    public Observable<ResponseLeftMenuData> loadLeftMenu(List<String> ids, String teamId) {
+        return Observable.defer(() -> Observable.zip(
+                mApi.getUserByIds(ids),
+                mApi.getUserMembersByIds(ids),
+                mApi.getChannelsTeamNew(teamId),
+                mApi.getMembersTeamNew(teamId),
+                (stringUserMap, userMembers, channels, members) -> {
+                    ResponseLeftMenuData responseLeftMenuData = new ResponseLeftMenuData();
+                    responseLeftMenuData.setData(stringUserMap, userMembers, channels, members);
+                    return responseLeftMenuData;
+                }));
     }
 }
