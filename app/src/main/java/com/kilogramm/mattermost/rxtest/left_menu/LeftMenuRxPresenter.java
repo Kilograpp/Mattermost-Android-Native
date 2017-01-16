@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest.left_menu;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
@@ -11,6 +12,8 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
+import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
+import com.kilogramm.mattermost.rxtest.LoginRxActivity;
 
 import rx.schedulers.Schedulers;
 
@@ -73,13 +76,13 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     private void initSaveRequest() {
         restartableFirst(REQUEST_SAVE,
                 () -> ServerMethod.getInstance()
-                    .saveOrCreateDirectChannel(mListPreferences.getmSaveData(),
-                            mTeamId,
-                            mUser.getUserId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io()),
+                        .saveOrCreateDirectChannel(mListPreferences.getmSaveData(),
+                                mTeamId,
+                                mUser.getUserId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
                 (leftMenuRxFragment, channel) -> {
-                    if(channel!=null) {
+                    if (channel != null) {
                         ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
                         mListPreferences.getmSaveData().clear();
                         if (channel.getId() != null)
@@ -96,6 +99,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                             channel.getType());
                     leftMenuRxFragment.setSelectItemMenu(channel.getId(),
                             channel.getType());
+
                 }));
     }
 
