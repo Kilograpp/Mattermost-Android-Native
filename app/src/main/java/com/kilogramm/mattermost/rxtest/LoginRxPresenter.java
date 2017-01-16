@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.rxtest;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -224,7 +225,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
-//            sendShowError(getError(throwable));
             sendShowError(parceError(throwable, null));
         });
     }
@@ -247,13 +247,17 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             firstLoginBad = true;
             setRedTextForgotPassword(true);
-//            sendShowError(getError(throwable));
-            sendShowError(parceError(throwable, LOGIN));
+
+            if (isNetworkAvailable()) {
+                sendShowError(parceError(throwable, LOGIN));
+            } else {
+                sendShowError(parceError(null, NO_NETWORK));
+            }
         });
     }
 
     private void sendShowError(String error) {
-        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+        createTemplateObservable(error).subscribe(split(LoginRxActivity::showErrorText));
     }
 
     private void setRedTextForgotPassword(boolean isRed) {

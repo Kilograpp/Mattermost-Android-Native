@@ -45,8 +45,8 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         ChooseTeamActivity.start(this);
     }
 
-    public void setRedColorForgotPasswordText(boolean isRed){
-        binding.buttonForgot.setTextColor(isRed?getResources().getColor(R.color.error_color):getResources().getColor(R.color.grey));
+    public void setRedColorForgotPasswordText(boolean isRed) {
+        binding.buttonForgot.setTextColor(isRed ? getResources().getColor(R.color.error_color) : getResources().getColor(R.color.grey));
     }
 
     public static void startActivity(Context context, Integer flags) {
