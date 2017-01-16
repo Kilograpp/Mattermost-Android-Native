@@ -98,11 +98,11 @@ public class ManagerBroadcast {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         JSONObject broadcastJSON = null;
-        if(jsonObject.has(WebSocketObj.BROADCAST))
-            broadcastJSON= jsonObject.getJSONObject(WebSocketObj.BROADCAST);
+        if (jsonObject.has(WebSocketObj.BROADCAST))
+            broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        if(jsonObject.has(WebSocketObj.BROADCAST))
+        if (jsonObject.has(WebSocketObj.BROADCAST))
             webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
         else {
             webSocketObj.setBroadcast(null);
@@ -349,7 +349,7 @@ public class ManagerBroadcast {
         if (PostRepository.query(pendingPostId) != null) {
             Log.d(TAG, "savePost: merge from ws");
             PostRepository.merge(post);
-        } else  {
+        } else {
             Log.d(TAG, "savePost: add new from ws");
             PostRepository.prepareAndAddPost(post);
         }

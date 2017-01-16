@@ -1,17 +1,21 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
@@ -24,6 +28,8 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.team.TeamByIdSpecification;
 import com.kilogramm.mattermost.model.entity.team.TeamRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.presenter.channel.ChannelPresenter;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
@@ -40,6 +46,9 @@ import nucleus.factory.RequiresPresenter;
 @RequiresPresenter(ChannelPresenter.class)
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
     private static final String CHANNEL_ID = "channel_id";
+
+    private String nameForConversation;
+
     public static final int REQUEST_ID = 201;
 
     ActivityChannelBinding mBinding;
@@ -50,6 +59,7 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mChannelId = getIntent().getStringExtra(CHANNEL_ID);
+        nameForConversation = "";
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channel);
 
@@ -103,6 +113,35 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_custom_jump_on_conversation, null);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(dialogView);
+
+        return dialogBuilder.create();
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case 1:
+                final AlertDialog alertDialog = (AlertDialog) dialog;
+
+                TextView wholeJumpMessage = (TextView) alertDialog.findViewById(R.id.dialog_question);
+                wholeJumpMessage.setText(String.format(
+                        getResources().getString(R.string.jump_title), nameForConversation));
+
+                Button jumpButton = (Button) alertDialog.findViewById(R.id.jump);
+                if (jumpButton != null) {
+                    jumpButton.setOnClickListener(v -> startGeneralActivity());
+                    alertDialog.cancel();
+                }
+                break;
+        }    }
+
     public void setCTollBarTitle(final String name) {
         mBinding.layoutAppBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             boolean isShow = false;
@@ -134,7 +173,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             }
         });
     }
-
 
     public void initiationData(ExtraInfo extraInfo) {
         setToolbar();
@@ -173,7 +211,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         starter.putExtra(CHANNEL_ID, channelId);
         activity.startActivityForResult(starter, REQUEST_ID);
     }
-
 
     public void errorRequest() {
         mBinding.progressBar.setVisibility(View.GONE);
@@ -246,7 +283,11 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                                 .PreferenceByNameSpecification(
                                 channels.first().getUser().getId()), "true");
                 getPresenter().savePreferences();
-                startGeneralActivity();
+
+                User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
+                nameForConversation = user.getUsername();
+                showDialog(1);
+//                startGeneralActivity();
             } else {
                 startDialog(id);
             }

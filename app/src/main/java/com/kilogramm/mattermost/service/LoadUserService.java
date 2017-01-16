@@ -1,22 +1,16 @@
 package com.kilogramm.mattermost.service;
 
-import android.databinding.repacked.google.common.util.concurrent.AbstractScheduledService;
-
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.realm.Realm;
-import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
