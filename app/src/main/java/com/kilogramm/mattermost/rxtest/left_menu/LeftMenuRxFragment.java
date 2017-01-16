@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -328,6 +329,4 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 break;
         }
     }
-
-
 }

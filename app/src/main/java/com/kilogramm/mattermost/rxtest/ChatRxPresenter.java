@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import icepick.State;
-import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscriber;
@@ -86,6 +85,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private Toast mToast;
 
+    private Boolean isEmpty = false;
+
+    private String limit;
+
+    private CommandToNet command;
+
     @State
     String teamId;
     @State
@@ -112,15 +117,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     Long updateAt;
     @State
     Boolean isSendingPost = false;
-
-    private Boolean isEmpty = false;
-
-    private String limit;
-
     @State
     String searchMessageId;
-
-    private CommandToNet command;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -204,15 +202,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     setGoodLayout();
                     requestLoadPosts();
                 }, (chatRxFragment, throwable) -> {
-                    sendError(getError(throwable));
-                    final ConnectivityManager connectivityManager =
-                            (ConnectivityManager) MattermostApp.getSingleton()
-                                    .getApplicationContext()
-                                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-                    final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-                    if (ni == null || !ni.isConnectedOrConnecting()) {
+                    if (!isNetworkAvailable()) {
+                        sendError(parceError(null, NO_NETWORK));
                         sendShowList();
-                    } else setErrorLayout();
+                    } else {
+                        sendError(getError(throwable));
+                        setErrorLayout();
+                    }
                 });
     }
 
@@ -261,7 +257,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
 //                    sendShowList();
-                    sendError(getError(throwable));
+                    if (!isNetworkAvailable()) {
+                        sendError(parceError(null, NO_NETWORK));
+                    } else {
+                        sendError(getError(throwable));
+                    }
                     throwable.printStackTrace();
                 });
     }
@@ -400,6 +400,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendDisableShowLoadMoreTop();
                     sendError(throwable.getMessage());
                     throwable.printStackTrace();
+
                 });
     }
 
@@ -581,7 +582,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                 });
     }
 
-    private void createObservablesList(List<Observable<List<FileInfo>>> observables, Posts posts){
+    private void createObservablesList(List<Observable<List<FileInfo>>> observables, Posts posts) {
         for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
             if (entry.getValue().getFilenames().size() > 0) {
                 observables.add(service.getFileInfo(teamId,
