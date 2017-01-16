@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import icepick.State;
+import io.realm.Realm;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscriber;
