@@ -896,9 +896,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         String typing = getStringTyping(obj);
         if (typing != null) {
             setupTypingText(typing);
-            binding.getRoot().postDelayed(() -> sendUsersStatus(obj), TYPING_DURATION);
-        } else
+
+            binding.getRoot().postDelayed(() -> {
+                if(mapType!=null && obj!=null) mapType.remove(obj.getUserId());
+                showTyping(null);
+            }, TYPING_DURATION);
+        } else {
+            setupTypingText("");
             sendUsersStatus(null);
+        }
     }
 
     private void sendUsersStatus(WebSocketObj obj) {
