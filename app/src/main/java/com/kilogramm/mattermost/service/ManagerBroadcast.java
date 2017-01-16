@@ -98,11 +98,11 @@ public class ManagerBroadcast {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         JSONObject broadcastJSON = null;
-        if(jsonObject.has(WebSocketObj.BROADCAST))
-            broadcastJSON= jsonObject.getJSONObject(WebSocketObj.BROADCAST);
+        if (jsonObject.has(WebSocketObj.BROADCAST))
+            broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        if(jsonObject.has(WebSocketObj.BROADCAST))
+        if (jsonObject.has(WebSocketObj.BROADCAST))
             webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
         else {
             webSocketObj.setBroadcast(null);
@@ -151,12 +151,13 @@ public class ManagerBroadcast {
             case WebSocketObj.EVENT_TYPING:
                 broadcast = new BroadcastBilder()
                         .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
-                        .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
-                        .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                        .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                        .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
                         .build();
                 data = new WebSocketObj.BuilderData()
                         .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
+                        .setUser(dataJSON.getString(WebSocketObj.USER_ID))
                         .build();
                 break;
             case WebSocketObj.EVENT_USER_ADDED:
@@ -246,7 +247,8 @@ public class ManagerBroadcast {
     }
 
     private void createNotificationNEW(Post post, Context context) {
-        if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId().equals(post.getChannelId())) {
+        if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId()
+                .equals(post.getChannelId())) {
             return;
         }
 
@@ -347,7 +349,7 @@ public class ManagerBroadcast {
         if (PostRepository.query(pendingPostId) != null) {
             Log.d(TAG, "savePost: merge from ws");
             PostRepository.merge(post);
-        } else  {
+        } else {
             Log.d(TAG, "savePost: add new from ws");
             PostRepository.prepareAndAddPost(post);
         }
