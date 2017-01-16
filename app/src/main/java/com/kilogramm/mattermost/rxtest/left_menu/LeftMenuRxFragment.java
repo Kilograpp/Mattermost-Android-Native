@@ -9,11 +9,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
+import com.kilogramm.mattermost.model.UserMember;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -24,6 +26,7 @@ import com.kilogramm.mattermost.model.entity.member.MemberAll;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.team.TeamRepository;
+import com.kilogramm.mattermost.model.entity.usermember.UserMemberRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.rxtest.left_menu.adapters.ChannelListAdapter;
@@ -34,6 +37,8 @@ import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewGroupActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
+
+import java.util.Objects;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -100,7 +105,10 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
 
         initView();
-
+        showFirstLoadingMenu();
+        getPresenter().requestInit(Stream.of(mPreferences)
+                .filter(value -> Objects.equals(value.getValue(), "true"))
+                .collect(Collectors.toList()));
         return view;
     }
 
@@ -311,6 +319,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     private void initDirectList() {
         RealmResults<Channel> channels = getDirectChannelData();
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
+        RealmResults<UserMember> userMemberRealmResults = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.frDirect.recView.setNestedScrollingEnabled(false);
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
@@ -328,5 +337,34 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 WholeDirectListActivity.startActivityForResult(this, REQUEST_JOIN_DIRECT);
                 break;
         }
+    }
+
+
+    public void showErrorLoading(String message) {
+        showErrorScene(message);
+    }
+
+    private void showErrorScene(String message) {
+        mBinding.errorText.setText(message);
+        mBinding.frChannel.getRoot().setVisibility(View.GONE);
+        mBinding.frPrivate.getRoot().setVisibility(View.GONE);
+        mBinding.frDirect.getRoot().setVisibility(View.GONE);
+        mBinding.errorLayout.setVisibility(View.VISIBLE);
+        setRefreshAnimation(false);
+    }
+
+    public void showLeftMenu(){
+        mBinding.frChannel.getRoot().setVisibility(View.VISIBLE);
+        mBinding.frPrivate.getRoot().setVisibility(View.VISIBLE);
+        mBinding.frDirect.getRoot().setVisibility(View.VISIBLE);
+        setRefreshAnimation(false);
+    }
+
+    private void showFirstLoadingMenu(){
+        mBinding.frChannel.getRoot().setVisibility(View.GONE);
+        mBinding.frPrivate.getRoot().setVisibility(View.GONE);
+        mBinding.frDirect.getRoot().setVisibility(View.GONE);
+        mBinding.errorLayout.setVisibility(View.GONE);
+        setRefreshAnimation(true);
     }
 }
