@@ -151,12 +151,13 @@ public class ManagerBroadcast {
             case WebSocketObj.EVENT_TYPING:
                 broadcast = new BroadcastBilder()
                         .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
-                        .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
-                        .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                        .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                        .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
                         .build();
                 data = new WebSocketObj.BuilderData()
                         .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
+                        .setUser(dataJSON.getString(WebSocketObj.USER_ID))
                         .build();
                 break;
             case WebSocketObj.EVENT_USER_ADDED:

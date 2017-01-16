@@ -162,6 +162,7 @@ public class WebSocketObj implements Parcelable {
 
     public void setData(Data data) {
         this.data = data;
+        if(data!=null) userId = data.getUserId();
     }
 
     public WebSocketObj() {
@@ -243,7 +244,7 @@ public class WebSocketObj implements Parcelable {
                     teamId,
                     status,
                     mapUserStatus,
-                    preferences);
+                    preferences,userId);
         }
 
         public BuilderData setStatus(String status) {

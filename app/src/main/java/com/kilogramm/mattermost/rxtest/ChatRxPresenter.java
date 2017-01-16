@@ -692,7 +692,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestGetCountUsersStatus() {
-        start(REQUEST_DB_USERS_STATUS);
+        //start(REQUEST_DB_USERS_STATUS);
     }
 
     public void requestUserStatus() {

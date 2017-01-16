@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.network;
 
+import com.kilogramm.mattermost.model.UserMember;
 import com.kilogramm.mattermost.model.entity.FileUploadResponse;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
@@ -12,7 +13,6 @@ import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.Users;
 import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
@@ -166,6 +166,12 @@ public interface ApiMethod {
                                                     @Path("offset") int offset,
                                                     @Path("limit") int limit);
 
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/id")
+    Observable<Map<String, User>> getUsersById(@Body List<String> ids);
 
     @Headers({
             "Accept: application/json",
@@ -448,4 +454,21 @@ public interface ApiMethod {
     Observable<AutocompleteUsers> getAutocompleteUsers(@Path("teamId") String teamId,
                                                        @Path("channelId") String channelId,
                                                        @Query("term") String term);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/ids")
+    Observable<Map<String,User>> getUserByIds(@Body List<String> ids);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/members/ids")
+    Observable<List<UserMember>> getUserMembersByIds(@Path("teamId") String teamId,
+                                                     @Body List<String> ids);
+
+
 }

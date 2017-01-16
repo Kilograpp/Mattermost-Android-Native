@@ -101,7 +101,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                 (wholeDirectListActivity, stringUserMap) -> {
                     thisTeamDirects.addAll(stringUserMap.values());
                     if (stringUserMap.keySet().size() == 100) {
-                        this.mOffset += 1;
+                        this.mOffset += 100;
                         requestGetDirectUsers();
                     }
                     sendUpdateDataList(thisTeamDirects);

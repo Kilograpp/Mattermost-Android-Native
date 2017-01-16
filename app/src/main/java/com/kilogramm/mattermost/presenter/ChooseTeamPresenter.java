@@ -1,10 +1,12 @@
 package com.kilogramm.mattermost.presenter;
 
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.UserMember;
 import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.authorization.ChooseTeamActivity;
@@ -33,6 +35,9 @@ public class ChooseTeamPresenter extends BaseRxPresenter<ChooseTeamActivity> {
             realm.delete(Member.class);
             realm.delete(ExtraInfo.class);
             realm1.delete(RealmString.class);
+            realm1.delete(UserMember.class);
+            realm1.where(User.class)
+                    .notEqualTo("id", MattermostPreference.getInstance().getMyUserId());
         });
     }
 
