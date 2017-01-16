@@ -23,7 +23,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
@@ -41,7 +40,6 @@ import java.util.Map;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -847,6 +845,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     private void setErrorPost(String sendedPostId) {
+        Log.i("PRFIX", "setErrorPost: WAT DA FUK??!");
         PostRepository.updateUpdateAt(sendedPostId, Post.NO_UPDATE);
         /*Post post = new Post(PostRepository.query(new PostByIdSpecification(sendedPostId)).first());
         post.setUpdateAt(Post.NO_UPDATE);
