@@ -186,8 +186,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 // Но я вообще не уверен, что это верный. В идеале надо пробежаться
                 // по списку и найти только сообщения пользователя. И лишь у них вызвать
                 // notifyItemChanged()
+                // Закомментил, потому что из-за этого скакал список в чате при подгрузке новых
+                // сообщений
                 if(mCurrentFragment != null) {
-                    mCurrentFragment.invalidateAdapter();
+                    // mCurrentFragment.invalidateAdapter();
                 }
             });
             updateHeaderUserName(user);

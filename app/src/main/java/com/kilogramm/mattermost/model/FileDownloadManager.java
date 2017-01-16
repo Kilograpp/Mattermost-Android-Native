@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.realm.Realm;
+
 /**
  * Created by kepar on 20.10.16.
  */
@@ -68,7 +70,7 @@ public class FileDownloadManager {
             FileInfo fileInfo = FileInfoRepository.getInstance().getUndownloadedFile();
             if (fileInfo != null && fileInfo.isValid()) {
                 FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADING);
-                downloadFile(fileInfo);
+                downloadFile(Realm.getDefaultInstance().copyFromRealm(fileInfo));
             }
         }
     }
@@ -88,6 +90,7 @@ public class FileDownloadManager {
             return;
         }
 
+        // TODO гавно на LG
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/files/"
@@ -109,7 +112,6 @@ public class FileDownloadManager {
         new Thread(() -> {
 
             boolean downloading = true;
-
             while (downloading) {
 
                 DownloadManager.Query q = new DownloadManager.Query();
@@ -118,17 +120,23 @@ public class FileDownloadManager {
                 Cursor cursor = manager.query(q);
                 cursor.moveToFirst();
                 int bytes_downloaded = 0;
-                int bytes_total;
+                long bytes_total = 0;
                 try {
                     bytes_downloaded = cursor.getInt(cursor
                             .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                    bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    bytes_total = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    if(bytes_total <= 0){
+                        bytes_total = fileInfo.getmSize();
+                    }
                 } catch (CursorIndexOutOfBoundsException e) {
                     e.printStackTrace();
                     cursor.close();
                     break;
+                } catch (IllegalArgumentException e){
+                    e.printStackTrace();
+                    cursor.close();
+                    break;
                 }
-
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
                     int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
@@ -147,7 +155,7 @@ public class FileDownloadManager {
                 }
 
                 if (bytes_total > 0) {
-                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+                    final int dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
                     if (fileDownloadListeners.get(fileId) != null) {
                         fileDownloadListeners.get(fileId).onProgress(dl_progress);
                     }

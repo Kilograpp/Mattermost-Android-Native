@@ -29,6 +29,8 @@ import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
@@ -98,11 +100,11 @@ public class ManagerBroadcast {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         JSONObject broadcastJSON = null;
-        if(jsonObject.has(WebSocketObj.BROADCAST))
-            broadcastJSON= jsonObject.getJSONObject(WebSocketObj.BROADCAST);
+        if (jsonObject.has(WebSocketObj.BROADCAST))
+            broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        if(jsonObject.has(WebSocketObj.BROADCAST))
+        if (jsonObject.has(WebSocketObj.BROADCAST))
             webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
         else {
             webSocketObj.setBroadcast(null);
@@ -136,7 +138,9 @@ public class ManagerBroadcast {
                         .setPost(gson.fromJson(dataJSON.getString(WebSocketObj.CHANNEL_POST), Post.class))
                         .build();
 
-                savePost(data.getPost());
+                Post post = data.getPost();
+                getFileInfoAndSavePost(post);
+
                 String MuUserId = MattermostPreference.getInstance().getMyUserId();
                 if (data.getMentions().length() > 0
                         && data.getMentions().equals("[\"" + MuUserId + "\"]")
@@ -212,6 +216,24 @@ public class ManagerBroadcast {
         webSocketObj.setData(data);
         webSocketObj.setBroadcast(broadcast);
         return webSocketObj;
+    }
+
+    private void getFileInfoAndSavePost(Post post){
+        ServerMethod.getInstance().getFileInfo(MattermostPreference.getInstance().getTeamId(),
+                post.getChannelId(), post.getId())
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable -> {
+                    throwable.printStackTrace();
+                    savePost(post);
+                })
+                .subscribe(fileInfos -> {
+                    for (FileInfo fileInfo : fileInfos) {
+                        Log.d(TAG, "onNext: " + fileInfo.getId());
+                        FileInfoRepository.getInstance().add(fileInfo);
+                    }
+                    savePost(post);
+                });
     }
 
     private Data getPreferenceData(JSONObject dataJSON) throws JSONException {
@@ -347,7 +369,7 @@ public class ManagerBroadcast {
         if (PostRepository.query(pendingPostId) != null) {
             Log.d(TAG, "savePost: merge from ws");
             PostRepository.merge(post);
-        } else  {
+        } else {
             Log.d(TAG, "savePost: add new from ws");
             PostRepository.prepareAndAddPost(post);
         }

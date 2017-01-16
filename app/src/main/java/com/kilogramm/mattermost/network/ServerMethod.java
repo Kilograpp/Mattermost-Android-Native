@@ -5,6 +5,7 @@ import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
@@ -242,5 +243,9 @@ public class ServerMethod {
 
     public Observable<Map<String, User>> getUsersNotInChannel(String team_id, String channel_id, int offset, int limit) {
         return mApi.getUsersNotInChannel(team_id, channel_id, offset, limit);
+    }
+
+    public Observable<List<FileInfo>> getFileInfo(String team_id, String channel_id, String postId) {
+        return mApi.getFileInfo(team_id, channel_id, postId);
     }
 }
