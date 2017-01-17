@@ -14,8 +14,8 @@
 
             <FrameLayout
                 android:id="@+id/circleFrame"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
+                android:layout_width="@dimen/file_circle_size"
+                android:layout_height="@dimen/file_circle_size"
                 android:layout_margin="5dp"
                 android:background="@drawable/circle_blue">
 
@@ -28,8 +28,8 @@
 
                 <ImageView
                     android:id="@+id/icDownloadedFile"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/file_download_icon_size"
+                    android:layout_height="@dimen/file_download_icon_size"
                     android:layout_gravity="center"
                     android:visibility="gone"
                     app:srcCompat="@drawable/ic_downloaded_file"

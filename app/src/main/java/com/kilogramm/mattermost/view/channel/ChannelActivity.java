@@ -140,7 +140,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                     alertDialog.cancel();
                 }
                 break;
-        }    }
+        }
+    }
 
     public void setCTollBarTitle(final String name) {
         mBinding.layoutAppBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -275,19 +276,39 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         if (!myId.equals(id)) {
             RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
             if (channels.size() > 0) {
-                MattermostPreference.getInstance().setLastChannelId(
-                        channels.first().getId()
-                );
-                PreferenceRepository.update(
-                        new PreferenceRepository
-                                .PreferenceByNameSpecification(
-                                channels.first().getUser().getId()), "true");
+                MattermostPreference.getInstance().setLastChannelId(channels.first().getId());
+                PreferenceRepository.update(new PreferenceRepository.PreferenceByNameSpecification(
+                        channels.first().getUser().getId()), "true");
                 getPresenter().savePreferences();
 
                 User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
                 nameForConversation = user.getUsername();
-                showDialog(1);
-//                startGeneralActivity();
+                //showDialog(1);
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                View view = getLayoutInflater().inflate(R.layout.dialog_custom_jump_on_conversation, null);
+/*                final Dialog mBottomSheetDialog = new Dialog(this, R.style.AppCompatAlertDialogStyle);
+                mBottomSheetDialog.setContentView(view);
+                mBottomSheetDialog.setCancelable(true);
+                mBottomSheetDialog.show();*/
+
+                TextView wholeJumpMessage = (TextView) view.findViewById(R.id.dialog_question);
+                wholeJumpMessage.setText(String.format(
+                        getResources().getString(R.string.jump_title), nameForConversation));
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+                dialogBuilder.setView(view);
+
+                Button jumpButton = (Button) view.findViewById(R.id.jump);
+                if (jumpButton != null) {
+                    jumpButton.setOnClickListener(v -> {
+                        startGeneralActivity();
+                    });
+
+                }
+
+
+                dialogBuilder.show();
+
             } else {
                 startDialog(id);
             }

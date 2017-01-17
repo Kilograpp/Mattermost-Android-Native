@@ -38,8 +38,8 @@
 
     <ImageView
         android:id="@+id/iconActionDownload"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="@dimen/file_download_icon_size"
+        android:layout_height="@dimen/file_download_icon_size"
         android:layout_gravity="center"
         app:srcCompat="@drawable/ic_file_download" />
 

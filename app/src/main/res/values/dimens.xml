@@ -16,6 +16,9 @@
 
     <dimen name="image_height">250dp</dimen>
 
+    <dimen name="file_circle_size">60dp</dimen>
+    <dimen name="file_download_icon_size">30dp</dimen>
+
     <!--setting-->
     <dimen name="settings_title_margin">24dp</dimen>
     <dimen name="bottom_sheet_circle_size">60dp</dimen>
