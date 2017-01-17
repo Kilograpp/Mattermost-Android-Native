@@ -28,7 +28,9 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UsersStatusByChannelSpecification;
+import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.ServerMethod;
@@ -54,6 +56,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
+    private static final int REQUEST_STATS_INFO = 102;
 
     /**
      * Code for "send new post to server" request
@@ -139,6 +142,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     //region Init Requests
     private void initRequests() {
         initExtraInfo();
+        infoStats();
         initLoadPosts();
         initSendToServer();
         initUpdateLastViewedAt();
@@ -202,6 +206,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             .getType();
                     setGoodLayout();
                     requestLoadPosts();
+                    requestStats();
                 }, (chatRxFragment, throwable) -> {
                     if (!isNetworkAvailable()) {
                         sendError(parceError(null, NO_NETWORK));
@@ -210,6 +215,20 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendError(getError(throwable));
                         setErrorLayout();
                     }
+                });
+    }
+
+    private void infoStats() {
+        restartableFirst(REQUEST_STATS_INFO, () ->
+                        ServerMethod.getInstance()
+                                .getInfoStatsChannel(teamId,channelId)
+                                .observeOn(Schedulers.io())
+                                .subscribeOn(Schedulers.io()),
+                (chatRxFragment, extraInfo) -> {
+                    ExtroInfoRepository.add(extraInfo);
+                    showInfoDefault();
+                }, (chatRxFragment, throwable) -> {
+                    sendError(getError(throwable));
                 });
     }
 
@@ -604,6 +623,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         start(REQUEST_LOAD_POSTS);
     }
 
+    public void requestStats() {
+        start(REQUEST_STATS_INFO);
+    }
+
     public void requestSendToServer(Post post) {
 //        if (isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
@@ -810,6 +833,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         }));
     }
 
+
+    private void sendInfoChanel(String strInfo) {
+        createTemplateObservable(strInfo).subscribe(split((chatRxFragment, s) -> {
+            chatRxFragment.setupTypingText(s);
+        }));
+    }
+
     private void setErrorLayout() {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
                 chatRxFragment.setMessageLayout(View.GONE)));
@@ -854,5 +884,13 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         Log.d("CreateAt", "setErrorPost: " + post.getCreateAt());
         PostRepository.updateMembers(post);*/
         sendIvalidateAdapter();
+    }
+
+    public void showInfoDefault(){
+
+        RealmResults<ExtraInfo> rExtraInfo = ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId));
+        if(rExtraInfo.size()!=0){
+            sendInfoChanel(String.format("%s members",rExtraInfo.first().getMember_count()));
+        }else sendInfoChanel("");
     }
 }
