@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.view.channel;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +69,7 @@ public class AllMembersAdapter extends RealmRecyclerViewAdapter<User, AllMembers
                 holder.binding.textViewStatus.setText("");
             }
 
-            if(position == getItemCount() -1){
+            if (position == getItemCount() - 1) {
                 holder.binding.viewLine.setVisibility(View.INVISIBLE);
             } else holder.binding.viewLine.setVisibility(View.VISIBLE);
 

@@ -118,13 +118,13 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                         .observeOn(Schedulers.io()),
                 (activity, stringUserMap) -> {
                     List<User> users = new ArrayList<>();
-                    if (stringUserMap.keySet().size() == 100) {
-                        this.mOffset += 1;
+                    /*if (stringUserMap.keySet().size() == 100) {
+                        this.mOffset += 100;
                         requestDirectProfile();
-                    } else {
+                    } else {*/
                         users.addAll(stringUserMap.values());
                         UserRepository.add(users);
-                    }
+                    //}
 
                     Log.d(TAG, users.toString());
 

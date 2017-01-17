@@ -20,6 +20,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 
 import icepick.State;
+import io.realm.Realm;
 import io.realm.RealmList;
 import rx.schedulers.Schedulers;
 
@@ -38,12 +39,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
     private String errorLoadingExtraInfo = "Error loading channel info";
 
-
     private User mUser = new User();
 
     @State
     ListPreferences listPreferences = new ListPreferences();
-
     @State
     String mTeamId;
     @State
@@ -104,10 +103,10 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
     private void initExtraInfo() {
         restartableFirst(REQUEST_EXTRA_INFO,
                 () -> ServerMethod.getInstance()
-                        .extraInfoChannel(MattermostPreference.getInstance().getTeamId(),mChannelId)
+                        .extraInfoChannel(MattermostPreference.getInstance().getTeamId(), mChannelId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
-                ,(channelActivity, extraInfoWithOutMember) -> {
+                , (channelActivity, extraInfoWithOutMember) -> {
                     RealmList<User> results = new RealmList<>();
                     results.addAll(UserRepository.query(
                             new UserRepository.UserByIdsSpecification(
@@ -118,7 +117,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     extraInfoWithOutMember.getExtraInfo().setMembers(results);
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_CHANNEL);
-                },(channelActivity, throwable) -> {
+                }, (channelActivity, throwable) -> {
                     sendError(errorLoadingExtraInfo);
                     sendCloseActivity();
                 });
@@ -172,10 +171,11 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
 
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
                         ServerMethod.getInstance()
-                                .save(PreferenceRepository.query())
+                                .save(Realm.getDefaultInstance().copyFromRealm(PreferenceRepository.query()))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
-                (wholeDirectListActivity, aBoolean) -> sendSetFragmentChat(),
+                (wholeDirectListActivity, aBoolean) -> {
+                }, //sendSetFragmentChat(),
                 (wholeDirectListActivity, throwable) ->
                         sendShowError(parceError(throwable, SAVE_PREFERENCES))
         );

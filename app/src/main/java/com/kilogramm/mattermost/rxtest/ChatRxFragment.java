@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
@@ -895,9 +896,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         String typing = getStringTyping(obj);
         if (typing != null) {
             setupTypingText(typing);
-            binding.getRoot().postDelayed(() -> sendUsersStatus(obj), TYPING_DURATION);
-        } else
+
+            binding.getRoot().postDelayed(() -> {
+                if(mapType!=null && obj!=null) mapType.remove(obj.getUserId());
+                showTyping(null);
+            }, TYPING_DURATION);
+        } else {
+            setupTypingText("");
             sendUsersStatus(null);
+        }
     }
 
     private void sendUsersStatus(WebSocketObj obj) {
@@ -925,11 +932,19 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     mapType = new HashMap<>();
                 }
                 if (obj != null) {
-                    mapType.put(obj.getUserId(),
-                            UserRepository
-                                    .query(new UserRepository.UserByIdSpecification(obj.getUserId()))
-                                    .first()
-                                    .getUsername());
+                    RealmResults<User> resultUser = UserRepository
+                            .query(new UserRepository.UserByIdSpecification(obj.getUserId()));
+
+                    if( resultUser!=null && resultUser.size() == 0){
+                        MattermostService.Helper.
+                                create(MattermostApp.getSingleton()).
+                                startLoadUser(obj.getUserId());
+                    }else{
+                        mapType.put(obj.getUserId(),
+                                resultUser.first()
+                                        .getUsername());
+                    }
+
                 }
                 int count = 0;
                 if (mapType.size() == 1) {
@@ -1177,6 +1192,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void invalidateAdapter() {
+        if(adapter!=null)
         adapter.notifyDataSetChanged();
     }
 

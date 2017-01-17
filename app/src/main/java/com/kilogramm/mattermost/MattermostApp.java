@@ -29,11 +29,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import java.util.Observable;
 import java.util.regex.Pattern;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 /**
@@ -106,6 +108,7 @@ public class MattermostApp extends Application {
                 .build();
         ImageLoader.getInstance().init(config);
         ServerMethod.buildServerMethod(getMattermostRetrofitService());
+
     }
 
     public static rx.Observable<LogoutData> logout() {

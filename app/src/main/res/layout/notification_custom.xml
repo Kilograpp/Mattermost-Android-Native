@@ -22,14 +22,14 @@
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="@color/black"
             android:textSize="15sp"
-            tools:text="test" />
+            tools:text="title" />
 
         <TextView
             android:id="@+id/text"
@@ -42,7 +42,7 @@
             android:singleLine="true"
             android:textColor="@color/grey"
             android:textSize="13sp"
-            tools:text="test" />
+            tools:text="message" />
 
     </LinearLayout>
 
