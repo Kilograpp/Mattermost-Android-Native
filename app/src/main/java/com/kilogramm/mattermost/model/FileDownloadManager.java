@@ -1,12 +1,16 @@
 package com.kilogramm.mattermost.model;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -42,6 +46,8 @@ public class FileDownloadManager {
     private long downloadId;
     private String fileId;
 
+    BroadcastReceiver receiver;
+
     public static FileDownloadManager getInstance() {
         if (instance == null) instance = new FileDownloadManager();
         return instance;
@@ -51,6 +57,31 @@ public class FileDownloadManager {
         fileDownloadListeners = new HashMap<>();
         manager = (DownloadManager) MattermostApp.getSingleton().
                 getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        /*receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (!DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                    return;
+                }
+                context.getApplicationContext().unregisterReceiver(receiver);
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(downloadId);
+                Cursor c = manager.query(query);
+                if (c.moveToFirst()) {
+                    int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                    if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
+
+                        String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                        Log.i(TAG, "downloaded file " + uriString);
+                    } else {
+                        Log.i(TAG, "download failed " + c.getInt(columnIndex));
+                    }
+                }
+            }
+        };
+        MattermostApp.getSingleton().getApplicationContext()
+                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));*/
     }
 
     /**
@@ -139,7 +170,6 @@ public class FileDownloadManager {
                 }
                 if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_FAILED) {
                     downloading = false;
-                    int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
                     cursor.close();
                     onDownloadFail(fileId);
                     break;
@@ -170,6 +200,112 @@ public class FileDownloadManager {
 
         }).start();
     }
+
+    // region Kepar variant
+
+        /*service.downloadFile(MattermostPreference.getInstance().getTeamId(), decodedName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<ResponseBody>() {
+                    @Override
+                    public void onCompleted() {
+                        FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+                        if (fileDownloadListener != null) {
+                            fileDownloadListener.onComplete(fileId);
+                        }
+                        fileDownloadListeners.remove(fileId);
+                        startDownload();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+                        if (fileDownloadListener != null) {
+                            fileDownloadListener.onError(fileId);
+                        }
+                        fileDownloadListeners.remove(fileId);
+                        startDownload();
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADING);
+                        InputStream input = null;
+                        OutputStream output = null;
+                        NotificationManager notificationManager = (NotificationManager) MattermostApp.
+                                getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
+                        NotificationCompat.Builder builder = new NotificationCompat.
+                                Builder(MattermostApp.getSingleton().getApplicationContext());
+                        int id = 1;
+                        try {
+                            long fileLength = responseBody.contentLength();
+                            input = responseBody.byteStream();
+                            File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
+                            if (!dir.exists()) {
+                                dir.mkdirs();
+                            }
+                            String fileName = FileUtil.getInstance().getFileNameFromId(fileId);
+                            if (fileName != null) {
+                                builder.setContentTitle(fileName).setSmallIcon(R.drawable.attach_img_icon);
+                                builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
+
+                                output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
+                                byte data[] = new byte[4096];
+                                long total = 0;
+                                int count;
+                                while ((count = input.read(data)) != -1 && isWorkingForCurrentFile) {
+                                    total += count;
+                                    if (fileLength > 0) {
+                                        if (total % (4096 * 125) == 0) {
+                                            builder.setProgress(100, (int) (total * 100 / fileLength), false);
+                                            notificationManager.notify(id, builder.build());
+                                            if (fileDownloadListeners.get(fileId) != null) {
+                                                fileDownloadListeners.get(fileId)
+                                                        .onProgress((int) (total * 100 / fileLength));
+                                            }
+                                        }
+                                    }
+                                    output.write(data, 0, count);
+                                }
+                            }
+                            builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
+
+                            Intent intent = FileUtil.getInstance().createOpenFileIntent(dir.getAbsolutePath() + File.separator + fileName);
+
+                            if (intent.resolveActivityInfo(MattermostApp.getSingleton()
+                                    .getApplicationContext().getPackageManager(), 0) != null) {
+                                builder.setAutoCancel(true);
+                                builder.setContentIntent(PendingIntent.getActivity(MattermostApp
+                                        .getSingleton().getApplicationContext(), 0, intent, 0));
+                            }
+                            notificationManager.notify(id, builder.build());
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+                            if (fileDownloadListener != null) {
+                                fileDownloadListener.onError(fileId);
+                            }
+                            fileDownloadListeners.remove(fileId);
+                            startDownload();
+                            FileToAttachRepository.getInstance().updateUploadStatus(fileId, UploadState.IN_LIST);
+                        } finally {
+                            FileToAttachRepository.getInstance().remove(fileId);
+                            try {
+                                if (output != null) {
+                                    output.close();
+                                }
+                                if (input != null) {
+                                    input.close();
+                                }
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });*/
+    // endregion
 
     public synchronized void stopDownloadCurrentFile(FileInfo fileInfo) {
         if (this.fileId != null && fileInfo != null && this.fileId.equals(fileInfo.getId())) {
