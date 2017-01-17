@@ -2,7 +2,6 @@ package com.kilogramm.mattermost.rxtest.left_menu;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -17,8 +16,6 @@ import com.kilogramm.mattermost.model.entity.usermember.UserMemberRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
-import com.kilogramm.mattermost.rxtest.LoginRxActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +52,12 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
         start(REQUEST_SAVE);
     }
 
-    public void requestUpdate() {
+    public void requestUpdate(List<Preferences> preferences) {
+        this.mDirectIds.clear();
+        List<String> ids = Stream.of(preferences)
+                .map(Preferences::getName)
+                .collect(Collectors.toList());
+        this.mDirectIds.addAll(ids);
         start(REQUEST_UPDATE);
     }
 
@@ -78,6 +80,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     MembersRepository.add(responseLeftMenuData.getMembers());
                     sendUpdateMenuView();
                     sendShowLeftMenu();
+                    sendSelectLastChannel();
                 }, (leftMenuRxFragment, throwable) -> {
                     sendErrorLoading(throwable.getMessage());
                     throwable.printStackTrace();
@@ -95,13 +98,16 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void initChannelUpdateRequest() {
-        restartableFirst(REQUEST_UPDATE,
-                () -> ServerMethod.getInstance()
-                        .getChannelsTeam(mTeamId)
+        restartableFirst(REQUEST_UPDATE,() ->
+                ServerMethod.getInstance()
+                        .loadLeftMenu(mDirectIds, MattermostPreference.getInstance().getTeamId())
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                (leftMenuRxFragment, channels) -> {
-                    ChannelRepository.prepareChannelAndAdd(channels, MattermostPreference.getInstance().getMyUserId());
+                        .observeOn(Schedulers.io())
+                , (leftMenuRxFragment, responseLeftMenuData) -> {
+                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
+                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
+                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(),MattermostPreference.getInstance().getMyUserId());
+                    MembersRepository.add(responseLeftMenuData.getMembers());
                     sendSetRefreshAnimation(false);
                     sendUpdateMenuView();
                     sendSelectLastChannel();

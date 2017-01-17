@@ -44,7 +44,6 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import nucleus.factory.RequiresPresenter;
 
 import static android.app.Activity.RESULT_OK;
@@ -166,7 +165,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     @Override
     public void onRefresh() {
-        getPresenter().requestUpdate();
+        getPresenter().requestUpdate(Stream.of(mPreferences)
+                .filter(value -> Objects.equals(value.getValue(), "true"))
+                .collect(Collectors.toList()));
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
@@ -332,12 +333,12 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     private void initDirectList() {
         RealmResults<Channel> channels = getDirectChannelData();
         RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        RealmResults<UserMember> userMemberRealmResults = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
-        mBinding.frDirect.recView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.frDirect.recView.setLayoutManager(new LeftMenuLayoutManager(getActivity()));
         mBinding.frDirect.recView.setNestedScrollingEnabled(false);
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
         mDirectListAdapter = new DirectListAdapter(channels, getActivity(), this, mMembers, statusRealmResults);
         mBinding.frDirect.recView.setAdapter(mDirectListAdapter);
+        //mBinding.frDirect.recView.invalidate();
     }
 
 

@@ -18,7 +18,6 @@ import com.kilogramm.mattermost.view.channel.AllMembersChannelActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-import icepick.State;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import rx.schedulers.Schedulers;
@@ -32,14 +31,13 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
     private static final int REQUEST_SAVE = 2;
     private static final int REQUEST_SAVE_PREFERENCES = 3;
     private static final int REQUEST_GET_CHANNEL = 3;
-    @State
+
     ExtraInfo mExtraInfo;
-    @State
+
     String mId;
 
 
     private User mUser;
-    @State
     ListPreferences listPreferences = new ListPreferences();
 
     List<Preferences> preferenceList = new ArrayList<>();
