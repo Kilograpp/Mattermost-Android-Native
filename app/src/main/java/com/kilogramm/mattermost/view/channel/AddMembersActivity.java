@@ -72,9 +72,11 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > 0) {
-                    updateDataList(getPresenter().getMembers(charSequence.toString()));
+//                    updateDataList(getPresenter().getFoundUsers(charSequence.toString()));
+                    getPresenter().getFoundUsers(charSequence.toString());
                 } else {
-                    updateDataList(getPresenter().getMembers());
+//                    updateDataList(getPresenter().getMembers());
+                    getPresenter().getFoundUsers(null);
                 }
             }
 
@@ -88,8 +90,10 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     public void requestMember(String s) {
         binding.recView.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
-        if (searchView.getQuery().length() == 0)
-            updateDataList(getPresenter().getMembers());
+        if (searchView.getQuery().length() == 0) {
+//            updateDataList(getPresenter().getMembers());
+            getPresenter().getFoundUsers(null);
+        }
         searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
@@ -120,6 +124,9 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     }
 
     public void refreshAdapter(List<User> usersNotInChannel) {
+        addMembersAdapterNotRealm.setUsersNotFromChannel(usersNotInChannel);
+        binding.textViewListEmpty.setVisibility(
+                usersNotInChannel.size() == 0 ? View.VISIBLE : View.GONE);
         addMembersAdapterNotRealm.updateData(usersNotInChannel);
     }
 }

@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.presenter.channel;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import icepick.State;
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
@@ -33,9 +35,10 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private static final int REQUEST_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
     private static final int REQUEST_GET_EXTRA_INFO = 3;
+    private static final String TAG = AddMembersPresenter.class.getSimpleName();
 
-    @State
-    ExtraInfo mExtraInfo;
+//    @State
+//    ExtraInfo mExtraInfo;
     @State
     String mId;
 
@@ -69,14 +72,46 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
         start(REQUEST_ADD_MEMBERS);
     }
 
-    public RealmResults<User> getMembers(String name) {
-        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
-                mExtraInfo.getMembers(), name));
+//    public RealmResults<User> getMembers(String name) {
+//        ExtraInfo mExtraInfo = ExtroInfoRepository.query(
+//                new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first();
+//        RealmResults<User> members = UserRepository.query(new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), name));
+//        return members;
+//    }
+
+    public void getFoundUsers(String name){
+        createTemplateObservable(usersNotInChannel)
+                .subscribe(split((addMembersActivity, members) -> {
+                    List<User> findedUsers = new ArrayList<>();
+                    if (name == null || name.equals("")) {
+                        findedUsers = Stream.of(members)
+                                .filter(value -> !value.getId().equals(mId))
+                                .sorted((o1, o2) -> o1.getUsername().compareTo(o2.getUsername()))
+                                .collect(Collectors.toList());
+
+                        addMembersActivity.refreshAdapter(findedUsers);
+                    } else {
+                        findedUsers = Stream.of(members)
+                                .filter(value -> (!value.getId().equals(mId)
+                                        && (value.getUsername().contains(name.toLowerCase())
+                                        || value.getFirstName().contains(name.substring(0, 1).toUpperCase() + name.substring(1))
+                                        || value.getLastName().contains(name.substring(0, 1).toUpperCase() + name.substring(1)))))
+                                .sorted((o1, o2) -> o1.getUsername().compareTo(o2.getUsername()))
+                                .collect(Collectors.toList());
+                            addMembersActivity.refreshAdapter(findedUsers);
+
+                    }
+
+                }));
     }
 
     public RealmResults<User> getMembers() {
-        return UserRepository.query(new UserRepository.UserByNotIdsSpecification(
-                mExtraInfo.getMembers(), null));
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<User> members = UserRepository.query(
+//                new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), null));
+//                new UserRepository.UserByNotIdsSpecification(realm.where(ExtraInfo.class).contains("id", mChannelId).findFirst().getMembers(), null));
+                new UserRepository.UserByNotIdsSpecification(realm.where(ExtraInfo.class).contains("id", mChannelId).findFirst().getMembers(), null));
+        return members;
     }
 
     private void initRequests() {
@@ -116,6 +151,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         this.mOffset += 1;
                         start(REQUEST_GET_USERS);
                     } else {
+                        usersNotInChannel.clear();
                         usersNotInChannel.addAll(stringUserMap.values());
                         addMembersActivity.refreshAdapter(usersNotInChannel);
                     }
@@ -125,7 +161,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private void addMembers() {
         restartableFirst(REQUEST_ADD_MEMBERS, () ->
                         ServerMethod.getInstance()
-                                .addMember(mTeamId, mId, new Members(mUser_id))
+                                .addMember(mTeamId, mChannelId, new Members(mUser_id))
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (addMembersActivity, user) -> updateMembers(user.getUser_id()),
@@ -137,8 +173,10 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void updateMembers(String id) {
         createTemplateObservable(new Object()).subscribe(split((addMembersActivity, openChatObject) -> {
-            ExtroInfoRepository.updateMembers(mExtraInfo, UserRepository.query(
-                    new UserRepository.UserByIdSpecification(id)).first());
+            ExtroInfoRepository.updateMembers(ExtroInfoRepository.query(
+                    new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first(),
+                    UserRepository.query(new UserRepository.UserByIdSpecification(id)).first());
+            start(REQUEST_GET_USERS);
             addMembersActivity.requestMember("User added");
         }));
     }

@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.model.extroInfo;
 
 
+import android.util.Log;
+
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
 import com.kilogramm.mattermost.model.entity.user.User;
@@ -9,6 +11,7 @@ import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import java.util.Collection;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -67,10 +70,17 @@ public class ExtroInfoRepository {
     public static void updateMembers(ExtraInfo item, User user) {
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> {
-                    if (item.getMembers().where().equalTo("id", user.getId()).findFirst() == null) {
-                        item.getMembers().add(user);
+            if(item == null || item.getMembers() == null) {
+                Log.e(TAG, "updateMembers: Can't update", new Throwable("ExtraInfo or members is null"));return;}
+            RealmList<User> members = item.getMembers();
+                    if (!members.contains(user)) {
+                        members.add(user);
                         item.setMember_count(String.valueOf(Integer.parseInt(item.getMember_count()) + 1));
                     }
+//                    if (item.getMembers().where().equalTo("id", user.getId()).findFirst() == null) {
+//                        item.getMembers().add(user);
+//                        item.setMember_count(String.valueOf(Integer.parseInt(item.getMember_count()) + 1));
+//                    }
                 }
         );
     }
