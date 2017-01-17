@@ -902,7 +902,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 showTyping(null);
             }, TYPING_DURATION);
         } else {
-            setupTypingText("");
+            if(getPresenter()!=null) getPresenter().showInfoDefault();
             sendUsersStatus(null);
         }
     }

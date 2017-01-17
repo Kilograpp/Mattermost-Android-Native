@@ -15,6 +15,7 @@ import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ChannelsWithMembers;
 import com.kilogramm.mattermost.model.fromnet.CommandFromNet;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
+import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfoWithOutMember;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
@@ -105,6 +106,10 @@ public class ServerMethod {
                 mApi.getExtraInfoChannel(teamId, channelId),
                 mApi.getUsersInChannel(teamId, channelId, 0, 100),
                 ExtraInfoWithOutMember::new));
+    }
+
+    public Observable<ExtraInfo> getInfoStatsChannel(String teamId, String channelId) {
+        return mApi.getExtraInfoChannel(teamId,channelId);
     }
 
     public Observable<ChannelWithMember> getChannel(String teamId, String channelId) {
