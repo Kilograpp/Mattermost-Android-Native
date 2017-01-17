@@ -320,7 +320,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
         if (!channelId.equals(currentChannel) || searchMessageId != null) {
-            mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+            ChatRxFragment mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), mCurrentFragment, FRAGMENT_TAG)

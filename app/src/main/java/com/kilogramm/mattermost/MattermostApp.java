@@ -117,7 +117,7 @@ public class MattermostApp extends Application {
                 .build();
         ImageLoader.getInstance().init(config);
         ServerMethod.buildServerMethod(getMattermostRetrofitService());
-//        disableSSLCertificateChecking();
+        disableSSLCertificateChecking();
     }
 
     public static rx.Observable<LogoutData> logout() {

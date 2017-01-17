@@ -314,6 +314,7 @@ public class FileDownloadManager {
             FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + fileInfo.getmName());
         }
+        startDownload();
     }
 
     public void addListener(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
