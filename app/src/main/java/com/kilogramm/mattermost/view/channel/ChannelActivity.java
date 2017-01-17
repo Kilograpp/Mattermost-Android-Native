@@ -298,16 +298,19 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
                 dialogBuilder.setView(view);
 
+                Dialog dialog = dialogBuilder.show();
+
                 Button jumpButton = (Button) view.findViewById(R.id.jump);
                 if (jumpButton != null) {
                     jumpButton.setOnClickListener(v -> {
                         startGeneralActivity();
+                        dialog.cancel();
                     });
 
                 }
 
 
-                dialogBuilder.show();
+
 
             } else {
                 startDialog(id);
