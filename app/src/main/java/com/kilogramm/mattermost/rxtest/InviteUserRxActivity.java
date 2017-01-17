@@ -65,7 +65,6 @@ public class InviteUserRxActivity extends BaseActivity<InviteUserRxPresenter>
         );
         mAdapter.addFooter(view);
         mAdapter.setLastItemFocusListener(this);
-
     }
 
     @Override
