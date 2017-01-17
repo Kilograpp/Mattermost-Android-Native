@@ -47,6 +47,12 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
         initSearchView(menu, getMassageTextWatcher());
@@ -104,7 +110,6 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
                 this::openDirect, null);
         binding.recView.setAdapter(allMembersAdapter);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
-        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
     }
 
     private void openDirect(String id) {
