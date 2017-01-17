@@ -57,7 +57,7 @@ public class FileDownloadManager {
         fileDownloadListeners = new HashMap<>();
         manager = (DownloadManager) MattermostApp.getSingleton().
                 getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        /*receiver = new BroadcastReceiver() {
+        receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -81,7 +81,7 @@ public class FileDownloadManager {
             }
         };
         MattermostApp.getSingleton().getApplicationContext()
-                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));*/
+                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     /**
@@ -122,11 +122,12 @@ public class FileDownloadManager {
         }
 
         // TODO гавно на LG
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://"
+        String uri =  "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/files/"
                 + fileId
-                + "/get"));
+                + "/get";
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(uri));
 
         request.setDescription(MattermostApp.getSingleton().getApplicationContext().getString(R.string.downloading));
         request.setTitle(fileInfo.getmName());
@@ -136,7 +137,7 @@ public class FileDownloadManager {
         if(!dir.exists()){
             dir.mkdirs();
         }
-        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
+//        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
 
         downloadId = manager.enqueue(request);
 
