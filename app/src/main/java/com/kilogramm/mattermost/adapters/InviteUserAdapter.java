@@ -60,7 +60,7 @@ public class InviteUserAdapter extends HeaderFooterRecyclerArrayAdapter<InviteUs
     public void removeItem(int position) {
         super.removeItem(position);
         if(getDataCount() > 1) {
-            notifyItemRangeChanged(position, getData().size() - 1);
+            notifyItemRangeChanged(position, getData().size() - (position - 1));
         } else if (getDataCount() == 1){
             if(position == 1) {     // For make Delete button invisible at first item
                 notifyItemChanged(0);
