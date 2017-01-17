@@ -47,8 +47,6 @@ import nucleus.factory.RequiresPresenter;
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
     private static final String CHANNEL_ID = "channel_id";
 
-    private String nameForConversation;
-
     public static final int REQUEST_ID = 201;
 
     ActivityChannelBinding mBinding;
@@ -59,7 +57,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mChannelId = getIntent().getStringExtra(CHANNEL_ID);
-        nameForConversation = "";
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_channel);
 
@@ -111,36 +108,6 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
         setResult(RESULT_CANCELED, new Intent());
         finish();
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.dialog_custom_jump_on_conversation, null);
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-        dialogBuilder.setView(dialogView);
-
-        return dialogBuilder.create();
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-        switch (id) {
-            case 1:
-                final AlertDialog alertDialog = (AlertDialog) dialog;
-
-                TextView wholeJumpMessage = (TextView) alertDialog.findViewById(R.id.dialog_question);
-                wholeJumpMessage.setText(String.format(
-                        getResources().getString(R.string.jump_title), nameForConversation));
-
-                Button jumpButton = (Button) alertDialog.findViewById(R.id.jump);
-                if (jumpButton != null) {
-                    jumpButton.setOnClickListener(v -> startGeneralActivity());
-                    alertDialog.cancel();
-                }
-                break;
-        }
     }
 
     public void setCTollBarTitle(final String name) {
@@ -282,39 +249,32 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 getPresenter().savePreferences();
 
                 User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
-                nameForConversation = user.getUsername();
-                //showDialog(1);
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                View view = getLayoutInflater().inflate(R.layout.dialog_custom_jump_on_conversation, null);
-/*                final Dialog mBottomSheetDialog = new Dialog(this, R.style.AppCompatAlertDialogStyle);
-                mBottomSheetDialog.setContentView(view);
-                mBottomSheetDialog.setCancelable(true);
-                mBottomSheetDialog.show();*/
-
-                TextView wholeJumpMessage = (TextView) view.findViewById(R.id.dialog_question);
-                wholeJumpMessage.setText(String.format(
-                        getResources().getString(R.string.jump_title), nameForConversation));
-
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-                dialogBuilder.setView(view);
-
-                Dialog dialog = dialogBuilder.show();
-
-                Button jumpButton = (Button) view.findViewById(R.id.jump);
-                if (jumpButton != null) {
-                    jumpButton.setOnClickListener(v -> {
-                        startGeneralActivity();
-                        dialog.cancel();
-                    });
-
-                }
-
-
-
-
+                showJumpDialog(user.getUsername());
             } else {
                 startDialog(id);
             }
+        }
+    }
+
+    private void showJumpDialog(String userName){
+        View view = getLayoutInflater().inflate(R.layout.dialog_custom_jump_on_conversation, null);
+
+        TextView wholeJumpMessage = (TextView) view.findViewById(R.id.dialog_question);
+        wholeJumpMessage.setText(String.format(
+                getResources().getString(R.string.jump_title), userName));
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(view);
+
+        Dialog dialog = dialogBuilder.show();
+
+        Button jumpButton = (Button) view.findViewById(R.id.jump);
+        if (jumpButton != null) {
+            jumpButton.setOnClickListener(v -> {
+                startGeneralActivity();
+                dialog.cancel();
+            });
+
         }
     }
 

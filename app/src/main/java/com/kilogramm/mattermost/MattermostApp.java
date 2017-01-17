@@ -29,8 +29,17 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Observable;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -108,7 +117,7 @@ public class MattermostApp extends Application {
                 .build();
         ImageLoader.getInstance().init(config);
         ServerMethod.buildServerMethod(getMattermostRetrofitService());
-
+//        disableSSLCertificateChecking();
     }
 
     public static rx.Observable<LogoutData> logout() {
@@ -138,6 +147,45 @@ public class MattermostApp extends Application {
             realm1.delete(ThemeProps.class);
             realm1.delete(User.class);
         });
+    }
+
+    /**
+     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
+     * aid testing on a local box, not for use on production.
+     */
+    private void disableSSLCertificateChecking() {
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws java.security.cert.CertificateException {
+                        // not implemented
+                    }
+
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws java.security.cert.CertificateException {
+                        // not implemented
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                }
+        };
+
+        try {
+            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void showMainRxActivity() {
