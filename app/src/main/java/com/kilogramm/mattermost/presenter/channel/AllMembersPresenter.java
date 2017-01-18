@@ -104,7 +104,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
                                 .observeOn(Schedulers.io()),
                 (allMembersChannelActivity, aBoolean) -> {
                     PreferenceRepository.update(listPreferences.getmSaveData());
-                    sendSetFragmentChat();
+//                    sendSetFragmentChat();
                 },
                 (allMembersChannelActivity, throwable) ->
                         sendShowError(parceError(throwable, SAVE_PREFERENCES))

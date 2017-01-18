@@ -1,15 +1,19 @@
 package com.kilogramm.mattermost.view.channel;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -20,6 +24,7 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelByNameSpecification;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.presenter.channel.AllMembersPresenter;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -113,21 +118,42 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
     }
 
     private void openDirect(String id) {
-        String userId = MattermostPreference.getInstance().getMyUserId();
-        if (!userId.equals(id)) {
+        String myId = MattermostPreference.getInstance().getMyUserId();
+        if (!myId.equals(id)) {
             RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
             if (channels.size() > 0 && PreferenceRepository.query(
                     new PreferenceRepository.PreferenceByNameSpecification(id)).size() > 0) {
-                MattermostPreference.getInstance().setLastChannelId(
-                        channels.first().getId()
-                );
+                MattermostPreference.getInstance().setLastChannelId(channels.first().getId());
                 getPresenter().savePreferences(channels.first().getUser().getId());
+                User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
+                showJumpDialog(user.getUsername());
             } else startDialog(id);
         }
     }
 
-    private void startDialog(String userTalkToId) {
+    private void showJumpDialog(String userName){
+        View view = getLayoutInflater().inflate(R.layout.dialog_custom_jump_on_conversation, null);
 
+        TextView wholeJumpMessage = (TextView) view.findViewById(R.id.dialog_question);
+        wholeJumpMessage.setText(String.format(
+                getResources().getString(R.string.jump_title), userName));
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(view);
+
+        Dialog dialog = dialogBuilder.show();
+
+        Button jumpButton = (Button) view.findViewById(R.id.jump);
+        if (jumpButton != null) {
+            jumpButton.setOnClickListener(v -> {
+                startGeneralActivity();
+                dialog.cancel();
+            });
+
+        }
+    }
+
+    private void startDialog(String userTalkToId) {
         createDialog(userTalkToId);
     }
 
