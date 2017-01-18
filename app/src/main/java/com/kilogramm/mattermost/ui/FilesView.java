@@ -125,7 +125,10 @@ public class FilesView extends GridLayout {
                     binding.image.setOnClickListener(view -> {
                         ArrayList<String> fileIdList = new ArrayList<>();
                         for (FileInfo item : items) {
-                            fileIdList.add(item.getId());
+                            if (fileInfo.getmMimeType() != null
+                                    && fileInfo.getmMimeType().contains("image")) {
+                                fileIdList.add(item.getId());
+                            }
                         }
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
@@ -256,11 +259,11 @@ public class FilesView extends GridLayout {
             dialog.dismiss();
         });
 
-        builder.setPositiveButton(R.string.replace, (dialog, which) ->{
-                FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
-                + File.separator
-                + fileInfo.getmName());
-                downloadFile(fileInfo, fileDownloadListener);
+        builder.setPositiveButton(R.string.replace, (dialog, which) -> {
+            FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
+                    + File.separator
+                    + fileInfo.getmName());
+            downloadFile(fileInfo, fileDownloadListener);
         });
 
         builder.setNeutralButton(R.string.open_file, (dialog, which) -> {
