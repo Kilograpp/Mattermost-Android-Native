@@ -205,6 +205,7 @@ public class WebSocketManager {
                 if (webSocket.getState() == WebSocketState.CLOSED) {
                     start();
                 }
+                updateUserStatusNow();
             } else Log.d(TAG, "web socket not created");
         }
     }
