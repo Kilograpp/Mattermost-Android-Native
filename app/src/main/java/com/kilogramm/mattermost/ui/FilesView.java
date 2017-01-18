@@ -83,17 +83,21 @@ public class FilesView extends GridLayout {
                         + File.separator
                         + fileInfo.getmName());
 
+                binding.icDownloadedFile.setOnClickListener(getFileClickListener(fileInfo));
+
                 if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
                         fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
                     binding.downloadFileControls.showProgressControls();
                     FileDownloadManager.getInstance().addListener(fileInfo, fileDownloadListener);
                 } else if (fileInfo.getUploadState() == UploadState.DOWNLOADED) {
-                    setupFileClickListeners(binding, fileInfo);
-                    binding.downloadFileControls.setVisibility(GONE);
-                    binding.icDownloadedFile.setVisibility(VISIBLE);
-                } else if (file.exists()) {
-                    binding.downloadFileControls.setVisibility(GONE);
-                    binding.icDownloadedFile.setVisibility(VISIBLE);
+                    if(file.exists()){
+                        binding.title.setOnClickListener(getFileClickListener(fileInfo));
+                        binding.downloadFileControls.setVisibility(GONE);
+                        binding.icDownloadedFile.setVisibility(VISIBLE);
+                    } else {
+                        binding.downloadFileControls.hideProgressControls();
+                    }
+//                    setupFileClickListeners(binding, fileInfo);
                 } else {
                     binding.downloadFileControls.hideProgressControls();
                 }
@@ -134,8 +138,15 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private void setupFileClickListeners(FilesItemLayoutBinding binding, FileInfo fileInfo) {
-        OnClickListener fileClickListener = v -> {
+/*    private void setupFileClickListeners(FilesItemLayoutBinding binding, FileInfo fileInfo) {
+
+
+        binding.icDownloadedFile.setOnClickListener(fileClickListener);
+        binding.title.setOnClickListener(fileClickListener);
+    }*/
+
+    private OnClickListener getFileClickListener(FileInfo fileInfo){
+        return v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + fileInfo.getmName());
             if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
@@ -147,9 +158,6 @@ public class FilesView extends GridLayout {
                         Toast.LENGTH_SHORT).show();
             }
         };
-
-        binding.icDownloadedFile.setOnClickListener(fileClickListener);
-        binding.title.setOnClickListener(fileClickListener);
     }
 
     private void initAndAddItem(FilesItemLayoutBinding binding, FileInfo fileInfo) {
@@ -188,7 +196,8 @@ public class FilesView extends GridLayout {
                     binding.icDownloadedFile.setVisibility(VISIBLE);
                     FileInfo fileInfo = FileInfoRepository.getInstance().get(fileId);
                     if (fileInfo != null && fileInfo.isValid()) {
-                        setupFileClickListeners(binding, fileInfo);
+                        binding.icDownloadedFile.setOnClickListener(getFileClickListener(fileInfo));
+                        binding.title.setOnClickListener(getFileClickListener(fileInfo));
                     }
                 });
             }

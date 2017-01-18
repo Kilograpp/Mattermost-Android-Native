@@ -26,7 +26,13 @@ public class FileInfoRepository {
 
     public void add(FileInfo item) {
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(item));
+        realm.executeTransaction(realm1 ->{
+            FileInfo fileInfo = realm1.where(FileInfo.class).equalTo("id", item.getId()).findFirst();
+            if(fileInfo != null && fileInfo.isValid()){
+                item.setUploadState(fileInfo.getUploadState());
+            }
+            realm1.copyToRealmOrUpdate(item);
+        });
     }
 
     //endregion
