@@ -97,10 +97,10 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     }
 
     public void refreshAdapter(List<User> usersNotInChannel) {
-        addMembersAdapterNotRealm.setUsersNotFromChannel(usersNotInChannel);
         binding.textViewListEmpty.setVisibility(
                 usersNotInChannel.size() == 0 ? View.VISIBLE : View.GONE);
         addMembersAdapterNotRealm.updateData(usersNotInChannel);
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     /**

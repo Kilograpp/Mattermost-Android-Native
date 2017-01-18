@@ -12,7 +12,9 @@ import com.kilogramm.mattermost.databinding.ItemAddMembersBinding;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.squareup.picasso.Picasso;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.realm.RealmViewHolder;
 
