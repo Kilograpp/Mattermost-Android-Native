@@ -119,8 +119,8 @@ public class FilesView extends GridLayout {
                     binding.image.setOnClickListener(view -> {
                         ArrayList<String> fileIdList = new ArrayList<>();
                         for (FileInfo item : items) {
-                            if (fileInfo.getmMimeType() != null
-                                    && fileInfo.getmMimeType().contains("image")) {
+                            if (item.getmMimeType() != null
+                                    && item.getmMimeType().contains("image")) {
                                 fileIdList.add(item.getId());
                             }
                         }
