@@ -137,7 +137,7 @@ public class FileDownloadManager {
         if(!dir.exists()){
             dir.mkdirs();
         }
-//        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
+        request.setDestinationUri(Uri.fromFile(new File(FileUtil.getInstance().getDownloadedFilesDir() + File.separator + fileInfo.getmName())));
 
         downloadId = manager.enqueue(request);
 
