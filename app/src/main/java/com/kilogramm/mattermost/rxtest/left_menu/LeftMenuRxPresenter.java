@@ -109,7 +109,8 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(),MattermostPreference.getInstance().getMyUserId());
                     MembersRepository.add(responseLeftMenuData.getMembers());
                     sendSetRefreshAnimation(false);
-                    sendUpdateMenuView();
+                    sendInvalidateData();
+//                    sendUpdateMenuView();
                     sendSelectLastChannel();
                 }, (leftMenuRxFragment, throwable) -> {
                     throwable.printStackTrace();
@@ -147,6 +148,11 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                             channel.getType());
 
                 }));
+    }
+
+    private void sendInvalidateData() {
+    createTemplateObservable(new Object())
+            .subscribe(split((leftMenuRxFragment, o) -> leftMenuRxFragment.invalidateDirect()));
     }
 
     private void sendSetRefreshAnimation(Boolean bool) {

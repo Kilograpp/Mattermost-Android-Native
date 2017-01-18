@@ -216,7 +216,6 @@ public class WebSocketManager {
         public void run() {
             if(webSocket!=null) {
                 Log.d(TAG, "web socket State:"+webSocket.getState().toString());
-
                 String getStatus = "{\"action\":\"get_statuses\",\"seq\":1,\"data\":null}";
                 /*if(webSocket.getState() == WebSocketState.CLOSED){
                     start();

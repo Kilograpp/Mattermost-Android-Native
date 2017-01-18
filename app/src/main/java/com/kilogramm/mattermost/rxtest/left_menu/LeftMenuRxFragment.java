@@ -56,7 +56,7 @@ import static com.kilogramm.mattermost.model.entity.channel.Channel.PRIVATE;
 @RequiresPresenter(LeftMenuRxPresenter.class)
 public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implements OnLeftMenuClickListener,
         SwipeRefreshLayout.OnRefreshListener {
-    private static final String TAG = LeftMenuRxFragment.class.getSimpleName();
+    private static final String TAG = "LeftMenuRxFragment";
 
     private static final int NOT_SELECTED = -1;
 
@@ -93,6 +93,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 .equalTo("value", "true")
                 .findAll();
         mPreferences.addChangeListener(element -> {
+            Log.d(TAG, "onCreateView: prefChange");
             onRefresh();
         });
         mMembers = MembersRepository.query(new MemberAll());
@@ -108,10 +109,12 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             }
         });
         mUserMembers = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
-        mUserMembers.addChangeListener(element -> invalidateDirect());
+        mUserMembers.addChangeListener(element -> mAdapterDirectMenuLeft.invalidateUsermember());
 
         mUserStatuses = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        mUserStatuses.addChangeListener(element -> mAdapterDirectMenuLeft.invalidateStatus());
+        mUserStatuses.addChangeListener(element -> {
+            mAdapterDirectMenuLeft.invalidateStatus();
+        });
         mBinding.leftSwipeRefresh.setOnRefreshListener(this);
 
         initView();
@@ -199,14 +202,14 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
        /* initNewAdapter();*/
     }
 
-    private void initNewAdapter() {
+   /* private void initNewAdapter() {
         RealmResults<Channel> channels = getDirectChannelData();
         mAdapterDirectMenuLeft = new AdapterDirectMenuLeft(channels,getActivity(),this);
         channels.addChangeListener(element ->{
             mAdapterDirectMenuLeft.addOrUpdate(channels);
         });
         //mAdapterDirectMenuLeft.addOrUpdate(channels);
-    }
+    }*/
 
     public void setRefreshAnimation(boolean isVisible) {
         mBinding.leftSwipeRefresh.setRefreshing(isVisible);
@@ -242,18 +245,12 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         this.mListener = listener;
     }
 
-    private void invalidateDirect() {
+    public void invalidateDirect() {
         RealmResults<Channel> channels = getDirectChannelData();
-        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
-        mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
-        mAdapterDirectMenuLeft = new AdapterDirectMenuLeft(channels,getActivity(),this);
-        channels.addChangeListener(element ->{
-            mAdapterDirectMenuLeft.addOrUpdate(channels);
-        });
-        mBinding.frDirect.recView.swapAdapter(mAdapterDirectMenuLeft, true);
+        mAdapterDirectMenuLeft.addOrUpdate(channels);
         selectLastChannel();
         mBinding.frDirect.recView.invalidate();
-        mAdapterDirectMenuLeft.addOrUpdate(getDirectChannelData());
+        //mAdapterDirectMenuLeft.addOrUpdate(getDirectChannelData());
     }
 
     private void handleRequestJoinChannel(Intent data) {

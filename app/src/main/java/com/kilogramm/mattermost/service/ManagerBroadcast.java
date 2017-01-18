@@ -119,6 +119,9 @@ public class ManagerBroadcast {
         Broadcast broadcast = null;
         switch (event) {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
+                data = new WebSocketObj.BuilderData()
+                        .setChannelId(dataJSON.getString(WebSocketObj.CHANNEL_ID))
+                        .build();
                 break;
             case WebSocketObj.EVENT_POSTED:
                 String mentions = null;
