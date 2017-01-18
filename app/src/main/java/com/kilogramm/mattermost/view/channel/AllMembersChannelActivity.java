@@ -127,7 +127,6 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
     }
 
     private void startDialog(String userTalkToId) {
-
         createDialog(userTalkToId);
     }
 
