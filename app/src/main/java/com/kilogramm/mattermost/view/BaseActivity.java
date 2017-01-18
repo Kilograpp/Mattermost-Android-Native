@@ -162,10 +162,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         imm.showSoftInput(view, 0);
     }
 
-    public void showErrorText(String text) {
+    public void showErrorText(String text, View view){
         int apiVersion = Build.VERSION.SDK_INT;
-        if (apiVersion > Build.VERSION_CODES.LOLLIPOP) {
-            Snackbar error = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_LONG);
+        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view!=null) {
+            Snackbar error = Snackbar.make(view, text, Snackbar.LENGTH_LONG);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
             error.setActionTextColor(getResources().getColor(R.color.white));
             error.setDuration(3000);
@@ -173,6 +173,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         } else {
             Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void showErrorText(String text) {
+        showErrorText(text, getCurrentFocus());
     }
 
     public void showGoodText(String text) {

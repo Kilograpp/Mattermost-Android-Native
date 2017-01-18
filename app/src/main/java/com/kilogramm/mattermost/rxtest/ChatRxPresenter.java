@@ -21,7 +21,6 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
-import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
@@ -186,7 +185,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             }
                         });
                 },
-                (chatRxFragment, throwable) -> sendError(getError(throwable)));
+                (chatRxFragment, throwable) -> sendError(parceError(throwable, null)));
     }
 
     private void initExtraInfo() {
@@ -211,7 +210,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         sendError(parceError(null, NO_NETWORK));
                         sendShowList();
                     } else {
-                        sendError(getError(throwable));
+                        sendError(parceError(throwable, null));
                         setErrorLayout();
                     }
                 });
@@ -227,7 +226,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     ExtroInfoRepository.add(extraInfo);
                     showInfoDefault();
                 }, (chatRxFragment, throwable) -> {
-                    sendError(getError(throwable));
+                    sendError(parceError(throwable, null));
                 });
     }
 
@@ -260,7 +259,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            sendError("cannot get file");
+                            sendError(parceError(null, "cannot get file"));
                             mergePosts(posts);
                         }
 
@@ -279,7 +278,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     if (!isNetworkAvailable()) {
                         sendError(parceError(null, NO_NETWORK));
                     } else {
-                        sendError(getError(throwable));
+                        sendError(parceError(throwable, null));
                     }
                     throwable.printStackTrace();
                 });
@@ -353,7 +352,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                                 .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
                 }, (chatRxFragment1, throwable) -> {
-                    sendError(getError(throwable));
+                    sendError(parceError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
                 });
@@ -370,7 +369,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendNotifyNearItems();
                 },
                 (chatRxFragment1, throwable) -> {
-                    sendError(throwable.getMessage());
+                    sendError(parceError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error delete post " + throwable.getMessage());
                 });
@@ -391,7 +390,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     post.setUpdateAt(updateAt);
                     PostRepository.update(post);
                     sendIvalidateAdapter();
-                    sendError(throwable.getMessage());
+                    sendError(parceError(throwable, null));
                     Log.d(TAG, "Error edit post " + throwable.getMessage());
                 });
     }
@@ -417,7 +416,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     getFilesInfo(posts, false);
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
-                    sendError(throwable.getMessage());
+                    sendError(parceError(throwable, null));
                     throwable.printStackTrace();
 
                 });
@@ -440,7 +439,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     getFilesInfo(posts, true);
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
-                    sendError(throwable.getMessage());
+                    sendError(parceError(throwable, null));
                     throwable.printStackTrace();
                 });
     }
@@ -480,7 +479,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                sendError("cannot get file");
+                sendError(parceError(e, "cannot get file"));
                 sendShowList();
                 if (isBot) {
                     sendDisableShowLoadMoreBot();
@@ -593,11 +592,11 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         });
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        sendError(e.getMessage());
+                        sendError(parceError(e, null));
                     }
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
-                    sendError(throwable.getMessage());
+                    sendError(parceError(throwable, null));
                 });
     }
 

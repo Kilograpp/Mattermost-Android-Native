@@ -37,7 +37,6 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
-import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -292,28 +291,37 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         start(REQUEST_USER_TEAM);
     }
 
-    public void requestLogout() {
-        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
-            @Override
-            public void onCompleted() {
-                Log.d(TAG, "Complete logout");
-                MattermostApp.clearDataBaseAfterLogout();
-                MattermostApp.clearPreference();
-                MattermostApp.showMainRxActivity();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                sendShowError(parceError(e, "Error logout"));
-            }
-
-            @Override
-            public void onNext(LogoutData logoutData) {
-            }
-        });
-//        start(REQUEST_LOGOUT);
+    public void requestLogout(){
+        MattermostApp.logout().doOnTerminate(() -> {
+            MattermostApp.clearDataBaseAfterLogout();
+            MattermostApp.clearPreference();
+            MattermostApp.showMainRxActivity();
+        }).subscribe();
     }
+
+//    public void requestLogout() {
+//        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
+//            @Override
+//            public void onCompleted() {
+//                Log.d(TAG, "Complete logout");
+//                MattermostApp.clearDataBaseAfterLogout();
+//                MattermostApp.clearPreference();
+//                MattermostApp.showMainRxActivity();
+//
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                e.printStackTrace();
+//                sendShowError(parceError(e, "Error logout"));
+//            }
+//
+//            @Override
+//            public void onNext(LogoutData logoutData) {
+//            }
+//        });
+////        start(REQUEST_LOGOUT);
+//    }
 
     public void requestSave(String name, String idUserToStartDialogWith) {
         preferenceList.add(new Preferences(

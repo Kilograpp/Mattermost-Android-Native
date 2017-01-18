@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.presenter;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -10,7 +11,6 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
-import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 
 import java.util.ArrayList;
@@ -48,10 +48,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
         initRequest();
     }
 
-    @Override
-    protected void onTakeView(AddExistingChannelsActivity addExistingChannelsActivity) {
-        super.onTakeView(addExistingChannelsActivity);
-    }
 
     private void initRequest() {
         restartableFirst(REQUEST_CHANNELS_MORE,
@@ -64,6 +60,7 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                         sendSetNoMoreChannels(true);
                         sendSetProgress(false);
                     } else {
+                        Log.d(TAG, "initRequest: moreChannels: " + moreChannels.size());
                         for (Channel channel : channelsList) {
                             moreChannels.add(new ChannelsDontBelong(channel));
                         }
@@ -75,11 +72,19 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                                 });
                     }
 
+                    Log.d(TAG, "initRequest: moreChannels: " + moreChannels.size());
                     sendSetRecycleView(true);
                     sendSetProgress(false);
-                }, (addExistingChannelsActivity, throwable) -> {
-                    sendShowError(parceError(throwable, CHANNELS_MORE));
-                    sendSetProgress(false);
+                },
+                (addExistingChannelsActivity, throwable) -> {
+                    try {
+                        Log.d(TAG, "initRequest: onError moreChannels: " + moreChannels.size());
+
+                        sendShowError(parceError(throwable, CHANNELS_MORE));
+                        sendSetProgress(false);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 });
 
         restartableFirst(REQUEST_ADD_CHAT, () ->
@@ -164,6 +169,6 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     }
 
     private void sendShowError(String error) {
-        createTemplateObservable(error).subscribe(split(BaseActivity::showErrorText));
+        createTemplateObservable(error).subscribe(split((addExistingChannelsActivity, text) -> addExistingChannelsActivity.showErrorText(text, addExistingChannelsActivity.getCurrentFocus())));
     }
 }

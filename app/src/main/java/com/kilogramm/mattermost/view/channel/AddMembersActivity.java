@@ -111,10 +111,10 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             binding.progressBar.setVisibility(View.VISIBLE);
             hideKeyboard(this);
         }/*, getPresenter().getUsersNotInChannel()*/);
-
         binding.recView.setAdapter(addMembersAdapterNotRealm);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
 
+        binding.progressBar.setVisibility(View.VISIBLE);
         getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
     }
 
@@ -128,5 +128,6 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         binding.textViewListEmpty.setVisibility(
                 usersNotInChannel.size() == 0 ? View.VISIBLE : View.GONE);
         addMembersAdapterNotRealm.updateData(usersNotInChannel);
+        binding.progressBar.setVisibility(View.GONE);
     }
 }
