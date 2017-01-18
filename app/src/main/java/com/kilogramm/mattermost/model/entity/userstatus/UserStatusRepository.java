@@ -64,4 +64,17 @@ public class UserStatusRepository {
         }
     }
 
+    public static class UserStatusByIdSpecification implements RealmSpecification {
+        private String userId;
+
+        public UserStatusByIdSpecification(String userId) {
+            this.userId = userId;
+        }
+
+        @Override
+        public RealmResults<UserStatus> toRealmResults(Realm realm) {
+            return realm.where(UserStatus.class).equalTo("id",userId).findAll();
+        }
+    }
+
 }
