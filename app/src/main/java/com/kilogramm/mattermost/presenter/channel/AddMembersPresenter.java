@@ -17,6 +17,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import icepick.State;
@@ -34,6 +35,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private static final int REQUEST_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
     private static final int REQUEST_GET_EXTRA_INFO = 3;
+
+    public static final int PAGE_SIZE = 100;
 
     @State
     String mId;
@@ -53,7 +56,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
         mId = MattermostPreference.getInstance().getMyUserId();
 
         mOffset = 0;
-        mLimit = 100;
+        mLimit = PAGE_SIZE;
 
         initRequests();
     }
@@ -138,12 +141,11 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                 , (addMembersActivity, stringUserMap) -> {
-                    if (stringUserMap.keySet().size() == 100) {
-                        this.mOffset += 1;
+                    usersNotInChannel.addAll(stringUserMap.values());
+                    if (stringUserMap.keySet().size() == PAGE_SIZE) {
+                        this.mOffset += PAGE_SIZE;
                         start(REQUEST_GET_USERS);
                     } else {
-                        usersNotInChannel.clear();
-                        usersNotInChannel.addAll(stringUserMap.values());
                         addMembersActivity.refreshAdapter(usersNotInChannel);
                     }
                 }, (addMembersActivity, throwable) -> sendShowError(parceError(throwable, null)));
@@ -164,12 +166,28 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
 
     private void updateMembers(String id) {
         createTemplateObservable(new Object()).subscribe(split((addMembersActivity, openChatObject) -> {
-            ExtroInfoRepository.updateMembers(ExtroInfoRepository.query(
-                    new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first(),
-                    UserRepository.query(new UserRepository.UserByIdSpecification(id)).first());
+            //FIXME  Caused by: java.lang.IndexOutOfBoundsException: No results were found.
+            try {
+                ExtroInfoRepository.updateMembers(ExtroInfoRepository.query(
+                        new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first(),
+                        UserRepository.query(new UserRepository.UserByIdSpecification(id)).first());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             addMembersActivity.requestMember("User added");
-            start(REQUEST_GET_USERS);
+            removeListUser(mUser_id);
         }));
+    }
+
+    public void removeListUser(String userId){
+        Iterator<User> userList = usersNotInChannel.iterator();
+        while(userList.hasNext()){
+            User user = userList.next();
+            if(user.getId().equals(userId)) {
+                userList.remove();
+                break;
+            }
+        }
     }
 
     private void errorUpdateMembers(String s) {
