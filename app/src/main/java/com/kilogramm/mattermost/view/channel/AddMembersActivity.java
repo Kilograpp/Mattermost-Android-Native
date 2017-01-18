@@ -40,6 +40,7 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_all_members_channel);
+        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
         setToolbar();
         initiationData();
     }
@@ -72,10 +73,8 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > 0) {
-//                    updateDataList(getPresenter().getFoundUsers(charSequence.toString()));
                     getPresenter().getFoundUsers(charSequence.toString());
                 } else {
-//                    updateDataList(getPresenter().getMembers());
                     getPresenter().getFoundUsers(null);
                 }
             }
@@ -91,36 +90,10 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         binding.recView.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
         if (searchView.getQuery().length() == 0) {
-//            updateDataList(getPresenter().getMembers());
             getPresenter().getFoundUsers(null);
         }
         searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
-    }
-
-    public void updateDataList(RealmResults<User> realmResult) {
-        addMembersAdapterNotRealm.setUsersNotFromChannel(realmResult);
-        binding.textViewListEmpty.setVisibility(
-                realmResult.size() == 0 ? View.VISIBLE : View.GONE);
-    }
-
-    private void initiationData() {
-        addMembersAdapterNotRealm = new AddMembersAdapterNotRealm(id -> {
-            getPresenter().addMember(id);
-            binding.recView.setVisibility(View.GONE);
-            binding.progressBar.setVisibility(View.VISIBLE);
-            hideKeyboard(this);
-        }/*, getPresenter().getUsersNotInChannel()*/);
-
-        binding.recView.setAdapter(addMembersAdapterNotRealm);
-        binding.recView.setLayoutManager(new LinearLayoutManager(this));
-
-        getPresenter().initPresenter(getIntent().getStringExtra(CHANNEL_ID));
-    }
-
-    private void setToolbar() {
-        setupToolbar(getString(R.string.add_members_toolbar), true);
-        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 
     public void refreshAdapter(List<User> usersNotInChannel) {
@@ -128,5 +101,25 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         binding.textViewListEmpty.setVisibility(
                 usersNotInChannel.size() == 0 ? View.VISIBLE : View.GONE);
         addMembersAdapterNotRealm.updateData(usersNotInChannel);
+    }
+
+    /**
+     * Initialize {@link #addMembersAdapterNotRealm} adapter with "add member" item click listener
+     */
+    private void initiationData() {
+        addMembersAdapterNotRealm = new AddMembersAdapterNotRealm(id -> {
+            getPresenter().addMember(id);
+            binding.recView.setVisibility(View.GONE);
+            binding.progressBar.setVisibility(View.VISIBLE);
+            hideKeyboard(this);
+        });
+
+        binding.recView.setAdapter(addMembersAdapterNotRealm);
+        binding.recView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setToolbar() {
+        setupToolbar(getString(R.string.add_members_toolbar), true);
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
     }
 }

@@ -34,10 +34,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     private static final int REQUEST_GET_USERS = 1;
     private static final int REQUEST_ADD_MEMBERS = 2;
     private static final int REQUEST_GET_EXTRA_INFO = 3;
-    private static final String TAG = AddMembersPresenter.class.getSimpleName();
 
-//    @State
-//    ExtraInfo mExtraInfo;
     @State
     String mId;
 
@@ -71,13 +68,6 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
         start(REQUEST_ADD_MEMBERS);
     }
 
-//    public RealmResults<User> getMembers(String name) {
-//        ExtraInfo mExtraInfo = ExtroInfoRepository.query(
-//                new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first();
-//        RealmResults<User> members = UserRepository.query(new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), name));
-//        return members;
-//    }
-
     public void getFoundUsers(String name){
         createTemplateObservable(usersNotInChannel)
                 .subscribe(split((addMembersActivity, members) -> {
@@ -107,8 +97,6 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
     public RealmResults<User> getMembers() {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<User> members = UserRepository.query(
-//                new UserRepository.UserByNotIdsSpecification(mExtraInfo.getMembers(), null));
-//                new UserRepository.UserByNotIdsSpecification(realm.where(ExtraInfo.class).contains("id", mChannelId).findFirst().getMembers(), null));
                 new UserRepository.UserByNotIdsSpecification(realm.where(ExtraInfo.class).contains("id", mChannelId).findFirst().getMembers(), null));
         return members;
     }
@@ -119,6 +107,10 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
         addMembers();
     }
 
+    /**
+     * Request extra info for {@link #mChannelId}. At the success result of the request
+     * performs {@link RealmList} of users from DB by user objects from the response.
+     */
     private void getExtraInfo() {
         restartableFirst(REQUEST_GET_EXTRA_INFO,
                 () -> ServerMethod.getInstance()
@@ -175,8 +167,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
             ExtroInfoRepository.updateMembers(ExtroInfoRepository.query(
                     new ExtroInfoRepository.ExtroInfoByIdSpecification(mChannelId)).first(),
                     UserRepository.query(new UserRepository.UserByIdSpecification(id)).first());
-            start(REQUEST_GET_USERS);
             addMembersActivity.requestMember("User added");
+            start(REQUEST_GET_USERS);
         }));
     }
 

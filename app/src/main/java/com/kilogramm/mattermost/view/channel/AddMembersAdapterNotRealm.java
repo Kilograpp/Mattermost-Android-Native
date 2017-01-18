@@ -78,7 +78,8 @@ public class AddMembersAdapterNotRealm extends RecyclerView.Adapter<AddMembersAd
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/users/"
                 + user.getId()
-                + "/image";
+                + "/image?time="
+                + user.getLastPictureUpdate();
     }
 
     public void updateData(List<User> usersNotInChannel) {
