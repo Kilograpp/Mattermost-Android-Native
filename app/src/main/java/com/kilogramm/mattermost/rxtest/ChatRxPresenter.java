@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
@@ -23,6 +24,7 @@ import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
 import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusByDirectSpecification;
@@ -887,10 +889,42 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void showInfoDefault(){
+        if(isDirectChannel()) {
+            sendInfoChanel(getInfoChannelDirrect());
+        }else{
+            sendInfoChanel(getInfoChannelNotDirrect());
+        }
 
-        RealmResults<ExtraInfo> rExtraInfo = ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId));
-        if(rExtraInfo.size()!=0){
-            sendInfoChanel(String.format("%s members",rExtraInfo.first().getMember_count()));
-        }else sendInfoChanel("");
     }
+
+    public String getInfoChannelNotDirrect(){
+        RealmResults<ExtraInfo> rExtraInfo = ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId));
+        if (rExtraInfo.size() != 0) {
+            return String.format("%s members", rExtraInfo.first().getMember_count());
+        } else return "";
+    }
+
+    public String getInfoChannelDirrect(){
+        RealmResults<Channel> rChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
+        if(rChannel.size() == 0){
+            return UserStatus.OFFLINE;
+        }
+
+        String userId = rChannel.first()
+                .getName()
+                .replace(MattermostPreference.getInstance().getMyUserId(), "");
+        userId = userId.replace("__", "");
+
+        RealmResults<UserStatus> usersStatusList = UserStatusRepository.query(new UserStatusRepository.UserStatusByIdSpecification(userId));
+
+        if(usersStatusList.size() == 0){
+            return UserStatus.OFFLINE;
+        }
+        return usersStatusList.first().getStatus();
+    }
+
+    public boolean isDirectChannel(){
+        return channelType!=null && channelType.equals("D");
+    }
+
 }
