@@ -329,7 +329,7 @@ public class ManagerBroadcast {
     }
 
     private static CharSequence displayedMessage(Post post, Context context) {
-        if (post.getProps() != null) {
+        if (post.getProps() != null && post.getProps().getAttachments() != null) {
             return context.getResources().getString(R.string.notification_sent_attachment);
         } else {
             if (post.getFilenames().size() != 0) {
