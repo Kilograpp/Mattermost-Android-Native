@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -17,13 +16,10 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FilesItemLayoutBinding;
 import com.kilogramm.mattermost.model.FileDownloadManager;
-import com.kilogramm.mattermost.model.entity.RealmString;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
-import com.kilogramm.mattermost.model.entity.realmstring.RealmStringRepository;
+import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -33,17 +29,11 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by Evgeny on 01.09.2016.
@@ -209,7 +199,7 @@ public class FilesView extends GridLayout {
             @Override
             public void onError(String fileId) {
                 binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
-                        getContext().getString(R.string.error_during_file_download),
+                        BaseRxPresenter.parceError(null,getContext().getString(R.string.error_during_file_download)),
                         Toast.LENGTH_SHORT).show());
 
             }

@@ -132,7 +132,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
 
                     requestLoadChannels();
-                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+                }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));// TODO: 18.01.17  entry point
 
 //        restartableFirst(REQUEST_DIRECT_PROFILE,
 //                () -> service.getDirectProfile()
@@ -162,7 +162,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     requestUserTeam();
 
                     //start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
-                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
+                }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));
 
 //        restartableFirst(REQUEST_LOAD_CHANNELS,
 //                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
@@ -215,6 +215,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     clearPreference();
                     sendShowMainRxActivity();
                 }, (generalRxActivity1, throwable) -> {
+                    sendShowError(parceError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error logout");
                 });
@@ -229,7 +230,8 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     sendShowChooseTeam();
                 },
                 (generalRxActivity, throwable) ->
-                        handleErrorLogin(throwable)
+                        sendShowError(parceError(throwable, null))
+//                        handleErrorLogin(throwable)
         );
 
         /*restartableFirst(REQUEST_EXTROINFO_DEFAULT_CHANNEL, () ->
@@ -303,7 +305,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                sendShowError("Error logout");
+                sendShowError(parceError(e, "Error logout"));
             }
 
             @Override

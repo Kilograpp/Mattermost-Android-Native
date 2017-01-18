@@ -82,7 +82,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     sendShowLeftMenu();
                     sendSelectLastChannel();
                 }, (leftMenuRxFragment, throwable) -> {
-                    sendErrorLoading(throwable.getMessage());
+                    sendErrorLoading(parceError(throwable,null));
                     throwable.printStackTrace();
                 });
     }

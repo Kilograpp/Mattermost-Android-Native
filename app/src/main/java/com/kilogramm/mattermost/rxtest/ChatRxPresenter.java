@@ -1,8 +1,5 @@
 package com.kilogramm.mattermost.rxtest;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Html;
@@ -338,7 +335,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     isSendingPost = false;
-                    sendError(getError(throwable));
+                    sendError(parceError(throwable, null));
                     setErrorPost(forSendPost.getPendingPostId());
                     sendIvalidateAdapter();
                     throwable.printStackTrace();
@@ -576,7 +573,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
-                                sendError("cannot get file");
+                                sendError(parceError(e,"cannot get file"));
                                 sendRefreshing(false);
                                 sendShowList();
                                 sendDisableShowLoadMoreBot();

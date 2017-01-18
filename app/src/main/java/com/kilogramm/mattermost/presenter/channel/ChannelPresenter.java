@@ -118,7 +118,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_CHANNEL);
                 }, (channelActivity, throwable) -> {
-                    sendError(errorLoadingExtraInfo);
+                    sendError(parceError(throwable, errorLoadingExtraInfo));
                     sendCloseActivity();
                 });
 
@@ -131,7 +131,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ChannelRepository.update(channelWithMember.getChannel());
                     requestMembers();
                 }, (channelActivity, throwable) -> {
-                    sendError(errorLoadingExtraInfo);
+                    sendError(parceError(throwable, errorLoadingExtraInfo));
                     sendCloseActivity();
                 }
         );
@@ -144,7 +144,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("leaved"),
-                (channelActivity, throwable) -> sendError(getError(throwable)));
+                (channelActivity, throwable) -> sendError(parceError(throwable, null)));
     }
 
     private void deleteChannel() {
@@ -154,7 +154,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("deleted"),
-                (channelActivity, throwable) -> sendError(getError(throwable)));
+                (channelActivity, throwable) -> sendError(parceError(throwable, null)));
     }
 
     private void initSaveRequest() {

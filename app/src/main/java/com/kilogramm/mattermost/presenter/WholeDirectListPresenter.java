@@ -105,7 +105,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                         requestGetDirectUsers();
                     }
                     sendUpdateDataList(thisTeamDirects);
-                }, (wholeDirectListActivity, throwable) -> sendShowError(throwable.getMessage()));
+                }, (wholeDirectListActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
 
 

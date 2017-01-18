@@ -78,7 +78,7 @@ public class SearchMessagePresenter extends BaseRxPresenter<SearchMessageActivit
                     }
                 }, (searchMessageActivity1, throwable) -> {
                     sendShowProgressBarVisibility(false);
-                    sendError(getError(throwable));
+                    sendError(parceError(throwable, null));
                     throwable.printStackTrace();
                 });
     }

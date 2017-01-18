@@ -232,7 +232,7 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                     sendToast("Saved successfully");
                 },
                 (notificationActivity, throwable) -> {
-                    sendToast("Unable to save");
+                    sendToast(parceError(throwable, "Unable to save"));
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }

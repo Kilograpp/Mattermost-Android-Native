@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.presenter.channel;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -137,7 +136,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     extraInfoWithOutMember.getExtraInfo().setMembers(results);
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_GET_USERS);
-                }, (channelActivity, throwable) -> sendShowError(throwable.getMessage()));
+                }, (channelActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
 
     private void requestGetUsersNotInChannel() {
@@ -155,7 +154,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         usersNotInChannel.addAll(stringUserMap.values());
                         addMembersActivity.refreshAdapter(usersNotInChannel);
                     }
-                }, (addMembersActivity, throwable) -> sendShowError(throwable.getMessage()));
+                }, (addMembersActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
 
     private void addMembers() {
@@ -167,7 +166,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                 (addMembersActivity, user) -> updateMembers(user.getUser_id()),
                 (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
-                    errorUpdateMembers(throwable.getMessage());
+                    errorUpdateMembers(parceError(throwable, null));
                 });
     }
 

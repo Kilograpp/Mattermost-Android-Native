@@ -78,7 +78,7 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                         UserRepository.updateUserAfterSaveSettings(user);
                         sendGood(editProfileRxActivity.getString(R.string.user_updated));
                     }
-                },(editProfileRxActivity, throwable) -> sendError(getError(throwable)));
+                },(editProfileRxActivity, throwable) -> sendError(parceError(throwable, null)));
     }
 
     private void initNewImage(){

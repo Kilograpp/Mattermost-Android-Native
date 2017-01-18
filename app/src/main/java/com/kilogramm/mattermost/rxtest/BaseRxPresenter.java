@@ -94,8 +94,13 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
     /*******************************/
 
     // TODO вот альтернативный метод для обработки ошибок, посмотрите плз
+
+    /**
+     * @param requestTag may be any string as you want,
+     * but it's desirable to use constants defined above */
     public static String parceError(Throwable e, String requestTag) {
-        if (e == null && requestTag.equals(NO_NETWORK)) {
+//        if (e == null && requestTag.equals(NO_NETWORK)) {
+        if (e!=null && !isNetworkAvailable()) {
             return "No connection to the network";
         } else if (e instanceof HttpException) {
             try {
@@ -221,12 +226,14 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
             }
         } else if (e instanceof UnknownHostException) {
             return "Couldn't find existing team matching this URL";
+        } else if(requestTag != null){
+            return requestTag;
         } else {
             return e.getMessage();
         }
     }
 
-    public boolean isNetworkAvailable() {
+    public static boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) MattermostApp.getSingleton()
                         .getApplicationContext()
