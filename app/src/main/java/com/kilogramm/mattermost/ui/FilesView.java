@@ -138,13 +138,6 @@ public class FilesView extends GridLayout {
         }
     }
 
-/*    private void setupFileClickListeners(FilesItemLayoutBinding binding, FileInfo fileInfo) {
-
-
-        binding.icDownloadedFile.setOnClickListener(fileClickListener);
-        binding.title.setOnClickListener(fileClickListener);
-    }*/
-
     private OnClickListener getFileClickListener(FileInfo fileInfo){
         return v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
