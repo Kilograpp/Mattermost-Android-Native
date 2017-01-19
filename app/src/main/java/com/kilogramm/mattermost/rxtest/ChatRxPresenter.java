@@ -240,7 +240,9 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
                         sendShowEmptyList(channelId);
-                    }
+                    } else
+                        isEmpty = false;
+
                     List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                     for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
                         if (entry.getValue().getFilenames().size() > 0) {
@@ -339,7 +341,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     isSendingPost = false;
-                    sendError(parceError(throwable, null));
+                    sendError(parceError(throwable, "Can't send message"));
                     setErrorPost(forSendPost.getPendingPostId());
                     sendIvalidateAdapter();
                     throwable.printStackTrace();

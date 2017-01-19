@@ -214,8 +214,11 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         }
                     }
                 } else {
-                    return error.getMessage();
+//                    return error.getMessage();
+                    return " ;(";
                 }
+                if(requestTag != null) return requestTag;
+
                 return (error != null)
                         ? (error.getMessage() != null)
                         ? error.getMessage()

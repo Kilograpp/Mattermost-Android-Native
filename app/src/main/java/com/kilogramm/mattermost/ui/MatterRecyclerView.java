@@ -55,16 +55,12 @@ public class MatterRecyclerView extends RecyclerView {
         this.setLayoutManager(manager);
         this.setHasFixedSize(true);
         this.addOnScrollListener(new OnScrollListener() {
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
-        this.addOnScrollListener(new OnScrollListener() {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if(dx != 0 || dy != 0)
                 MatterRecyclerView.this.maybeFireLoadMore();
             }
         });

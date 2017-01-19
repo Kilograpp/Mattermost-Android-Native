@@ -277,6 +277,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         NotificationManager notificationManager = (NotificationManager)
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(channelId.hashCode());
+        requestLoadPosts();
         Log.d(TAG, "onResume: channeld" + channelId.hashCode());
     }
 
@@ -830,9 +831,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void showEmptyList(String channelId) {
         binding.progressBar.setVisibility(View.GONE);
-
-        Channel channel = ChannelRepository.query(
-                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+        try {
+            Channel channel = ChannelRepository.query(
+                    new ChannelRepository.ChannelByIdSpecification(channelId)).last();
 
         String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
@@ -865,6 +866,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         binding.emptyList.setVisibility(View.VISIBLE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
+        }catch (IndexOutOfBoundsException e){
+            Log.e(TAG, "showEmptyList: ", e);
+        }
     }
 
     public void showList() {

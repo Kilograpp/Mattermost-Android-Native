@@ -146,7 +146,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         this.mOffset += PAGE_SIZE;
                         start(REQUEST_GET_USERS);
                     } else {
-                        addMembersActivity.refreshAdapter(usersNotInChannel);
+                        addMembersActivity.refreshAdapter(usersNotInChannel);// TODO: 19.01.17 список не отсортирован
                     }
                 }, (addMembersActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
