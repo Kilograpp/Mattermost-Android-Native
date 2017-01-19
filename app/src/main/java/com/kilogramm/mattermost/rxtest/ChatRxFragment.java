@@ -842,15 +842,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         Channel channel = ChannelRepository.query(
                 new ChannelRepository.ChannelByIdSpecification(channelId)).first();
 
+        User user = Realm.getDefaultInstance().where(User.class)
+                .equalTo("id", getPresenter().getDirectUserId()).findFirst();
+
         String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
 
         binding.emptyListTitle.setVisibility(View.VISIBLE);
         binding.emptyListMessage.setVisibility(View.VISIBLE);
         if (channel.getType().equals(Channel.DIRECT)) {
-            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListTitle.setText(user.getUsername());
             binding.emptyListMessage.setText(String.format(
-                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+                    getResources().getString(R.string.empty_dialog_direct_message), user.getUsername()));
         } else {
             binding.emptyListTitle.setText(String.format(
                     getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
