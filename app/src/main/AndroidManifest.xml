@@ -42,8 +42,7 @@
         </activity>
 
         <activity
-            android:name=".rxtest.StartScreenActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden">
+            android:name=".rxtest.StartScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

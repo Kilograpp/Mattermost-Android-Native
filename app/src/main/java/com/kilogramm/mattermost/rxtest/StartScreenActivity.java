@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.R;
@@ -35,43 +38,44 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
     }
 
     private void tryToStart() {
-        List<Channel> channels = Realm.getDefaultInstance().where(Channel.class)
-                .findAll();
-        if (channels.size() <= 0) {
-            if (getPresenter().isNetworkAvailable()) {
-                startActivity(new Intent(this, MainRxActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } else {
-                Toast.makeText(this,
-                        "Network error. Please check your Internet connetion",
-                        Toast.LENGTH_SHORT).show();
-
-                mBroadcastReceiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        if (intent.getExtras() != null) {
-                            final ConnectivityManager connectivityManager = (ConnectivityManager) context
-                                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-                            final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-
-                            if (ni != null && ni.isConnectedOrConnecting()) {
-                                tryToStart();
-                            } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY,
-                                    Boolean.FALSE)) {
-
-                            }
-                        }
-                    }
-                };
-
-                registerReceiver(mBroadcastReceiver,
-                        new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-            }
-        } else {
+        if (getPresenter().isNetworkAvailable()) {
             startActivity(new Intent(this, MainRxActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } else {
+            showErrorTextForever("Network error. Please check your Internet connetion",
+                    findViewById(R.id.imageView));
+
+            mBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent.getExtras() != null) {
+                        final ConnectivityManager connectivityManager =
+                                (ConnectivityManager) context
+                                .getSystemService(Context.CONNECTIVITY_SERVICE);
+                        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+                        if (ni != null && ni.isConnectedOrConnecting()) {
+                            tryToStart();
+                        }
+                    }
+                }
+            };
+
+            registerReceiver(mBroadcastReceiver,
+                    new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+        }
+    }
+
+    public void showErrorTextForever(String text, View view) {
+        int apiVersion = Build.VERSION.SDK_INT;
+        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view != null) {
+            Snackbar error = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
+            error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
+            error.setActionTextColor(getResources().getColor(R.color.white));
+            error.show();
+        } else {
+            Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
         }
     }
 
