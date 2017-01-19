@@ -186,8 +186,8 @@ public interface ApiMethod {
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
-    @GET("api/v3/teams/{team_id}/channels/{channel_id}")
-    Observable<Channel> getChannelById(@Path("team_id") String team_id,
+    @GET("api/v3/teams/{team_id}/channels/{channel_id}/")
+    Observable<ChannelWithMember> getChannelById(@Path("team_id") String team_id,
                                        @Path("channel_id") String channel_id);
 
     @Headers({

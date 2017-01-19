@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.rxtest.OnMoreLoadListener;
+import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuLayoutManager;
 
 import icepick.Icepick;
 
@@ -50,7 +51,7 @@ public class MatterRecyclerView extends RecyclerView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        LinearLayoutManager manager = new LinearLayoutManager(this.getContext());
+        LinearLayoutManager manager = new LeftMenuLayoutManager(this.getContext());
         manager.setStackFromEnd(true);
         this.setLayoutManager(manager);
         this.setHasFixedSize(true);
