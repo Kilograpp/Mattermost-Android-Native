@@ -899,11 +899,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             setupTypingText(typing);
 
             binding.getRoot().postDelayed(() -> {
-                if(mapType!=null && obj!=null) mapType.remove(obj.getUserId());
+                if (mapType != null && obj != null) mapType.remove(obj.getUserId());
                 showTyping(null);
             }, TYPING_DURATION);
         } else {
-            if(getPresenter()!=null) getPresenter().showInfoDefault();
+            if (getPresenter() != null) getPresenter().showInfoDefault();
             sendUsersStatus(null);
         }
     }
@@ -936,11 +936,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     RealmResults<User> resultUser = UserRepository
                             .query(new UserRepository.UserByIdSpecification(obj.getUserId()));
 
-                    if( resultUser!=null && resultUser.size() == 0){
+                    if (resultUser != null && resultUser.size() == 0) {
                         MattermostService.Helper.
                                 create(MattermostApp.getSingleton()).
                                 startLoadUser(obj.getUserId());
-                    }else{
+                    } else {
                         mapType.put(obj.getUserId(),
                                 resultUser.first()
                                         .getUsername());
@@ -1193,8 +1193,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void invalidateAdapter() {
-        if(adapter!=null)
-        adapter.notifyDataSetChanged();
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
     }
 
     public void copyLink(String link) {
