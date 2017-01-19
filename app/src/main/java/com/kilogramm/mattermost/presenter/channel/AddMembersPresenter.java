@@ -17,6 +17,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -146,7 +147,8 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         this.mOffset += PAGE_SIZE;
                         start(REQUEST_GET_USERS);
                     } else {
-                        addMembersActivity.refreshAdapter(usersNotInChannel);// TODO: 19.01.17 список не отсортирован
+                        Collections.sort(usersNotInChannel, (user, t1) -> user.getUsername().compareToIgnoreCase(t1.getUsername()));
+                        addMembersActivity.refreshAdapter(usersNotInChannel);
                     }
                 }, (addMembersActivity, throwable) -> sendShowError(parceError(throwable, null)));
     }
