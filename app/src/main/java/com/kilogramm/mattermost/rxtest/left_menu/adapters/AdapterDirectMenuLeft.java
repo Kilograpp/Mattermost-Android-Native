@@ -222,11 +222,12 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void invalidateStatus(){
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<UserStatus> newStatuses = realm.where(UserStatus.class).findAll();
         for (IDirect iDirect : this.mAdapterData) {
-            if(iDirect instanceof DirectItem){
-                Realm realmO = Realm.getDefaultInstance();
-                realmO.executeTransaction(realm -> {
-                    UserStatus status = realm.where(UserStatus.class)
+            if(iDirect.getType()==IDirect.TYPE_ITEM){
+                realm.executeTransaction(realm1 -> {
+                    UserStatus status = newStatuses.where()
                             .equalTo("id",((DirectItem) iDirect).userId)
                             .findFirst();
                     if(status!=null){
@@ -235,15 +236,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                             Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
                             notifyItemChanged(mAdapterData.indexOf(iDirect));
                         }
-                    } else {
-                        ((DirectItem) iDirect).status = UserStatus.OFFLINE;
-                        notifyItemChanged(mAdapterData.indexOf(iDirect));
-                        Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
                     }
                 });
-                realmO.close();
             }
         }
+        realm.close();
     }
 
     public void invalidateMember() {

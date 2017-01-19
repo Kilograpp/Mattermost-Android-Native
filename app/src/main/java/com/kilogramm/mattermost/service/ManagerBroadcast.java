@@ -292,7 +292,7 @@ public class ManagerBroadcast {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
         remoteViews.setTextViewText(R.id.title, setNotificationTitle(channel, post.getUserId()));
         remoteViews.setTextViewText(R.id.text, displayedMessage(post, context));
-        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.ic_close_notification);
+        remoteViews.setImageViewResource(R.id.closeNotification, R.drawable.notification_icon);
         remoteViews.setOnClickPendingIntent(R.id.closeNotification, pendingIntentClose);
 
         Notification.Builder notificationBuilder = showNotification(context);

@@ -847,15 +847,18 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             Channel channel = ChannelRepository.query(
                     new ChannelRepository.ChannelByIdSpecification(channelId)).last();
 
+        User user = Realm.getDefaultInstance().where(User.class)
+                .equalTo("id", getPresenter().getDirectUserId()).findFirst();
+
         String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
 
         binding.emptyListTitle.setVisibility(View.VISIBLE);
         binding.emptyListMessage.setVisibility(View.VISIBLE);
         if (channel.getType().equals(Channel.DIRECT)) {
-            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListTitle.setText(user.getUsername());
             binding.emptyListMessage.setText(String.format(
-                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+                    getResources().getString(R.string.empty_dialog_direct_message), user.getUsername()));
         } else {
             binding.emptyListTitle.setText(String.format(
                     getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
@@ -915,11 +918,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             setupTypingText(typing);
 
             binding.getRoot().postDelayed(() -> {
-                if(mapType!=null && obj!=null) mapType.remove(obj.getUserId());
+                if (mapType != null && obj != null) mapType.remove(obj.getUserId());
                 showTyping(null);
             }, TYPING_DURATION);
         } else {
-            if(getPresenter()!=null) getPresenter().showInfoDefault();
+            if (getPresenter() != null) getPresenter().showInfoDefault();
             sendUsersStatus(null);
         }
     }
@@ -952,11 +955,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     RealmResults<User> resultUser = UserRepository
                             .query(new UserRepository.UserByIdSpecification(obj.getUserId()));
 
-                    if( resultUser!=null && resultUser.size() == 0){
+                    if (resultUser != null && resultUser.size() == 0) {
                         MattermostService.Helper.
                                 create(MattermostApp.getSingleton()).
                                 startLoadUser(obj.getUserId());
-                    }else{
+                    } else {
                         mapType.put(obj.getUserId(),
                                 resultUser.first()
                                         .getUsername());
@@ -1210,8 +1213,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void invalidateAdapter() {
-        if(adapter!=null)
-        adapter.notifyDataSetChanged();
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
     }
 
     public void copyLink(String link) {
