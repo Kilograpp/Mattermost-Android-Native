@@ -222,7 +222,7 @@ public class ManagerBroadcast {
         return webSocketObj;
     }
 
-    private void getFileInfoAndSavePost(Post post){
+    private void getFileInfoAndSavePost(Post post) {
         ServerMethod.getInstance().getFileInfo(MattermostPreference.getInstance().getTeamId(),
                 post.getChannelId(), post.getId())
                 .observeOn(Schedulers.io())
@@ -325,7 +325,7 @@ public class ManagerBroadcast {
                 .getUsername();
 
         if (channel.getType().equals(Channel.DIRECT)) {
-            return "Direct message from " + channel.getUsername();
+            return "Direct message from " + userName;
         } else {
             return userName + " in " + channel.getDisplayName();
         }
@@ -335,17 +335,18 @@ public class ManagerBroadcast {
         if (post.getProps() != null && post.getProps().getAttachments() != null) {
             return context.getResources().getString(R.string.notification_sent_attachment);
         } else {
-            if (post.getFilenames().size() != 0) {
-                String fileType = FileUtil.getInstance().getMimeType(post.getFilenames().get(0));
-                if (fileType.contains("image")) {
+            if(post.getMessage() != null && post.getMessage().trim().length() > 0){
+                return PostViewHolder.getMarkdownPost(post.getMessage(), context);
+            } else if (post.getFilenames().size() != 0) {
+                FileInfo fileInfo = FileInfoRepository.getInstance().get(post.getFilenames().get(0));
+                if (fileInfo != null && fileInfo.getmMimeType().contains("image")) {
                     return context.getResources().getString(R.string.notification_sent_pic);
                 } else {
                     return context.getResources().getString(R.string.notification_sent_file);
                 }
-            } else {
-                return PostViewHolder.getMarkdownPost(post.getMessage(), context);
             }
         }
+        return context.getResources().getString(R.string.notification_sent_attachment);
     }
 
     private static Intent openDialogIntent(Context context, Channel channel) {
