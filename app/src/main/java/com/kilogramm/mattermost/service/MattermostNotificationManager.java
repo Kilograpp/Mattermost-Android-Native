@@ -66,10 +66,13 @@ public class MattermostNotificationManager {
                         .observeOn(Schedulers.io())
                         .subscribe(webSocketObj1 -> {
                             Log.d(TAG, "handleSocket: ALL_USER");
-                            UserStatusRepository.remove(new AllRemove());
-                            UserStatusRepository.add(Stream.of(webSocketObj1.getData().getStatusMap())
+                            UserStatusRepository.merge(Stream.of(webSocketObj1.getData().getStatusMap())
                                     .map(stringStringEntry -> new UserStatus(stringStringEntry.getKey(), stringStringEntry.getValue()))
                                     .collect(Collectors.toList()));
+                            /*UserStatusRepository.remove(new AllRemove());
+                            UserStatusRepository.add(Stream.of(webSocketObj1.getData().getStatusMap())
+                                    .map(stringStringEntry -> new UserStatus(stringStringEntry.getKey(), stringStringEntry.getValue()))
+                                    .collect(Collectors.toList()));*/
                            /* UserStatusRepository.add();
                             for (String s : webSocketObj1.getData().getStatusMap().keySet()) {
                                 UserStatusRepository.add(new UserStatus(s, webSocketObj1.getData().getStatusMap().get(s)));
