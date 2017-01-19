@@ -211,6 +211,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 if (obj.getBroadcast() != null
                         && obj.getBroadcast().getChannel_id().equals(channelId)) {
                     if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
+                            && obj.getUserId() != null
                             && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
                         if (mapType != null)
                             mapType.remove(obj.getUserId());
