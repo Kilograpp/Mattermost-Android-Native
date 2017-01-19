@@ -276,6 +276,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         isEmpty = true;
                         sendShowEmptyList(channelId);
                     } else {
+                        isEmpty = false;
                         List<Observable<List<FileInfo>>> observables = new ArrayList<>();
                         for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
                             if (entry.getValue().getFilenames().size() > 0) {
