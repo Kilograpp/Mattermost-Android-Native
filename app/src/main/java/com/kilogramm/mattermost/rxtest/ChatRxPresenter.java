@@ -55,6 +55,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
     private static final int REQUEST_STATS_INFO = 102;
+    private static final int REQUEST_CHANNEL_BY_ID = 103;
 
     /**
      * Code for "send new post to server" request
@@ -139,6 +140,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     //region Init Requests
     private void initRequests() {
+        initChannelById();
         initExtraInfo();
         infoStats();
         initLoadPosts();
@@ -154,6 +156,34 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         //initSendToServerError();
         initLoadBeforeAndAfter();
         initSendCommand();
+    }
+    private void initChannelById() {
+        restartableFirst(REQUEST_CHANNEL_BY_ID,
+                () -> ServerMethod.getInstance()
+                        .getChannelById(teamId, channelId)
+                        .repeat(3)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, channelWithMember) -> {
+                    ChannelRepository.add(channelWithMember.getChannel());
+                    MembersRepository.add(channelWithMember.getMember());
+                    channelType = channelWithMember.getChannel().getType();
+                    requestStats();
+                    sendStartLoad();
+                }, (chatRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                    sendError(getError(throwable));
+                }
+        );
+    }
+
+    public void startLoadInfoChannel(){
+        start(REQUEST_CHANNEL_BY_ID);
+    }
+
+    private void sendStartLoad() {
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.startLoad()));
     }
 
     private void initSendCommand() {
@@ -934,4 +964,12 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         return channelType!=null && channelType.equals("D");
     }
 
+    public String getDirectUserId() {
+        RealmResults<Channel> rChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
+        if (rChannel.size() == 0) { return null; }
+        String userId = rChannel.first()
+                .getName()
+                .replace(MattermostPreference.getInstance().getMyUserId(), "");
+        return userId.replace("__", "");
+    }
 }

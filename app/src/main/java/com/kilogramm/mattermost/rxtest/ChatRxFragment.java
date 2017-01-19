@@ -237,11 +237,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
 
-        if (searchMessageId != null) {
-            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
-        } else {
-            getPresenter().requestExtraInfo();
-        }
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (v == binding.writingMessage && !hasFocus) {
@@ -251,6 +246,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         });
         if (adapter.getItemCount() > 0) {
             binding.rev.smoothScrollToPosition(adapter.getItemCount() - 1);
+        }
+        getPresenter().startLoadInfoChannel();
+    }
+
+    public void startLoad() {
+        if (searchMessageId != null) {
+            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
+        } else {
+            getPresenter().requestExtraInfo();
         }
     }
 
@@ -270,9 +274,13 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
-            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
-            if (users != null) {
-                ProfileRxActivity.start(getActivity(), users.first().getId());
+            if(getPresenter().isDirectChannel()){
+                String userId = getPresenter().getDirectUserId();
+                if(userId!=null){
+                    ProfileRxActivity.start(getActivity(), userId);
+                } else {
+                    Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 ChannelActivity.start(getActivity(), channelId);
             }

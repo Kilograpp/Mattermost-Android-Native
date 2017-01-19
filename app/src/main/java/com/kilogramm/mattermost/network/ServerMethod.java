@@ -249,6 +249,9 @@ public class ServerMethod {
     public Observable<AutocompleteUsers> getAutocompleteUsers(String teamId, String channelId, String term) {
         return mApi.getAutocompleteUsers(teamId, channelId, term);
     }
+    public Observable<ChannelWithMember> getChannelById(String teamId, String channelId) {
+        return mApi.getChannelById(teamId, channelId);
+    }
 
     public Observable<Map<String, User>> getUsersNotInChannel(String team_id, String channel_id, int offset, int limit) {
         return mApi.getUsersNotInChannel(team_id, channel_id, offset, limit);
