@@ -255,11 +255,15 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     private void requestLoadPosts() {
+        disableLoaders();
+        getPresenter().requestLoadPosts();
+    }
+
+    private void disableLoaders(){
         Log.d("DISABLE", "disable loading");
         binding.rev.disableShowLoadMoreTop();
         binding.rev.disableShowLoadMoreBot();
         binding.rev.setCanPagination(false);
-        getPresenter().requestLoadPosts();
     }
 
     @Override
@@ -998,6 +1002,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getAdapter().getItemCount() - 1);
+        disableLoaders();
     }
 
     public void addUserLinkMessage(String s) {
