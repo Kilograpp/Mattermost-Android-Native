@@ -2,6 +2,8 @@ package com.kilogramm.mattermost.service;
 
 import android.util.Log;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -13,7 +15,9 @@ import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatusRepository;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.network.ServerMethod;
 
+import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -33,7 +37,7 @@ public class MattermostNotificationManager {
     public void handleSocket(WebSocketObj webSocketObj) {
         switch (webSocketObj.getEvent()) {
             case WebSocketObj.EVENT_CHANNEL_VIEWED:
-                requestGetChannel(webSocketObj);
+                requestGetChannel(webSocketObj.getData().getChannelId());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 PostRepository.remove(webSocketObj.getData().getPost());
@@ -41,10 +45,11 @@ public class MattermostNotificationManager {
             case WebSocketObj.EVENT_POST_EDITED:
                 break;
             case WebSocketObj.EVENT_POSTED:
-                if (webSocketObj.getChannelId().equals(MattermostPreference.getInstance().getLastChannelId())) {
+                String channelId = webSocketObj.getData().getPost().getChannelId();
+                if (channelId.equals(MattermostPreference.getInstance().getLastChannelId())) {
                     requestUpdateLastViewedAt(webSocketObj.getChannelId());
                 } else {
-                    requestGetChannel(webSocketObj);
+                    requestGetChannel(channelId);
                 }
                 break;
             case WebSocketObj.EVENT_STATUS_CHANGE:
@@ -56,12 +61,20 @@ public class MattermostNotificationManager {
             case WebSocketObj.EVENT_TYPING:
                 break;
             case WebSocketObj.ALL_USER_STATUS:
-                UserStatusRepository.remove(new AllRemove());
-                for (String s : webSocketObj.getData().getStatusMap().keySet()) {
-                    Log.d(TAG, "EVENT_ALL_USER_STATUS: useid = " + s + "\n" +
-                            "status = " + webSocketObj.getData().getStatusMap().get(s));
-                    UserStatusRepository.add(new UserStatus(s, webSocketObj.getData().getStatusMap().get(s)));
-                }
+                Observable.just(webSocketObj)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .subscribe(webSocketObj1 -> {
+                            Log.d(TAG, "handleSocket: ALL_USER");
+                            UserStatusRepository.remove(new AllRemove());
+                            UserStatusRepository.add(Stream.of(webSocketObj1.getData().getStatusMap())
+                                    .map(stringStringEntry -> new UserStatus(stringStringEntry.getKey(), stringStringEntry.getValue()))
+                                    .collect(Collectors.toList()));
+                           /* UserStatusRepository.add();
+                            for (String s : webSocketObj1.getData().getStatusMap().keySet()) {
+                                UserStatusRepository.add(new UserStatus(s, webSocketObj1.getData().getStatusMap().get(s)));
+                            }*/
+                        });
                 break;
             case WebSocketObj.EVENT_PREFERENCE_CHANGED:
                 PreferenceRepository.add(webSocketObj.getData().getPreference());
@@ -75,11 +88,10 @@ public class MattermostNotificationManager {
                 .updatelastViewedAt(MattermostPreference.getInstance().getTeamId(), channelId);
     }
 
-    private void requestGetChannel(WebSocketObj webSocketObj) {
-        MattermostApp.getSingleton()
-                .getMattermostRetrofitService()
+    private void requestGetChannel(String channelId) {
+        ServerMethod.getInstance()
                 .getChannel(MattermostPreference.getInstance().getTeamId(),
-                        webSocketObj.getChannelId())
+                        channelId)
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ChannelWithMember>() {
@@ -95,8 +107,8 @@ public class MattermostNotificationManager {
 
                     @Override
                     public void onNext(ChannelWithMember channelWithMember) {
-                        ChannelRepository.prepareChannelAndAdd(channelWithMember.getChannel(),
-                                MattermostPreference.getInstance().getMyUserId());
+                        Log.d(TAG, "onNext: Channel loaded after posted event");
+                        ChannelRepository.add(channelWithMember.getChannel());
                         MembersRepository.add(channelWithMember.getMember());
                     }
                 });

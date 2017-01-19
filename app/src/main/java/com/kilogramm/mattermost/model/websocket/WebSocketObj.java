@@ -184,6 +184,7 @@ public class WebSocketObj implements Parcelable {
         private String parentId;
         private Preferences preferences;
         private Map<String, String> mapUserStatus;
+        private String channelId;
 
         public BuilderData setChannelDisplayName(String channelDisplayName) {
             this.channelDisplayName = channelDisplayName;
@@ -244,11 +245,18 @@ public class WebSocketObj implements Parcelable {
                     teamId,
                     status,
                     mapUserStatus,
-                    preferences,userId);
+                    preferences,
+                    userId,
+                    channelId);
         }
 
         public BuilderData setStatus(String status) {
             this.status = status;
+            return this;
+        }
+
+        public BuilderData setChannelId(String channelId) {
+            this.channelId = channelId;
             return this;
         }
     }

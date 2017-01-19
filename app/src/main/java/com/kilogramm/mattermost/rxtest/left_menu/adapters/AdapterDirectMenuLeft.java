@@ -2,8 +2,6 @@ package com.kilogramm.mattermost.rxtest.left_menu.adapters;
 
 import android.app.Service;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,8 +47,6 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     private LinkedHashMap<String, IDirect> mData = new LinkedHashMap<>();
     private List<IDirect> mAdapterData = new ArrayList<>();
 
-    private Handler mHandler;
-
     private int mSelectedItem = -1;
     private OnLeftMenuClickListener mItemClickListener;
 
@@ -60,11 +56,9 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         this.mContext = context;
         this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         this.mItemClickListener = mItemClickListener;
-        this.mHandler = new Handler(Looper.getMainLooper());
         addOrUpdate(data);
     }
 
-    private Runnable sendNotifyDataSetChange = () -> notifyDataSetChanged();
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -129,14 +123,16 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                     }).collect(Collectors.toList());
             mAdapterData.clear();
             mAdapterData.addAll(list);
-            mHandler.removeCallbacks(sendNotifyDataSetChange);
-            mHandler.postDelayed(sendNotifyDataSetChange,100);
-//            notifyDataSetChanged();
+            /*mHandler.removeCallbacks(sendNotifyDataSetChange);
+            mHandler.postDelayed(sendNotifyDataSetChange,100);*/
+            notifyDataSetChanged();
         }
     }
 
 
     public void addOrUpdate(RealmResults<Channel> channels){
+
+        Log.d(TAG, "addOrUpdate: " + Thread.currentThread().getId() + "mData size = " + mData.size());
         List<String> newIds = Stream.of(channels).map(channel -> channel.getId()).collect(Collectors.toList());
         Set<String> oldIds = new HashSet<>(mData.keySet());
         oldIds.removeAll(newIds);
@@ -153,9 +149,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         }
         Log.d(TAG, "addOrUpdate: data size = " + mData.size());
         sort();
+
     }
 
     private DirectItem buildIDirectItem(Channel channel){
+        long startTime = System.currentTimeMillis();
         DirectItem item = new DirectItem();
         item.channelId = channel.getId();
         item.totalMessageCount = channel.getTotalMsgCount();
@@ -188,6 +186,9 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             item.inTeam = userMembers.size()!=0;
         });
         realmO.close();
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        Log.d(TAG, "addOrUpdate: " + duration +  "milsec");
         return item;
     }
 
@@ -228,12 +229,19 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                     UserStatus status = realm.where(UserStatus.class)
                             .equalTo("id",((DirectItem) iDirect).userId)
                             .findFirst();
-                    if(status!=null && !status.getStatus().equals(((DirectItem) iDirect).status)){
-                        ((DirectItem) iDirect).status = status.getStatus();
-                        Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
+                    if(status!=null){
+                        if(!status.getStatus().equals(((DirectItem) iDirect).status)){
+                            ((DirectItem) iDirect).status = status.getStatus();
+                            Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
+                            notifyItemChanged(mAdapterData.indexOf(iDirect));
+                        }
+                    } else {
+                        ((DirectItem) iDirect).status = UserStatus.OFFLINE;
                         notifyItemChanged(mAdapterData.indexOf(iDirect));
+                        Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
                     }
                 });
+                realmO.close();
             }
         }
     }
@@ -256,6 +264,23 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                         notifyItemChanged(mAdapterData.indexOf(iDirect));
                     }
                 });
+                realmO.close();
+            }
+        }
+    }
+
+    public void invalidateUsermember() {
+        for (IDirect iDirect : this.mAdapterData) {
+            if(iDirect instanceof DirectItem){
+                Realm realmO = Realm.getDefaultInstance();
+                realmO.executeTransaction(realm -> {
+                    RealmResults<UserMember> userMembers = realm.where(UserMember.class).equalTo("userId", ((DirectItem) iDirect).userId).findAll();
+                    if(((DirectItem) iDirect).inTeam != (userMembers.size()!=0)){
+                        ((DirectItem) iDirect).inTeam = userMembers.size()!=0;
+                        notifyItemChanged(mAdapterData.indexOf(iDirect));
+                    }
+                });
+                realmO.close();
             }
         }
     }

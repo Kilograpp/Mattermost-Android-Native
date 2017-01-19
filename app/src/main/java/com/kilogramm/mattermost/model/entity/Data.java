@@ -47,6 +47,9 @@ public class Data implements Parcelable {
     @SerializedName("status")
     @Expose
     private String status;
+    @SerializedName("channel_id")
+    @Expose
+    private String channelId;
 
     private Preferences preference;
 
@@ -61,7 +64,8 @@ public class Data implements Parcelable {
                 String status,
                 Map<String, String> statusMap,
                 Preferences preference,
-                String userId) {
+                String userId,
+                String channelId) {
         this.channelDisplayName = channelDisplayName;
         this.channelType = channelType;
         this.mentions = mentions;
@@ -72,6 +76,7 @@ public class Data implements Parcelable {
         this.statusMap = statusMap;
         this.preference = preference;
         this.userId = userId;
+        this.channelId = channelId;
     }
 
     public Map<String, String> getStatusMap() {
@@ -126,6 +131,14 @@ public class Data implements Parcelable {
         this.status = status;
     }
 
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -143,6 +156,8 @@ public class Data implements Parcelable {
         dest.writeString(this.state);
         dest.writeString(this.teamId);
         dest.writeString(this.status);
+        dest.writeString(this.channelId);
+        dest.writeParcelable(this.preference, flags);
         dest.writeInt(this.statusMap.size());
         for (Map.Entry<String, String> entry : this.statusMap.entrySet()) {
             dest.writeString(entry.getKey());
@@ -161,8 +176,10 @@ public class Data implements Parcelable {
         this.state = in.readString();
         this.teamId = in.readString();
         this.status = in.readString();
+        this.channelId = in.readString();
+        this.preference = in.readParcelable(Preferences.class.getClassLoader());
         int statusMapSize = in.readInt();
-        this.statusMap = new HashMap<>(statusMapSize);
+        this.statusMap = new HashMap<String, String>(statusMapSize);
         for (int i = 0; i < statusMapSize; i++) {
             String key = in.readString();
             String value = in.readString();
