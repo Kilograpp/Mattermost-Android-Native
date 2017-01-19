@@ -100,7 +100,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
      * but it's desirable to use constants defined above */
     public static String parceError(Throwable e, String requestTag) {
 //        if (e == null && requestTag.equals(NO_NETWORK)) {
-        if (e!=null && !isNetworkAvailable()) {
+        if (!isNetworkAvailable()) {
             return "No connection to the network";
         } else if (e instanceof HttpException) {
             try {

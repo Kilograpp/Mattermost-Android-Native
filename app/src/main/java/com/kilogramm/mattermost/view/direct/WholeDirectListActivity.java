@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,7 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(WholeDirectListPresenter.class)
 public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresenter> {
+    private static final String TAG = WholeDirectListActivity.class.getSimpleName();
     private ActivityWholeDirectListBinding mBinding;
     private WholeDirectListAdapter mAdapter;
     private MenuItem mDoneItem;
@@ -50,6 +52,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_whole_direct_list);
         init();
         setRecycleView();
+        Log.d(TAG, "onCreate: " + getCurrentFocus());
     }
 
     @Override
@@ -156,6 +159,7 @@ public class WholeDirectListActivity extends BaseActivity<WholeDirectListPresent
         setRecycleView();
         getPresenter().requestGetDirectUsers();
     }
+
 
     public static void startActivityForResult(Fragment fragment, Integer requestCode) {
         Intent starter = new Intent(fragment.getActivity(), WholeDirectListActivity.class);
