@@ -259,7 +259,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            sendError(parceError(null, "cannot get file"));
+                            String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                            if(error != null) {
+                                sendError(error);
+                            }
                             mergePosts(posts);
                         }
 
@@ -479,7 +482,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                sendError(parceError(e, "cannot get file"));
+                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                if(error != null) {
+                    sendError(error);
+                }
                 sendShowList();
                 if (isBot) {
                     sendDisableShowLoadMoreBot();
@@ -574,7 +580,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
-                                sendError(parceError(e,"cannot get file"));
+                                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                                if(error != null) {
+                                    sendError(error);
+                                }
                                 sendRefreshing(false);
                                 sendShowList();
                                 sendDisableShowLoadMoreBot();

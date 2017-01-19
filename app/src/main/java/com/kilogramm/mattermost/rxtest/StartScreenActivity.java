@@ -43,7 +43,7 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } else {
-            showErrorTextForever("Network error. Please check your Internet connetion",
+            showErrorTextForever(getString(R.string.network_error),
                     findViewById(R.id.imageView));
 
             mBroadcastReceiver = new BroadcastReceiver() {
