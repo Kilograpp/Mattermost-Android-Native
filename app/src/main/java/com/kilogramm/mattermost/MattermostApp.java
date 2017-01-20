@@ -31,20 +31,16 @@ import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Observable;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 /**
@@ -121,7 +117,9 @@ public class MattermostApp extends Application {
     }
 
     public static rx.Observable<LogoutData> logout() {
-        return MattermostApp.getSingleton().getMattermostRetrofitService().logout(new Object())
+        return MattermostApp.getSingleton()
+                .getMattermostRetrofitService()
+                .logout(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());
     }
