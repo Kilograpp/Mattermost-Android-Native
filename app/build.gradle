@@ -14,6 +14,7 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'io.fabric'
+apply plugin: 'com.uphyca.android-aspectj'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -122,7 +123,7 @@ dependencies {
     //emoji
     compile 'com.vdurmont:emoji-java:3.1.3'
     /*// Markdown
-                                            compile 'com.github.rjeschke:txtmark:0.13'*/
+                                                compile 'com.github.rjeschke:txtmark:0.13'*/
 
     // Crashlytics
     compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
@@ -134,7 +135,6 @@ dependencies {
     compile 'com.nononsenseapps:filepicker:3.0.0'
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.annimon:stream:1.1.4'
-
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
@@ -148,4 +148,5 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
     compile project(':lib-release')
+    compile project(':perf')
 }
