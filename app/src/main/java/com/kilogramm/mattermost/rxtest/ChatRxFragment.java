@@ -62,7 +62,6 @@ import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
-import com.kilogramm.mattermost.model.entity.user.UserByChannelIdSpecification;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
@@ -312,8 +311,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
 
         isFocus = false;
-        binding.rev.smoothScrollToPosition(positionItemMessage);
-
+        try {
+            binding.rev.smoothScrollToPosition(positionItemMessage);
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.d(TAG, "slideToMessageById() called");
+        }
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -333,6 +336,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     if (adapter != null) adapter.setmHighlitedPost(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
+                    binding.rev.removeOnScrollListener(this);
                 }
             }
         });
