@@ -28,7 +28,20 @@ import io.realm.Realm;
 
 public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
-    BroadcastReceiver mBroadcastReceiver;
+    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getExtras() != null) {
+                final ConnectivityManager connectivityManager = (ConnectivityManager) context
+                                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+                if (ni != null && ni.isConnectedOrConnecting()) {
+                    tryToStart();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,30 +65,13 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
             showErrorTextForever(getString(R.string.network_error),
                     findViewById(R.id.imageView));
 
-            mBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (intent.getExtras() != null) {
-                        final ConnectivityManager connectivityManager =
-                                (ConnectivityManager) context
-                                .getSystemService(Context.CONNECTIVITY_SERVICE);
-                        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-
-                        if (ni != null && ni.isConnectedOrConnecting()) {
-                            tryToStart();
-                        }
-                    }
-                }
-            };
-
             registerReceiver(mBroadcastReceiver,
                     new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
         }
     }
 
     public void showErrorTextForever(String text, View view) {
-        int apiVersion = Build.VERSION.SDK_INT;
-        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view != null) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP && view != null) {
             Snackbar error = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
             error.setActionTextColor(getResources().getColor(R.color.white));
