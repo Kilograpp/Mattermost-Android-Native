@@ -28,6 +28,9 @@ import io.realm.Realm;
 
 public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
+    /**
+     * BroadcastReceiver for keeping network changes
+     */
     BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

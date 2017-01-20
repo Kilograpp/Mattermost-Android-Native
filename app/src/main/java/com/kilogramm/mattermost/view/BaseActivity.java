@@ -43,10 +43,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     //====================== standard toolbar =======================================
+
     public void setTitleActivity(String title) {
         try {
             getSupportActionBar().setTitle(title);
-            //((TextView) toolbar.findViewById(R.id.toolbarTitle)).setText(title);
         } catch (Exception e) {
             getSupportActionBar().setTitle(title);
         }
