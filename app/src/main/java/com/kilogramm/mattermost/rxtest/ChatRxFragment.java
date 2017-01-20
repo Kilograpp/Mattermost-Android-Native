@@ -496,7 +496,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
                     if (!isSendTyping) {
                         isSendTyping = true;
-                        MattermostService.Helper.create(getActivity()).sendUserTuping(channelId);
+                        MattermostService.Helper.create(getActivity()).sendUserTyping(channelId);
                         binding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
                     }
                 } else {
