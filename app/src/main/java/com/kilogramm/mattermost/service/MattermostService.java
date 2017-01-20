@@ -17,6 +17,7 @@ import com.kilogramm.mattermost.service.websocket.WebSocketManager;
  */
 public class MattermostService extends Service implements WebSocketManager.WebSocketMessage {
 
+    // TODO любопыно, а почему ru.com. ?)
     public static String SERVICE_ACTION_START_WEB_SOCKET = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET";
     public static String UPDATE_USER_STATUS = "ru.com.kilogramm.mattermost.SERVICE_ACTION_START_WEB_SOCKET.UPDATE_USER_STATUS";
     public static final String USER_TYPING = "USER_TYPING";
@@ -28,7 +29,7 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     public static final String CHANNEL_ID = "sCHANNEL_ID";
     public static final String BROADCAST_MESSAGE = "broadcast_message";
 
-    private static String TAG = "MattermostService";
+    private static final String TAG = "MattermostService";
 
     private WebSocketManager mWebSocketManager;
     private LoadUserService mLoadUserService;
@@ -55,7 +56,8 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_REDELIVER_INTENT;
-        Log.d(TAG, "onStartCommand action:" + intent.getAction());
+        String action = intent.getAction();
+        Log.d(TAG, "onStartCommand action:" + action);
         if (SERVICE_ACTION_START_WEB_SOCKET.equals(intent.getAction())) {
             mWebSocketManager.start();
         }

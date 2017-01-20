@@ -24,8 +24,6 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     public static final String TAG = "MainRxActivity";
 
-    private final int DELAY = 2500;
-
     private ActivityMainBinding binding;
 
     @Override
@@ -62,7 +60,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
                     showEditTextErrorMessage();
                     setShowNextButton(false);
                 }
-            }, DELAY);
+            }, 2500);
         }
 
         @Override
