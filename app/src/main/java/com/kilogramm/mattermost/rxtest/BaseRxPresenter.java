@@ -76,11 +76,9 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                     return "Internal server error, please try later";
                 }
 
-                return (error != null)
-                        ? (error.getMessage() != null)
-                        ? error.getMessage()
-                        : error.getError()
-                        : e.getMessage();
+                return (error != null) ?
+                        (error.getMessage() != null) ? error.getMessage() : error.getError() :
+                        e.getMessage();
             } catch (IOException e1) {
                 return e.getMessage();
             }
@@ -108,8 +106,8 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         .errorBody()
                         .string(), HttpError.class);
 
-                if (requestTag != null) {
-                    if (error != null && error.getStatusCode() != null) {
+                if (requestTag != null && error != null) {
+                    if (error.getStatusCode() != null) {
                         int statusCode = error.getStatusCode();
 
                         switch (requestTag) {
@@ -214,13 +212,11 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         }
                     }
                 } else {
-                    return error.getMessage();
+                    return e.getMessage();
                 }
-                return (error != null)
-                        ? (error.getMessage() != null)
-                        ? error.getMessage()
-                        : error.getError()
-                        : e.getMessage();
+                return (error != null) ?
+                        (error.getMessage() != null) ? error.getMessage() : error.getError() :
+                        e.getMessage();
             } catch (IOException e1) {
                 return e.getMessage();
             }

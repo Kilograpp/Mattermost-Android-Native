@@ -115,6 +115,7 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
                 this::openDirect, null);
         binding.recView.setAdapter(allMembersAdapter);
         binding.recView.setLayoutManager(new LinearLayoutManager(this));
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     private void openDirect(String id) {

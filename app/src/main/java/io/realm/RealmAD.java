@@ -38,7 +38,6 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         }
     }
 
-
     @Override
     public int getItemCount() {
         return isDataValid() ? adapterData.size() : 0;

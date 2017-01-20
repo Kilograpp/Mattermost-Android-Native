@@ -76,8 +76,9 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                                 .response()
                                 .errorBody()
                                 .string()), HttpError.class);
-                Log.d(TAG, error.getMessage());
-                Toast.makeText(getView(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                if(error != null) {
+                    Toast.makeText(getView(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

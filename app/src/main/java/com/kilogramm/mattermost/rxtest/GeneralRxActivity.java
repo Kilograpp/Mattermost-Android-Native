@@ -272,7 +272,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void updateHeaderUserName(User user) {
-        binding.headerUsername.setText(String.format("@ %s", user.getUsername()));
+        binding.headerUsername.setText(String.format("@%s", user.getUsername()));
     }
 
     private void showFiles() {

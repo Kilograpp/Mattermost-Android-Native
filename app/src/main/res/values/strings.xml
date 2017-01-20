@@ -12,6 +12,7 @@
     <string name="login_hint_password">Password</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_sign_in">Sign in</string>
+    <string name="network_error">Network error. Please check your Internet connetion</string>
 
     <string name="forgot_password_hint_email">Email</string>
     <string name="forgot_password_recovery_button">Recovery</string>
@@ -250,7 +251,7 @@
                     <!--Push notifications-->
     <string name="notification_sent_attachment">"did something new"</string>
     <string name="notification_sent_pic">"sent picture"</string>
-    <string name="notification_sent_file">"sent file"</string>
+    <string name="notification_sent_file">uploaded a file</string>
 
     <string name="ellipsis" msgid="7899829516048813237">"…"</string>
 

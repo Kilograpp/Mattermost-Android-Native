@@ -55,6 +55,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private static final int REQUEST_EXTRA_INFO = 1;
     private static final int REQUEST_LOAD_POSTS = 2;
     private static final int REQUEST_STATS_INFO = 102;
+    private static final int REQUEST_CHANNEL_BY_ID = 103;
 
     /**
      * Code for "send new post to server" request
@@ -139,6 +140,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
     //region Init Requests
     private void initRequests() {
+        initChannelById();
         initExtraInfo();
         infoStats();
         initLoadPosts();
@@ -154,6 +156,39 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         //initSendToServerError();
         initLoadBeforeAndAfter();
         initSendCommand();
+    }
+
+    private void initChannelById() {
+        restartableFirst(REQUEST_CHANNEL_BY_ID,
+                () -> ServerMethod.getInstance()
+                        .getChannelById(teamId, channelId)
+                        .repeat(3)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, channelWithMember) -> {
+                    ChannelRepository.add(channelWithMember.getChannel());
+                    MembersRepository.add(channelWithMember.getMember());
+                    channelType = channelWithMember.getChannel().getType();
+                    requestStats();
+                    sendStartLoad();
+                    if (isEmpty) {
+                        sendShowEmptyList(channelId);
+                        isEmpty = false;
+                    }
+                }, (chatRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                    sendError(getError(throwable));
+                }
+        );
+    }
+
+    public void startLoadInfoChannel() {
+        start(REQUEST_CHANNEL_BY_ID);
+    }
+
+    private void sendStartLoad() {
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.startLoad()));
     }
 
     private void initSendCommand() {
@@ -219,7 +254,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     private void infoStats() {
         restartableFirst(REQUEST_STATS_INFO, () ->
                         ServerMethod.getInstance()
-                                .getInfoStatsChannel(teamId,channelId)
+                                .getInfoStatsChannel(teamId, channelId)
                                 .observeOn(Schedulers.io())
                                 .subscribeOn(Schedulers.io()),
                 (chatRxFragment, extraInfo) -> {
@@ -240,38 +275,44 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     if (posts.getPosts() == null || posts.getPosts().size() == 0) {
                         isEmpty = true;
                         sendShowEmptyList(channelId);
-                    }
-                    List<Observable<List<FileInfo>>> observables = new ArrayList<>();
-                    for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
-                        if (entry.getValue().getFilenames().size() > 0) {
-                            observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io()));
-                        }
-                    }
-                    Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
-                        @Override
-                        public void onCompleted() {
-                            Log.d(TAG, "onCompleted: ");
-                            mergePosts(posts);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            e.printStackTrace();
-                            sendError(parceError(null, "cannot get file"));
-                            mergePosts(posts);
-                        }
-
-                        @Override
-                        public void onNext(List<FileInfo> fileInfos) {
-                            if (fileInfos == null) return;
-                            for (FileInfo fileInfo : fileInfos) {
-                                Log.d(TAG, "onNext: " + fileInfo.getId());
-                                FileInfoRepository.getInstance().add(fileInfo);
+                    } else {
+                        isEmpty = false;
+                        List<Observable<List<FileInfo>>> observables = new ArrayList<>();
+                        for (Map.Entry<String, Post> entry : posts.getPosts().entrySet()) {
+                            if (entry.getValue().getFilenames().size() > 0) {
+                                observables.add(service.getFileInfo(teamId, channelId, entry.getValue().getId())
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io()));
                             }
                         }
-                    });
+                        Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "onCompleted: ");
+                                mergePosts(posts);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                                if (error != null) {
+                                    sendError(error);
+                                }
+                                mergePosts(posts);
+                            }
+
+                            @Override
+                            public void onNext(List<FileInfo> fileInfos) {
+                                if (fileInfos == null) return;
+                                for (FileInfo fileInfo : fileInfos) {
+                                    Log.d(TAG, "onNext: " + fileInfo.getId());
+                                    FileInfoRepository.getInstance().add(fileInfo);
+                                }
+                            }
+
+                        });
+                    }
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
 //                    sendShowList();
@@ -336,7 +377,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     isSendingPost = false;
-                    sendError(parceError(throwable, null));
+                    sendError(parceError(throwable, "Can't send message"));
                     setErrorPost(forSendPost.getPendingPostId());
                     sendIvalidateAdapter();
                     throwable.printStackTrace();
@@ -479,7 +520,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                sendError(parceError(e, "cannot get file"));
+                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                if (error != null) {
+                    sendError(error);
+                }
                 sendShowList();
                 if (isBot) {
                     sendDisableShowLoadMoreBot();
@@ -574,7 +618,10 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
-                                sendError(parceError(e,"cannot get file"));
+                                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                                if (error != null) {
+                                    sendError(error);
+                                }
                                 sendRefreshing(false);
                                 sendShowList();
                                 sendDisableShowLoadMoreBot();
@@ -884,25 +931,25 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         sendIvalidateAdapter();
     }
 
-    public void showInfoDefault(){
-        if(isDirectChannel()) {
+    public void showInfoDefault() {
+        if (isDirectChannel()) {
             sendInfoChanel(getInfoChannelDirrect());
-        }else{
+        } else {
             sendInfoChanel(getInfoChannelNotDirrect());
         }
 
     }
 
-    public String getInfoChannelNotDirrect(){
+    public String getInfoChannelNotDirrect() {
         RealmResults<ExtraInfo> rExtraInfo = ExtroInfoRepository.query(new ExtroInfoRepository.ExtroInfoByIdSpecification(channelId));
         if (rExtraInfo.size() != 0) {
             return String.format("%s members", rExtraInfo.first().getMember_count());
         } else return "";
     }
 
-    public String getInfoChannelDirrect(){
+    public String getInfoChannelDirrect() {
         RealmResults<Channel> rChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
-        if(rChannel.size() == 0){
+        if (rChannel.size() == 0) {
             return UserStatus.OFFLINE;
         }
 
@@ -913,14 +960,24 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
 
         RealmResults<UserStatus> usersStatusList = UserStatusRepository.query(new UserStatusRepository.UserStatusByIdSpecification(userId));
 
-        if(usersStatusList.size() == 0){
+        if (usersStatusList.size() == 0) {
             return UserStatus.OFFLINE;
         }
         return usersStatusList.first().getStatus();
     }
 
-    public boolean isDirectChannel(){
-        return channelType!=null && channelType.equals("D");
+    public boolean isDirectChannel() {
+        return channelType != null && channelType.equals("D");
     }
 
+    public String getDirectUserId() {
+        RealmResults<Channel> rChannel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(channelId));
+        if (rChannel.size() == 0) {
+            return null;
+        }
+        String userId = rChannel.first()
+                .getName()
+                .replace(MattermostPreference.getInstance().getMyUserId(), "");
+        return userId.replace("__", "");
+    }
 }

@@ -51,7 +51,11 @@ public class FileInfo extends RealmObject implements Parcelable {
     }
 
     public void setUploadState(UploadState uploadState) {
-        this.uploadState = uploadState.toString();
+        if(uploadState != null) {
+            this.uploadState = uploadState.toString();
+        } else {
+            this.uploadState = null;
+        }
     }
 
     public void setmPostId(String mPostId) {

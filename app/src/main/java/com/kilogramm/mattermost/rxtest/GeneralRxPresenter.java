@@ -398,8 +398,9 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                                 .response()
                                 .errorBody()
                                 .string()), HttpError.class);
-                Log.d(TAG, error.getMessage());
-                Toast.makeText(getView(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                if(error != null) {
+                    Toast.makeText(getView(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } catch (IOException e1) {
                 Log.d(TAG, "Message not has body.");
                 e1.printStackTrace();

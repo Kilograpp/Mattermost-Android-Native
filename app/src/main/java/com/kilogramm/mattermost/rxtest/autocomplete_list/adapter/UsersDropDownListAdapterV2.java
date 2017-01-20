@@ -41,6 +41,17 @@ public class UsersDropDownListAdapterV2 extends RecyclerView.Adapter<RecyclerVie
 
     private void setData(AutocompleteUsers users) {
         clearData();
+        AutoCompleteHeader specialChannelHeader = new AutoCompleteHeader();
+        specialChannelHeader.setHeader("Special Mentions");
+        mItems.add(specialChannelHeader);
+
+
+        AutoCompleteItem all = new AutoCompleteItem();
+        all.setUser(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
+        mItems.add(all);
+        AutoCompleteItem channel = new AutoCompleteItem();
+        channel.setUser(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
+        mItems.add(channel);
 
         if(users.getInChannel()!=null && users.getInChannel().size()!=0) {
             AutoCompleteHeader inChannelHeader = new AutoCompleteHeader();
@@ -54,17 +65,7 @@ public class UsersDropDownListAdapterV2 extends RecyclerView.Adapter<RecyclerVie
             mItems.add(inItem);
         }
 
-        AutoCompleteHeader specialChannelHeader = new AutoCompleteHeader();
-        specialChannelHeader.setHeader("Special Mentions");
-        mItems.add(specialChannelHeader);
 
-
-        AutoCompleteItem all = new AutoCompleteItem();
-        all.setUser(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
-        mItems.add(all);
-        AutoCompleteItem channel = new AutoCompleteItem();
-        channel.setUser(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
-        mItems.add(channel);
 
         if(users.getOutChannel()!=null && users.getOutChannel().size()!=0) {
             AutoCompleteHeader outChannelHeader = new AutoCompleteHeader();

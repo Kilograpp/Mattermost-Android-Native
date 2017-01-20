@@ -211,6 +211,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 if (obj.getBroadcast() != null
                         && obj.getBroadcast().getChannel_id().equals(channelId)) {
                     if (obj.getEvent().equals(WebSocketObj.EVENT_POSTED)
+                            && obj.getUserId() != null
                             && !obj.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
                         if (mapType != null)
                             mapType.remove(obj.getUserId());
@@ -236,11 +237,6 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             }
         });
 
-        if (searchMessageId != null) {
-            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
-        } else {
-            getPresenter().requestExtraInfo();
-        }
 
         binding.writingMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (v == binding.writingMessage && !hasFocus) {
@@ -251,23 +247,40 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         if (adapter.getItemCount() > 0) {
             binding.rev.smoothScrollToPosition(adapter.getItemCount() - 1);
         }
+        getPresenter().startLoadInfoChannel();
+    }
+
+    public void startLoad() {
+        if (searchMessageId != null) {
+            getPresenter().requestLoadBeforeAndAfter(searchMessageId);
+        } else {
+            getPresenter().requestExtraInfo();
+        }
     }
 
     private void requestLoadPosts() {
+        disableLoaders();
+        getPresenter().requestLoadPosts();
+    }
+
+    private void disableLoaders(){
         Log.d("DISABLE", "disable loading");
         binding.rev.disableShowLoadMoreTop();
         binding.rev.disableShowLoadMoreBot();
         binding.rev.setCanPagination(false);
-        getPresenter().requestLoadPosts();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
-            RealmResults<User> users = UserRepository.query(new UserByChannelIdSpecification(channelId));
-            if (users != null) {
-                ProfileRxActivity.start(getActivity(), users.first().getId());
+            if(getPresenter().isDirectChannel()){
+                String userId = getPresenter().getDirectUserId();
+                if(userId!=null){
+                    ProfileRxActivity.start(getActivity(), userId);
+                } else {
+                    Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 ChannelActivity.start(getActivity(), channelId);
             }
@@ -276,6 +289,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         NotificationManager notificationManager = (NotificationManager)
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(channelId.hashCode());
+        requestLoadPosts();
         Log.d(TAG, "onResume: channeld" + channelId.hashCode());
     }
 
@@ -829,9 +843,12 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void showEmptyList(String channelId) {
         binding.progressBar.setVisibility(View.GONE);
+        try {
+            Channel channel = ChannelRepository.query(
+                    new ChannelRepository.ChannelByIdSpecification(channelId)).last();
 
-        Channel channel = ChannelRepository.query(
-                new ChannelRepository.ChannelByIdSpecification(channelId)).first();
+        User user = Realm.getDefaultInstance().where(User.class)
+                .equalTo("id", getPresenter().getDirectUserId()).findFirst();
 
         String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
                 .format(new Date(channel.getCreateAt()));
@@ -839,9 +856,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.emptyListTitle.setVisibility(View.VISIBLE);
         binding.emptyListMessage.setVisibility(View.VISIBLE);
         if (channel.getType().equals(Channel.DIRECT)) {
-            binding.emptyListTitle.setText(channel.getUsername());
+            binding.emptyListTitle.setText(user.getUsername());
             binding.emptyListMessage.setText(String.format(
-                    getResources().getString(R.string.empty_dialog_direct_message), channel.getUsername()));
+                    getResources().getString(R.string.empty_dialog_direct_message), user.getUsername()));
         } else {
             binding.emptyListTitle.setText(String.format(
                     getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
@@ -864,6 +881,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
         binding.emptyList.setVisibility(View.VISIBLE);
         binding.newMessageLayout.setVisibility(View.VISIBLE);
+        }catch (IndexOutOfBoundsException e){
+            Log.e(TAG, "showEmptyList: ", e);
+        }
     }
 
     public void showList() {
@@ -898,11 +918,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             setupTypingText(typing);
 
             binding.getRoot().postDelayed(() -> {
-                if(mapType!=null && obj!=null) mapType.remove(obj.getUserId());
+                if (mapType != null && obj != null) mapType.remove(obj.getUserId());
                 showTyping(null);
             }, TYPING_DURATION);
         } else {
-            if(getPresenter()!=null) getPresenter().showInfoDefault();
+            if (getPresenter() != null) getPresenter().showInfoDefault();
             sendUsersStatus(null);
         }
     }
@@ -935,11 +955,11 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     RealmResults<User> resultUser = UserRepository
                             .query(new UserRepository.UserByIdSpecification(obj.getUserId()));
 
-                    if( resultUser!=null && resultUser.size() == 0){
+                    if (resultUser != null && resultUser.size() == 0) {
                         MattermostService.Helper.
                                 create(MattermostApp.getSingleton()).
                                 startLoadUser(obj.getUserId());
-                    }else{
+                    } else {
                         mapType.put(obj.getUserId(),
                                 resultUser.first()
                                         .getUsername());
@@ -993,6 +1013,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     @Override
     public void onItemAdded() {
         binding.rev.smoothScrollToPosition(binding.rev.getAdapter().getItemCount() - 1);
+        disableLoaders();
     }
 
     public void addUserLinkMessage(String s) {
@@ -1192,8 +1213,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     }
 
     public void invalidateAdapter() {
-        if(adapter!=null)
-        adapter.notifyDataSetChanged();
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
     }
 
     public void copyLink(String link) {
