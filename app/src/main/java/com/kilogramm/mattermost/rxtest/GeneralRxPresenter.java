@@ -37,6 +37,7 @@ import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -292,11 +293,30 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     }
 
     public void requestLogout(){
-        MattermostApp.logout().doOnTerminate(() -> {
-            MattermostApp.clearDataBaseAfterLogout();
-            MattermostApp.clearPreference();
-            MattermostApp.showMainRxActivity();
-        }).subscribe();
+        ServerMethod.getInstance().logout()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new Subscriber<LogoutData>() {
+                    @Override
+                    public void onCompleted() {
+                        logoutCleaning();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        logoutCleaning();
+                    }
+
+                    @Override
+                    public void onNext(LogoutData logoutData) {
+                    }
+                });
+    }
+
+    private void logoutCleaning() {
+        MattermostApp.clearDataBaseAfterLogout();
+        MattermostApp.clearPreference();
+        MattermostApp.showMainRxActivity();
     }
 
 //    public void requestLogout() {
