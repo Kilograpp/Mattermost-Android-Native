@@ -21,11 +21,12 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import java.util.List;
 
 import io.realm.Realm;
+import nucleus.factory.RequiresPresenter;
 
 /**
  * Created by kepar on 18.01.17.
  */
-
+@RequiresPresenter(StartScreenPresenter.class)
 public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
     /**
@@ -36,7 +37,7 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
         public void onReceive(Context context, Intent intent) {
             if (intent.getExtras() != null) {
                 final ConnectivityManager connectivityManager = (ConnectivityManager) context
-                                .getSystemService(Context.CONNECTIVITY_SERVICE);
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
 
                 final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
                 if (ni != null && ni.isConnectedOrConnecting()) {
@@ -86,8 +87,10 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
     @Override
     protected void onDestroy() {
-        if (mBroadcastReceiver != null) {
+        try {
             unregisterReceiver(mBroadcastReceiver);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            e.printStackTrace();
         }
         super.onDestroy();
     }
