@@ -102,14 +102,16 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
                 mChannelListAdapter.notifyDataSetChanged();
             }
             if (mAdapterDirectMenuLeft != null) {
-                mAdapterDirectMenuLeft.invalidateMember();
+                //mAdapterDirectMenuLeft.invalidateMember();
             }
             if (mPrivateListAdapter != null) {
                 mPrivateListAdapter.notifyDataSetChanged();
             }
         });
         mUserMembers = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
-        mUserMembers.addChangeListener(element -> mAdapterDirectMenuLeft.invalidateUsermember());
+        mUserMembers.addChangeListener(element -> {
+            //mAdapterDirectMenuLeft.invalidateUsermember();
+        });
 
         mUserStatuses = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mUserStatuses.addChangeListener(element -> {
@@ -175,9 +177,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     @Override
     public void onRefresh() {
-        getPresenter().requestUpdate(Stream.of(mPreferences)
+        getPresenter().requestUpdate(mPreferences);/*Stream.of(mPreferences)
                 .filter(value -> Objects.equals(value.getValue(), "true"))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()));*/
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
@@ -249,7 +251,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         RealmResults<Channel> channels = getDirectChannelData();
         mAdapterDirectMenuLeft.addOrUpdate(channels);
         selectLastChannel();
-        mBinding.frDirect.recView.invalidate();
+        //mBinding.frDirect.recView.invalidate();
         //mAdapterDirectMenuLeft.addOrUpdate(getDirectChannelData());
     }
 

@@ -125,7 +125,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             mAdapterData.addAll(list);
             /*mHandler.removeCallbacks(sendNotifyDataSetChange);
             mHandler.postDelayed(sendNotifyDataSetChange,100);*/
-            notifyDataSetChanged();
+            //notifyDataSetChanged();
         }
     }
 
