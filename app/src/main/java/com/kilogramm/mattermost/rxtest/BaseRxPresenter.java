@@ -96,7 +96,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
     /**
      * @param requestTag may be any string as you want,
      * but it's desirable to use constants defined above */
-    public static String parceError(Throwable e, String requestTag) {
+    public String parceError(Throwable e, String requestTag) {
 //        if (e == null && requestTag.equals(NO_NETWORK)) {
         if (!isNetworkAvailable()) {
             return "No connection to the network";
@@ -229,7 +229,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         }
     }
 
-    public static boolean isNetworkAvailable() {
+    public boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) MattermostApp.getSingleton()
                         .getApplicationContext()

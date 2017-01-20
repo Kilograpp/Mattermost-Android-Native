@@ -37,6 +37,12 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
         findViewById(R.id.imageView).postDelayed(this::tryToStart, 2000);
     }
 
+    /**
+     * Try to start {@link MainRxActivity} method. Activity will be starts if network is available.
+     * If its not, user will see snackbar message about it (toast for 4.4.2). After that registers
+     * broadcast receiver for checking network connectivity. When connects to the internet,
+     * method {@link #tryToStart()} will be calling again
+     */
     private void tryToStart() {
         if (getPresenter().isNetworkAvailable()) {
             startActivity(new Intent(this, MainRxActivity.class)
