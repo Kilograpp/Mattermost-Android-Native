@@ -57,7 +57,7 @@ public class TeamListAdapter extends RealmRecyclerViewAdapter<Team, TeamListAdap
             this.binding = binding;
         }
 
-        public void bindTo(Team team){
+        public void bindTo(Team team) {
             if (team.getDisplayName().length() != 0) {
                 binding.timeIcon.setText(String.valueOf(team.getDisplayName().charAt(0)));
                 binding.timeIcon.getBackground()

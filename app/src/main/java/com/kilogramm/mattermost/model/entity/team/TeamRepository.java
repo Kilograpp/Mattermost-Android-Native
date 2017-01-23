@@ -13,37 +13,9 @@ import io.realm.RealmResults;
  */
 public class TeamRepository {
 
-
-    public static void add(Team item) {
+    public static Team get(String teamId){
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-    }
-
-    public static void add(Collection<Team> items) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(items));
-    }
-
-    public static void update(Team item) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> realm.insertOrUpdate(item));
-    }
-
-    public static void remove(Team item) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            if(realm.where(Team.class).equalTo("id", item.getId()).findAll().size()!=0) {
-                Team team = realm.where(Team.class).equalTo("id", item.getId()).findFirst();
-                team.deleteFromRealm();
-            }
-        });
-    }
-
-    public static void remove(Specification specification) {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults realmResults = ((RealmSpecification) specification).toRealmResults(realm);
-        realm.executeTransaction(realm1 -> realmResults.deleteAllFromRealm());
-
+        return realm.where(Team.class).equalTo("id", teamId).findFirst();
     }
 
     public static RealmResults<Team> query(Specification specification) {

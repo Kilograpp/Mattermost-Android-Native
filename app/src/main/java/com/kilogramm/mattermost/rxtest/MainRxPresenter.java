@@ -38,6 +38,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
 
+        // Check given url. If it's valid, open login activity
         restartableFirst(REQUEST_CHECK, () -> {
             sendVisibleProgress(true);
             return ServerMethod.getInstance()
@@ -84,7 +85,6 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         if (authorisedUri == null) {
             authorisedUri = url;
         }
-
 
         MattermostPreference.getInstance().setBaseUrl(authorisedUri);
         try {

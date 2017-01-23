@@ -83,7 +83,6 @@ public class MattermostApp extends Application {
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        // Realm.init(getApplicationContext());
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .migration((realm, oldVersion, newVersion) -> realm.deleteAll())

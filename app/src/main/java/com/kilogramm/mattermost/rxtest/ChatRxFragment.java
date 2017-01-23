@@ -1202,6 +1202,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
 
+    // TODO то есть берется только первая в списке тима? Это так и должно быть?
     private String getMessageLink(String postId) {
         Realm realm = Realm.getDefaultInstance();
         return "https://"

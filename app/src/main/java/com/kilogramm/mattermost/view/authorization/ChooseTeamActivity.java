@@ -28,13 +28,11 @@ import nucleus.factory.RequiresPresenter;
 public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> {
 
     private ActivityChooseTeamBinding binding;
-    private TeamRepository teamRepository;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_choose_team);
-        teamRepository = new TeamRepository();
         initView();
     }
 

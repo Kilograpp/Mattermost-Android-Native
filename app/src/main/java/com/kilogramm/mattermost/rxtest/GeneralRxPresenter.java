@@ -264,18 +264,26 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         );
     }
 
+    // TODO дублирует аналогичный метод из LoginRxPresenter?
     private List<Team> saveDataAfterLogin(InitObject initObject) {
         Realm mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();
+
         RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
         results.deleteAllFromRealm();
+
         mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
+
         mRealm.copyToRealmOrUpdate(initObject);
+
         MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
+
         RealmList<User> directionProfiles = new RealmList<>();
         directionProfiles.addAll(initObject.getMapDerectProfile().values());
         mRealm.copyToRealmOrUpdate(directionProfiles);
+
         List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
+
         mRealm.commitTransaction();
         return teams;
     }

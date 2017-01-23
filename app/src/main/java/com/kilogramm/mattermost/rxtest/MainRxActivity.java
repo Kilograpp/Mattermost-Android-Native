@@ -89,6 +89,11 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * At current time is used only for setting debug url "https://mattermost.kilograpp.com"
+     *
+     * @param url url for debug mode. At current time it's "https://mattermost.kilograpp.com"
+     */
     public void setTextUrl(String url) {
         binding.urlEditText.setText(url);
         binding.urlEditText.setSelection(binding.urlEditText.length());
