@@ -62,8 +62,8 @@ public class MattermostApp extends Application {
         return singleton;
     }
 
-    public void refreshMattermostRetrofitService() {
-        mattermostRetrofitService = MattermostRetrofitService.refreshRetrofitService();
+    public void refreshMattermostRetrofitService() throws IllegalArgumentException {
+        mattermostRetrofitService = MattermostRetrofitService.create();
         ServerMethod.buildServerMethod(mattermostRetrofitService);
     }
 
@@ -150,7 +150,7 @@ public class MattermostApp extends Application {
      * This has been created to aid testing on a local box, not for use on production.
      */
     private void disableSSLCertificateChecking() {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
 
                     @Override
