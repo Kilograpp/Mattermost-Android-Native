@@ -54,9 +54,11 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             });
             sendVisibleProgress(false);
             sendShowLoginActivity();
+            sendShowNextButton();
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
             sendShowError(getError(throwable));
+            sendShowNextButton();
         });
     }
 
@@ -93,6 +95,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             mMattermostApp.getMattermostRetrofitService();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            sendShowNextButton();
             sendShowError(URL_NOT_VALID);
             return;
         }
@@ -100,6 +103,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         if (isNetworkAvailable()) {
             start(REQUEST_CHECK);
         } else {
+            sendShowNextButton();
             sendShowError(parceError(null, NO_NETWORK));
         }
     }
@@ -118,6 +122,12 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
     private void sendShowError(String error) {
         createTemplateObservable(error)
                 .subscribe(split(MainRxActivity::showErrorText));
+    }
+
+    private void sendShowNextButton() {
+        createTemplateObservable(new Object())
+                .subscribe(split((mainRxActivity, o) -> mainRxActivity.showNextButton()));
+
     }
 
     private void sendShowChatActivity() {

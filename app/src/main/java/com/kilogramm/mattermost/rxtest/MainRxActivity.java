@@ -39,6 +39,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     private void initView() {
         binding.buttonNext.setOnClickListener(view -> {
+            binding.buttonNext.setVisibility(View.GONE);
             getPresenter().request(getStringUrl());
             hideKeyboard();
         });
@@ -86,6 +87,10 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     public void setShowProgress(boolean show) {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    public void showNextButton(){
+        binding.buttonNext.setVisibility(View.VISIBLE);
     }
 
     public void setTextUrl(String url) {

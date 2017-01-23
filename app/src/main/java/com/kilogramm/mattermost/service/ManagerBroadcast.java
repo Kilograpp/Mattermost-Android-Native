@@ -317,8 +317,9 @@ public class ManagerBroadcast {
 
     private static Notification.Builder showNotification(Context context) {
         return new Notification.Builder(context)
-                .setSmallIcon(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
-                        R.mipmap.icon : R.drawable.ic_mm)
+                /*.setSmallIcon(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
+                        R.mipmap.icon : R.drawable.ic_mm)*/
+                .setSmallIcon(R.drawable.notification_transparent)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setAutoCancel(true);
