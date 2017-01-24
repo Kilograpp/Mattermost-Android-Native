@@ -408,7 +408,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private void sendSetFragmentChat(String channelId, String name, String type) {
         createTemplateObservable(new Channel(channelId, type, name))
                 .subscribe(split((generalRxActivity, channel)
-                        -> generalRxActivity.setFragmentChat(channel.getId(), channel.getName(), channel.getType())));
+                        -> generalRxActivity.setFragmentChat(ChatFragmentV2.START_NORMAL, channel.getId(), channel.getName(), channel.getType())));
     }
 
     public void setFirstChannelBeforeLeave() {

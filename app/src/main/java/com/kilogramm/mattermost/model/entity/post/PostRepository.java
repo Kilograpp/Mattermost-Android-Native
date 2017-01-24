@@ -77,17 +77,15 @@ public class PostRepository {
 
     public static void merge(Collection<Post> posts, Specification specification) {
         Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
         RealmQuery realmQuery = query(specification).where().notEqualTo("updateAt", Post.NO_UPDATE);
         RealmResults realmResults = query(specification);
         for (Post post : posts) {
-            if (realmResults.where().equalTo("id", post.getId()).findFirst() != null) {
-                prepareAndUpdatePost(post);
-            } else {
-                prepareAndAddPost(post);
-            }
+            prepareAndUpdatePost(post);
             realmQuery.notEqualTo("id", post.getId());
         }
-        realm.executeTransaction(realm1 -> realmQuery.findAll().deleteAllFromRealm());
+        realmQuery.findAll().deleteAllFromRealm();
+        realm.commitTransaction();
     }
 
     public static void merge(Post item) {
@@ -140,7 +138,8 @@ public class PostRepository {
                             Configuration.builder().forceExtentedProfile().build()));*/
         }
         //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-        add(post);
+        realm.insertOrUpdate(post);
+        //add(post);
     }
 
     public static void prepareAndUpdatePost(Post post) {
@@ -159,7 +158,8 @@ public class PostRepository {
                             Configuration.builder().forceExtentedProfile().build()));*/
         }
         //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
-        update(post);
+        realm.insertOrUpdate(post);
+        //update(post);
     }
 
     public static void prepareAndAdd(Posts posts) {
