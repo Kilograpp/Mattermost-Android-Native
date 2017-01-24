@@ -1,14 +1,21 @@
 package com.kilogramm.mattermost.view.viewPhoto;
 
+import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -18,8 +25,6 @@ import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -37,29 +42,101 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public static final String TITLE = "title";
     public static final String PHOTO_LIST = "photo_list";
     private static final String TAG = "ViewPagerWGesturesAct";
+    private static final String ANIMDATA = "animdata";
+    private static final int ANIM_DURATION = 300;
 
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
 
     private ArrayList<FileInfo> photosList = new ArrayList<>();
     private FileInfo mOpenedFile;
+    /**
+     * Animation
+     */
+    int mLeftDelta;
+    int mTopDelta;
+    float mWidthScale;
+    float mHeightScale;
+    ColorDrawable mBackground;
+    //    private ImageView mImageView;
+//    private TextView mTextView;
+//    private FrameLayout mTopLevelLayout;
+//    private ShadowLayout mShadowLayout;
+    private int mOriginalOrientation;
+    private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
+    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+    /***/
 
     Toast errorToast;
 
-    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList) {
+    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList, int[] screenLocation, int[] size) {
+
+        /***/
+//        int[] screenLocation = new int[2];
+//        v.getLocationOnScreen(screenLocation);
+//        FileInfo info = FileInfoRepository.getInstance().queryForPostId(openedFile).first();// FIXME: 24.01.17 not suitable for multiply images
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
+
+        int orientation = context.getResources().getConfiguration().orientation;
         starter.putExtra(TITLE, title)
                 .putExtra(OPENED_FILE, openedFile)
-                .putStringArrayListExtra(PHOTO_LIST, photoList);
+                .putStringArrayListExtra(PHOTO_LIST, photoList)
+                .putExtra(ANIMDATA + ".orientation", orientation)
+                .putExtra(ANIMDATA + ".left", screenLocation[0])
+                .putExtra(ANIMDATA + ".top", screenLocation[1])
+                .putExtra(ANIMDATA + ".width", size[0])
+                .putExtra(ANIMDATA + ".height", size[1]);
+
         context.startActivity(starter);
+        // Override transitions: we don't want the normal window animation in addition
+        // to our custom one
+        ((Activity) context).overridePendingTransition(0, 0);
+        /***/
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        overridePendingTransition(0, 0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
 
+        /***/
+        Bundle bundle = getIntent().getExtras();
+        final int thumbnailTop = bundle.getInt(ANIMDATA + ".top");
+        final int thumbnailLeft = bundle.getInt(ANIMDATA + ".left");
+        final int thumbnailWidth = bundle.getInt(ANIMDATA + ".width");
+        final int thumbnailHeight = bundle.getInt(ANIMDATA + ".height");
+        mOriginalOrientation = bundle.getInt(ANIMDATA + ".orientation");
+
+        mBackground = new ColorDrawable(Color.BLACK);
+        binding.background.setBackground(mBackground);
+
+        if (savedInstanceState == null) {
+            ViewTreeObserver observer = binding.viewPager.getViewTreeObserver();
+            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+                @Override
+                public boolean onPreDraw() {
+                    binding.viewPager.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                    // Figure out where the thumbnail and full size versions are, relative
+                    // to the screen and each other
+                    int[] screenLocation = new int[2];
+                    binding.viewPager.getLocationOnScreen(screenLocation);
+                    mLeftDelta = thumbnailLeft - screenLocation[0];
+                    mTopDelta = thumbnailTop - screenLocation[1];
+
+                    // Scale factors to make the large version the same size as the thumbnail
+                    mWidthScale = (float) thumbnailWidth / binding.viewPager.getWidth();
+                    mHeightScale = (float) thumbnailHeight / binding.viewPager.getHeight();
+
+                    runEnterAnimation();
+
+                    return true;
+                }
+            });
+        }
+        /***/
         List<String> photosIdList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         for (String photoId : photosIdList) {
             photosList.add(FileInfoRepository.getInstance().get(photoId));
@@ -77,7 +154,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
             for (FileInfo fileInfo : photosList) {
                 ++index;
                 if (fileInfo.getId().equals(mOpenedFile.getId())) {
-                    toolbarTitle = index + " из " + photosList.size();
+                    toolbarTitle = index + " of " + photosList.size();
                     binding.viewPager.setCurrentItem(index - 1);
                 }
             }
@@ -92,7 +169,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
             @Override
             public void onPageSelected(int position) {
-                String toolbarTitle = (position + 1) + " из " + photosList.size();
+                String toolbarTitle = (position + 1) + " of " + photosList.size();
                 setupToolbar(toolbarTitle, true);
                 setupDownloadIcon(photosList.get(position));
             }
@@ -134,7 +211,14 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         }
         return super.onOptionsItemSelected(item);
     }
+/***/
+    @Override
+    public void finish() {
+        super.finish();
 
+        overridePendingTransition(0,0);
+    }
+/***/
     private void createDialog(FileInfo fileInfo) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.file_exists));
@@ -195,4 +279,106 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         binding.getRoot().setAlpha(v);
     }
+/***/
+    public void runEnterAnimation() {
+        // Set starting values for properties we're going to animate. These
+        // values scale and position the full size version down to the thumbnail
+        // size/location, from which we'll animate it back up
+        binding.viewPager.setPivotX(0);
+        binding.viewPager.setPivotY(0);
+        binding.viewPager.setScaleX(mWidthScale);
+        binding.viewPager.setScaleY(mHeightScale);
+        binding.viewPager.setTranslationX(mLeftDelta);
+        binding.viewPager.setTranslationY(mTopDelta);
+
+
+        // Animate scale and translation to go from thumbnail to full size
+        binding.viewPager.animate().setDuration(ANIM_DURATION).
+                scaleX(1).scaleY(1).
+                translationX(0).translationY(0).
+                setInterpolator(sDecelerator);
+
+
+        // Fade in the black background
+        ObjectAnimator bgAnim = ObjectAnimator.ofInt(mBackground, "alpha", 0, 255);
+        bgAnim.setDuration(ANIM_DURATION);
+        bgAnim.start();
+
+//        // Animate a color filter to take the image from grayscale to full color.
+//        // This happens in parallel with the image scaling and moving into place.
+//        ObjectAnimator colorizer = ObjectAnimator.ofFloat(this,
+//                "saturation", 0, 1);
+//        colorizer.setDuration(ANIM_DURATION);
+//        colorizer.start();
+
+//        // Animate a drop-shadow of the image
+//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
+//        shadowAnim.setDuration(ANIM_DURATION);
+//        shadowAnim.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        runExitAnimation(() -> finish());
+    }
+
+
+    /**
+     * The exit animation is basically a reverse of the enter animation, except that if
+     * the orientation has changed we simply scale the picture back into the center of
+     * the screen.
+     *
+     * @param endAction This action gets run after the animation completes (this is
+     *                  when we actually switch activities)
+     */
+    public void runExitAnimation(final Runnable endAction) {
+
+        // No need to set initial values for the reverse animation; the image is at the
+        // starting size/location that we want to start from. Just animate to the
+        // thumbnail size/location that we retrieved earlier
+
+        // Caveat: configuration change invalidates thumbnail positions; just animate
+        // the scale around the center. Also, fade it out since it won't match up with
+        // whatever's actually in the center
+        final boolean fadeOut;
+        if (getResources().getConfiguration().orientation != mOriginalOrientation) {
+            binding.viewPager.setPivotX(binding.viewPager.getWidth() / 2);
+            binding.viewPager.setPivotY(binding.viewPager.getHeight() / 2);
+            mLeftDelta = 0;
+            mTopDelta = 0;
+            fadeOut = true;
+        } else {
+            fadeOut = false;
+        }
+
+
+        // Animate image back to thumbnail size/location
+        binding.viewPager.animate().setDuration(ANIM_DURATION).
+                scaleX(mWidthScale).scaleY(mHeightScale).
+                translationX(mLeftDelta).translationY(mTopDelta).
+                withEndAction(endAction);
+        if (fadeOut) {
+            binding.viewPager.animate().alpha(0);
+        }
+        // Fade out background
+        ObjectAnimator bgAnim = ObjectAnimator.ofInt(mBackground, "alpha", 0);
+        bgAnim.setDuration(ANIM_DURATION);
+        bgAnim.start();
+
+//        // Animate the shadow of the image
+//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout,
+//                "shadowDepth", 1, 0);
+//        shadowAnim.setDuration(ANIM_DURATION);
+//        shadowAnim.start();
+
+//         // Animate a color filter to take the image back to grayscale,
+//         // in parallel with the image scaling and moving into place.
+//        ObjectAnimator colorizer =
+//                ObjectAnimator.ofFloat(PictureDetailsActivity.this,
+//                        "saturation", 1, 0);
+//        colorizer.setDuration(ANIM_DURATION);
+//        colorizer.start();
+    }
+    /***/
 }
+

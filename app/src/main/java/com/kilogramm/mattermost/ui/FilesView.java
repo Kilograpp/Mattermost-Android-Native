@@ -8,7 +8,9 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -23,8 +25,9 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,10 +126,16 @@ public class FilesView extends GridLayout {
                                 fileIdList.add(item.getId());
                             }
                         }
+                        /***/int[] location = new int[2];
+                        /***/int[] size = new int[]{view.getWidth(), (int)(getResources().getDisplayMetrics().heightPixels * 0.6)};
+
+                        /***/view.getLocationOnScreen(location);
+
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
                                 fileInfo.getId(),
-                                fileIdList);
+                           /***/fileIdList,
+                           /***/location, size);
                     });
                 } else {
                     initAndAddItem(binding, fileInfo);
@@ -158,7 +167,7 @@ public class FilesView extends GridLayout {
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .bitmapConfig(Bitmap.Config.RGB_565)
-                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)// it's the default value, so it's not necessary to use it
+//                .imageScaleType(ImageScaleType.NONE)// it's the default value, so it's not necessary to use it
                 .showImageOnLoading(R.drawable.slices)
                 .showImageOnFail(R.drawable.slices)
                 .resetViewBeforeLoading(true)
@@ -173,10 +182,47 @@ public class FilesView extends GridLayout {
                 + "/api/v3/files/"
                 + fileInfo.getId()
                 + "/get_thumbnail";
-        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
+        ImageLoader.getInstance().loadImage(thumb_url, options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                resizeImageView(loadedImage, binding.image);
+                ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+
+            }
+        });
+//        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
         binding.fileSize.setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
 
         this.addView(binding.getRoot());
+    }
+
+    private void resizeImageView(Bitmap image, ImageView imageView){
+        int displayWidth = getContext().getResources().getDisplayMetrics().widthPixels;
+        int displayHeight = getContext().getResources().getDisplayMetrics().heightPixels;
+        float scale = getContext().getResources().getDisplayMetrics().density;
+        int maxHeight = (int) (displayHeight * 0.6);
+        int widthPaddings = (int) (115 * scale);
+
+        int imageWidth = displayWidth - widthPaddings;
+        int ratio = imageWidth / image.getWidth();
+        int imageHeight = image.getHeight() * ratio;
+        imageView.getLayoutParams().width = imageWidth;
+        imageView.getLayoutParams().height = ((imageHeight > maxHeight) ? maxHeight : imageHeight);
+
     }
 
     private FileDownloadManager.FileDownloadListener createDownloadListener(FilesItemLayoutBinding binding) {

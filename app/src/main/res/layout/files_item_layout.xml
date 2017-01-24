@@ -67,10 +67,8 @@
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxHeight="@dimen/image_height"
             android:transitionName="@string/transitions_image"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             android:visibility="gone"
             app:riv_corner_radius="5dip" />
     </LinearLayout>

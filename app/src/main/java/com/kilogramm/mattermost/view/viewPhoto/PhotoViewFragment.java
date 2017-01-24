@@ -13,7 +13,6 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
-import com.kilogramm.mattermost.tools.FileUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -30,7 +29,7 @@ import java.util.Map;
 public class PhotoViewFragment extends Fragment {
 
     public static final String IMAGE_URI = "image_uri";
-
+    public static final String TAG = PhotoViewFragment.class.getSimpleName();
     private FragmentPhotoViewBinding photoBinding;
     private FileInfo mFileInfo;
 
