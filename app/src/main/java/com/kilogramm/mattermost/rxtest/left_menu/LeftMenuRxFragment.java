@@ -157,7 +157,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     @Override
     public void onChannelClick(String itemId, String name, String type) {
         removeSelection(type);
-        sendOnChange(itemId, name);
+        sendOnChange(itemId, name, type);
         MattermostPreference.getInstance().setLastChannelId(itemId);
     }
 
@@ -314,9 +314,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         }
     }
 
-    private void sendOnChange(String itemId, String name) {
+    private void sendOnChange(String itemId, String name, String type) {
         if (this.mListener != null) {
-            this.mListener.onChange(itemId, name);
+            this.mListener.onChange(itemId, name, type);
         }
     }
 

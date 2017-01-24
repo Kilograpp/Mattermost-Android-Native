@@ -1,9 +1,8 @@
 package com.kilogramm.mattermost;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -46,7 +45,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by Evgeny on 25.07.2016.
  */
-public class MattermostApp extends Application {
+public class MattermostApp extends MultiDexApplication{
 
     public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
 
@@ -74,9 +73,9 @@ public class MattermostApp extends Application {
         return mattermostRetrofitService;
     }
 
+
     @Override
     public void onCreate() {
-        MultiDex.install(getApplicationContext());
         super.onCreate();
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());

@@ -5,5 +5,5 @@ package com.kilogramm.mattermost.rxtest.left_menu;
  */
 
 public interface OnChannelChangeListener {
-    void onChange(String channelId, String name);
+    void onChange(String channelId, String name,String type);
 }
