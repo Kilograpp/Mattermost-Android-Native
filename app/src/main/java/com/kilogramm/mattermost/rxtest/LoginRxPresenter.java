@@ -46,6 +46,8 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     private static final int REQUEST_LOGIN = 1;
     private static final int REQUEST_INITLOAD = 2;
 
+    Realm realm;
+
     @State
     String mEditEmail = "";
     @State
@@ -60,11 +62,10 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        Realm realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
         isEnabledSignInButton = new ObservableBoolean(false);
         siteName = new ObservableField<>(realm.where(ClientCfg.class).findFirst().getSiteName());
         isVisibleProgress = new ObservableInt(View.GONE);
-        realm.close();
 
         initRequestLogin();
         initRequestInitLoad();
@@ -98,7 +99,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     //======================== Network ============================================================
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
-        Realm realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
         RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
@@ -115,7 +116,6 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         List<Team> teams = realm.copyToRealmOrUpdate(initObject.getTeams());
 
         realm.commitTransaction();
-        realm.close();
         return teams;
     }
 
@@ -192,9 +192,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                     .observeOn(AndroidSchedulers.mainThread());
         }, (loginRxActivity, user) -> {
             MattermostPreference.getInstance().setMyUserId(user.getId());
-            Realm realm = Realm.getDefaultInstance();
             realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(user));
-            realm.close();
             requestInitLoad();
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
