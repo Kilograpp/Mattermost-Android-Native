@@ -128,5 +128,16 @@ public class FileInfoRepository {
         realm.close();
     }
 
+    public void remove(String fileId) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(realm1 -> {
+            RealmResults<FileInfo> fileToAttachList = realm1.where(FileInfo.class)
+                    .equalTo("id", fileId)
+                    .findAll();
+            fileToAttachList.deleteFirstFromRealm();
+        });
+        realm.close();
+    }
+
     // endregion
 }

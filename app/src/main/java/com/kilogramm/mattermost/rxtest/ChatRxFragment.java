@@ -496,7 +496,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                     binding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
                     if (!isSendTyping) {
                         isSendTyping = true;
-                        MattermostService.Helper.create(getActivity()).sendUserTuping(channelId);
+                        MattermostService.Helper.create(getActivity()).sendUserTyping(channelId);
                         binding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
                     }
                 } else {
@@ -1202,6 +1202,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
     }
 
+    // TODO то есть берется только первая в списке тима? Это так и должно быть?
     private String getMessageLink(String postId) {
         Realm realm = Realm.getDefaultInstance();
         return "https://"

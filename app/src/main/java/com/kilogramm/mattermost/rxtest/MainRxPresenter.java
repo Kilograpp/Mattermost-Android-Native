@@ -23,8 +23,6 @@ import rx.schedulers.Schedulers;
  * Created by Evgeny on 03.10.2016.
  */
 public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
-    private final String URI_STRING = "https://mattermost.kilograpp.com";
-    private final String URL_NOT_VALID = "Url is not valid https://";
 
     private static final int REQUEST_CHECK = 1;
 
@@ -40,6 +38,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         super.onCreate(savedState);
         mMattermostApp = MattermostApp.getSingleton();
 
+        // Check given url. If it's valid, open login activity
         restartableFirst(REQUEST_CHECK, () -> {
             sendVisibleProgress(true);
             return ServerMethod.getInstance()
@@ -54,9 +53,11 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             });
             sendVisibleProgress(false);
             sendShowLoginActivity();
+            sendShowNextButton(true);
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
             sendShowError(getError(throwable));
+            sendShowNextButton(true);
         });
     }
 
@@ -70,7 +71,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         }
 
         if (BuildConfig.DEBUG && getView().getStringUrl().length() == 0) {
-            sendSetUrlString(URI_STRING);
+            sendSetUrlString("https://mattermost.kilograpp.com");
         }
     }
 
@@ -85,14 +86,15 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             authorisedUri = url;
         }
 
-        //TODO FIX logic
         MattermostPreference.getInstance().setBaseUrl(authorisedUri);
-        mMattermostApp.refreshMattermostRetrofitService();
-
         try {
-            mMattermostApp.getMattermostRetrofitService();
+            mMattermostApp.refreshMattermostRetrofitService();
+            // TODO вполне возможно, что ловить тут экспешн не требуется
+            // он не отрабатывает
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            sendShowNextButton(true);
+            String URL_NOT_VALID = "Url is not valid https://";
             sendShowError(URL_NOT_VALID);
             return;
         }
@@ -100,6 +102,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         if (isNetworkAvailable()) {
             start(REQUEST_CHECK);
         } else {
+            sendShowNextButton(true);
             sendShowError(parceError(null, NO_NETWORK));
         }
     }
@@ -120,10 +123,14 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
                 .subscribe(split(MainRxActivity::showErrorText));
     }
 
+    private void sendShowNextButton(boolean b) {
+        createTemplateObservable(b)
+                .subscribe(split((mainRxActivity, aBoolean) -> mainRxActivity.setShowNextButton(b)));
+    }
+
     private void sendShowChatActivity() {
         createTemplateObservable(new Object())
                 .subscribe(split((mainRxActivity, o) -> mainRxActivity.showChatActivity()));
-
     }
 
     private void sendSetUrlString(String uri) {

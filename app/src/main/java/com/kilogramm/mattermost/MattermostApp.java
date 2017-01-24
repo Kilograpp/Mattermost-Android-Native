@@ -49,7 +49,6 @@ import rx.schedulers.Schedulers;
 public class MattermostApp extends Application {
 
     public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
-    private static final String TAG = "Application";
 
     private static MattermostApp singleton = null;
 
@@ -63,8 +62,8 @@ public class MattermostApp extends Application {
         return singleton;
     }
 
-    public void refreshMattermostRetrofitService() {
-        mattermostRetrofitService = MattermostRetrofitService.refreshRetrofitService();
+    public void refreshMattermostRetrofitService() throws IllegalArgumentException {
+        mattermostRetrofitService = MattermostRetrofitService.create();
         ServerMethod.buildServerMethod(mattermostRetrofitService);
     }
 
@@ -84,7 +83,6 @@ public class MattermostApp extends Application {
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        // Realm.init(getApplicationContext());
         RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
                 .name("mattermostDb.realm")
                 .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
@@ -123,7 +121,6 @@ public class MattermostApp extends Application {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());
     }
-//
 
     public static void clearPreference() {
         MattermostPreference.getInstance().setAuthToken(null);
@@ -148,11 +145,11 @@ public class MattermostApp extends Application {
     }
 
     /**
-     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
-     * aid testing on a local box, not for use on production.
+     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection}
+     * This has been created to aid testing on a local box, not for use on production.
      */
     private void disableSSLCertificateChecking() {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
 
                     @Override
@@ -179,9 +176,7 @@ public class MattermostApp extends Application {
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (KeyManagementException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }

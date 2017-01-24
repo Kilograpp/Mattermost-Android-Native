@@ -43,10 +43,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     }
 
     //====================== standard toolbar =======================================
+
     public void setTitleActivity(String title) {
         try {
             getSupportActionBar().setTitle(title);
-            //((TextView) toolbar.findViewById(R.id.toolbarTitle)).setText(title);
         } catch (Exception e) {
             getSupportActionBar().setTitle(title);
         }
@@ -69,10 +69,10 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         getWindow().setStatusBarColor(getResources().getColor(portStatusBarColorRes));
     }
 
-    public void setupToolbar(String title, Boolean hasButtonBack){
+    public void setupToolbar(String title, Boolean hasButtonBack) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(hasButtonBack) {
+        if (hasButtonBack) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
@@ -80,9 +80,9 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         setTitleActivity(title);
     }
 
-    public void setupToolbar(Toolbar toolbar, String title, Boolean hasButtonBack){
+    public void setupToolbar(Toolbar toolbar, String title, Boolean hasButtonBack) {
         setSupportActionBar(toolbar);
-        if(hasButtonBack) {
+        if (hasButtonBack) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
@@ -116,7 +116,8 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
 
     //====================== channel toolbar ========================================
 
-    public void setupChannelToolbar(String activityTitle, String channelName,
+    public void setupChannelToolbar(String activityTitle,
+                                    String channelName,
                                     View.OnClickListener listenerChannelName,
                                     View.OnClickListener listenerSearch) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -135,13 +136,13 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         setTitleActivity(activityTitle);
     }
 
-    public void setupTypingText(String text){
+    public void setupTypingText(String text) {
         typing = (TextView) findViewById(R.id.typing);
         typing.setText(text);
     }
 
     public static void hideKeyboard(Activity activity) {
-        if(activity == null) return;
+        if (activity == null) return;
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         View view = activity.getCurrentFocus();
         if (view == null) {
@@ -162,9 +163,9 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         imm.showSoftInput(view, 0);
     }
 
-    public void showErrorText(String text, View view){
+    public void showErrorText(String text, View view) {
         int apiVersion = Build.VERSION.SDK_INT;
-        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view!=null) {
+        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view != null) {
             Snackbar error = Snackbar.make(view, text, Snackbar.LENGTH_LONG);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
             error.setActionTextColor(getResources().getColor(R.color.white));

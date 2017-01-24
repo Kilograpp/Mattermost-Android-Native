@@ -24,8 +24,6 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     public static final String TAG = "MainRxActivity";
 
-    private final int DELAY = 2500;
-
     private ActivityMainBinding binding;
 
     @Override
@@ -41,6 +39,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
 
     private void initView() {
         binding.buttonNext.setOnClickListener(view -> {
+            setShowNextButton(false);
             getPresenter().request(getStringUrl());
             hideKeyboard();
         });
@@ -62,7 +61,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
                     showEditTextErrorMessage();
                     setShowNextButton(false);
                 }
-            }, DELAY);
+            }, 2500);
         }
 
         @Override
@@ -90,6 +89,11 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * At current time is used only for setting debug url "https://mattermost.kilograpp.com"
+     *
+     * @param url url for debug mode. At current time it's "https://mattermost.kilograpp.com"
+     */
     public void setTextUrl(String url) {
         binding.urlEditText.setText(url);
         binding.urlEditText.setSelection(binding.urlEditText.length());
@@ -107,7 +111,7 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
         return getPresenter().isValidUrl(url);
     }
 
-    private void setShowNextButton(boolean show) {
+    public void setShowNextButton(boolean show) {
         binding.buttonNext.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 

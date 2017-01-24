@@ -2,7 +2,6 @@
 <resources>
     <!--<color name="colorPrimary">#258ad7</color>-->
     <color name="colorPrimaryDark">#227dc2</color>
-    <color name="colorAccent">#FF4081</color>
     <color name="error_color">#f1453d</color>
 
     <color name="white">#FFF</color>
@@ -35,9 +34,7 @@
 
     <!--Channel-->
     <color name="textColorRed">#e21b3e</color>
-    <color name="icon_team_color_start">#006bd7</color>
     <color name="icon_team_color_end">#008edc</color>
-    <color name="icon_team_color_shadow">#00658f</color>
     <color name="title_grey">#8798a4</color>
     <color name="title_blue">#007aff</color>
 

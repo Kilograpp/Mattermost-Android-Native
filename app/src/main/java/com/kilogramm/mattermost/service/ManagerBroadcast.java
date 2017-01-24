@@ -100,13 +100,14 @@ public class ManagerBroadcast {
         JSONObject jsonObject = new JSONObject(json);
         JSONObject dataJSON = jsonObject.getJSONObject(WebSocketObj.DATA);
         JSONObject broadcastJSON = null;
-        if (jsonObject.has(WebSocketObj.BROADCAST))
+        if (jsonObject.has(WebSocketObj.BROADCAST)) {
             broadcastJSON = jsonObject.getJSONObject(WebSocketObj.BROADCAST);
+        }
         WebSocketObj webSocketObj = new WebSocketObj();
         webSocketObj.setDataJSON(jsonObject.getString(WebSocketObj.DATA));
-        if (jsonObject.has(WebSocketObj.BROADCAST))
+        if (jsonObject.has(WebSocketObj.BROADCAST)) {
             webSocketObj.setBroadcastJSON(jsonObject.getString(WebSocketObj.BROADCAST));
-        else {
+        } else {
             webSocketObj.setBroadcast(null);
         }
         Log.d(TAG, jsonObject.toString());
@@ -127,11 +128,13 @@ public class ManagerBroadcast {
                 String mentions = null;
                 if (dataJSON.has(WebSocketObj.MENTIONS))
                     mentions = dataJSON.getString(WebSocketObj.MENTIONS);
-                broadcast = new BroadcastBilder()
-                        .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
-                        .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
-                        .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
-                        .build();
+                if (broadcastJSON != null) {
+                    broadcast = new BroadcastBilder()
+                            .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                            .setTeamId(broadcastJSON.getString(WebSocketObj.USER_ID))
+                            .setUserID(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                            .build();
+                }
                 data = new WebSocketObj.BuilderData()
                         .setChannelDisplayName(dataJSON.getString(WebSocketObj.CHANNEL_DISPLAY_NAME))
                         .setChannelType(dataJSON.getString(WebSocketObj.CHANNEL_TYPE))
@@ -156,11 +159,13 @@ public class ManagerBroadcast {
                 Log.d(TAG, data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_TYPING:
-                broadcast = new BroadcastBilder()
-                        .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
-                        .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
-                        .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
-                        .build();
+                if (broadcastJSON != null) {
+                    broadcast = new BroadcastBilder()
+                            .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                            .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                            .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
+                            .build();
+                }
                 data = new WebSocketObj.BuilderData()
                         .setParentId(dataJSON.getString(WebSocketObj.PARENT_ID))
                         .setTeamId(webSocketObj.getTeamId())
@@ -195,6 +200,7 @@ public class ManagerBroadcast {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe(channelsWithMembers -> {
+                            // TODO создается список, который нигде не используется
                             RealmList<Channel> channelsList = new RealmList<>();
                             channelsList.addAll(channelsWithMembers.getChannels());
                             ChannelRepository.prepareDirectAndChannelAdd(channelsWithMembers.getChannels());
@@ -230,14 +236,12 @@ public class ManagerBroadcast {
                 .doOnError(throwable -> {
                     throwable.printStackTrace();
                     savePost(post);
-                })
-                .subscribe(fileInfos -> {
-                    for (FileInfo fileInfo : fileInfos) {
-                        Log.d(TAG, "onNext: " + fileInfo.getId());
-                        FileInfoRepository.getInstance().add(fileInfo);
-                    }
-                    savePost(post);
-                });
+                }).subscribe(fileInfos -> {
+            for (FileInfo fileInfo : fileInfos) {
+                FileInfoRepository.getInstance().add(fileInfo);
+            }
+            savePost(post);
+        });
     }
 
     private Data getPreferenceData(JSONObject dataJSON) throws JSONException {
@@ -248,8 +252,9 @@ public class ManagerBroadcast {
 
     private Data getMapStatus(JSONObject dataJSON) {
         return new WebSocketObj.BuilderData()
-                .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(), new TypeToken<HashMap<String, Object>>() {
-                }.getType()))
+                .setMapUserStatus((new Gson()).fromJson(dataJSON.toString(),
+                        new TypeToken<HashMap<String, Object>>() {
+                        }.getType()))
                 .build();
     }
 
@@ -287,7 +292,7 @@ public class ManagerBroadcast {
                 openDialogIntent(context, channel), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
-                closeNotificationIntent(context, post.getChannelId().hashCode()), 0);
+                closeNotificationIntent(context), 0);
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.notification_custom);
         remoteViews.setTextViewText(R.id.title, setNotificationTitle(channel, post.getUserId()));
@@ -312,8 +317,7 @@ public class ManagerBroadcast {
 
     private static Notification.Builder showNotification(Context context) {
         return new Notification.Builder(context)
-                .setSmallIcon(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
-                        R.mipmap.icon : R.drawable.ic_mm)
+                .setSmallIcon(R.drawable.notification_transparent)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setAutoCancel(true);
@@ -331,13 +335,23 @@ public class ManagerBroadcast {
         }
     }
 
+    /**
+     * Create a text of the notification. If post.getMessage() have some text, it will be
+     * displayed. If not, but message has attached file, there will be message about it.
+     * If post is from CI system like Fastlane, Jenkins, etc. there will be message about it.
+     * CI posts have not null props fields.
+     *
+     * @param post incoming post from the server
+     * @return displayed message
+     */
     private static CharSequence displayedMessage(Post post, Context context) {
         if (post.getProps() != null && post.getProps().getAttachments() != null) {
             return context.getResources().getString(R.string.notification_sent_attachment);
         } else {
-            if(post.getMessage() != null && post.getMessage().trim().length() > 0){
+            if (post.getMessage() != null && post.getMessage().trim().length() > 0) {
                 return PostViewHolder.getMarkdownPost(post.getMessage(), context);
             } else if (post.getFilenames().size() != 0) {
+                // TODO сделать поддержку вывода сообщения об изображений (придется делать запрос на получение FileInfo)
                 FileInfo fileInfo = FileInfoRepository.getInstance().get(post.getFilenames().get(0));
                 if (fileInfo != null && fileInfo.getmMimeType().contains("image")) {
                     return context.getResources().getString(R.string.notification_sent_pic);
@@ -349,7 +363,7 @@ public class ManagerBroadcast {
         return context.getResources().getString(R.string.notification_sent_attachment);
     }
 
-    private static Intent openDialogIntent(Context context, Channel channel) {
+    private Intent openDialogIntent(Context context, Channel channel) {
         Intent intent = new Intent(context, GeneralRxActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(CHANNEL_ID, channel.getId());
@@ -362,7 +376,7 @@ public class ManagerBroadcast {
         return intent;
     }
 
-    private static Intent closeNotificationIntent(Context context, int id) {
+    private Intent closeNotificationIntent(Context context) {
         Intent intent = new Intent(context.getApplicationContext(), CloseButtonReceiver.class);
         intent.putExtra(NOTIFICATION_ID, NOTIFY_ID);
         intent.setAction(CLOSE_NOTIFICATION);
@@ -371,12 +385,12 @@ public class ManagerBroadcast {
 
     private static void savePost(Post post) {
         String pendingPostId = post.getPendingPostId();
-        Log.d(TAG, "savePost() called with: post = [" + pendingPostId + "]");
+//        Log.d(TAG, "savePost() called with: post = [" + pendingPostId + "]");
         if (PostRepository.query(pendingPostId) != null) {
-            Log.d(TAG, "savePost: merge from ws");
+//            Log.d(TAG, "savePost: merge from ws");
             PostRepository.merge(post);
         } else {
-            Log.d(TAG, "savePost: add new from ws");
+//            Log.d(TAG, "savePost: add new from ws");
             PostRepository.prepareAndAddPost(post);
         }
     }
@@ -416,10 +430,8 @@ public class ManagerBroadcast {
     public static class CloseButtonReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
             NotificationManager manager = (NotificationManager)
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
-//            manager.cancel(notificationId);
             manager.cancelAll();
         }
     }

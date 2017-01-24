@@ -16,6 +16,7 @@ public class Team extends RealmObject{
     private String name;
     @SerializedName("display_name")
     private String displayName;
+    private int color;
 
     public String getId() {
         return id;
@@ -39,5 +40,13 @@ public class Team extends RealmObject{
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

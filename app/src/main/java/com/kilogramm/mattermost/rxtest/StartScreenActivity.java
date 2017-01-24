@@ -21,14 +21,31 @@ import com.kilogramm.mattermost.view.BaseActivity;
 import java.util.List;
 
 import io.realm.Realm;
+import nucleus.factory.RequiresPresenter;
 
 /**
  * Created by kepar on 18.01.17.
  */
-
+@RequiresPresenter(StartScreenPresenter.class)
 public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
-    BroadcastReceiver mBroadcastReceiver;
+    /**
+     * BroadcastReceiver for keeping network changes
+     */
+    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getExtras() != null) {
+                final ConnectivityManager connectivityManager = (ConnectivityManager) context
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+                if (ni != null && ni.isConnectedOrConnecting()) {
+                    tryToStart();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,6 +54,12 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
         findViewById(R.id.imageView).postDelayed(this::tryToStart, 2000);
     }
 
+    /**
+     * Try to start {@link MainRxActivity} method. Activity will be starts if network is available.
+     * If its not, user will see snackbar message about it (toast for 4.4.2). After that registers
+     * broadcast receiver for checking network connectivity. When connects to the internet,
+     * method {@link #tryToStart()} will be calling again
+     */
     private void tryToStart() {
         if (getPresenter().isNetworkAvailable()) {
             startActivity(new Intent(this, MainRxActivity.class)
@@ -46,30 +69,13 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
             showErrorTextForever(getString(R.string.network_error),
                     findViewById(R.id.imageView));
 
-            mBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (intent.getExtras() != null) {
-                        final ConnectivityManager connectivityManager =
-                                (ConnectivityManager) context
-                                .getSystemService(Context.CONNECTIVITY_SERVICE);
-                        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-
-                        if (ni != null && ni.isConnectedOrConnecting()) {
-                            tryToStart();
-                        }
-                    }
-                }
-            };
-
             registerReceiver(mBroadcastReceiver,
                     new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
         }
     }
 
     public void showErrorTextForever(String text, View view) {
-        int apiVersion = Build.VERSION.SDK_INT;
-        if (apiVersion > Build.VERSION_CODES.LOLLIPOP && view != null) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP && view != null) {
             Snackbar error = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
             error.getView().setBackgroundColor(getResources().getColor(R.color.error_color));
             error.setActionTextColor(getResources().getColor(R.color.white));
@@ -81,8 +87,10 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
 
     @Override
     protected void onDestroy() {
-        if (mBroadcastReceiver != null) {
+        try {
             unregisterReceiver(mBroadcastReceiver);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            e.printStackTrace();
         }
         super.onDestroy();
     }

@@ -90,7 +90,7 @@ public class FilesView extends GridLayout {
                     binding.downloadFileControls.showProgressControls();
                     FileDownloadManager.getInstance().addListener(fileInfo, fileDownloadListener);
                 } else if (fileInfo.getUploadState() == UploadState.DOWNLOADED) {
-                    if(file.exists()){
+                    if (file.exists()) {
                         binding.title.setOnClickListener(getFileClickListener(fileInfo));
                         binding.downloadFileControls.setVisibility(GONE);
                         binding.icDownloadedFile.setVisibility(VISIBLE);
@@ -138,7 +138,7 @@ public class FilesView extends GridLayout {
         }
     }
 
-    private OnClickListener getFileClickListener(FileInfo fileInfo){
+    private OnClickListener getFileClickListener(FileInfo fileInfo) {
         return v -> {
             Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + fileInfo.getmName());
@@ -204,7 +204,7 @@ public class FilesView extends GridLayout {
             @Override
             public void onError(String fileId) {
                 binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
-                        BaseRxPresenter.parceError(null,getContext().getString(R.string.error_during_file_download)),
+                        getContext().getString(R.string.error_during_file_download),
                         Toast.LENGTH_SHORT).show());
 
             }
