@@ -47,11 +47,13 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io());
         }, (mainActivity, initObject) -> {
-            Realm.getDefaultInstance().executeTransaction(realm -> {
+            Realm realm = Realm.getDefaultInstance();
+            realm.executeTransaction(realm1 -> {
                 RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
                 results.deleteAllFromRealm();
                 realm.copyToRealmOrUpdate(initObject.getClientCfg());
             });
+            realm.close();
             sendVisibleProgress(false);
             sendShowLoginActivity();
         }, (mainActivity, throwable) -> {

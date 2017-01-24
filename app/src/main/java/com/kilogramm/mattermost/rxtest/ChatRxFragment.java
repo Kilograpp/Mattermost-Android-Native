@@ -769,7 +769,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void OnClickOpenGallery() {
+    /*public void OnClickOpenGallery() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -787,7 +787,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } else {
             openGallery();
         }
-    }
+    }*/
 
     private void openGallery() {
         openFile(getActivity(), "image/*", PICK_IMAGE);

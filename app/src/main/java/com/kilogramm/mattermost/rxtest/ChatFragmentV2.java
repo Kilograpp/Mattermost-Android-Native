@@ -2,6 +2,7 @@ package com.kilogramm.mattermost.rxtest;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -13,6 +14,8 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,36 +23,46 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
+import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.service.MattermostService;
+import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
+import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +78,9 @@ import nucleus.factory.RequiresPresenter;
  * Created by Evgeny on 21.01.2017.
  */
 @RequiresPresenter(ChatPresenterV2.class)
-public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnMoreLoadListener, OnItemClickListener<String> {
+public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnMoreLoadListener,
+        OnItemClickListener<String>, AttachedFilesAdapter.EmptyListListener,
+        AttachedFilesLayout.AllUploadedListener, OnItemAddedListener {
 
     private static final String TAG = "ChatFragmentV2";
 
@@ -124,6 +139,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private AdapterPost adapter;
 
     Map<String, String> mapType;
+
+    private Post rootPost;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -206,6 +223,27 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     @Override
     public void OnItemClick(View view, String item) {
 
+    }
+
+    @Override
+    public void onItemAdded() {
+        mBinding.rev.smoothScrollToPosition(mBinding.rev.getAdapter().getItemCount() - 1);
+        //disableLoaders();
+    }
+
+    @Override
+    public void onEmptyList() {
+        hideAttachedFilesLayout();
+        if (mBinding.writingMessage.getText().toString().trim().length() > 0) {
+            mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            mBinding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+        }
+    }
+
+    @Override
+    public void onAllUploaded() {
+        mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 
     @Override
@@ -311,18 +349,25 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     private void initAttachedFilesLayout() {
-        /*RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
+        RealmResults<FileToAttach> fileToAttachRealmResults = FileToAttachRepository.getInstance().getFilesForAttach();
         if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
             mBinding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
             mBinding.attachedFilesLayout.setVisibility(View.GONE);
         }
         mBinding.attachedFilesLayout.setEmptyListListener(this);
-        mBinding.attachedFilesLayout.setmAllUploadedListener(this);*/
+        mBinding.attachedFilesLayout.setmAllUploadedListener(this);
     }
 
     private void initListChat() {
         RealmResults<Post> results = PostRepository.query(new PostByChannelId(mChannelId));
+        results.addChangeListener(element -> {
+            if (adapter != null) {
+                if (results.size() - 2 == ((LinearLayoutManager) mBinding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
+                    onItemAdded();
+                }
+            }
+        });
         adapter = new AdapterPost(getActivity(), results, this);
         mBinding.rev.setAdapter(adapter);
         mBinding.rev.setListener(this);
@@ -330,7 +375,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
 
     public void initBtnSendOnClickListener() {
-       /* mBinding.btnSend.setOnClickListener(view -> {
+        mBinding.btnSend.setOnClickListener(view -> {
             if (!mBinding.btnSend.getText().equals("Save"))
                 if (mBinding.writingMessage.getText().toString().startsWith("/")) {
                     sendCommand();
@@ -339,8 +384,10 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 }
             else
                 editMessage();
-        });*/
+        });
     }
+
+
 
     public void setChannelName(String channelName) {
         this.mChannelName = channelName;
@@ -380,7 +427,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     public void initButtonAddFileOnClickListener() {
-      //  mBinding.buttonAttachFile.setOnClickListener(view -> showDialog());
+        mBinding.buttonAttachFile.setOnClickListener(view -> showDialog());
     }
 
     private void initDropDownUserList() {
@@ -597,6 +644,86 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 Boolean.FALSE.toString()));*/
     }
 
+    private void sendMessage() {
+        Post post = new Post();
+        post.setChannelId(mChannelId);
+        post.setCreateAt(getTimePost());
+        post.setMessage(getMessage());
+        if (rootPost != null) {
+            post.setRootId(rootPost.getId());
+            closeEditView();
+        }
+        post.setUserId(MattermostPreference.getInstance().getMyUserId());
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
+        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        post.setFilenames(mBinding.attachedFilesLayout.getAttachedFiles());
+        post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
+        String message = post.getMessage().trim();
+        if (
+                message.length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                        message.length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                        message.length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+                ) {
+            getPresenter().requestSendToServer(post);
+            hideAttachedFilesLayout();
+            //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
+        } else {
+            if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
+                Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
+            } else if (message.length() <= 0) {
+                Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void editMessage() {
+        PostEdit postEdit = new PostEdit();
+        postEdit.setId(rootPost.getId());
+        postEdit.setChannelId(mChannelId);
+        postEdit.setMessage(getMessage());
+        closeEditView();
+        if (postEdit.getMessage().length() != 0) {
+            setMessage("");
+            getPresenter().requestEditPost(postEdit);
+        } else {
+            Toast.makeText(getActivity(), getString(R.string.message_empty), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public String getMessage() {
+        return mBinding.writingMessage.getText().toString();
+    }
+
+    public void setMessage(String s) {
+        mBinding.writingMessage.setText(s);
+    }
+
+    private Long getTimePost() {
+        Long currentTime = Calendar.getInstance().getTimeInMillis();
+        if (adapter.getLastItem() == null) {
+            return currentTime;
+        }
+        Long lastTime = ((Post) adapter.getLastItem()).getCreateAt();
+        if (currentTime > lastTime)
+            return currentTime;
+        else
+            return lastTime + 1;
+    }
+
+
+    private void closeEditView() {
+        mBinding.editReplyMessageLayout.editableText.setText(null);
+        mBinding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
+        rootPost = null;
+        mBinding.btnSend.setText(getString(R.string.send));
+    }
+
+    public void hideAttachedFilesLayout() {
+        mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+        mBinding.attachedFilesLayout.setVisibility(View.GONE);
+    }
+
     public void startLoad() {
         if (mStartCode.equals(START_SEARCH)) {
             getPresenter().startRequestLoadSearch(mSearchMessageId);
@@ -604,6 +731,117 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             getPresenter().startRequestLoadNormal();
         } else {
             //showError();
+        }
+    }
+
+
+    private void showDialog() {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_buttom_sheet, null);
+
+        final Dialog mBottomSheetDialog = new Dialog(getActivity(), R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        view.findViewById(R.id.layCamera).setOnClickListener(v -> {
+            makePhoto();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layGallery).setOnClickListener(v -> {
+            openGallery();
+            mBottomSheetDialog.cancel();
+        });
+        view.findViewById(R.id.layFile).setOnClickListener(v -> {
+            pickFile();
+            mBottomSheetDialog.cancel();
+        });
+    }
+
+    private void makePhoto() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        CAMERA_PERMISSION_REQUEST_CODE);
+            } else {
+                dispatchTakePictureIntent();
+            }
+        } else {
+            dispatchTakePictureIntent();
+        }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            final File root = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES + "/Mattermost");
+            root.mkdir();
+            final String fname = "img_" + System.currentTimeMillis() + ".jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+
+            fileFromCamera = Uri.fromFile(sdImageMainDirectory);
+            Log.d(TAG, fileFromCamera.toString());
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileFromCamera);
+            startActivityForResult(takePictureIntent, CAMERA_PIC_REQUEST);
+        }
+    }
+
+    private void openGallery() {
+        openFile(getActivity(), "image/*", PICK_IMAGE);
+    }
+
+    private void pickFile() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+            } else {
+                openFilePicker();
+            }
+        } else {
+            openFilePicker();
+        }
+    }
+
+    private void openFilePicker() {
+        openFile(getActivity(), "*/*", PICKFILE_REQUEST_CODE);
+    }
+
+    private void openFile(Context context, String minmeType, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType(minmeType);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+
+        // special intent for Samsung file manager
+        Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
+        // if you want any file type, you can skip next line
+        sIntent.putExtra("CONTENT_TYPE", minmeType);
+        sIntent.addCategory(Intent.CATEGORY_DEFAULT);
+
+        Intent chooserIntent;
+        if (context.getPackageManager().resolveActivity(sIntent, 0) != null) {
+            // it is device with samsung file manager
+            chooserIntent = Intent.createChooser(sIntent, "Open file");
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{intent});
+        } else {
+            chooserIntent = Intent.createChooser(intent, "Open file");
+        }
+
+        try {
+            startActivityForResult(chooserIntent, requestCode);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(context, "No suitable File Manager was found.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -617,7 +855,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         mBinding.rev.setCanPaginationTop(true);
         mBinding.rev.setCanPaginationBot(true);
     }
-
 
     public void slideToMessageById() {
         if (adapter != null) {
@@ -743,6 +980,12 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             Log.e(TAG, "showEmptyList: ", e);
         }
     }
+
+    public void invalidateAdapter() {
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
+    }
+
 
     public enum StateFragment {
         STATE_NORMAL_LOADING,

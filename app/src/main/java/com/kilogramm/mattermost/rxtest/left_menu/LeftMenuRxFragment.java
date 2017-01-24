@@ -218,11 +218,20 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public RealmResults<Channel> getDirectChannelData() {
         String my_id = MattermostPreference.getInstance().getMyUserId();
         RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
-        for (Preferences preference : mPreferences) {
+        for (int i = 0; i < mPreferences.size(); i++) {
+            String name = String.format("%s__%s", mPreferences.get(i).getName(), mPreferences.get(i).getUser_id());
+            String revertName = String.format("%s__%s", mPreferences.get(i).getUser_id(), mPreferences.get(i).getName());
+            if(i==mPreferences.size()-1){
+                realmQuery.equalTo("name", name).or().equalTo("name", revertName);
+            } else {
+             realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
+            }
+        }
+        /*for (Preferences preference : mPreferences) {
             String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
             String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
             realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
-        }
+        }*/
        /* RealmQuery<Channel> channelQuery = realmQuery.findAll().where();
         for (UserMember userMember : mUserMembers) {
             String name = String.format("%s__%s", userMember.getUserId(), my_id);

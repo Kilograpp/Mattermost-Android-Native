@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -33,8 +32,6 @@ import java.util.List;
 
 import icepick.State;
 import io.realm.Realm;
-import io.realm.RealmList;
-import io.realm.RealmResults;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
@@ -134,19 +131,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     requestLoadChannels();
                 }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));// TODO: 18.01.17  entry point
 
-//        restartableFirst(REQUEST_DIRECT_PROFILE,
-//                () -> service.getDirectProfile()
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(Schedulers.io()),
-//                (generalRxActivity, stringUserMap) -> {
-//                    List<User> users = new ArrayList<>();
-//                    users.addAll(stringUserMap.values());
-//                    users.add(new User("materMostAll", "all", "Notifies everyone in the channel, use in Town Square to notify the whole team"));
-//                    users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
-//                    UserRepository.add(users);
-//                    requestLoadChannels();
-//                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
-
         restartableFirst(REQUEST_LOAD_CHANNELS,
                 () -> ServerMethod.getInstance()
                         .getChannelsTeam(teamId)
@@ -164,19 +148,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     //start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
                 }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));
 
-//        restartableFirst(REQUEST_LOAD_CHANNELS,
-//                () -> service.getChannelsTeam(MattermostPreference.getInstance().getTeamId())
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(Schedulers.io()),
-//                (generalRxActivity, channelsWithMembers) -> {
-//                    ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-//                            MattermostPreference.getInstance().getMyUserId());
-//                    MembersRepository.add(channelsWithMembers.getMembers().values());
-//                    requestUserTeam();
-//
-//                    start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
-//
-//                }, (generalRxActivity1, throwable) -> sendShowError(throwable.getMessage()));
 
         restartableFirst(REQUEST_USER_TEAM,
                 () -> Observable.just("test"),
@@ -220,38 +191,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     Log.d(TAG, "Error logout");
                 });
 
-        restartableFirst(REQUEST_INITLOAD, () ->
-                ServerMethod.getInstance()
-                        .initLoad()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                (generalRxActivity, initObject) -> {
-                    saveDataAfterLogin(initObject);
-                    sendShowChooseTeam();
-                },
-                (generalRxActivity, throwable) ->
-                        sendShowError(parceError(throwable, null))
-//                        handleErrorLogin(throwable)
-        );
-
-        /*restartableFirst(REQUEST_EXTROINFO_DEFAULT_CHANNEL, () ->
-                        service.getExtraInfoChannel(MattermostPreference.getInstance().getTeamId(),
-                                ChannelRepository.query(
-                                        new ChannelByHadleSpecification("town-square"))
-                                        .first()
-                                        .getId())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                (generalRxActivity, extraInfo) -> {
-                    RealmList<User> results = new RealmList<>();
-                    results.addAll(UserRepository.query(new UserRepository.UserByIdsSpecification(extraInfo.getMembers())));
-                    extraInfo.setMembers(results);
-                    ExtroInfoRepository.update(extraInfo);
-                },
-                (generalRxActivity, throwable) ->
-                        handleErrorLogin(throwable)
-        );*/
-
         restartableFirst(REQUEST_SAVE, () ->
                 ServerMethod.getInstance()
                         .save(preferenceList)
@@ -262,22 +201,6 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 , (activity, throwable) ->
                         sendShowError(parceError(throwable, SAVE_PREFERENCES))
         );
-    }
-
-    private List<Team> saveDataAfterLogin(InitObject initObject) {
-        Realm mRealm = Realm.getDefaultInstance();
-        mRealm.beginTransaction();
-        RealmResults<ClientCfg> results = mRealm.where(ClientCfg.class).findAll();
-        results.deleteAllFromRealm();
-        mRealm.copyToRealmOrUpdate(initObject.getClientCfg());
-        mRealm.copyToRealmOrUpdate(initObject);
-        MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
-        RealmList<User> directionProfiles = new RealmList<>();
-        directionProfiles.addAll(initObject.getMapDerectProfile().values());
-        mRealm.copyToRealmOrUpdate(directionProfiles);
-        List<Team> teams = mRealm.copyToRealmOrUpdate(initObject.getTeams());
-        mRealm.commitTransaction();
-        return teams;
     }
 
     public void requestLoadChannels() {

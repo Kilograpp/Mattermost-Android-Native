@@ -142,6 +142,20 @@ public class PostRepository {
         //add(post);
     }
 
+
+    public static void setUpdateAt(String id, Long updateAt) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Post post = realm.where(Post.class).equalTo("id", id).findFirst();
+        if(post!=null){
+            post.setUpdateAt(updateAt);
+        }
+        realm.insertOrUpdate(post);
+        realm.commitTransaction();
+        realm.close();
+        realm = null;
+    }
+
     public static void prepareAndUpdatePost(Post post) {
         Realm realm = Realm.getDefaultInstance();
         if (!post.isSystemMessage())

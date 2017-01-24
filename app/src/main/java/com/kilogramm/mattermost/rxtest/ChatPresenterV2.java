@@ -8,7 +8,13 @@ import android.widget.Toast;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
+import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
+import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostEdit;
+import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
@@ -37,6 +43,9 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private static final int REQUEST_LOAD_AFTER = 4;
     private static final int REQUEST_LOAD_FIRST_PAGE = 5;
     private static final int REQUEST_UPDATE_LAST_VIEWED_AT = 6;
+    private static final int REQUEST_DELETE_POST = 7;
+    private static final int REQUEST_EDIT_POST = 8;
+    private static final int REQUEST_SEND_TO_SERVER = 9;
 
 
     private String mChannelType;
@@ -49,6 +58,12 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private String mSearchMessageId;
     private String mLastmessageId;
     private String mFirstmessageId;
+    private Post mForDeletePost;
+    private PostEdit mForEditPost;
+    private Post mForSendPost;
+    private Long updateAt;
+    private Boolean isSendingPost = false;
+
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -70,6 +85,9 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         initLoadAfter();
         initLoadPosts();
         initUpdateLastViewedAt();
+        initDeletePost();
+        initEditPost();
+        initSendToServer();
     }
 
 
@@ -296,6 +314,75 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                 });
     }
 
+    private void initDeletePost() {
+        restartableFirst(REQUEST_DELETE_POST,
+                () -> ServerMethod.getInstance()
+                        .deletePost(mTeamId, mChannelId, mForDeletePost.getId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, post1) -> {
+                    ChatUtils.removePost(post1);
+/*
+                    sendOnDeleteItem(post1);
+                    sendNotifyNearItems();
+*/
+                },
+                (chatRxFragment1, throwable) -> {
+                    sendError(parceError(throwable, null));
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error delete post " + throwable.getMessage());
+                });
+    }
+
+    private void initEditPost() {
+        restartableFirst(REQUEST_EDIT_POST,
+                () -> ServerMethod.getInstance()
+                        .editPost(mTeamId, mChannelId, mForEditPost)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, post) -> {
+                    PostRepository.prepareAndAddPost(post);
+                    sendIvalidateAdapter();
+                }, (chatRxFragment1, throwable) -> {
+                    ChatUtils.setPostUpdateAt(mForEditPost.getId(), updateAt);
+                    sendIvalidateAdapter();
+                    sendError(parceError(throwable, null));
+                    Log.d(TAG, "Error edit post " + throwable.getMessage());
+                });
+    }
+
+    private void initSendToServer() {
+        restartableFirst(REQUEST_SEND_TO_SERVER,
+                () -> ServerMethod.getInstance()
+                        .sendPost(mTeamId, mChannelId, mForSendPost)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (chatRxFragment, post) -> {
+                    if (post.getFilenames() != null) {
+                        for (String fileId : post.getFilenames()) {
+                            FileInfoRepository.getInstance().updatePostId(fileId, post.getId());
+                        }
+                    }
+                    if (PostRepository.query(post.getPendingPostId()) != null) {
+                        Log.d(TAG, "initSendToServer: merge from http");
+                        PostRepository.merge(post);
+                    }
+                    startRequestUpdateLastViewedAt();
+                   // sendOnItemAdded();
+                    sendShowList();
+                    FileToAttachRepository.getInstance().deleteUploadedFiles();
+                    isSendingPost = false;
+                    Log.d(TAG, "Complete create post");
+                }, (chatRxFragment1, throwable) -> {
+                    isSendingPost = false;
+                    sendError(parceError(throwable, "Can't send message"));
+                    setErrorPost(mForSendPost.getPendingPostId());
+                    sendIvalidateAdapter();
+                    throwable.printStackTrace();
+                    Log.d(TAG, "Error create post " + throwable.getMessage());
+                });
+    }
+
     //endregion
 
 
@@ -349,6 +436,43 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         start(REQUEST_UPDATE_LAST_VIEWED_AT);
     }
 
+    /**
+     * @see #initDeletePost()
+     */
+    public void requestDeletePost(Post post) {
+        mForDeletePost = post;
+        start(REQUEST_DELETE_POST);
+    }
+
+    /**
+     * @see #initEditPost()
+     */
+    public void requestEditPost(PostEdit post) {
+        mForEditPost = post;
+        start(REQUEST_EDIT_POST);
+        ChatUtils.setPostUpdateAt(mForEditPost.getId(), null);
+        sendIvalidateAdapter();
+    }
+
+    public void requestSendToServer(Post post) {
+//        if (isSendingPost) return;
+        if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
+        isSendingPost = true;
+        mForSendPost = post;
+        String sendedPostId = post.getPendingPostId();
+        post.setId(null);
+        Post forSavePost = new Post(mForSendPost);
+        forSavePost.setId(sendedPostId);
+        forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
+                .first());
+        forSavePost.setFilenames(post.getFilenames());
+        sendEmptyMessage();
+        PostRepository.updateUnsentPosts();
+        sendIvalidateAdapter();
+        PostRepository.add(forSavePost);
+        start(REQUEST_SEND_TO_SERVER);
+
+    }
     //endregion
 
     //region send methods
@@ -441,6 +565,17 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         createTemplateObservable(new Object()).subscribe(split((chatRxFragment, s) ->
                 chatRxFragment.setMessageLayout(View.VISIBLE)));
     }
+
+    private void sendIvalidateAdapter() {
+        createTemplateObservable(new Object()).subscribe(split((chatRxFragment, o) ->
+                chatRxFragment.invalidateAdapter()));
+    }
+
+    private void sendEmptyMessage() {
+        createTemplateObservable(new Object())
+                .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
+    }
+
     //endregion
 
 
@@ -461,7 +596,10 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
 
     }
 
-
+    private void setErrorPost(String sendedPostId) {
+        ChatUtils.setPostUpdateAt(sendedPostId, Post.NO_UPDATE);
+        sendIvalidateAdapter();
+    }
 
     public static class ResponseChannelByIdInfo {
 

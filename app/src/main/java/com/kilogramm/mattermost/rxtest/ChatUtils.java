@@ -133,7 +133,15 @@ public class ChatUtils  {
 
     public static void mergePosts(Posts posts, String channelId) {
         PostRepository.merge(posts.getPosts().values(), new PostByChannelId(channelId));
-
-
     }
+
+    public static void removePost(Post post) {
+        PostRepository.remove(post);
+    }
+
+    public static void setPostUpdateAt(String id, Long updateAt) {
+        PostRepository.setUpdateAt(id, updateAt);
+    }
+
+
 }
