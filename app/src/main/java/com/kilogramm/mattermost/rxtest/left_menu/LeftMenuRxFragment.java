@@ -247,7 +247,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     public void invalidateDirect() {
         RealmResults<Channel> channels = getDirectChannelData();
-        mAdapterDirectMenuLeft.addOrUpdate(channels);
+        mAdapterDirectMenuLeft.update(channels);
+        //mAdapterDirectMenuLeft.addOrUpdate(channels);
         selectLastChannel();
         mBinding.frDirect.recView.invalidate();
         //mAdapterDirectMenuLeft.addOrUpdate(getDirectChannelData());
@@ -356,7 +357,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
         mAdapterDirectMenuLeft = new AdapterDirectMenuLeft(channels,getActivity(),this);
         channels.addChangeListener(element ->{
-            mAdapterDirectMenuLeft.addOrUpdate(channels);
+            //mAdapterDirectMenuLeft.addOrUpdate(channels);
+            mAdapterDirectMenuLeft.update(channels);
             Log.d(TAG, "initNewAdapter: change");
         });
         mBinding.frDirect.recView.setAdapter(mAdapterDirectMenuLeft);

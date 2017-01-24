@@ -107,14 +107,13 @@ public abstract class RealmAD<T extends RealmModel, VH extends RecyclerView.View
         Object rowPrimaryId;
 
         animatePrimaryColumnIndex = adapterData.getTable().getTable().getPrimaryKey();
-        if (this.animatePrimaryIdType == RealmFieldType.INTEGER) {
-            rowPrimaryId = row.getLong(this.animatePrimaryColumnIndex);
-        } else {
-            if (this.animatePrimaryIdType != RealmFieldType.STRING) {
-                throw new IllegalStateException("Unknown animatedIdType");
-            }
 
-            rowPrimaryId = row.getString(this.animatePrimaryColumnIndex);
+        if (animatePrimaryIdType == RealmFieldType.INTEGER) {
+            rowPrimaryId = row.getLong(animatePrimaryColumnIndex);
+        } else if (animatePrimaryIdType == RealmFieldType.STRING) {
+            rowPrimaryId = row.getString(animatePrimaryColumnIndex);
+        } else {
+            throw new IllegalStateException("Unknown animatedIdType");
         }
         return rowPrimaryId;
     }

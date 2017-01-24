@@ -88,56 +88,60 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
-        if (getItemViewType(position) == ITEM) {
-            int pos = isTopLoading ? position - 1 : position;
-            Post post = getData().get(isTopLoading ? position - 1 : position);
-            Calendar curDate = Calendar.getInstance();
-            Calendar preDate = Calendar.getInstance();
-            Post prePost;
-            Boolean isTitle = false;
-            Post root = null;
-            if (pos - 1 >= 0) {
-                prePost = getData().get(pos - 1);
-                curDate.setTime(new Date(post.getCreateAt()));
-                preDate.setTime(new Date(prePost.getCreateAt()));
-                if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
+        if(getData().get(position).isValid()) {
+            if (getItemViewType(position) == ITEM) {
+                int pos = isTopLoading ? position - 1 : position;
+                Post post = getData().get(isTopLoading ? position - 1 : position);
+                Calendar curDate = Calendar.getInstance();
+                Calendar preDate = Calendar.getInstance();
+                Post prePost;
+                Boolean isTitle = false;
+                Post root = null;
+                if (pos - 1 >= 0) {
+                    prePost = getData().get(pos - 1);
+                    curDate.setTime(new Date(post.getCreateAt()));
+                    preDate.setTime(new Date(prePost.getCreateAt()));
+                    if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
+                        isTitle = true;
+                    }
+                    if (post.getRootId() != null
+                            && post.getRootId().length() > 0
+                            && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
+                        root = getData().where().equalTo("id", post.getRootId()).findFirst();
+                    }
+                }
+                if (pos - 1 == -1) {
                     isTitle = true;
                 }
-                if (post.getRootId() != null
-                        && post.getRootId().length() > 0
-                        && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
-                    root = getData().where().equalTo("id", post.getRootId()).findFirst();
-                }
-            }
-            if (pos - 1 == -1) {
-                isTitle = true;
-            }
-            Post postAbove;
-            if (holder.getAdapterPosition() >= 1 && post != null) {
-                postAbove = getItem(holder.getAdapterPosition() - 1);
-                if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
-                    if (postAbove != null
-                            && postAbove.getUser() != null && post.getUser() != null
-                            && postAbove.getUser().getId().equals(post.getUser().getId())) {
-                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
-                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
-                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
+                Post postAbove;
+                if (holder.getAdapterPosition() >= 1 && post != null) {
+                    postAbove = getItem(holder.getAdapterPosition() - 1);
+                    if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
+                        if (postAbove != null
+                                && postAbove.getUser() != null && post.getUser() != null
+                                && postAbove.getUser().getId().equals(post.getUser().getId())) {
+                            ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
+                            ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
+                            ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
+                        } else {
+                            ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+                            ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+                            ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                        }
                     } else {
                         ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
                         ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
                         ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
                     }
-                } else {
-                    ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                    ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                    ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
                 }
-            }
 
-            holder.bindToItem(post, mContext, isTitle, root, mListener);
-            holder.changeChatItemBackground(mContext, mHighlitedPost != null && mHighlitedPost.equals(post.getId()));
+                holder.bindToItem(post, mContext, isTitle, root, mListener);
+                holder.changeChatItemBackground(mContext, mHighlitedPost != null && mHighlitedPost.equals(post.getId()));
+            } else {
+                holder.bindToLoadingBottom();
+            }
         } else {
-            holder.bindToLoadingBottom();
+            Log.d(TAG, "onBindViewHolder: Object Realm not valid. Position [" + position+ "]");
         }
     }
 

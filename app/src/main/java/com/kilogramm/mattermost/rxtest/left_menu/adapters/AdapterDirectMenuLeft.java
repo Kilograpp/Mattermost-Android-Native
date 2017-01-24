@@ -32,6 +32,9 @@ import java.util.Set;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 17.01.2017.
@@ -56,7 +59,8 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         this.mContext = context;
         this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         this.mItemClickListener = mItemClickListener;
-        addOrUpdate(data);
+        update(data);
+        //addOrUpdate(data);
     }
 
 
@@ -106,7 +110,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         return mAdapterData.size();
     }
 
-    private void sort(){
+    private List<IDirect> sort(){
         if(mData.size()!=0) {
             Collection<IDirect> directs = mData.values();
             List<IDirect> list = Stream.of(directs)
@@ -121,17 +125,66 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                         }
                         return Stream.of(value);
                     }).collect(Collectors.toList());
-            mAdapterData.clear();
-            mAdapterData.addAll(list);
-            /*mHandler.removeCallbacks(sendNotifyDataSetChange);
-            mHandler.postDelayed(sendNotifyDataSetChange,100);*/
-            notifyDataSetChanged();
+
+            return list;
+        } else {
+            return null;
         }
     }
 
+    public void update(RealmResults<Channel> channels){
+        List<Channel> channelObjects;
+
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        channelObjects = realm.copyFromRealm(channels);
+        realm.commitTransaction();
+        realm.close();
+        realm = null;
+
+        addOrUpdateAsync(channelObjects)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .subscribe(iDirects -> {
+                    if(iDirects!=null){
+                        mAdapterData.clear();
+                        mAdapterData.addAll(iDirects);
+                        notifyDataSetChanged();
+                    } else {
+                        Log.d(TAG, "update: iDirect is null");
+                    }
+                });
+    }
+
+    public Observable<List<IDirect>> addOrUpdateAsync(List<Channel> channels){
+        return Observable.create(subscriber -> {
+            try {
+                Log.d(TAG, "addOrUpdateAsync: " + Thread.currentThread().getId() + "mData size = " + mData.size());
+                List<String> newIds = Stream.of(channels).map(channel -> channel.getId()).collect(Collectors.toList());
+                Set<String> oldIds = new HashSet<>(mData.keySet());
+                oldIds.removeAll(newIds);
+                for (String oldId : oldIds) {
+                    mData.remove(oldId);
+                }
+                if (channels != null && channels.size() != 0) {
+                    for (Channel channel : channels) {
+                        if (!mData.containsKey(channel.getId())) {
+                            DirectItem item = buildIDirectItem(channel);
+                            mData.put(channel.getId(), item);
+                        }
+                    }
+                }
+                Log.d(TAG, "addOrUpdate: data size = " + mData.size());
+                subscriber.onNext(sort());
+                subscriber.onCompleted();
+            } catch (Exception e){
+                subscriber.onError(e);
+            }
+        });
+    }
 
     public void addOrUpdate(RealmResults<Channel> channels){
-
         Log.d(TAG, "addOrUpdate: " + Thread.currentThread().getId() + "mData size = " + mData.size());
         List<String> newIds = Stream.of(channels).map(channel -> channel.getId()).collect(Collectors.toList());
         Set<String> oldIds = new HashSet<>(mData.keySet());
@@ -153,7 +206,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private DirectItem buildIDirectItem(Channel channel){
-        long startTime = System.currentTimeMillis();
+       //long startTime = System.currentTimeMillis();
         DirectItem item = new DirectItem();
         item.channelId = channel.getId();
         item.totalMessageCount = channel.getTotalMsgCount();
@@ -186,9 +239,10 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             item.inTeam = userMembers.size()!=0;
         });
         realmO.close();
-        long endTime = System.currentTimeMillis();
+        realmO = null;
+        /*long endTime = System.currentTimeMillis();
         long duration = (endTime - startTime);
-        Log.d(TAG, "addOrUpdate: " + duration +  "milsec");
+        Log.d(TAG, "addOrUpdate: " + duration +  "milsec");*/
         return item;
     }
 
