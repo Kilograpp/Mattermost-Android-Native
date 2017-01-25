@@ -240,7 +240,7 @@ public class ManagerBroadcast {
             for (FileInfo fileInfo : fileInfos) {
                 FileInfoRepository.getInstance().add(fileInfo);
             }
-            savePost(post);
+           // savePost(post);
         });
     }
 
