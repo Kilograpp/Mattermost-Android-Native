@@ -12,9 +12,9 @@ import org.aspectj.lang.annotation.Pointcut;
 @Aspect
 public class PackageTraceAspect {
 
-    @Pointcut("execution(*.new(..))")
+    /*@Pointcut("execution(*.new(..))")
     public void anyConstructor() {}
-
+*/
     @Pointcut("execution(* com.kilogramm.mattermost..*(..))")
     public void anyMethod() {}
 
