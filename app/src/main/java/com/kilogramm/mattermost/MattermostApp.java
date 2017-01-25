@@ -40,6 +40,7 @@ import javax.net.ssl.X509TrustManager;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.internal.log.RealmLog;
 import rx.schedulers.Schedulers;
 
 /**
@@ -82,16 +83,10 @@ public class MattermostApp extends MultiDexApplication{
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
-                .name("mattermostDb.realm")
-                .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
-                .build();
-        Realm.compactRealm(configuration);
-        Realm.removeDefaultConfiguration();
-        Realm.setDefaultConfiguration(configuration);
+
         PicassoService.create(getApplicationContext());
         MattermostPreference.createInstance(getApplicationContext());
-
+        setupRealm();
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
@@ -111,6 +106,16 @@ public class MattermostApp extends MultiDexApplication{
         ImageLoader.getInstance().init(config);
         ServerMethod.buildServerMethod(getMattermostRetrofitService());
         disableSSLCertificateChecking();
+    }
+
+    private void setupRealm(){
+        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+                .name("mattermostDb.realm")
+                .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
+                .build();
+        Realm.compactRealm(configuration);
+        Realm.removeDefaultConfiguration();
+        Realm.setDefaultConfiguration(configuration);
     }
 
     public static rx.Observable<LogoutData> logout() {
