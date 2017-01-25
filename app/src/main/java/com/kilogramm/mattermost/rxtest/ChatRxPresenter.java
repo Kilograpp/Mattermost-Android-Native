@@ -285,7 +285,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                                         .observeOn(Schedulers.io()));
                             }
                         }
-                        Observable.merge(observables).subscribe(new Subscriber<List<FileInfo>>() {
+                        Observable.merge(observables)
+                                .subscribe(new Subscriber<List<FileInfo>>() {
                             @Override
                             public void onCompleted() {
                                 Log.d(TAG, "onCompleted: ");
@@ -310,7 +311,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                                     FileInfoRepository.getInstance().add(fileInfo);
                                 }
                             }
-
                         });
                     }
                 }, (chatRxFragment1, throwable) -> {
@@ -592,7 +592,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                 , (chatRxFragment, postsAll) -> {
-                    PostRepository.remove(new PostByChannelId(channelId));
+                    //PostRepository.remove(new PostByChannelId(channelId));
                     if (postsAll == null) {
                         sendCanPaginationBot(false);
                         return;

@@ -59,6 +59,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         this.mContext = context;
         this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         this.mItemClickListener = mItemClickListener;
+        Log.d(TAG, "AdapterDirectMenuLeft() called with: data = [" + data + "], context = [" + context + "], mItemClickListener = [" + mItemClickListener + "]");
         update(data);
         //addOrUpdate(data);
     }
