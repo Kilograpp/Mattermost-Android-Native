@@ -24,7 +24,7 @@ public class PackageTraceAspect {
     @Before("anyMethod() && notPerf()")
     public void doBefore(JoinPoint joinPoint) {
         Trace.beginSection(joinPoint.getSignature().toShortString());
-        Log.d("PackageTraceAspect","start:"+joinPoint.getSignature().toShortString());
+        //Log.d("PackageTraceAspect","start:"+joinPoint.getSignature().toShortString());
     }
 
     @After("anyMethod() && notPerf()")

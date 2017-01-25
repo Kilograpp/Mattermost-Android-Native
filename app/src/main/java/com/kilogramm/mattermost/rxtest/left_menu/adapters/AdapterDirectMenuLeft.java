@@ -61,7 +61,6 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         this.mItemClickListener = mItemClickListener;
         Log.d(TAG, "AdapterDirectMenuLeft() called with: data = [" + data + "], context = [" + context + "], mItemClickListener = [" + mItemClickListener + "]");
         update(data);
-        //addOrUpdate(data);
     }
 
 
@@ -134,6 +133,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void update(RealmResults<Channel> channels){
+        Log.d(TAG, "update() called with: channels = [update(RealmResults<Channel> channels)]");
         List<Channel> channelObjects;
 
         Realm realm = Realm.getDefaultInstance();
@@ -277,7 +277,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void invalidateStatus(){
-        Realm realm = Realm.getDefaultInstance();
+        /*Realm realm = Realm.getDefaultInstance();
         RealmResults<UserStatus> newStatuses = realm.where(UserStatus.class).findAll();
         for (IDirect iDirect : this.mAdapterData) {
             if(iDirect.getType()==IDirect.TYPE_ITEM){
@@ -295,11 +295,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                 });
             }
         }
-        realm.close();
+        realm.close();*/
     }
 
     public void invalidateMember() {
-        for (IDirect iDirect : this.mAdapterData) {
+        /*for (IDirect iDirect : this.mAdapterData) {
             if(iDirect instanceof DirectItem){
                 Realm realmO = Realm.getDefaultInstance();
                 realmO.executeTransaction(realm -> {
@@ -318,11 +318,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                 });
                 realmO.close();
             }
-        }
+        }*/
     }
 
     public void invalidateUsermember() {
-        for (IDirect iDirect : this.mAdapterData) {
+        /*for (IDirect iDirect : this.mAdapterData) {
             if(iDirect instanceof DirectItem){
                 Realm realmO = Realm.getDefaultInstance();
                 realmO.executeTransaction(realm -> {
@@ -334,6 +334,6 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                 });
                 realmO.close();
             }
-        }
+        }*/
     }
 }
