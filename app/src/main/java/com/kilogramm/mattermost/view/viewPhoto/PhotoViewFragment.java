@@ -2,17 +2,22 @@ package com.kilogramm.mattermost.view.viewPhoto;
 
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentPhotoViewBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
+import com.kilogramm.mattermost.ui.TouchImageView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -76,38 +81,77 @@ public class PhotoViewFragment extends Fragment {
         String preview_url = "https://mattermost.kilograpp.com/api/v3/files/"
                 + mFileInfo.getId()
                 + "/get_preview";
+
+        String thumb_url = "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/files/"
+                + mFileInfo.getId()
+                + "/get_thumbnail";
         ImageLoader.getInstance().loadImage(preview_url, options, new ImageLoadingListener() {
-                    @Override
-                    public void onLoadingStarted(String imageUri, View view) {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                Bitmap bmp = BitmapFactory.decodeFile(ImageLoader.getInstance().getDiskCache().get(thumb_url).getPath());
+                if (bmp != null) {
+                    photoBinding.image.setImageBitmap(bmp);
+                    photoBinding.image.setVisibility(View.VISIBLE);
+                    photoBinding.progressBar.setVisibility(View.VISIBLE);
+                }
+            }
 
-                    }
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                if (photoBinding.progressBar != null) {
+                    photoBinding.progressBar.setVisibility(View.GONE);
+                }
+                photoBinding.image.setVisibility(View.VISIBLE);
+                photoBinding.errorText.setVisibility(View.VISIBLE);
+            }
 
-                    @Override
-                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        if (photoBinding.progressBar != null) {
-                            photoBinding.progressBar.setVisibility(View.GONE);
-                        }
-                        photoBinding.image.setVisibility(View.VISIBLE);
-                        photoBinding.errorText.setVisibility(View.VISIBLE);
-                    }
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                if (photoBinding.image != null) photoBinding.image.setImageBitmap(loadedImage);
+                if (photoBinding.progressBar != null) {
+                    photoBinding.progressBar.setVisibility(View.GONE);
+                    photoBinding.image.setVisibility(View.VISIBLE);
+                }
+            }
 
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (photoBinding.image != null) photoBinding.image.setImageBitmap(loadedImage);
-                        if (photoBinding.progressBar != null) {
-                            photoBinding.progressBar.setVisibility(View.GONE);
-                            photoBinding.image.setVisibility(View.VISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onLoadingCancelled(String imageUri, View view) {
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
 
 
-                    }
+            }
         });
+        photoBinding.image.setOnTouchListener(new View.OnTouchListener() {
+            float oldPosition;
+            @Override
+            public boolean onTouch(View view1, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE: {
+                        if(event.getPointerCount() == 1)
+                        view1.setY(event.getRawY() - oldPosition);
 
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        view1.animate().translationY(0).setInterpolator(new OvershootInterpolator(1.5f)).setDuration(300);
+                        ((TouchImageView)view1).setZoomEnable(true);
+                        if(photoBinding.image.getCurrentZoom() == 1 && Math.abs(view1.getY()) >
+                                getActivity().getResources().getDisplayMetrics().heightPixels/4)
+                            getActivity().finish();
 
+                        break;
+                    }
+                    case MotionEvent.ACTION_DOWN: {
+                        if(view1.getY() != 0) ((TouchImageView)view1).setZoomEnable(false);
+                        oldPosition = event.getRawY();
+                        Log.i(TAG, "onTouch: ACTION_DOWN: " + event.getRawY());
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
         photoBinding.image.setVerticalSwipeListener(new VerticalSwipeListener() {
             @Override
             public void onSwipe() {
@@ -118,9 +162,9 @@ public class PhotoViewFragment extends Fragment {
             public void swipe(float beginY, float endY) {
 
                 //Log.d("SWIPE____", "swipe: {\n  beginY = " + beginY + "\n   endY = " + endY + "\n}");
-               // ((ViewPagerWGesturesActivity) getActivity()).setTransparent(Math.abs(endY-beginY)/(1.5f));
+                // ((ViewPagerWGesturesActivity) getActivity()).setTransparent(Math.abs(endY-beginY)/(1.5f));
             }
         });
     }
-    
+
 }

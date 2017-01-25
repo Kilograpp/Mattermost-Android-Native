@@ -1,19 +1,16 @@
 package com.kilogramm.mattermost.view.viewPhoto;
 
-import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
@@ -30,6 +27,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -67,6 +65,9 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
     /***/
 
+
+    ImageViewerAnimator animator;
+
     Toast errorToast;
 
     public static void start(Context context, String title, String openedFile, ArrayList<String> photoList, int[] screenLocation, int[] size) {
@@ -100,43 +101,23 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         overridePendingTransition(0, 0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
 
-        /***/
+
+
+
+
         Bundle bundle = getIntent().getExtras();
-        final int thumbnailTop = bundle.getInt(ANIMDATA + ".top");
-        final int thumbnailLeft = bundle.getInt(ANIMDATA + ".left");
-        final int thumbnailWidth = bundle.getInt(ANIMDATA + ".width");
-        final int thumbnailHeight = bundle.getInt(ANIMDATA + ".height");
-        mOriginalOrientation = bundle.getInt(ANIMDATA + ".orientation");
 
-        mBackground = new ColorDrawable(Color.BLACK);
-        binding.background.setBackground(mBackground);
+        HashMap<String, Integer> params = new HashMap<>();
+        params.put(ANIMDATA + ".top", bundle.getInt(ANIMDATA + ".top"));
+        params.put(ANIMDATA + ".left", bundle.getInt(ANIMDATA + ".left"));
+        params.put(ANIMDATA + ".width", bundle.getInt(ANIMDATA + ".width"));
+        params.put(ANIMDATA + ".height", bundle.getInt(ANIMDATA + ".height"));
+        params.put(ANIMDATA + ".orientation", bundle.getInt(ANIMDATA + ".orientation"));
 
-        if (savedInstanceState == null) {
-            ViewTreeObserver observer = binding.viewPager.getViewTreeObserver();
-            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+        animator = new ImageViewerAnimator(this, params, binding);
 
-                @Override
-                public boolean onPreDraw() {
-                    binding.viewPager.getViewTreeObserver().removeOnPreDrawListener(this);
+        if(savedInstanceState == null) animator.startAnimation();
 
-                    // Figure out where the thumbnail and full size versions are, relative
-                    // to the screen and each other
-                    int[] screenLocation = new int[2];
-                    binding.viewPager.getLocationOnScreen(screenLocation);
-                    mLeftDelta = thumbnailLeft - screenLocation[0];
-                    mTopDelta = thumbnailTop - screenLocation[1];
-
-                    // Scale factors to make the large version the same size as the thumbnail
-                    mWidthScale = (float) thumbnailWidth / binding.viewPager.getWidth();
-                    mHeightScale = (float) thumbnailHeight / binding.viewPager.getHeight();
-
-                    runEnterAnimation();
-
-                    return true;
-                }
-            });
-        }
-        /***/
         List<String> photosIdList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         for (String photoId : photosIdList) {
             photosList.add(FileInfoRepository.getInstance().get(photoId));
@@ -160,7 +141,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
             }
         }
         setupToolbar(toolbarTitle, true);
-        setColorScheme(R.color.black, R.color.black);
+        setColorScheme(R.color.transparent, R.color.transparent);
 
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -211,14 +192,18 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         }
         return super.onOptionsItemSelected(item);
     }
-/***/
+
+    /***/
     @Override
     public void finish() {
-        super.finish();
-
-        overridePendingTransition(0,0);
+//        runExitAnimation(() -> {
+//            super.finish();
+//            overridePendingTransition(0, 0);
+//        });
+        animator.finishWithAnimation(super::finish);
     }
-/***/
+
+    /***/
     private void createDialog(FileInfo fileInfo) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.file_exists));
@@ -276,109 +261,9 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public void setTransparent(float v) {
 //        getWindow().getDecorView().setAlpha(1);
 //        binding.getRoot().setAlpha(Math.abs(1 - v / 100));
-        binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-        binding.getRoot().setAlpha(v);
-    }
-/***/
-    public void runEnterAnimation() {
-        // Set starting values for properties we're going to animate. These
-        // values scale and position the full size version down to the thumbnail
-        // size/location, from which we'll animate it back up
-        binding.viewPager.setPivotX(0);
-        binding.viewPager.setPivotY(0);
-        binding.viewPager.setScaleX(mWidthScale);
-        binding.viewPager.setScaleY(mHeightScale);
-        binding.viewPager.setTranslationX(mLeftDelta);
-        binding.viewPager.setTranslationY(mTopDelta);
-
-
-        // Animate scale and translation to go from thumbnail to full size
-        binding.viewPager.animate().setDuration(ANIM_DURATION).
-                scaleX(1).scaleY(1).
-                translationX(0).translationY(0).
-                setInterpolator(sDecelerator);
-
-
-        // Fade in the black background
-        ObjectAnimator bgAnim = ObjectAnimator.ofInt(mBackground, "alpha", 0, 255);
-        bgAnim.setDuration(ANIM_DURATION);
-        bgAnim.start();
-
-//        // Animate a color filter to take the image from grayscale to full color.
-//        // This happens in parallel with the image scaling and moving into place.
-//        ObjectAnimator colorizer = ObjectAnimator.ofFloat(this,
-//                "saturation", 0, 1);
-//        colorizer.setDuration(ANIM_DURATION);
-//        colorizer.start();
-
-//        // Animate a drop-shadow of the image
-//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
-//        shadowAnim.setDuration(ANIM_DURATION);
-//        shadowAnim.start();
+//        binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+//        binding.getRoot().setAlpha(v);
     }
 
-    @Override
-    public void onBackPressed() {
-        runExitAnimation(() -> finish());
-    }
-
-
-    /**
-     * The exit animation is basically a reverse of the enter animation, except that if
-     * the orientation has changed we simply scale the picture back into the center of
-     * the screen.
-     *
-     * @param endAction This action gets run after the animation completes (this is
-     *                  when we actually switch activities)
-     */
-    public void runExitAnimation(final Runnable endAction) {
-
-        // No need to set initial values for the reverse animation; the image is at the
-        // starting size/location that we want to start from. Just animate to the
-        // thumbnail size/location that we retrieved earlier
-
-        // Caveat: configuration change invalidates thumbnail positions; just animate
-        // the scale around the center. Also, fade it out since it won't match up with
-        // whatever's actually in the center
-        final boolean fadeOut;
-        if (getResources().getConfiguration().orientation != mOriginalOrientation) {
-            binding.viewPager.setPivotX(binding.viewPager.getWidth() / 2);
-            binding.viewPager.setPivotY(binding.viewPager.getHeight() / 2);
-            mLeftDelta = 0;
-            mTopDelta = 0;
-            fadeOut = true;
-        } else {
-            fadeOut = false;
-        }
-
-
-        // Animate image back to thumbnail size/location
-        binding.viewPager.animate().setDuration(ANIM_DURATION).
-                scaleX(mWidthScale).scaleY(mHeightScale).
-                translationX(mLeftDelta).translationY(mTopDelta).
-                withEndAction(endAction);
-        if (fadeOut) {
-            binding.viewPager.animate().alpha(0);
-        }
-        // Fade out background
-        ObjectAnimator bgAnim = ObjectAnimator.ofInt(mBackground, "alpha", 0);
-        bgAnim.setDuration(ANIM_DURATION);
-        bgAnim.start();
-
-//        // Animate the shadow of the image
-//        ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout,
-//                "shadowDepth", 1, 0);
-//        shadowAnim.setDuration(ANIM_DURATION);
-//        shadowAnim.start();
-
-//         // Animate a color filter to take the image back to grayscale,
-//         // in parallel with the image scaling and moving into place.
-//        ObjectAnimator colorizer =
-//                ObjectAnimator.ofFloat(PictureDetailsActivity.this,
-//                        "saturation", 1, 0);
-//        colorizer.setDuration(ANIM_DURATION);
-//        colorizer.start();
-    }
-    /***/
 }
 

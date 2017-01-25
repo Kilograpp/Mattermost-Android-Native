@@ -64,6 +64,7 @@ public class TouchImageView extends ImageView {
     //
     private Matrix matrix, prevMatrix;
     private boolean stateSwipe = false;
+    private boolean isZoomEnable = true;
 
     private static enum State {NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM}
 
@@ -183,6 +184,10 @@ public class TouchImageView extends ImageView {
 
     public void setOnDoubleTapListener(GestureDetector.OnDoubleTapListener l) {
         doubleTapListener = l;
+    }
+
+    public void setZoomEnable(boolean enable){
+        this.isZoomEnable = enable;
     }
 
     @Override
@@ -942,8 +947,10 @@ public class TouchImageView extends ImageView {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            setState(State.ZOOM);
-            return true;
+            if(isZoomEnable) {
+                setState(State.ZOOM);
+                return true;
+            }else return false;
         }
 
         @Override
