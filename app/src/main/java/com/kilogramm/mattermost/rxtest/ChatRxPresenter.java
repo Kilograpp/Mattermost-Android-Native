@@ -119,8 +119,6 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     @State
     Long updateAt;
     @State
-    Boolean isSendingPost = false;
-    @State
     String searchMessageId;
 
     @Override
@@ -373,10 +371,8 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
                     sendOnItemAdded();
                     sendShowList();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
-                    isSendingPost = false;
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
-                    isSendingPost = false;
                     sendError(parceError(throwable, "Can't send message"));
                     setErrorPost(forSendPost.getPendingPostId());
                     sendIvalidateAdapter();
@@ -673,9 +669,7 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
     }
 
     public void requestSendToServer(Post post) {
-//        if (isSendingPost) return;
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
-        isSendingPost = true;
         forSendPost = post;
         String sendedPostId = post.getPendingPostId();
         post.setId(null);
@@ -684,21 +678,15 @@ public class ChatRxPresenter extends BaseRxPresenter<ChatRxFragment> {
         forSavePost.setUser(UserRepository.query(new UserRepository.UserByIdSpecification(forSavePost.getUserId()))
                 .first());
         forSavePost.setFilenames(post.getFilenames());
-        //TODO markdown cpp
-        //forSavePost.setMessage(Processor.process(forSavePost.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         sendEmptyMessage();
         PostRepository.updateUnsentPosts();// TODO: 12.01.17
         sendIvalidateAdapter();
         PostRepository.add(forSavePost);
         start(REQUEST_SEND_TO_SERVER);
-
     }
 
     public void requestSendToServerError(Post post) {
-//        if (isSendingPost) return;
-        isSendingPost = true;
         forSendPost = post;
-
 //        post.setUpdateAt(null);// TODO: 12.01.17
         Post post1 = PostRepository.query(new PostByIdSpecification(post.getId())).first();
         Realm.getDefaultInstance().executeTransaction(realm -> post1.setUpdateAt(null));

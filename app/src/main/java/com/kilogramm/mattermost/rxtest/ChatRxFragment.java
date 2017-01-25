@@ -263,7 +263,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         getPresenter().requestLoadPosts();
     }
 
-    private void disableLoaders(){
+    private void disableLoaders() {
         Log.d("DISABLE", "disable loading");
         binding.rev.disableShowLoadMoreTop();
         binding.rev.disableShowLoadMoreBot();
@@ -274,9 +274,9 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
     public void onResume() {
         super.onResume();
         setupToolbar("", channelName, v -> {
-            if(getPresenter().isDirectChannel()){
+            if (getPresenter().isDirectChannel()) {
                 String userId = getPresenter().getDirectUserId();
-                if(userId!=null){
+                if (userId != null) {
                     ProfileRxActivity.start(getActivity(), userId);
                 } else {
                     Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
@@ -314,7 +314,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         isFocus = false;
         try {
             binding.rev.smoothScrollToPosition(positionItemMessage);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "slideToMessageById() called");
         }
@@ -616,16 +616,17 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
-        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(binding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         String message = post.getMessage().trim();
-        if (
-                message.length() != 0 && FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
-                        message.length() == 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
-                        message.length() != 0 && !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() && !FileToAttachRepository.getInstance().haveUnloadedFiles()
+        if (message.length() != 0 &&
+                FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() ||
+                message.length() == 0 &&
+                        !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() &&
+                        !FileToAttachRepository.getInstance().haveUnloadedFiles() ||
+                message.length() != 0 &&
+                        !FileToAttachRepository.getInstance().getFilesForAttach().isEmpty() &&
+                        !FileToAttachRepository.getInstance().haveUnloadedFiles()
                 ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
@@ -683,8 +684,8 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int bottomRow = (recyclerView == null || recyclerView.getChildCount() == 0)
-                                ? 0
-                                : recyclerView.getAdapter().getItemCount() - 1;
+                        ? 0
+                        : recyclerView.getAdapter().getItemCount() - 1;
                 int lastVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findLastVisibleItemPosition();
                 if (bottomRow == lastVisiblePosition) {
@@ -851,41 +852,41 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
             Channel channel = ChannelRepository.query(
                     new ChannelRepository.ChannelByIdSpecification(channelId)).last();
 
-        User user = Realm.getDefaultInstance().where(User.class)
-                .equalTo("id", getPresenter().getDirectUserId()).findFirst();
+            User user = Realm.getDefaultInstance().where(User.class)
+                    .equalTo("id", getPresenter().getDirectUserId()).findFirst();
 
-        String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
-                .format(new Date(channel.getCreateAt()));
+            String createAtDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH)
+                    .format(new Date(channel.getCreateAt()));
 
-        binding.emptyListTitle.setVisibility(View.VISIBLE);
-        binding.emptyListMessage.setVisibility(View.VISIBLE);
-        if (channel.getType().equals(Channel.DIRECT)) {
-            binding.emptyListTitle.setText(user.getUsername());
-            binding.emptyListMessage.setText(String.format(
-                    getResources().getString(R.string.empty_dialog_direct_message), user.getUsername()));
-        } else {
-            binding.emptyListTitle.setText(String.format(
-                    getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
-
-            String emptyListMessage = String.format(
-                    getResources().getString(R.string.empty_dialog_beginning_message),
-                    channel.getDisplayName(), createAtDate);
-
-            if (channel.getType().equals(Channel.OPEN)) {
-                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + " " + getResources().getString(R.string.empty_dialog_group_message)));
+            binding.emptyListTitle.setVisibility(View.VISIBLE);
+            binding.emptyListMessage.setVisibility(View.VISIBLE);
+            if (channel.getType().equals(Channel.DIRECT)) {
+                binding.emptyListTitle.setText(user.getUsername());
+                binding.emptyListMessage.setText(String.format(
+                        getResources().getString(R.string.empty_dialog_direct_message), user.getUsername()));
             } else {
-                binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
-                        + " " + getResources().getString(R.string.empty_dialog_private_message)));
+                binding.emptyListTitle.setText(String.format(
+                        getResources().getString(R.string.empty_dialog_title), channel.getDisplayName()));
+
+                String emptyListMessage = String.format(
+                        getResources().getString(R.string.empty_dialog_beginning_message),
+                        channel.getDisplayName(), createAtDate);
+
+                if (channel.getType().equals(Channel.OPEN)) {
+                    binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                            + " " + getResources().getString(R.string.empty_dialog_group_message)));
+                } else {
+                    binding.emptyListMessage.setText(new StringBuilder(emptyListMessage
+                            + " " + getResources().getString(R.string.empty_dialog_private_message)));
+                }
+                binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
+                binding.emptyListInviteOthers.setOnClickListener(
+                        v -> AddMembersActivity.start(getActivity(), channel.getId()));
+                binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
             }
-            binding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
-            binding.emptyListInviteOthers.setOnClickListener(
-                    v -> AddMembersActivity.start(getActivity(), channel.getId()));
-            binding.emptyListInviteOthers.setVisibility(View.VISIBLE);
-        }
-        binding.emptyList.setVisibility(View.VISIBLE);
-        binding.newMessageLayout.setVisibility(View.VISIBLE);
-        }catch (IndexOutOfBoundsException e){
+            binding.emptyList.setVisibility(View.VISIBLE);
+            binding.newMessageLayout.setVisibility(View.VISIBLE);
+        } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, "showEmptyList: ", e);
         }
     }
