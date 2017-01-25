@@ -3,6 +3,7 @@ package com.kilogramm.mattermost;
 import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -40,6 +41,8 @@ import javax.net.ssl.X509TrustManager;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.log.AndroidLogger;
+import io.realm.log.RealmLog;
 import rx.schedulers.Schedulers;
 
 /**
@@ -83,7 +86,9 @@ public class MattermostApp extends MultiDexApplication{
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
         // Realm.init(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+        Realm.init(getApplicationContext());
+        RealmLog.add(new AndroidLogger(Log.WARN));
+        RealmConfiguration configuration = new RealmConfiguration.Builder()
                 .name("mattermostDb.realm")
                 .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
                 .build();

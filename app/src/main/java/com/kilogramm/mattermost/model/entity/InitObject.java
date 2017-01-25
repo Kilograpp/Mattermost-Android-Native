@@ -36,6 +36,7 @@ public class InitObject extends RealmObject {
         private Map<String, User> mapDerectProfile;
         @SerializedName("preferences")
         @Expose
+        @Ignore
         private RealmList<Preferences> preferences;
         @SerializedName("client_cfg")
         @Expose

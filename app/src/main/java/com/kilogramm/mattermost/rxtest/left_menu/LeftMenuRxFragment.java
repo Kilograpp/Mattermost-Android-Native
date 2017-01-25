@@ -17,7 +17,6 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
 import com.kilogramm.mattermost.model.UserMember;
-import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -42,6 +41,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import java.util.Objects;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -88,8 +88,9 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_left_menu, container, false);
         View view = mBinding.getRoot();
-        mPreferences = PreferenceRepository.query(new PreferenceRepository.PreferenceByCategorySpecification("direct_channel_show"))
-                .where()
+        mPreferences = Realm.getDefaultInstance()
+                .where(Preferences.class)
+                .equalTo("category","direct_channel_show")
                 .equalTo("value", "true")
                 .findAll();
         mPreferences.addChangeListener(element -> {
