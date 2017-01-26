@@ -128,15 +128,13 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
                             ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
                             ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
                         } else {
-                            ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                            ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                            ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                            showAllViews(holder);
                         }
                     } else {
-                        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
+                        showAllViews(holder);
                     }
+                } else {
+                    showAllViews(holder);
                 }
 
                 holder.bindToItem(post, mContext, isTitle, root, mListener);
@@ -147,6 +145,17 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         } else {
             holder.bindToLoadingBottom();
         }
+    }
+
+    /**
+     * Shows avatar, time and nickname for post.
+     *
+     * @param holder
+     */
+    private void showAllViews(PostViewHolder holder) {
+        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
     }
 
     public void setLoadingTop(Boolean enabled) {
