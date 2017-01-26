@@ -62,7 +62,7 @@ public class PostRepository {
 
     public static Post query(String id) {
         Realm realm = Realm.getDefaultInstance();
-        realm.waitForChange();
+        //realm.waitForChange();
         return realm.where(Post.class).equalTo("id", id).findFirst();
     }
 
@@ -124,7 +124,9 @@ public class PostRepository {
     }
 
     public static void prepareAndAddPost(Post post) {
+
         Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
         if (!post.isSystemMessage())
             post.setUser(realm.where(User.class).equalTo("id", post.getUserId()).findFirst());
         else
@@ -139,6 +141,7 @@ public class PostRepository {
         }
         //post.setMessage(Processor.process(post.getMessage(), Configuration.builder().forceExtentedProfile().build()));
         realm.insertOrUpdate(post);
+        realm.commitTransaction();
         //add(post);
     }
 
@@ -221,4 +224,65 @@ public class PostRepository {
     }
 
 
+    public static void mergeWithDelete(Post item) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        try {
+            Log.d(TAG, "merge: start");
+            Post post = realm.where(Post.class)
+                    .equalTo("id", item.getPendingPostId()).findFirst();
+            post.deleteFromRealm();
+            Log.d(TAG, "mergeWithDelete: post delete");
+            if (item.isSystemMessage())
+                item.setUser(new User("System", "System", "System"));
+            else
+                item.setUser(realm.where(User.class).equalTo("id", item.getUserId()).findFirst());
+            item.setViewed(true);
+            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                item.setProps(null);
+            }
+            realm.insertOrUpdate(item);
+            Log.d(TAG, "merge: end");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public static void mergeSendedPost(Post item) {
+        String pendingPostId = item.getPendingPostId();
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Post post1 = realm.where(Post.class)
+                .equalTo("id", pendingPostId)
+                .or()
+                .equalTo("pendingPostId",pendingPostId)
+                .findFirst();
+        if(post1!=null){
+            post1.deleteFromRealm();
+            if (item.isSystemMessage())
+                item.setUser(new User("System", "System", "System"));
+            else
+                item.setUser(realm.where(User.class).equalTo("id", item.getUserId()).findFirst());
+            item.setViewed(true);
+            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                item.setProps(null);
+            }
+            realm.insertOrUpdate(item);
+        } else {
+            if (!item.isSystemMessage())
+                item.setUser(realm.where(User.class).equalTo("id", item.getUserId()).findFirst());
+            else
+                item.setUser(new User("System", "System", "System"));
+            item.setViewed(true);
+            if (item.getProps() == null || item.getProps().getFrom_webhook() == null) {
+                item.setProps(null);
+            }
+            realm.insertOrUpdate(item);
+        }
+        realm.commitTransaction();
+        realm.close();
+        realm = null;
+    }
 }
