@@ -362,6 +362,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private void initListChat() {
         RealmResults<Post> results = PostRepository.query(new PostByChannelId(mChannelId));
         results.addChangeListener(element -> {
+            Log.d(TAG, "initListChat() change listener called");
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) mBinding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
@@ -851,9 +852,36 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public void setRefreshing(boolean b) {
         mBinding.swipeRefreshLayout.setRefreshing(b);
+        //enableAllPagination();
+    }
+
+    public void enableAllPagination() {
         mBinding.rev.setCanPagination(true);
         mBinding.rev.setCanPaginationTop(true);
         mBinding.rev.setCanPaginationBot(true);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+    public void enableTopPagination() {
+        mBinding.rev.setCanPagination(true);
+        mBinding.rev.setCanPaginationTop(true);
+        mBinding.rev.setCanPaginationBot(false);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+    public void enableBotPagination() {
+        mBinding.rev.setCanPagination(true);
+        mBinding.rev.setCanPaginationTop(false);
+        mBinding.rev.setCanPaginationBot(true);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+    public void disablePagination() {
+        mBinding.rev.setCanPagination(false);
+        mBinding.rev.setCanPaginationTop(false);
+        mBinding.rev.setCanPaginationBot(false);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
     }
 
     public void slideToMessageById() {
