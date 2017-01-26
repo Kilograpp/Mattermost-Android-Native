@@ -56,7 +56,7 @@ public class FileDownloadManager {
      */
     private Map<String, FileDownloadListener> fileDownloadListeners;
 
-//    private DownloadManager manager;
+    //    private DownloadManager manager;
 //    private long downloadId;
     private String fileId;
 
@@ -117,8 +117,13 @@ public class FileDownloadManager {
         if (!FileInfoRepository.getInstance().haveDownloadingFile()) {
             FileInfo fileInfo = FileInfoRepository.getInstance().getUndownloadedFile();
             if (fileInfo != null && fileInfo.isValid()) {
-                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADING);
-                downloadFile(Realm.getDefaultInstance().copyFromRealm(fileInfo));
+                FileInfoRepository.getInstance()
+                        .updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADING);
+                FileInfo fileInfoNotManagedByRealm = Realm.getDefaultInstance()
+                        .copyFromRealm(fileInfo);
+                new Thread(() -> {
+                    downloadFile(fileInfoNotManagedByRealm);
+                }).start();
             }
         }
     }
@@ -345,112 +350,106 @@ public class FileDownloadManager {
             startDownload();
             return;
         }
+        NotificationManager notificationManager = (NotificationManager) MattermostApp.
+                getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.
+                Builder(MattermostApp.getSingleton().getApplicationContext());
+        int id = 1;
 
-        new Thread(() -> {
-//            Looper.prepare();
-//            Looper.loop();
-            NotificationManager notificationManager = (NotificationManager) MattermostApp.
-                    getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationCompat.Builder builder = new NotificationCompat.
-                    Builder(MattermostApp.getSingleton().getApplicationContext());
-            int id = 1;
+        String uri = "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/files/"
+                + fileId
+                + "/get";
+        InputStream input = null;
+        OutputStream output = null;
+        try {
+            URL url = new URL(uri);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.addRequestProperty("Authorization", "Bearer " +
+                    MattermostPreference.getInstance().getAuthToken());
+            String contentLength = urlConnection.getHeaderField("Content-Length");
+            long fileLength;
+            if (contentLength != null) {
+                fileLength = Long.parseLong(contentLength);
+            } else {
+                fileLength = 0;
+            }
+            input = new BufferedInputStream(urlConnection.getInputStream());
 
-            String uri = "https://"
-                    + MattermostPreference.getInstance().getBaseUrl()
-                    + "/api/v3/files/"
-                    + fileId
-                    + "/get";
-            InputStream input = null;
-            OutputStream output = null;
-            try {
-                URL url = null;
-                url = new URL(uri);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.addRequestProperty("Authorization", "Bearer " +
-                        MattermostPreference.getInstance().getAuthToken());
-                String contentLength = urlConnection.getHeaderField("Content-Length");
-                long fileLength;
-                if (contentLength != null) {
-                    fileLength = Long.parseLong(contentLength);
-                } else {
-                    fileLength = 0;
-                }
-                input = new BufferedInputStream(urlConnection.getInputStream());
+            File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String fileName = fileInfo.getmName();
+            if (fileName != null) {
+                builder.setContentTitle(fileName).setSmallIcon(R.drawable.ic_downloaded_file);
+                builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
 
-                File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                String fileName = fileInfo.getmName();
-                if (fileName != null) {
-                    builder.setContentTitle(fileName).setSmallIcon(R.drawable.ic_downloaded_file);
-                    builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
-
-                    output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
-                    byte data[] = new byte[4096];
-                    long total = 0;
-                    long lastTimeUpdate = 0;
-                    int count;
-                    while ((count = input.read(data)) != -1 && !isStopCurrent) {
-                        total += count;
-                        if (fileLength > 0) {
-                            if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
-                                lastTimeUpdate = System.currentTimeMillis();
-                                builder.setProgress(100, (int) (total * 100 / fileLength), false);
-                                notificationManager.notify(id, builder.build());
-                                if (fileDownloadListeners.get(fileId) != null) {
-                                    fileDownloadListeners.get(fileId)
-                                            .onProgress((int) (total * 100 / fileLength));
-                                }
+                output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
+                byte data[] = new byte[4096];
+                long total = 0;
+                long lastTimeUpdate = 0;
+                int count;
+                while ((count = input.read(data)) != -1 && !isStopCurrent) {
+                    total += count;
+                    if (fileLength > 0) {
+                        if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
+                            lastTimeUpdate = System.currentTimeMillis();
+                            builder.setProgress(100, (int) (total * 100 / fileLength), false);
+                            notificationManager.notify(id, builder.build());
+                            if (fileDownloadListeners.get(fileId) != null) {
+                                fileDownloadListeners.get(fileId)
+                                        .onProgress((int) (total * 100 / fileLength));
                             }
                         }
-                        output.write(data, 0, count);
                     }
-                }
-                urlConnection.disconnect();
-                if(!isStopCurrent) {
-                    fileDownloadListeners.get(fileId).onComplete(fileId);
-                    FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
-
-                    builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
-
-                    Intent intent = FileUtil.getInstance().createOpenFileIntent(dir.getAbsolutePath() + File.separator + fileName);
-
-                    if (intent.resolveActivityInfo(MattermostApp.getSingleton()
-                            .getApplicationContext().getPackageManager(), 0) != null) {
-                        builder.setAutoCancel(true);
-                        builder.setContentIntent(PendingIntent.getActivity(MattermostApp
-                                .getSingleton().getApplicationContext(), 0, intent, 0));
-                    }
-                    notificationManager.notify(id, builder.build());
-                } else {
-                    notificationManager.cancel(id);
-                    isStopCurrent = false;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
-                if (fileDownloadListener != null) {
-                    fileDownloadListener.onError(fileId);
-                }
-                fileDownloadListeners.remove(fileId);
-                startDownload();
-                FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.IN_LIST);
-            } finally {
-                FileInfoRepository.getInstance().remove(fileId);
-                try {
-                    if (output != null) {
-                        output.close();
-                    }
-                    if (input != null) {
-                        input.close();
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    output.write(data, 0, count);
                 }
             }
-        }).start();
+            urlConnection.disconnect();
+            if (!isStopCurrent) {
+                fileDownloadListeners.get(fileId).onComplete(fileId);
+                FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
+
+                builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
+
+                Intent intent = FileUtil.getInstance().createOpenFileIntent(dir.getAbsolutePath() + File.separator + fileName);
+
+                if (intent.resolveActivityInfo(MattermostApp.getSingleton()
+                        .getApplicationContext().getPackageManager(), 0) != null) {
+                    builder.setAutoCancel(true);
+                    builder.setContentIntent(PendingIntent.getActivity(MattermostApp
+                            .getSingleton().getApplicationContext(), 0, intent, 0));
+                }
+                notificationManager.notify(id, builder.build());
+            } else {
+                notificationManager.cancel(id);
+                isStopCurrent = false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+            if (fileDownloadListener != null) {
+                fileDownloadListener.onError(fileId);
+            }
+            FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.IN_LIST);
+        } finally {
+            fileDownloadListeners.remove(fileId);
+            startDownload();
+            try {
+                if (output != null) {
+                    output.close();
+                }
+                if (input != null) {
+                    input.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     // endregion
