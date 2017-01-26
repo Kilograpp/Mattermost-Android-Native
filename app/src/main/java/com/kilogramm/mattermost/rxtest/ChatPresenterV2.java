@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.rxtest;
 
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -12,6 +13,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
@@ -23,6 +25,7 @@ import com.kilogramm.mattermost.network.ServerMethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
 import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -46,6 +49,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private static final int REQUEST_DELETE_POST = 7;
     private static final int REQUEST_EDIT_POST = 8;
     private static final int REQUEST_SEND_TO_SERVER = 9;
+    //private static final int REQUEST_SEND_TO_SERVER_ERROR = 10;
 
 
     private String mChannelType;
@@ -268,7 +272,12 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                             public void onCompleted() {
                                 ChatUtils.mergePosts(posts,mChannelId);
                                 startRequestUpdateLastViewedAt();
-                                sendFinishLoadPosts();
+                                sendEnableTopPagination();
+                                sendRefreshing(false);
+                                sendVisiblePrograssBar(false);
+                                sendShowList();
+                                setGoodLayout();
+                                //sendFinishLoadPosts();
                             }
 
                             @Override
@@ -280,7 +289,11 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                                 }
                                 ChatUtils.mergePosts(posts,mChannelId);
                                 startRequestUpdateLastViewedAt();
-                                sendFinishLoadPosts();
+                                sendRefreshing(false);
+                                sendEnableTopPagination();
+                                sendVisiblePrograssBar(false);
+                                sendShowList();
+                                setGoodLayout();
                             }
 
                             @Override
@@ -291,6 +304,10 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     }
                 }, (chatRxFragment1, throwable) -> {
                     sendRefreshing(false);
+                    sendEnableTopPagination();
+                    sendVisiblePrograssBar(false);
+                    sendShowList();
+                    setGoodLayout();
                     if (!isNetworkAvailable()) {
                         sendError(parceError(null, NO_NETWORK));
                     } else {
@@ -299,6 +316,8 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     throwable.printStackTrace();
                 });
     }
+
+
 
     private void initUpdateLastViewedAt() {
         restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () ->
@@ -363,10 +382,13 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                             FileInfoRepository.getInstance().updatePostId(fileId, post.getId());
                         }
                     }
-                    if (PostRepository.query(post.getPendingPostId()) != null) {
+                    PostRepository.mergeSendedPost(post);
+                    /*if (PostRepository.query(post.getPendingPostId()) != null) {
                         Log.d(TAG, "initSendToServer: merge from http");
-                        PostRepository.merge(post);
-                    }
+                        PostRepository.mergeWithDelete(post);
+                    } else {
+                        Log.d(TAG, "initSendToServer: post pending id not found");
+                    }*/
                     startRequestUpdateLastViewedAt();
                    // sendOnItemAdded();
                     sendShowList();
@@ -456,6 +478,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
 
     public void requestSendToServer(Post post) {
 //        if (isSendingPost) return;
+        Log.d(TAG, "requestSendToServer() called with: post = [" + post + "]");
         if (FileToAttachRepository.getInstance().haveUnloadedFiles()) return;
         isSendingPost = true;
         mForSendPost = post;
@@ -470,9 +493,22 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         PostRepository.updateUnsentPosts();
         sendIvalidateAdapter();
         PostRepository.add(forSavePost);
+        Log.d(TAG, "requestSendToServer: req start");
         start(REQUEST_SEND_TO_SERVER);
-
     }
+
+    public void requestSendToServerError(Post post) {
+        isSendingPost = true;
+        mForSendPost = post;
+        Post post1 = PostRepository.query(new PostByIdSpecification(post.getId())).first();
+        Realm.getDefaultInstance().executeTransaction(realm -> post1.setUpdateAt(null));
+        sendIvalidateAdapter();
+        post.setId(null);
+        post.setUser(null);
+        post.setMessage(Html.fromHtml(post.getMessage()).toString().trim());
+        start(REQUEST_SEND_TO_SERVER);
+    }
+
     //endregion
 
     //region send methods
@@ -575,6 +611,20 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         createTemplateObservable(new Object())
                 .subscribe(split((chatRxFragment, o) -> chatRxFragment.setMessage("")));
     }
+
+    private void sendEnableTopPagination() {
+        createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableTopPagination()));
+    }
+    private void sendEnableBotPagination() {
+        createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableBotPagination()));
+    }
+    private void sendEnableAllPagination() {
+        createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableAllPagination()));
+    }
+    private void sendDisableAllPagination() {
+        createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.disablePagination()));
+    }
+
 
     //endregion
 
