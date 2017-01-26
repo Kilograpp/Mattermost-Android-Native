@@ -307,7 +307,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void slideToMessageById() {
         if (adapter != null) {
-            adapter.setmHighlitedPost(searchMessageId);
+            adapter.setmHighlightedPostId(searchMessageId);
             positionItemMessage = adapter.getPositionById(searchMessageId);
         }
 
@@ -327,14 +327,14 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
                 int pLast = layoutManager.findLastVisibleItemPosition();
                 //Log.d("testLinearLayoutManager", String.format("%d %d %d", pFirst, pLast, positionItemMessage));
 
-                if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                if (adapter != null && adapter.getmHighlightedPostId() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
                     isFocus = true;
                     //Log.d("testLinearLayoutManager", String.format("isFocus %d %d", pFirst, pLast));
                 }
 
                 if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
                     //Log.d("testLinearLayoutManager", String.format("reset %d %d", pFirst, pLast));
-                    if (adapter != null) adapter.setmHighlitedPost(null);
+                    if (adapter != null) adapter.setmHighlightedPostId(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
                     binding.rev.removeOnScrollListener(this);
