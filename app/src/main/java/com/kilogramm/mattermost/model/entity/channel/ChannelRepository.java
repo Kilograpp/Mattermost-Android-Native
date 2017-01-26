@@ -6,6 +6,8 @@ import android.util.Log;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.RealmSpecification;
 import com.kilogramm.mattermost.model.Specification;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
+import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.user.User;
 
 import java.util.Collection;
@@ -210,6 +212,25 @@ public class ChannelRepository {
                     .or()
                     .equalTo("name", userId + "__" + myId)
                     .findAll();
+        }
+    }
+
+    public static class ChannelListDirectMenu implements RealmSpecification {
+
+        @Override
+        public RealmResults toRealmResults(Realm realm) {
+            RealmResults<Preferences> mPreferences = PreferenceRepository.query(new PreferenceRepository.ListDirectMenu());
+            RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
+            for (int i = 0; i < mPreferences.size(); i++) {
+                String name = String.format("%s__%s", mPreferences.get(i).getName(), mPreferences.get(i).getUser_id());
+                String revertName = String.format("%s__%s", mPreferences.get(i).getUser_id(), mPreferences.get(i).getName());
+                if(i==mPreferences.size()-1){
+                    realmQuery.equalTo("name", name).or().equalTo("name", revertName);
+                } else {
+                    realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
+                }
+            }
+            return realmQuery.findAllSorted("username", Sort.ASCENDING);
         }
     }
     //endregion

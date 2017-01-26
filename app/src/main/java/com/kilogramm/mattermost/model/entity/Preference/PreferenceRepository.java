@@ -120,5 +120,15 @@ public class PreferenceRepository {
         }
     }
 
+    public static class ListDirectMenu implements RealmSpecification {
+
+        @Override
+        public RealmResults<Preferences> toRealmResults(Realm realm) {
+            return realm.where(Preferences.class).equalTo("category","direct_channel_show")
+                    .equalTo("value", "true")
+                    .findAll();
+        }
+    }
+
 
 }

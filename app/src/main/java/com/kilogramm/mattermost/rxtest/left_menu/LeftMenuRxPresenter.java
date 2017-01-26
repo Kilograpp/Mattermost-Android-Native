@@ -7,6 +7,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -20,6 +21,7 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.schedulers.Schedulers;
 
 
@@ -53,12 +55,13 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     public void requestUpdate(List<Preferences> preferences) {
-        this.mDirectIds.clear();
-        List<String> ids = Stream.of(preferences)
-                .map(Preferences::getName)
-                .collect(Collectors.toList());
-        this.mDirectIds.addAll(ids);
-        start(REQUEST_UPDATE);
+        getIds().subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(strings -> {
+                    mDirectIds.clear();
+                    mDirectIds.addAll(strings);
+                    start(REQUEST_UPDATE);
+                });
     }
 
     private void initRequest() {
@@ -68,11 +71,11 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void initLeftMenuRequest() {
-        restartableFirst(REQUEST_INIT,() ->
-                ServerMethod.getInstance()
-                        .loadLeftMenu(mDirectIds, MattermostPreference.getInstance().getTeamId())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
+        restartableFirst(REQUEST_INIT, () ->
+                        ServerMethod.getInstance()
+                                .loadLeftMenu(mDirectIds, MattermostPreference.getInstance().getTeamId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io())
                 , (leftMenuRxFragment, responseLeftMenuData) -> {
                     UserRepository.add(responseLeftMenuData.getStringUserMap().values());
                     UserMemberRepository.add(responseLeftMenuData.getUserMembers());
@@ -82,7 +85,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     sendShowLeftMenu();
                     sendSelectLastChannel();
                 }, (leftMenuRxFragment, throwable) -> {
-                    sendErrorLoading(parceError(throwable,null));
+                    sendErrorLoading(parceError(throwable, null));
                     throwable.printStackTrace();
                 });
     }
@@ -98,15 +101,15 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void initChannelUpdateRequest() {
-        restartableFirst(REQUEST_UPDATE,() ->
-                ServerMethod.getInstance()
+        restartableFirst(REQUEST_UPDATE,
+                () -> ServerMethod.getInstance()
                         .loadLeftMenu(mDirectIds, MattermostPreference.getInstance().getTeamId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                 , (leftMenuRxFragment, responseLeftMenuData) -> {
                     UserRepository.add(responseLeftMenuData.getStringUserMap().values());
                     UserMemberRepository.add(responseLeftMenuData.getUserMembers());
-                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(),MattermostPreference.getInstance().getMyUserId());
+                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(), MattermostPreference.getInstance().getMyUserId());
                     MembersRepository.add(responseLeftMenuData.getMembers());
                     sendSetRefreshAnimation(false);
                     sendInvalidateData();
@@ -151,8 +154,8 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
     private void sendInvalidateData() {
-    createTemplateObservable(new Object())
-            .subscribe(split((leftMenuRxFragment, o) -> leftMenuRxFragment.invalidateDirect()));
+        createTemplateObservable(new Object())
+                .subscribe(split((leftMenuRxFragment, o) -> leftMenuRxFragment.invalidateDirect()));
     }
 
     private void sendSetRefreshAnimation(Boolean bool) {
@@ -177,5 +180,20 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 .collect(Collectors.toList());
         this.mDirectIds.addAll(ids);
         start(REQUEST_INIT);
+    }
+
+    public Observable<List<String>> getIds() {
+        return Observable.create(subscriber -> {
+            try {
+                List<String> ids = Stream.of(PreferenceRepository.query(new PreferenceRepository.ListDirectMenu()))
+                        .map(Preferences::getName)
+                        .collect(Collectors.toList());
+                subscriber.onNext(ids);
+                subscriber.onCompleted();
+            } catch (Exception e) {
+                subscriber.onError(e);
+            }
+
+        });
     }
 }

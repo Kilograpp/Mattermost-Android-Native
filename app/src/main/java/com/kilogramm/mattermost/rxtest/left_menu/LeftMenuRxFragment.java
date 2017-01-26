@@ -17,6 +17,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
 import com.kilogramm.mattermost.model.UserMember;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -41,7 +42,6 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import java.util.Objects;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -88,11 +88,8 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_left_menu, container, false);
         View view = mBinding.getRoot();
-        mPreferences = Realm.getDefaultInstance()
-                .where(Preferences.class)
-                .equalTo("category","direct_channel_show")
-                .equalTo("value", "true")
-                .findAll();
+        mPreferences = PreferenceRepository.query(new PreferenceRepository.ListDirectMenu());
+
         mPreferences.addChangeListener(element -> {
             Log.d(TAG, "onCreateView: prefChange");
             onRefresh();
@@ -110,7 +107,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
             }
         });
         mUserMembers = UserMemberRepository.query(new UserMemberRepository.UserMemberAllSpecification());
-        mUserMembers.addChangeListener(element -> mAdapterDirectMenuLeft.invalidateUsermember());
+        mUserMembers.addChangeListener(element -> mAdapterDirectMenuLeft.update());
 
         mUserStatuses = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mUserStatuses.addChangeListener(element -> {
@@ -176,9 +173,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     @Override
     public void onRefresh() {
-        getPresenter().requestUpdate(Stream.of(mPreferences)
-                .filter(value -> Objects.equals(value.getValue(), "true"))
-                .collect(Collectors.toList()));
+        getPresenter().requestUpdate(mPreferences);
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
@@ -200,46 +195,13 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         initChannelList();
         initPrivateList();
         initDirectList();
-       /* initNewAdapter();*/
     }
-
-   /* private void initNewAdapter() {
-        RealmResults<Channel> channels = getDirectChannelData();
-        mAdapterDirectMenuLeft = new AdapterDirectMenuLeft(channels,getActivity(),this);
-        channels.addChangeListener(element ->{
-            mAdapterDirectMenuLeft.addOrUpdate(channels);
-        });
-        //mAdapterDirectMenuLeft.addOrUpdate(channels);
-    }*/
-
     public void setRefreshAnimation(boolean isVisible) {
         mBinding.leftSwipeRefresh.setRefreshing(isVisible);
     }
 
     public RealmResults<Channel> getDirectChannelData() {
-        String my_id = MattermostPreference.getInstance().getMyUserId();
-        RealmQuery<Channel> realmQuery = RealmQuery.createQuery(Realm.getDefaultInstance(), Channel.class);
-        for (int i = 0; i < mPreferences.size(); i++) {
-            String name = String.format("%s__%s", mPreferences.get(i).getName(), mPreferences.get(i).getUser_id());
-            String revertName = String.format("%s__%s", mPreferences.get(i).getUser_id(), mPreferences.get(i).getName());
-            if(i==mPreferences.size()-1){
-                realmQuery.equalTo("name", name).or().equalTo("name", revertName);
-            } else {
-             realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
-            }
-        }
-        /*for (Preferences preference : mPreferences) {
-            String name = String.format("%s__%s", preference.getName(), preference.getUser_id());
-            String revertName = String.format("%s__%s", preference.getUser_id(), preference.getName());
-            realmQuery.equalTo("name", name).or().equalTo("name", revertName).or();
-        }*/
-       /* RealmQuery<Channel> channelQuery = realmQuery.findAll().where();
-        for (UserMember userMember : mUserMembers) {
-            String name = String.format("%s__%s", userMember.getUserId(), my_id);
-            String revertName = String.format("%s__%s", my_id, userMember.getUserId());
-            channelQuery.equalTo("name", name).or().equalTo("name", revertName).or();
-        }*/
-        return realmQuery.findAllSorted("username", Sort.ASCENDING);
+        return ChannelRepository.query(new ChannelRepository.ChannelListDirectMenu());
     }
 
     public void selectLastChannel() {
@@ -256,12 +218,12 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     }
 
     public void invalidateDirect() {
-        RealmResults<Channel> channels = getDirectChannelData();
-        mAdapterDirectMenuLeft.update(channels);
-        //mAdapterDirectMenuLeft.addOrUpdate(channels);
-        selectLastChannel();
-        mBinding.frDirect.recView.invalidate();
-        //mAdapterDirectMenuLeft.addOrUpdate(getDirectChannelData());
+        if( getView()!=null) getView().postDelayed(() -> {
+            mAdapterDirectMenuLeft.update();
+            selectLastChannel();
+            mBinding.frDirect.recView.invalidate();
+        },200);
+
     }
 
     private void handleRequestJoinChannel(Intent data) {
@@ -361,18 +323,16 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     private void initDirectList() {
         RealmResults<Channel> channels = getDirectChannelData();
-        RealmResults<UserStatus> statusRealmResults = UserStatusRepository.query(new UserStatusRepository.UserStatusAllSpecification());
         mBinding.frDirect.recView.setLayoutManager(new LeftMenuLayoutManager(getActivity()));
         mBinding.frDirect.recView.setNestedScrollingEnabled(false);
         mBinding.frDirect.btnMore.setOnClickListener(this::openMore);
         mAdapterDirectMenuLeft = new AdapterDirectMenuLeft(channels,getActivity(),this);
         channels.addChangeListener(element ->{
-            //mAdapterDirectMenuLeft.addOrUpdate(channels);
-            mAdapterDirectMenuLeft.update(channels);
+            mAdapterDirectMenuLeft.update();
             Log.d(TAG, "initNewAdapter: change");
         });
         mBinding.frDirect.recView.setAdapter(mAdapterDirectMenuLeft);
-        //mBinding.frDirect.recView.invalidate();
+
     }
 
 

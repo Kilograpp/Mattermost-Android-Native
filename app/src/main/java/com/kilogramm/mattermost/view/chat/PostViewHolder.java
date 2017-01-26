@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +29,13 @@ import in.uncod.android.bypass.Bypass;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
+
+    private static final String TAG = "PostViewHolder";
     private Post mPost;
 
 
     private ViewDataBinding mBinding;
+    private String id;
 
     private PostViewHolder(ViewDataBinding binding) {
         super(binding.getRoot());
@@ -54,23 +58,25 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindToItem(Post post, Context context, Boolean isTitle, Post root, OnItemClickListener listener) {
+        Log.d(TAG, "bindToItem() called with: is valid() = [" + post.isValid()+ "] post = [" + post + "], context = [" + context + "], isTitle = [" + isTitle + "], root = [" + root + "], listener = [" + listener + "]");
         this.mPost = post;
+        this.id = mPost.getId();
 
         if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE) {
             ((ChatListItemBinding) mBinding).sendStatusError.setOnClickListener(view -> {
                 if (listener != null)
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, post.getId());
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).sendStatusError, id);
             });
         }
         ((ChatListItemBinding) mBinding).controlMenu.setOnClickListener(view -> {
             if (listener != null) {
-                listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, post.getId());
+                listener.OnItemClick(((ChatListItemBinding) mBinding).controlMenu, id);
             }
         });
         if (!post.isSystemMessage()) {
             ((ChatListItemBinding) mBinding).avatar.setOnClickListener(view -> {
                 if (listener != null) {
-                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, post.getId());
+                    listener.OnItemClick(((ChatListItemBinding) mBinding).avatar, id);
                 }
             });
         } else {

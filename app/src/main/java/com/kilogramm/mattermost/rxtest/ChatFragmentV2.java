@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,15 +21,20 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -36,6 +42,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
+import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
@@ -43,8 +50,10 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostByChannelId;
+import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -55,6 +64,7 @@ import com.kilogramm.mattermost.view.channel.AddMembersActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
 import com.kilogramm.mattermost.view.chat.OnItemAddedListener;
 import com.kilogramm.mattermost.view.chat.OnItemClickListener;
+import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -95,6 +105,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private static final String CHANNEL_TYPE = "channel_type";
     private static final String SEARCH_MESSAGE_ID = "search_message_id";
 
+    private static final String REPLY_MESSAGE = "reply_message";
+    private static final String EDIT_MESSAGE = "edit_message";
 
     private static final int SEARCH_CODE = 0;
     private static final int PICK_IMAGE = 1;
@@ -148,9 +160,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         this.mChannelId = getArguments().getString(CHANNEL_ID);
         this.mChannelName = getArguments().getString(CHANNEL_NAME);
         this.mChannelType = getArguments().getString(CHANNEL_TYPE);
-        this.mStartCode  = getArguments().getString(START_CODE);
+        this.mStartCode = getArguments().getString(START_CODE);
         this.mTeamId = MattermostPreference.getInstance().getTeamId();
-        if (mStartCode.equals(START_SEARCH)){
+        if (mStartCode.equals(START_SEARCH)) {
             this.mSearchMessageId = getArguments().getString(SEARCH_MESSAGE_ID);
         }
         getPresenter().initPresenter(this.mTeamId, this.mChannelId, this.mChannelType);
@@ -182,9 +194,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public void onResume() {
         super.onResume();
         setupToolbar("", mChannelName, v -> {
-            if(ChatUtils.isDirectChannel(mChannelType)){
+            if (ChatUtils.isDirectChannel(mChannelType)) {
                 String userId = ChatUtils.getDirectUserId(mChannelId);
-                if(userId!=null){
+                if (userId != null) {
                     ProfileRxActivity.start(getActivity(), userId);
                 } else {
                     Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
@@ -203,7 +215,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(brReceiverTyping!=null) {
+        if (brReceiverTyping != null) {
             getActivity().unregisterReceiver(brReceiverTyping);
         }
     }
@@ -222,7 +234,21 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     @Override
     public void OnItemClick(View view, String item) {
-
+        if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
+            Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
+           // removeablePosition = adapter.getPositionById(item);
+            switch (view.getId()) {
+                case R.id.sendStatusError:
+                    showErrorSendMenu(view, post);
+                    break;
+                case R.id.controlMenu:
+                    showPopupMenu(view, post);
+                    break;
+                case R.id.avatar:
+                    ProfileRxActivity.start(getActivity(), post.getUserId());
+                    break;
+            }
+        }
     }
 
     @Override
@@ -362,6 +388,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private void initListChat() {
         RealmResults<Post> results = PostRepository.query(new PostByChannelId(mChannelId));
         results.addChangeListener(element -> {
+            Log.d(TAG, "initListChat() change listener called");
             if (adapter != null) {
                 if (results.size() - 2 == ((LinearLayoutManager) mBinding.rev.getLayoutManager()).findLastCompletelyVisibleItemPosition()) {
                     onItemAdded();
@@ -372,7 +399,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         mBinding.rev.setAdapter(adapter);
         mBinding.rev.setListener(this);
     }
-
 
     public void initBtnSendOnClickListener() {
         mBinding.btnSend.setOnClickListener(view -> {
@@ -386,8 +412,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 editMessage();
         });
     }
-
-
 
     public void setChannelName(String channelName) {
         this.mChannelName = channelName;
@@ -451,7 +475,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         mBinding.writingMessage.addTextChangedListener(getCommandListener());*/
     }
 
-
     private void initBroadcastReceiver() {
         brReceiverTyping = new BroadcastReceiver() {
             @Override
@@ -484,14 +507,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
          * TODO kepar
          * I don`t know next logic
          */
-       /* mBinding.fab.setOnClickListener(v -> {
-            if (searchMessageId == null) {
+        mBinding.fab.setOnClickListener(v -> {
                 mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
-            } else {
-                mBinding.swipeRefreshLayout.setRefreshing(true);
-                requestLoadPosts();
-            }
-        });*/
+        });
     }
 
     private void initWritingFieldFocusListener() {
@@ -524,7 +542,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         bundle.putString(CHANNEL_NAME, channelName);
         bundle.putString(CHANNEL_TYPE, channelType);
         bundle.putString(START_CODE, startCode);
-        if (startCode.equals(START_SEARCH) && searchId!=null && !searchId.equals("")) {
+        if (startCode.equals(START_SEARCH) && searchId != null && !searchId.equals("")) {
             bundle.putString(SEARCH_MESSAGE_ID, searchId);
         } /*else {
             throw new IllegalArgumentException("createFragment() called with: " +
@@ -727,7 +745,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public void startLoad() {
         if (mStartCode.equals(START_SEARCH)) {
             getPresenter().startRequestLoadSearch(mSearchMessageId);
-        } else if (mStartCode.equals(START_NORMAL)){
+        } else if (mStartCode.equals(START_NORMAL)) {
             getPresenter().startRequestLoadNormal();
         } else {
             //showError();
@@ -846,14 +864,44 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     public void setVisibleProgressBar(Boolean aBoolean) {
-        mBinding.progressBar.setVisibility((aBoolean)?View.VISIBLE:View.GONE);
+        mBinding.progressBar.setVisibility((aBoolean) ? View.VISIBLE : View.GONE);
     }
 
     public void setRefreshing(boolean b) {
         mBinding.swipeRefreshLayout.setRefreshing(b);
+        //enableAllPagination();
+    }
+
+    public void enableAllPagination() {
         mBinding.rev.setCanPagination(true);
         mBinding.rev.setCanPaginationTop(true);
         mBinding.rev.setCanPaginationBot(true);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+
+    public void enableTopPagination() {
+        mBinding.rev.setCanPagination(true);
+        mBinding.rev.setCanPaginationTop(true);
+        mBinding.rev.setCanPaginationBot(false);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+
+    public void enableBotPagination() {
+        mBinding.rev.setCanPagination(true);
+        mBinding.rev.setCanPaginationTop(false);
+        mBinding.rev.setCanPaginationBot(true);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
+    }
+
+    public void disablePagination() {
+        mBinding.rev.setCanPagination(false);
+        mBinding.rev.setCanPaginationTop(false);
+        mBinding.rev.setCanPaginationBot(false);
+        disableShowLoadMoreTop();
+        disableShowLoadMoreBot();
     }
 
     public void slideToMessageById() {
@@ -865,7 +913,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         isFocus = false;
         try {
             mBinding.rev.scrollToPosition(positionItemMessage);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "slideToMessageById() called");
         }
@@ -976,7 +1024,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             }
             mBinding.emptyList.setVisibility(View.VISIBLE);
             mBinding.newMessageLayout.setVisibility(View.VISIBLE);
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, "showEmptyList: ", e);
         }
     }
@@ -986,6 +1034,119 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             adapter.notifyDataSetChanged();
     }
 
+    private void showErrorSendMenu(View view, Post post) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+        popupMenu.inflate(R.menu.error_send_item_popupmenu);
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.try_again:
+                    Post p = new Post(post);
+                    getPresenter().requestSendToServerError(p);
+                    break;
+                case R.id.delete:
+                    PostRepository.remove(post);
+                    break;
+            }
+            return true;
+        });
+        popupMenu.show();
+    }
+
+    private void showPopupMenu(View view, Post post) {
+        PopupMenu popupMenu = new PopupMenu(getActivity(), view, Gravity.BOTTOM);
+
+        if (post.getUserId().equals(MattermostPreference.getInstance().getMyUserId())) {
+            popupMenu.inflate(R.menu.my_chat_item_popupmenu);
+        } else {
+            popupMenu.inflate(R.menu.foreign_chat_item_popupmenu);
+        }
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            EditDialogLayoutBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(),
+                    R.layout.edit_dialog_layout, null, false);
+
+            switch (menuItem.getItemId()) {
+                case R.id.edit:
+                    rootPost = post;
+                    showEditView(Html.fromHtml(post.getMessage()).toString(), EDIT_MESSAGE);
+                    break;
+                case R.id.delete:
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.confirm_post_delete))
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.delete, (dialogInterface, i) -> getPresenter().requestDeletePost(post))
+                            .show();
+                    break;
+                case R.id.permalink:
+                    binding.edit.setText(getMessageLink(post.getId()));
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.copy_permalink))
+                            .setView(binding.getRoot())
+                            .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                            .setPositiveButton(R.string.copy_link, (dialogInterface1, i1) -> copyLink(binding.edit.getText().toString()))
+                            .show();
+                    break;
+                case R.id.copy:
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(PostViewHolder.getMarkdownPost(post.getMessage(), getActivity()));
+                    Toast.makeText(getActivity(), "Сopied to the clipboard", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.reply:
+                    rootPost = post;
+                    showReplayView(Html.fromHtml(post.getMessage()).toString(), REPLY_MESSAGE);
+                    break;
+            }
+            return true;
+        });
+        popupMenu.show();
+    }
+
+    private void showEditView(String message, String type) {
+        showView(message, type);
+        mBinding.editReplyMessageLayout.close.setOnClickListener(view -> {
+            mBinding.writingMessage.setText(null);
+            closeEditView();
+        });
+        mBinding.writingMessage.setText(rootPost.getMessage());
+        mBinding.writingMessage.setSelection(rootPost.getMessage().length());
+    }
+
+    private void showReplayView(String message, String type) {
+        showView(message, type);
+        mBinding.editReplyMessageLayout.close.setOnClickListener(view -> closeEditView());
+    }
+
+    private void showView(String message, String type) {
+        Animation upAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.edit_card_up);
+
+        if (type.equals(REPLY_MESSAGE))
+            mBinding.editReplyMessageLayout.title.setText(getResources().getString(R.string.reply_message));
+        else {
+            mBinding.editReplyMessageLayout.title.setText(getResources().getString(R.string.edit_message));
+            mBinding.btnSend.setText(R.string.save);
+        }
+
+        mBinding.editReplyMessageLayout.editableText.setText(message);
+        mBinding.editReplyMessageLayout.root.startAnimation(upAnim);
+        //binding.editMessageLayout.card.startAnimation(fallingAnimation);
+        mBinding.editReplyMessageLayout.getRoot().setVisibility(View.VISIBLE);
+    }
+
+    private String getMessageLink(String postId) {
+        Realm realm = Realm.getDefaultInstance();
+        return "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/"
+                + realm.where(Team.class).findFirst().getName()
+                + "/pl/"
+                + postId;
+    }
+
+    public void copyLink(String link) {
+        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setText(link);
+        Toast.makeText(getActivity(), "link copied", Toast.LENGTH_SHORT).show();
+    }
 
     public enum StateFragment {
         STATE_NORMAL_LOADING,
