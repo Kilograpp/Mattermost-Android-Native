@@ -41,7 +41,6 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
-import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
@@ -229,19 +228,21 @@ public class ManagerBroadcast {
     }
 
     private void getFileInfoAndSavePost(Post post) {
-        ServerMethod.getInstance().getFileInfo(MattermostPreference.getInstance().getTeamId(),
-                post.getChannelId(), post.getId())
+        ServerMethod.getInstance()
+                .getFileInfo(MattermostPreference.getInstance().getTeamId(),
+                        post.getChannelId(), post.getId())
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .doOnError(throwable -> {
                     throwable.printStackTrace();
                     savePost(post);
-                }).subscribe(fileInfos -> {
-            for (FileInfo fileInfo : fileInfos) {
-                FileInfoRepository.getInstance().add(fileInfo);
-            }
-            savePost(post);
-        });
+                })
+                .subscribe(fileInfos -> {
+                    for (FileInfo fileInfo : fileInfos) {
+                        FileInfoRepository.getInstance().add(fileInfo);
+                    }
+                    savePost(post);
+                });
     }
 
     private Data getPreferenceData(JSONObject dataJSON) throws JSONException {
@@ -385,16 +386,10 @@ public class ManagerBroadcast {
     }
 
     private static void savePost(Post post) {
-        String pendingPostId = post.getPendingPostId();
-//        Log.d(TAG, "savePost() called with: post = [" + pendingPostId + "]");
-        if (PostRepository.query(pendingPostId) != null) {
-//            Log.d(TAG, "savePost: merge from ws");
-            PostRepository.merge(post);
-        } else {
-//            Log.d(TAG, "savePost: add new from ws");
-            PostRepository.prepareAndAddPost(post);
-        }
+        PostRepository.mergeSendedPost(post);
     }
+
+
 
     public static Map<String, Object> toMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<>();
