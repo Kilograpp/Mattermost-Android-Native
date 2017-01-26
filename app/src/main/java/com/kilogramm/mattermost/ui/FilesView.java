@@ -227,7 +227,9 @@ public class FilesView extends GridLayout {
                 }
                 if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
                         fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-                    binding.downloadFileControls.showProgressControls();
+                    // TODO убрать, если не потребуется. Этот метод итак вызывается при клике на иконку
+                    // загрузки в DownloadFilesControls
+//                    binding.downloadFileControls.showProgressControls();
                 }
             }
 
