@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
@@ -122,22 +121,26 @@ public class FilesView extends GridLayout {
 
                     binding.image.setOnClickListener(view -> {
                         ArrayList<String> fileIdList = new ArrayList<>();
+                        FileInfo clicked = items.get(0);
+
                         for (FileInfo item : items) {
                             if (item.getmMimeType() != null
                                     && item.getmMimeType().contains("image")) {
                                 fileIdList.add(item.getId());
+                                if(fileInfo.getId() == item.getId())
+                                    clicked = item;
                             }
                         }
-                        /***/int[] location = new int[2];
-                        /***/int[] size = new int[]{view.getWidth(), view.getHeight()};
 
-                        /***/view.getLocationOnScreen(location);
-                        Log.d(TAG, "setFileForPost: " + location);
+                        int[] location = new int[2];
+                        int[] size = new int[]{view.getWidth(), clicked.getHeight()};
+                        view.getLocationOnScreen(location);
+
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
                                 fileInfo.getId(),
-                           /***/fileIdList,
-                           /***/location, size);
+                                fileIdList,
+                                location, size);
                     });
                 } else {
                     initAndAddItem(binding, fileInfo);
@@ -188,12 +191,10 @@ public class FilesView extends GridLayout {
         ImageLoader.getInstance().displayImage(thumb_url,binding.image, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
-
             }
 
             @Override
             public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
             }
 
             @Override
@@ -203,7 +204,6 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onLoadingCancelled(String imageUri, View view) {
-
             }
         });
 //        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);

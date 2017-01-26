@@ -87,6 +87,7 @@ public class PhotoViewFragment extends Fragment {
                 + "/api/v3/files/"
                 + mFileInfo.getId()
                 + "/get_thumbnail";
+
         ImageLoader.getInstance().loadImage(preview_url, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
@@ -128,13 +129,15 @@ public class PhotoViewFragment extends Fragment {
             public boolean onTouch(View view1, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_MOVE: {
+                        if(photoBinding.image.getCurrentZoom() != 1)
+                            return false;
                         if(event.getPointerCount() == 1)
                         view1.setY(event.getRawY() - oldPosition);
 
                         break;
                     }
                     case MotionEvent.ACTION_UP: {
-                        view1.animate().translationY(0).setInterpolator(new OvershootInterpolator(1.5f)).setDuration(300);
+                        view1.animate().translationY(0).setInterpolator(new OvershootInterpolator()).setDuration(300);
                         ((TouchImageView)view1).setZoomEnable(true);
                         if(photoBinding.image.getCurrentZoom() == 1 && Math.abs(view1.getY()) >
                                 getActivity().getResources().getDisplayMetrics().heightPixels/4)
@@ -143,9 +146,12 @@ public class PhotoViewFragment extends Fragment {
                         break;
                     }
                     case MotionEvent.ACTION_DOWN: {
-                        if(view1.getY() != 0) ((TouchImageView)view1).setZoomEnable(false);
                         oldPosition = event.getRawY();
                         Log.i(TAG, "onTouch: ACTION_DOWN: " + event.getRawY());
+                        break;
+                    }
+
+                    case MotionEvent.ACTION_POINTER_DOWN: {
                         break;
                     }
                 }

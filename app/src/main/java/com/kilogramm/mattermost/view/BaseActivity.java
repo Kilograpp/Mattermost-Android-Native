@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -59,7 +58,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
             actionBar.setBackgroundDrawable(
                     new ColorDrawable(getResources().getColor(appBarColorRes)));
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setStatusBarColorActivity(portStatusBarColorRes);
         }
@@ -70,16 +68,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
         getWindow().setStatusBarColor(getResources().getColor(portStatusBarColorRes));
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void setStatusbarAndToolbarAlpha(int alpha) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setBackgroundDrawable(
-                    new ColorDrawable(Color.argb(alpha, 0,0,0)));
-        }
-        getWindow().setStatusBarColor(Color.argb(alpha, 0,0,0));
-
-    }
 
     public void setupToolbar(String title, Boolean hasButtonBack) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
