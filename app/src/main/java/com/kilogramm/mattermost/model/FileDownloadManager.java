@@ -1,6 +1,8 @@
 package com.kilogramm.mattermost.model;
 
 import android.app.DownloadManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +12,8 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Looper;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -22,7 +26,15 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +46,8 @@ import io.realm.Realm;
 public class FileDownloadManager {
     private static final String TAG = "FileDownloaderManager";
 
+    private static final int UPDATE_TIME_PROGRESS_MS = 300;
+
     private static FileDownloadManager instance;
 
     /**
@@ -42,11 +56,14 @@ public class FileDownloadManager {
      */
     private Map<String, FileDownloadListener> fileDownloadListeners;
 
-    private DownloadManager manager;
-    private long downloadId;
+//    private DownloadManager manager;
+//    private long downloadId;
     private String fileId;
 
-    BroadcastReceiver receiver;
+    /**
+     * This variable is to notice if file downloading was canceled for current file
+     */
+    private boolean isStopCurrent = false;
 
     public static FileDownloadManager getInstance() {
         if (instance == null) instance = new FileDownloadManager();
@@ -55,7 +72,7 @@ public class FileDownloadManager {
 
     private FileDownloadManager() {
         fileDownloadListeners = new HashMap<>();
-        manager = (DownloadManager) MattermostApp.getSingleton().
+        /*manager = (DownloadManager) MattermostApp.getSingleton().
                 getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
         receiver = new BroadcastReceiver() {
             @Override
@@ -81,7 +98,7 @@ public class FileDownloadManager {
             }
         };
         MattermostApp.getSingleton().getApplicationContext()
-                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));*/
     }
 
     /**
@@ -106,7 +123,9 @@ public class FileDownloadManager {
         }
     }
 
-    private void downloadFile(FileInfo fileInfo) {
+    // region DownloadManager
+// TODO гавно на LG
+   /* private void downloadFile(FileInfo fileInfo) {
         this.fileId = fileInfo.getId();
 
         final ConnectivityManager connectivityManager =
@@ -121,7 +140,6 @@ public class FileDownloadManager {
             return;
         }
 
-        // TODO гавно на LG
         String uri =  "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/files/"
@@ -200,7 +218,9 @@ public class FileDownloadManager {
             }
 
         }).start();
-    }
+    }*/
+
+    // endregion
 
     // region Kepar variant
 
@@ -308,9 +328,139 @@ public class FileDownloadManager {
                 });*/
     // endregion
 
+    // region new manual variant
+
+    private void downloadFile(FileInfo fileInfo) {
+        isStopCurrent = false;
+        this.fileId = fileInfo.getId();
+
+        final ConnectivityManager connectivityManager =
+                (ConnectivityManager) MattermostApp.getSingleton()
+                        .getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+        if (ni == null || !ni.isConnectedOrConnecting()) {
+            onDownloadFail(fileId);
+            startDownload();
+            return;
+        }
+
+        new Thread(() -> {
+//            Looper.prepare();
+//            Looper.loop();
+            NotificationManager notificationManager = (NotificationManager) MattermostApp.
+                    getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationCompat.Builder builder = new NotificationCompat.
+                    Builder(MattermostApp.getSingleton().getApplicationContext());
+            int id = 1;
+
+            String uri = "https://"
+                    + MattermostPreference.getInstance().getBaseUrl()
+                    + "/api/v3/files/"
+                    + fileId
+                    + "/get";
+            InputStream input = null;
+            OutputStream output = null;
+            try {
+                URL url = null;
+                url = new URL(uri);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.addRequestProperty("Authorization", "Bearer " +
+                        MattermostPreference.getInstance().getAuthToken());
+                String contentLength = urlConnection.getHeaderField("Content-Length");
+                long fileLength;
+                if (contentLength != null) {
+                    fileLength = Long.parseLong(contentLength);
+                } else {
+                    fileLength = 0;
+                }
+                input = new BufferedInputStream(urlConnection.getInputStream());
+
+                File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                String fileName = fileInfo.getmName();
+                if (fileName != null) {
+                    builder.setContentTitle(fileName).setSmallIcon(R.drawable.ic_downloaded_file);
+                    builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
+
+                    output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
+                    byte data[] = new byte[4096];
+                    long total = 0;
+                    long lastTimeUpdate = 0;
+                    int count;
+                    while ((count = input.read(data)) != -1 && !isStopCurrent) {
+                        total += count;
+                        if (fileLength > 0) {
+                            if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
+                                lastTimeUpdate = System.currentTimeMillis();
+                                builder.setProgress(100, (int) (total * 100 / fileLength), false);
+                                notificationManager.notify(id, builder.build());
+                                if (fileDownloadListeners.get(fileId) != null) {
+                                    fileDownloadListeners.get(fileId)
+                                            .onProgress((int) (total * 100 / fileLength));
+                                }
+                            }
+                        }
+                        output.write(data, 0, count);
+                    }
+                }
+                urlConnection.disconnect();
+                if(!isStopCurrent) {
+                    fileDownloadListeners.get(fileId).onComplete(fileId);
+                    FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
+
+                    builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
+
+                    Intent intent = FileUtil.getInstance().createOpenFileIntent(dir.getAbsolutePath() + File.separator + fileName);
+
+                    if (intent.resolveActivityInfo(MattermostApp.getSingleton()
+                            .getApplicationContext().getPackageManager(), 0) != null) {
+                        builder.setAutoCancel(true);
+                        builder.setContentIntent(PendingIntent.getActivity(MattermostApp
+                                .getSingleton().getApplicationContext(), 0, intent, 0));
+                    }
+                    notificationManager.notify(id, builder.build());
+                } else {
+                    notificationManager.cancel(id);
+                    isStopCurrent = false;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+                if (fileDownloadListener != null) {
+                    fileDownloadListener.onError(fileId);
+                }
+                fileDownloadListeners.remove(fileId);
+                startDownload();
+                FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.IN_LIST);
+            } finally {
+                FileInfoRepository.getInstance().remove(fileId);
+                try {
+                    if (output != null) {
+                        output.close();
+                    }
+                    if (input != null) {
+                        input.close();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    // endregion
+
     public synchronized void stopDownloadCurrentFile(FileInfo fileInfo) {
+        isStopCurrent = true;
         if (this.fileId != null && fileInfo != null && this.fileId.equals(fileInfo.getId())) {
-            manager.remove(downloadId);
+            FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
+                    UploadState.IN_LIST);
+//            manager.remove(downloadId);
             FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
                     + File.separator + fileInfo.getmName());
         }

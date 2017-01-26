@@ -235,8 +235,6 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onClickCancel() {
-                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
-                        UploadState.IN_LIST);
                 FileDownloadManager.getInstance().stopDownloadCurrentFile(fileInfo);
             }
         };
