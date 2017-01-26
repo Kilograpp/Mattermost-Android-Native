@@ -507,14 +507,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
          * TODO kepar
          * I don`t know next logic
          */
-       /* mBinding.fab.setOnClickListener(v -> {
-            if (searchMessageId == null) {
+        mBinding.fab.setOnClickListener(v -> {
                 mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
-            } else {
-                mBinding.swipeRefreshLayout.setRefreshing(true);
-                requestLoadPosts();
-            }
-        });*/
+        });
     }
 
     private void initWritingFieldFocusListener() {

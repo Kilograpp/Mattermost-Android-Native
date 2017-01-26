@@ -334,26 +334,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             searchMessageId = null;
         }
     }
-    /*private void replaceFragment(String channelId, String channelName) {
-        binding.drawerLayout.closeDrawer(GravityCompat.START);
-        closeProgressBar();
-        if (MattermostPreference.getInstance().getLastChannelId() != null &&
-                !MattermostPreference.getInstance().getLastChannelId().equals(channelId)) {
-            FileToAttachRepository.getInstance().deleteUploadedFiles();
-        }
-        if (!channelId.equals(currentChannel) || searchMessageId != null) {
-            ChatFragmentV2 mCurrentFragment = ChatFragmentV2.createFragment(ChatFragmentV2.START_SEARCH, channelId, channelName, "D", searchMessageId);
-            //ChatRxFragment mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
-            currentChannel = channelId;
-            getFragmentManager().beginTransaction()
-                    .replace(binding.contentFrame.getId(), mCurrentFragment, FRAGMENT_TAG)
-                    .commit();
-            MattermostPreference.getInstance().setLastChannelId(channelId);
-        }
-        if (searchMessageId != null) {
-            searchMessageId = null;
-        }
-    }*/
 
     public static void startSearch(Context context, String searchMessageId) {
         Intent starter = new Intent(context, GeneralRxActivity.class);
