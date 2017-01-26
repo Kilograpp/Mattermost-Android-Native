@@ -886,7 +886,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public void slideToMessageById() {
         if (adapter != null) {
-            adapter.setmHighlitedPost(mSearchMessageId);
+            adapter.setmHighlightedPostId(mSearchMessageId);
             positionItemMessage = adapter.getPositionById(mSearchMessageId);
         }
 
@@ -905,12 +905,12 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 int pFirst = layoutManager.findFirstVisibleItemPosition();
                 int pLast = layoutManager.findLastVisibleItemPosition();
 
-                if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                if (adapter != null && adapter.getmHighlightedPostId() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
                     isFocus = true;
                 }
 
                 if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
-                    if (adapter != null) adapter.setmHighlitedPost(null);
+                    if (adapter != null) adapter.setmHighlightedPostId(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
                     mBinding.rev.removeOnScrollListener(this);

@@ -153,7 +153,6 @@ public class PostRepository {
         realm.insertOrUpdate(post);
         realm.commitTransaction();
         realm.close();
-        realm = null;
     }
 
     public static void prepareAndUpdatePost(Post post) {
