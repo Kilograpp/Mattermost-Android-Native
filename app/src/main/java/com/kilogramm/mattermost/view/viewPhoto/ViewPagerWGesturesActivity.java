@@ -226,6 +226,14 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         });
     }
 
+    public void setBackgroundAlpha(float alpha){
+        animator.setBackgroundAlpha(alpha);
+    }
+
+    public void setBackgroundAlpha(float alpha, int duration){
+        animator.setBackgroundAlpha(alpha, duration);
+    }
+
 //    public void setTransparent(float v) {
 ////        getWindow().getDecorView().setAlpha(1);
 ////        binding.getRoot().setAlpha(Math.abs(1 - v / 100));

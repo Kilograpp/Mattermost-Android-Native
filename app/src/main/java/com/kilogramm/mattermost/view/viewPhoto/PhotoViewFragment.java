@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -37,6 +37,7 @@ public class PhotoViewFragment extends Fragment {
     public static final String TAG = PhotoViewFragment.class.getSimpleName();
     private FragmentPhotoViewBinding photoBinding;
     private FileInfo mFileInfo;
+    private boolean isTouchable = true;
 
     static PhotoViewFragment newInstance(FileInfo fileInfo) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
@@ -124,29 +125,40 @@ public class PhotoViewFragment extends Fragment {
             }
         });
         photoBinding.image.setOnTouchListener(new View.OnTouchListener() {
-            float oldPosition;
+            float startPosition;
             @Override
             public boolean onTouch(View view1, MotionEvent event) {
+                if(!isTouchable) return false;
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_MOVE: {
                         if(photoBinding.image.getCurrentZoom() != 1)
                             return false;
-                        if(event.getPointerCount() == 1)
-                        view1.setY(event.getRawY() - oldPosition);
-
+                        if(event.getPointerCount() == 1) {
+                            float deltaY = event.getRawY() - startPosition;
+                            view1.setY(deltaY);
+                            float alpha = (1 - 2*Math.abs(deltaY )/getActivity().getResources().getDisplayMetrics().heightPixels/4);
+                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(alpha);
+                        }
                         break;
                     }
                     case MotionEvent.ACTION_UP: {
-                        view1.animate().translationY(0).setInterpolator(new OvershootInterpolator()).setDuration(300);
                         ((TouchImageView)view1).setZoomEnable(true);
-                        if(photoBinding.image.getCurrentZoom() == 1 && Math.abs(view1.getY()) >
-                                getActivity().getResources().getDisplayMetrics().heightPixels/4)
-                            getActivity().finish();
-
+                        if(photoBinding.image.getCurrentZoom() == 1 && Math.abs(view1.getY()) >=
+                                getActivity().getResources().getDisplayMetrics().heightPixels/4) {
+                            isTouchable = false;
+                            view1.animate().translationY((event.getRawY() - startPosition) > 0?
+                                    getResources().getDisplayMetrics().heightPixels + view1.getHeight()
+                                    : -view1.getHeight()).withEndAction(() -> getActivity().finish());
+                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(0, 300);
+                        }
+                        else {
+                            view1.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).setDuration(300);
+                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(1);
+                        }
                         break;
                     }
                     case MotionEvent.ACTION_DOWN: {
-                        oldPosition = event.getRawY();
+                        startPosition = event.getRawY();
                         Log.i(TAG, "onTouch: ACTION_DOWN: " + event.getRawY());
                         break;
                     }
@@ -172,5 +184,7 @@ public class PhotoViewFragment extends Fragment {
             }
         });
     }
-
+    public void setTouchable(boolean isTouchable){
+        this.isTouchable = isTouchable;
+    }
 }

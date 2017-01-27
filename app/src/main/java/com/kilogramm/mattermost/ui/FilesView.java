@@ -134,7 +134,7 @@ public class FilesView extends GridLayout {
 
                         int[] location = new int[2];
                         int[] size = new int[]{view.getWidth(), clicked.getHeight()};
-                        view.getLocationOnScreen(location);
+                        binding.image.getLocationOnScreen(location);
 
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
