@@ -1,7 +1,11 @@
 package com.kilogramm.mattermost.network;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+import com.facebook.stetho.common.ArrayListAccumulator;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
+import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -33,6 +37,8 @@ import java.util.Map;
 
 import okhttp3.ResponseBody;
 import rx.Observable;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 26.12.2016.
@@ -273,4 +279,6 @@ public class ServerMethod {
                     return responseLeftMenuData;
                 }));
     }
+
+
 }
