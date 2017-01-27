@@ -24,7 +24,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,17 +35,22 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.adapters.AdapterPost;
 import com.kilogramm.mattermost.adapters.AttachedFilesAdapter;
+import com.kilogramm.mattermost.adapters.command.CommandAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
+import com.kilogramm.mattermost.model.entity.CommandObject;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
@@ -56,7 +63,10 @@ import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.fromnet.AutocompleteUsers;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
+import com.kilogramm.mattermost.rxtest.autocomplete_list.adapter.UsersDropDownListAdapterV2;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -140,6 +150,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     boolean isFocus = false;
     @State
     int positionItemMessage;
+    @State
+    boolean isOpenedKeyboard = false;
 
     @State
     StateFragment mState = StateFragment.STATE_DEFAULT;
@@ -149,6 +161,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private BroadcastReceiver brReceiverTyping;
 
     private AdapterPost adapter;
+    private UsersDropDownListAdapterV2 dropDownListAdapter;
+    private CommandAdapter commandAdapter;
+
 
     Map<String, String> mapType;
 
@@ -236,7 +251,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
             Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
-           // removeablePosition = adapter.getPositionById(item);
+            // removeablePosition = adapter.getPositionById(item);
             switch (view.getId()) {
                 case R.id.sendStatusError:
                     showErrorSendMenu(view, post);
@@ -455,24 +470,27 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     private void initDropDownUserList() {
-      /*  dropDownListAdapter = new UsersDropDownListAdapterV2(null, getActivity(), this::addUserLinkMessage);
+        dropDownListAdapter = new UsersDropDownListAdapterV2(null, getActivity(), name -> {
+            addUserLinkMessage(name);
+           // mBinding.cardViewDropDown.setVisibility(View.GONE);
+        });
         mBinding.idRecUser.setAdapter(dropDownListAdapter);
         mBinding.idRecUser.setLayoutManager(new LinearLayoutManager(getActivity()));
         mBinding.writingMessage.addTextChangedListener(getMassageTextWatcher());
         setListenerToRootView();
         mBinding.writingMessage.setOnClickListener(view ->
-                getUserList(((EditText) view).getText().toString()));*/
+                getUserList(((EditText) view).getText().toString()));
     }
 
     private void initCommandList() {
-        /*commandAdapter = new CommandAdapter(getActivity(), getCommandList(null), command -> {
+        commandAdapter = new CommandAdapter(getActivity(), getCommandList(null), command -> {
             Toast.makeText(getActivity(), command.getCommand(), Toast.LENGTH_SHORT).show();
             mBinding.writingMessage.setText(command.getCommand() + " ");
             mBinding.writingMessage.setSelection(mBinding.writingMessage.getText().length());
         });
         mBinding.commandLayout.setAdapter(commandAdapter);
         mBinding.commandLayout.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mBinding.writingMessage.addTextChangedListener(getCommandListener());*/
+        mBinding.writingMessage.addTextChangedListener(getCommandListener());
     }
 
     private void initBroadcastReceiver() {
@@ -508,7 +526,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
          * I don`t know next logic
          */
         mBinding.fab.setOnClickListener(v -> {
-                mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
+            mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
         });
     }
 
@@ -519,6 +537,147 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         });
+    }
+
+    private TextWatcher getCommandListener() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                commandAdapter.updateDate(getCommandList(s.toString()));
+                if (commandAdapter.getItemCount() == 0)
+                    mBinding.cardViewCommandCardView.setVisibility(View.INVISIBLE);
+                else
+                    mBinding.cardViewCommandCardView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+    }
+
+    private List<CommandObject> getCommandList(String commandWrite) {
+        if (commandWrite != null && !commandWrite.equals("")) {
+            return Stream.of(CommandObject.getCommandList())
+                    .filter(value -> value.getCommand().startsWith(commandWrite))
+                    .sorted()
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public TextWatcher getMassageTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.toString().trim().length() > 0 ||
+                        (FileToAttachRepository.getInstance().haveFilesToAttach() &&
+                                !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
+                    mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
+                   /* if (!isSendTyping) {
+                        isSendTyping = true;
+                        MattermostService.Helper.create(getActivity()).sendUserTyping(mChannelId);
+                        mBinding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
+                    }*/
+                } else {
+                    mBinding.btnSend.setTextColor(getResources().getColor(R.color.grey));
+                }
+                getUserList(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+    }
+
+    private void getUserList(String text) {
+        Log.d(TAG, "getUserList: true");
+        int cursorPos = mBinding.writingMessage.getSelectionStart();
+        if (cursorPos > 0 && text.contains("@")) {
+            if (text.charAt(cursorPos - 1) == '@') {
+                getPresenter().requestGetUsers("", cursorPos);
+            } else {
+                getPresenter().requestGetUsers(text, cursorPos);
+            }
+        } else {
+            Log.d(TAG, "getUserList: false");
+            setDropDownUser(null);
+        }
+    }
+
+    public void setDropDownUser(AutocompleteUsers autocompleteUsers) {
+        if (mBinding.writingMessage.getText().length() > 0) {
+            dropDownListAdapter.updateData(autocompleteUsers);
+        } else {
+            dropDownListAdapter.updateData(null);
+        }
+        if (dropDownListAdapter.getItemCount() == 0)
+            mBinding.cardViewDropDown.setVisibility(View.INVISIBLE);
+        else
+            mBinding.cardViewDropDown.setVisibility(View.VISIBLE);
+    }
+
+
+    public void setListenerToRootView() {
+        final View activityRootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+            if (heightDiff > 100) {
+                isOpenedKeyboard = true;
+            } else if (isOpenedKeyboard) {
+                isOpenedKeyboard = false;
+            }
+        });
+    }
+
+    public void addUserLinkMessage(String s) {
+        StringBuffer nameBufferStart = new StringBuffer(mBinding.writingMessage.getText().toString());
+        int cursorPos = mBinding.writingMessage.getSelectionStart();
+
+        if (cursorPos != 0 && cursorPos == nameBufferStart.length()
+                && nameBufferStart.charAt(cursorPos - 1) == '@') {
+            mBinding.writingMessage.append(String.format("%s ", s));
+            mBinding.writingMessage.setSelection(mBinding.writingMessage.getText().length());
+            return;
+        }
+        if (cursorPos < nameBufferStart.length())
+            nameBufferStart.delete(cursorPos, nameBufferStart.length());
+        if (nameBufferStart.charAt(cursorPos - 1) == '@') {
+            nameBufferStart.append(String.format("%s ", s));
+        } else {
+            String[] username = nameBufferStart.toString().split("@");
+            nameBufferStart = new StringBuffer();
+            int count = 1;
+            if (username.length == 0) {
+                nameBufferStart.append(String.format("@%s ", s));
+            }
+            for (String element : username) {
+                if (count == username.length)
+                    nameBufferStart.append(String.format("%s ", s));
+                else
+                    nameBufferStart.append(String.format("%s@", element));
+                count++;
+            }
+        }
+        StringBuffer nameBufferEnd = new StringBuffer(mBinding.writingMessage.getText());
+        if (cursorPos < nameBufferStart.length())
+            nameBufferEnd.delete(0, cursorPos);
+
+        mBinding.writingMessage.setText(nameBufferStart.toString() + nameBufferEnd.toString());
+        mBinding.writingMessage.setSelection(nameBufferStart.length());
     }
 
     private void attachFiles(List<Uri> uriList) {
@@ -657,9 +816,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     private void sendCommand() {
-        /*getPresenter().requestSendCommand(new CommandToNet(this.mChannelId,
+        getPresenter().requestSendCommand(new CommandToNet(this.mChannelId,
                 mBinding.writingMessage.getText().toString(),
-                Boolean.FALSE.toString()));*/
+                Boolean.FALSE.toString()));
     }
 
     private void sendMessage() {
