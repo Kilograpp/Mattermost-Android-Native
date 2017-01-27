@@ -191,7 +191,7 @@ public class FileDownloadManager {
         }
     }
 
-    private int createIdNotificationForFile(String fileId) {
+    private void createIdNotificationForFile(String fileId) {
         boolean flag = true;
         int id;
         do {
@@ -203,9 +203,8 @@ public class FileDownloadManager {
                 }
                 flag = false;
             }
-        } while (flag);
+        } while (flag && mMapNotifications.size() > 0);
         mMapNotifications.put(fileId, id);
-        return id;
     }
 
     private void showIndeterminateProgressNotification(FileInfo fileInfo) {
@@ -263,6 +262,8 @@ public class FileDownloadManager {
             if (fileLength > 0) {
                 if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
                     builder.setProgress(100, (int) (total * 100 / fileLength), false);
+                    builder.setContentText(MattermostApp.getSingleton()
+                            .getString(R.string.downloading));
                     notificationManager.notify(mMapNotifications.get(fileId),
                             builder.build());
 

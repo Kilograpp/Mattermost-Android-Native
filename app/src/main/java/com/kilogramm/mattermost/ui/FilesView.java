@@ -203,9 +203,12 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onError(String fileId) {
-                binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
-                        getContext().getString(R.string.error_during_file_download),
-                        Toast.LENGTH_SHORT).show());
+                binding.downloadFileControls.post(() -> {
+                    Toast.makeText(getContext(),
+                            getContext().getString(R.string.error_during_file_download),
+                            Toast.LENGTH_SHORT).show();
+                    binding.downloadFileControls.hideProgressControls();
+                });
 
             }
         };
@@ -227,9 +230,6 @@ public class FilesView extends GridLayout {
                 }
                 if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
                         fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-                    // TODO убрать, если не потребуется. Этот метод итак вызывается при клике на иконку
-                    // загрузки в DownloadFilesControls
-//                    binding.downloadFileControls.showProgressControls();
                 }
             }
 
