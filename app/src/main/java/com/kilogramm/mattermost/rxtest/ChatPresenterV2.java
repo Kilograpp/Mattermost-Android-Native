@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
@@ -19,7 +21,9 @@ import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
+import com.kilogramm.mattermost.model.fromnet.CommandToNet;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
+import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.util.ArrayList;
@@ -28,6 +32,7 @@ import java.util.List;
 import io.realm.Realm;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -49,6 +54,8 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private static final int REQUEST_DELETE_POST = 7;
     private static final int REQUEST_EDIT_POST = 8;
     private static final int REQUEST_SEND_TO_SERVER = 9;
+    private static final int REQUEST_HTTP_GETUSERS = 10;
+    private static final int REQUEST_SEND_COMMAND = 11;
     //private static final int REQUEST_SEND_TO_SERVER_ERROR = 10;
 
 
@@ -67,6 +74,9 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private Post mForSendPost;
     private Long updateAt;
     private Boolean isSendingPost = false;
+    private String search;
+    private int cursorPos;
+    private CommandToNet command;
 
 
     @Override
@@ -92,6 +102,8 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         initDeletePost();
         initEditPost();
         initSendToServer();
+        initGetUsers();
+        initSendCommand();
     }
 
 
@@ -270,7 +282,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                         loadFileInfo(list).subscribe(new Subscriber<List<FileInfo>>() {
                             @Override
                             public void onCompleted() {
-                                ChatUtils.mergePosts(posts,mChannelId);
+                                ChatUtils.mergePosts(posts, mChannelId);
                                 startRequestUpdateLastViewedAt();
                                 sendEnableTopPagination();
                                 sendRefreshing(false);
@@ -287,7 +299,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                                 if (error != null) {
                                     sendError(error);
                                 }
-                                ChatUtils.mergePosts(posts,mChannelId);
+                                ChatUtils.mergePosts(posts, mChannelId);
                                 startRequestUpdateLastViewedAt();
                                 sendRefreshing(false);
                                 sendEnableTopPagination();
@@ -316,8 +328,6 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     throwable.printStackTrace();
                 });
     }
-
-
 
     private void initUpdateLastViewedAt() {
         restartableFirst(REQUEST_UPDATE_LAST_VIEWED_AT, () ->
@@ -390,7 +400,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                         Log.d(TAG, "initSendToServer: post pending id not found");
                     }*/
                     startRequestUpdateLastViewedAt();
-                   // sendOnItemAdded();
+                    // sendOnItemAdded();
                     sendShowList();
                     FileToAttachRepository.getInstance().deleteUploadedFiles();
                     isSendingPost = false;
@@ -405,6 +415,52 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                 });
     }
 
+    private void initGetUsers() {
+        restartableFirst(REQUEST_HTTP_GETUSERS,
+                () -> ServerMethod.getInstance()
+                        .getAutocompleteUsers(MattermostPreference.getInstance().getTeamId(),
+                                mChannelId, search)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io()),
+                (chatRxFragment1, autocompleteUsers) -> {
+                    chatRxFragment1.setDropDownUser(autocompleteUsers);
+                },
+                (chatRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                });
+    }
+
+    private void initSendCommand() {
+        restartableFirst(REQUEST_SEND_COMMAND,
+                () -> ServerMethod.getInstance()
+                        .executeCommand(mTeamId, command)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io()),
+                (chatRxFragment, commandFromNet) -> {
+                    sendEmptyMessage();
+                    if (commandFromNet.getGoToLocation().equals("/"))
+                        MattermostApp.logout().subscribe(new Subscriber<LogoutData>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "Complete logout");
+                                MattermostApp.clearDataBaseAfterLogout();
+                                MattermostApp.clearPreference();
+                                MattermostApp.showMainRxActivity();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                Toast.makeText(chatRxFragment.getActivity(), "Error logout", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onNext(LogoutData logoutData) {
+                            }
+                        });
+                },
+                (chatRxFragment, throwable) -> sendError(parceError(throwable, null)));
+    }
     //endregion
 
 
@@ -509,6 +565,20 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         start(REQUEST_SEND_TO_SERVER);
     }
 
+    public void requestGetUsers(String search, int cursorPos) {
+        this.search = search;
+        this.cursorPos = cursorPos;
+        if (search != null && !search.equals("")) {
+            int lastindex = this.search.lastIndexOf("@");
+            this.search = this.search.substring(lastindex);
+        }
+        start(REQUEST_HTTP_GETUSERS);
+    }
+
+    public void requestSendCommand(CommandToNet command) {
+        this.command = command;
+        start(REQUEST_SEND_COMMAND);
+    }
     //endregion
 
     //region send methods
@@ -615,12 +685,15 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
     private void sendEnableTopPagination() {
         createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableTopPagination()));
     }
+
     private void sendEnableBotPagination() {
         createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableBotPagination()));
     }
+
     private void sendEnableAllPagination() {
         createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.enableAllPagination()));
     }
+
     private void sendDisableAllPagination() {
         createTemplateObservable(new Object()).subscribe(split((chatFragmentV2, o) -> chatFragmentV2.disablePagination()));
     }
@@ -650,6 +723,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         ChatUtils.setPostUpdateAt(sendedPostId, Post.NO_UPDATE);
         sendIvalidateAdapter();
     }
+
 
     public static class ResponseChannelByIdInfo {
 
