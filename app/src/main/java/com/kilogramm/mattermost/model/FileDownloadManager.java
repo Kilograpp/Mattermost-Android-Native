@@ -1,18 +1,11 @@
 package com.kilogramm.mattermost.model;
 
-import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Looper;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -22,8 +15,6 @@ import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 
 import java.io.BufferedInputStream;
@@ -33,10 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import io.realm.Realm;
 
@@ -56,12 +47,21 @@ public class FileDownloadManager {
      */
     private Map<String, FileDownloadListener> fileDownloadListeners;
 
+    /**
+     * Every listener is for notification with progress in status bar. key is a file id,
+     * value is a notification id.
+     */
+    private Map<String, Integer> mMapNotifications;
+
     //    private DownloadManager manager;
-//    private long downloadId;
+    //    private long downloadId;
     private String fileId;
 
+    private NotificationManager notificationManager;
+    private NotificationCompat.Builder builder;
+
     /**
-     * This variable is to notice if file downloading was canceled for current file
+     * This variable is to notice if current file downloading was canceled
      */
     private boolean isStopCurrent = false;
 
@@ -72,33 +72,11 @@ public class FileDownloadManager {
 
     private FileDownloadManager() {
         fileDownloadListeners = new HashMap<>();
-        /*manager = (DownloadManager) MattermostApp.getSingleton().
-                getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                    return;
-                }
-                context.getApplicationContext().unregisterReceiver(receiver);
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterById(downloadId);
-                Cursor c = manager.query(query);
-                if (c.moveToFirst()) {
-                    int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                    if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
-
-                        String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                        Log.i(TAG, "downloaded file " + uriString);
-                    } else {
-                        Log.i(TAG, "download failed " + c.getInt(columnIndex));
-                    }
-                }
-            }
-        };
-        MattermostApp.getSingleton().getApplicationContext()
-                .registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));*/
+        mMapNotifications = new HashMap<>();
+        notificationManager = (NotificationManager) MattermostApp.
+                getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
+        builder = new NotificationCompat.
+                Builder(MattermostApp.getSingleton().getApplicationContext());
     }
 
     /**
@@ -108,15 +86,21 @@ public class FileDownloadManager {
      * @param fileDownloadListener the listener to indicate downloading progress
      */
     public void addItem(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
+        Log.d(TAG, "addItem: " + fileInfo.getId());
         fileDownloadListeners.put(fileInfo.getId(), fileDownloadListener);
         FileInfoRepository.getInstance().addForDownload(fileInfo);
         startDownload();
     }
 
     private void startDownload() {
+        Log.d(TAG, "startDownload: ");
+        // TODO может быть ситуациятакая ситуация: мы скачиваем файл, в очереди ждет еще один.
+        // Отменяем первый. Но реалм еще может не успеть изменить статуст файла
+        // с DOWNLOADING на IN_LIST, и тогда на условии ниже нас не пропустят
         if (!FileInfoRepository.getInstance().haveDownloadingFile()) {
             FileInfo fileInfo = FileInfoRepository.getInstance().getUndownloadedFile();
             if (fileInfo != null && fileInfo.isValid()) {
+                Log.d(TAG, "startDownload: " + fileInfo.getId());
                 FileInfoRepository.getInstance()
                         .updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADING);
                 FileInfo fileInfoNotManagedByRealm = Realm.getDefaultInstance()
@@ -336,6 +320,7 @@ public class FileDownloadManager {
     // region new manual variant
 
     private void downloadFile(FileInfo fileInfo) {
+        Log.d(TAG, "downloadFile: " + fileInfo.getId());
         isStopCurrent = false;
         this.fileId = fileInfo.getId();
 
@@ -346,20 +331,17 @@ public class FileDownloadManager {
         final NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
 
         if (ni == null || !ni.isConnectedOrConnecting()) {
-            onDownloadFail(fileId);
+            onDownloadFail(fileInfo.getId());
             startDownload();
             return;
         }
-        NotificationManager notificationManager = (NotificationManager) MattermostApp.
-                getSingleton().getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.
-                Builder(MattermostApp.getSingleton().getApplicationContext());
-        int id = 1;
+
+        createIdNotificationForFile(fileId);
 
         String uri = "https://"
                 + MattermostPreference.getInstance().getBaseUrl()
                 + "/api/v3/files/"
-                + fileId
+                + fileInfo.getId()
                 + "/get";
         InputStream input = null;
         OutputStream output = null;
@@ -369,12 +351,8 @@ public class FileDownloadManager {
             urlConnection.addRequestProperty("Authorization", "Bearer " +
                     MattermostPreference.getInstance().getAuthToken());
             String contentLength = urlConnection.getHeaderField("Content-Length");
-            long fileLength;
-            if (contentLength != null) {
-                fileLength = Long.parseLong(contentLength);
-            } else {
-                fileLength = 0;
-            }
+            long fileLength = Long.parseLong(contentLength);
+
             input = new BufferedInputStream(urlConnection.getInputStream());
 
             File dir = new File(FileUtil.getInstance().getDownloadedFilesDir());
@@ -383,6 +361,7 @@ public class FileDownloadManager {
             }
             String fileName = fileInfo.getmName();
             if (fileName != null) {
+                Log.d(TAG, "downloadFile: fileName != null");
                 builder.setContentTitle(fileName).setSmallIcon(R.drawable.ic_downloaded_file);
                 builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloading));
 
@@ -395,11 +374,14 @@ public class FileDownloadManager {
                     total += count;
                     if (fileLength > 0) {
                         if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
+                            Log.d(TAG, String.format("%s: %d/%d", "downloadFile", total, fileLength));
                             lastTimeUpdate = System.currentTimeMillis();
                             builder.setProgress(100, (int) (total * 100 / fileLength), false);
-                            notificationManager.notify(id, builder.build());
-                            if (fileDownloadListeners.get(fileId) != null) {
-                                fileDownloadListeners.get(fileId)
+                            notificationManager.notify(mMapNotifications.get(fileInfo.getId()),
+                                    builder.build());
+
+                            if (fileDownloadListeners.get(fileInfo.getId()) != null) {
+                                fileDownloadListeners.get(fileInfo.getId())
                                         .onProgress((int) (total * 100 / fileLength));
                             }
                         }
@@ -409,8 +391,9 @@ public class FileDownloadManager {
             }
             urlConnection.disconnect();
             if (!isStopCurrent) {
-                fileDownloadListeners.get(fileId).onComplete(fileId);
-                FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.DOWNLOADED);
+                Log.d(TAG, "downloadFile: downloading completed successfully");
+                fileDownloadListeners.get(fileInfo.getId()).onComplete(fileInfo.getId());
+                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), UploadState.DOWNLOADED);
 
                 builder.setContentText(MattermostApp.getSingleton().getString(R.string.downloaded)).setProgress(0, 0, false);
 
@@ -422,20 +405,27 @@ public class FileDownloadManager {
                     builder.setContentIntent(PendingIntent.getActivity(MattermostApp
                             .getSingleton().getApplicationContext(), 0, intent, 0));
                 }
-                notificationManager.notify(id, builder.build());
+                notificationManager.notify(mMapNotifications.get(fileInfo.getId()), builder.build());
             } else {
-                notificationManager.cancel(id);
+                Log.d(TAG, "downloadFile: downloading was canceled");
+                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
+                        UploadState.IN_LIST);
+                FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
+                        + File.separator + fileInfo.getmName());
+                notificationManager.cancel(mMapNotifications.get(fileInfo.getId()));
                 isStopCurrent = false;
             }
         } catch (IOException e) {
             e.printStackTrace();
-            FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileId);
+            FileDownloadListener fileDownloadListener = fileDownloadListeners.get(fileInfo.getId());
             if (fileDownloadListener != null) {
-                fileDownloadListener.onError(fileId);
+                fileDownloadListener.onError(fileInfo.getId());
             }
-            FileInfoRepository.getInstance().updateUploadStatus(fileId, UploadState.IN_LIST);
+            FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(), UploadState.IN_LIST);
         } finally {
-            fileDownloadListeners.remove(fileId);
+            Log.d(TAG, "downloadFile: finally");
+            fileDownloadListeners.remove(fileInfo.getId());
+            mMapNotifications.remove(fileInfo.getId());
             startDownload();
             try {
                 if (output != null) {
@@ -449,21 +439,38 @@ public class FileDownloadManager {
                 e.printStackTrace();
             }
         }
+    }
 
+    private int createIdNotificationForFile(String fileId) {
+        boolean flag = false;
+        int id;
+        do {
+            Random r = new Random();
+            id = r.nextInt();
+            for (Map.Entry<String, Integer> entry : mMapNotifications.entrySet()) {
+                flag = true;
+                if (!entry.getValue().equals(id)) {
+                    flag = false;
+                    break;
+                }
+            }
+        } while (flag);
+        mMapNotifications.put(fileId, id);
+        Log.d(TAG, "createIdNotificationForFile: " + id);
+        return id;
     }
 
     // endregion
 
     public synchronized void stopDownloadCurrentFile(FileInfo fileInfo) {
+        Log.d(TAG, "stopDownloadCurrentFile: ");
         isStopCurrent = true;
+/*
         if (this.fileId != null && fileInfo != null && this.fileId.equals(fileInfo.getId())) {
-            FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
-                    UploadState.IN_LIST);
+            Log.d(TAG, "stopDownloadCurrentFile: " + fileInfo.getId());
 //            manager.remove(downloadId);
-            FileUtil.getInstance().removeFile(FileUtil.getInstance().getDownloadedFilesDir()
-                    + File.separator + fileInfo.getmName());
         }
-        startDownload();
+*/
     }
 
     public void addListener(FileInfo fileInfo, FileDownloadListener fileDownloadListener) {
