@@ -16,8 +16,6 @@ import java.util.List;
  */
 
 public class CommandAdapter extends RecyclerView.Adapter<CommandHolder> {
-
-
     private final LayoutInflater inflater;
     private List<CommandObject> data;
     private CommandClickListener listener;

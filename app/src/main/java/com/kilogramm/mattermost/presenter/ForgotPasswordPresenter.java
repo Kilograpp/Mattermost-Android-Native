@@ -24,7 +24,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
 
     private static final int REQUEST_SEND_EMAIL = 1;
 
-
     private String userEmail;
 
     private Pattern pattern;
@@ -41,7 +40,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
     public boolean validate(final String value) {
         Matcher matcher = pattern.matcher(value);
         return matcher.matches();
-
     }
 
     private void initSendEmailRequest() {
@@ -55,7 +53,6 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
                     sendHideKeyBoard();
                     sendFinishActivity();
                     sendShowMessage(forgotData.email);
-
                 }, (forgotPasswordActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendShowProgress(false);

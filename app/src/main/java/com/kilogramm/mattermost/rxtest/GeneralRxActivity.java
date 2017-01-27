@@ -73,8 +73,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private LeftMenuRxFragment leftMenuRxFragment;
 
-    private ChatRxFragment mCurrentFragment;
-
     @State
     String currentChannel = "";
 
@@ -156,7 +154,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         final int memoryCacheSize = 1024 * 1024 * 2;
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this.getApplicationContext())
                 .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
-//                .imageDownloader(new BaseImageDownloader(this, 15 * 1000, 30 * 1000)) // connectTimeout (15 s), readTimeout (30 s)
                 .build();
         ImageLoader.getInstance().init(config);
     }
@@ -182,16 +179,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 Log.d(TAG, "OnChange users");
                 updateHeaderUserName((User) element);
                 setAvatar();
-                // TODO сделано для того, что аватарка юзера в списке обновилась.
-                // Но я вообще не уверен, что это верный. В идеале надо пробежаться
-                // по списку и найти только сообщения пользователя. И лишь у них вызвать
-                // notifyItemChanged()
-                // Закомментил, потому что из-за этого скакал список в чате при подгрузке новых
-                // сообщений
-                if(mCurrentFragment != null) {
-                    // mCurrentFragment.invalidateAdapter();
-                }
-            });
+             });
             updateHeaderUserName(user);
             setAvatar();
         }
