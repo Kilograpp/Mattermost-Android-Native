@@ -85,8 +85,18 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> {
+                    List<Observable<Channel>> toRequest = new ArrayList<>();
+                    for (Preferences preferences : preferenceList) {
+                        if (!ChannelRepository.isExistChannelDirect(preferences.getName(), preferences.getUser_id())) {
+                            toRequest.add(buildRequestToCreateDirectChannel(preferences));
+                        }
+                    }
                     PreferenceRepository.update(preferenceList);
-                    sendChanges(aBoolean);
+                    if(toRequest.size() != 0) {
+                        sendCreateDirects(toRequest, aBoolean);
+                    } else {
+                        requestSave(aBoolean);
+                    }
                 }, (wholeDirectListActivity, throwable) -> {
                     sendShowError(parceError(throwable, SAVE_PREFERENCES));
                     requestSave(false);
@@ -106,6 +116,27 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                     }
                     sendUpdateDataList(thisTeamDirects);
                 }, (wholeDirectListActivity, throwable) -> sendShowError(parceError(throwable, null)));
+    }
+
+    private void sendCreateDirects(Iterable<Observable<Channel>> toRequest, Boolean aBoolean) {
+        Observable.zip(toRequest, args -> {
+            List<Channel> channels = new ArrayList<>();
+            for (Object arg : args) {
+                channels.add((Channel) arg);
+                Log.d(TAG, "sendChanges: arg: " + arg);
+            }
+            return channels;
+        }).subscribe(channels -> {
+            ChannelRepository.prepareDirectAndChannelAdd(channels);
+            requestSave(aBoolean);
+        }, throwable -> {
+            throwable.printStackTrace();
+            requestSave(aBoolean);
+        });
+    }
+
+    private Observable<Channel> buildRequestToCreateDirectChannel(Preferences preferences) {
+        return ServerMethod.getInstance().createDirect(teamId, preferences.getName());
     }
 
 
@@ -214,7 +245,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                                         || value.getLastName().contains(name.substring(0, 1).toUpperCase() + name.substring(1)))))
                                 .sorted((o1, o2) -> o1.getUsername().compareTo(o2.getUsername()))
                                 .collect(Collectors.toList());
-                        if(findedUsers.size()!=0){
+                        if (findedUsers.size() != 0) {
                             wholeDirectListActivity.updateDataList(findedUsers);
                         }
                     }
