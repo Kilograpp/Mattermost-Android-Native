@@ -80,9 +80,7 @@ public class MattermostApp extends MultiDexApplication{
     @Override
     public void onCreate() {
         super.onCreate();
-        if (!BuildConfig.DEBUG) {
-            Fabric.with(this, new Crashlytics());
-        }
+        Fabric.with(this, new Crashlytics());
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
         // Realm.init(getApplicationContext());

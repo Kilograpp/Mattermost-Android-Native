@@ -127,7 +127,7 @@ dependencies {
                                             compile 'com.github.rjeschke:txtmark:0.13'*/
 
     // Crashlytics
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }
     compile 'frankiesardo:icepick:3.2.0'

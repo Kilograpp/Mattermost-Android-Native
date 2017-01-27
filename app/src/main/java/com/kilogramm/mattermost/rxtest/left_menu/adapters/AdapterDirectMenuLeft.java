@@ -119,7 +119,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             Collection<IDirect> directs = mData.values();
             List<IDirect> list = Stream.of(directs)
                     .filter(iDirect -> {
-                        if(iDirect instanceof DirectItem){
+                        if(iDirect.getType() == IDirect.TYPE_ITEM){
                             DirectItem di = ((DirectItem)iDirect);
                             buildIDirectItem(di,di.channelId);
                             return true;
@@ -159,11 +159,12 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                                 mAdapterData.clear();
                                 mAdapterData.addAll(iDirects);
                                 notifyDataSetChanged();
+                                Log.d(TAG, "notifyDataSetChanged()");
                             } else{
                                 DirectItem directItem;
                                 for(int i=0 ; i< getItemCount() ; i++){
                                     IDirect iDirect = mAdapterData.get(i);
-                                    if(iDirect instanceof DirectItem){
+                                    if(iDirect.getType() ==  IDirect.TYPE_ITEM){
                                         directItem = (DirectItem) iDirect;
                                         if(directItem.isUpdate){
                                             notifyItemChanged(i);

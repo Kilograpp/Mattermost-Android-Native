@@ -21,6 +21,8 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -54,7 +56,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
         start(REQUEST_SAVE);
     }
 
-    public void requestUpdate(List<Preferences> preferences) {
+    public void requestUpdate() {
         getIds().subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(strings -> {
@@ -185,9 +187,17 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     public Observable<List<String>> getIds() {
         return Observable.create(subscriber -> {
             try {
-                List<String> ids = Stream.of(PreferenceRepository.query(new PreferenceRepository.ListDirectMenu()))
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+
+                RealmResults<Preferences> listPref = PreferenceRepository.query(realm,new PreferenceRepository.ListDirectMenu());
+                List<String> ids = Stream.of(listPref)
                         .map(Preferences::getName)
                         .collect(Collectors.toList());
+
+                realm.commitTransaction();
+                realm.close();
+
                 subscriber.onNext(ids);
                 subscriber.onCompleted();
             } catch (Exception e) {

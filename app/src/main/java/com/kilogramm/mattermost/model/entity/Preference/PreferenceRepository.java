@@ -82,6 +82,10 @@ public class PreferenceRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static RealmResults<Preferences> query(Realm realm,Specification specification) {
+        return ((RealmSpecification) specification).toRealmResults(realm);
+    }
+
     public static RealmResults<Preferences> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Preferences.class).equalTo("category", "direct_channel_show").findAll();

@@ -173,7 +173,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
 
     @Override
     public void onRefresh() {
-        getPresenter().requestUpdate(mPreferences);
+        getPresenter().requestUpdate();
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
