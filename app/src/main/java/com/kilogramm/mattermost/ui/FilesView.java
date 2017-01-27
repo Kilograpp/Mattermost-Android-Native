@@ -209,7 +209,6 @@ public class FilesView extends GridLayout {
                             Toast.LENGTH_SHORT).show();
                     binding.downloadFileControls.hideProgressControls();
                 });
-
             }
         };
     }
