@@ -113,6 +113,7 @@
     <string name="tag_notificationPushFragment">notificationPushFragment</string>
     <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
 
+    <string name="prepare_for_download">Prepare for download…</string>
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
     <string name="error_during_file_download">Error during file download</string>
