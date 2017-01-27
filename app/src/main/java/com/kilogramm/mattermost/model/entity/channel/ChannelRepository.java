@@ -136,6 +136,23 @@ public class ChannelRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static Boolean isExistChannelDirect(String userId, String myUserId) {
+        Boolean isExist = false;
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        String id = userId + "__" + myUserId;
+        String revertId = myUserId + "__" + userId;
+        long count = realm.where(Channel.class)
+                .equalTo("name", id)
+                .or()
+                .equalTo("name", revertId)
+                .count();
+        isExist = count!=0;
+        realm.commitTransaction();
+        realm.close();
+        return isExist;
+    }
+
     // region Specification
     public static class ChannelByIdSpecification implements RealmSpecification {
         private final String id;
