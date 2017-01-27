@@ -118,7 +118,7 @@ public class ChannelRepository {
                     channel.setUser(realm1.where(User.class)
                             .equalTo("id", name)
                             .findFirst());
-                    channel.setUsername(channel.getUser().getUsername());
+                    if(channel.getUser() != null) channel.setUsername(channel.getUser().getUsername());
                 }
                 realm.insertOrUpdate(channel);
             }
