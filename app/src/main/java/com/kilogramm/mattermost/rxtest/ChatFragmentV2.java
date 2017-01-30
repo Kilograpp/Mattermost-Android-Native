@@ -181,6 +181,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             this.mSearchMessageId = getArguments().getString(SEARCH_MESSAGE_ID);
         }
         getPresenter().initPresenter(this.mTeamId, this.mChannelId, this.mChannelType);
+        checkNeededPermissions();
     }
 
     @Nullable
@@ -220,7 +221,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 ChannelActivity.start(getActivity(), mChannelId);
             }
         }, v -> searchMessage());
-        checkNeededPermissions();
         NotificationManager notificationManager = (NotificationManager)
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(mChannelId.hashCode());
