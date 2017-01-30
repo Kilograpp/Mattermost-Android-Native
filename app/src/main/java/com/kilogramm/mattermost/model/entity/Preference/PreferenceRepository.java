@@ -82,6 +82,10 @@ public class PreferenceRepository {
         return ((RealmSpecification) specification).toRealmResults(realm);
     }
 
+    public static RealmResults<Preferences> query(Realm realm,Specification specification) {
+        return ((RealmSpecification) specification).toRealmResults(realm);
+    }
+
     public static RealmResults<Preferences> query() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Preferences.class).equalTo("category", "direct_channel_show").findAll();
@@ -116,6 +120,16 @@ public class PreferenceRepository {
         public RealmResults<Preferences> toRealmResults(Realm realm) {
             return realm.where(Preferences.class)
                     .equalTo("category", category)
+                    .findAll();
+        }
+    }
+
+    public static class ListDirectMenu implements RealmSpecification {
+
+        @Override
+        public RealmResults<Preferences> toRealmResults(Realm realm) {
+            return realm.where(Preferences.class).equalTo("category","direct_channel_show")
+                    .equalTo("value", "true")
                     .findAll();
         }
     }

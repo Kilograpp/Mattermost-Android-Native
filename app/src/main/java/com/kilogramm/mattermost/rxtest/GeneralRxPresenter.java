@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;

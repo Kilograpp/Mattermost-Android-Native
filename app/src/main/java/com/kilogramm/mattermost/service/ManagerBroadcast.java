@@ -41,6 +41,7 @@ import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
+import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
@@ -228,9 +229,8 @@ public class ManagerBroadcast {
     }
 
     private void getFileInfoAndSavePost(Post post) {
-        ServerMethod.getInstance()
-                .getFileInfo(MattermostPreference.getInstance().getTeamId(),
-                        post.getChannelId(), post.getId())
+        ServerMethod.getInstance().getFileInfo(MattermostPreference.getInstance().getTeamId(),
+                post.getChannelId(), post.getId())
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .doOnError(throwable -> {

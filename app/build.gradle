@@ -11,9 +11,10 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'io.fabric'
+apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'realm-android'
+apply plugin: 'android-aspectjx'
 
 
 repositories {
@@ -126,7 +127,7 @@ dependencies {
                                             compile 'com.github.rjeschke:txtmark:0.13'*/
 
     // Crashlytics
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }
     compile 'frankiesardo:icepick:3.2.0'
@@ -149,4 +150,5 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
     compile project(':lib-release')
+    compile 'org.aspectj:aspectjrt:1.8.8'
 }
