@@ -5,14 +5,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <FrameLayout
             android:id="@+id/circleFrame"
             android:layout_width="@dimen/file_circle_size"
             android:layout_height="@dimen/file_circle_size"
-            android:layout_margin="5dp"
+            android:layout_margin="15dp"
             android:background="@drawable/circle_blue">
 
             <ImageView
@@ -28,7 +28,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:orientation="vertical">
 
             <TextView

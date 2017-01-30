@@ -19,7 +19,7 @@ import nucleus.factory.RequiresPresenter;
  * Created by kepar on 27.01.17.
  */
 @RequiresPresenter(DownloadsListPresenter.class)
-public class DownloadsListActivity  extends BaseActivity<DownloadsListPresenter>{
+public class DownloadsListActivity extends BaseActivity<DownloadsListPresenter> {
 
     private RecyclerView mRecyclerView;
 
@@ -34,13 +34,12 @@ public class DownloadsListActivity  extends BaseActivity<DownloadsListPresenter>
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mAdapter = new DownloadsListAdapter(this,
                 FileInfoRepository.getInstance().getDownloadedFiles());
         mRecyclerView.setAdapter(mAdapter);
-
-
     }
 
     @Override
