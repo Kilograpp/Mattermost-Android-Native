@@ -344,6 +344,8 @@ public class FilesView extends GridLayout {
                         getContext().getString(R.string.no_premission_for_download),
                         Toast.LENGTH_SHORT).show();
 
+            } else {
+                FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
             }
         } else {
             FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
