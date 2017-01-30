@@ -107,6 +107,7 @@ public class FileDownloadManager {
     }
 
     private void downloadFile(FileInfo fileInfo) {
+        Log.d(TAG, "downloadFile: ");
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) MattermostApp.getSingleton()
                         .getApplicationContext()
@@ -136,7 +137,7 @@ public class FileDownloadManager {
             String fileName = fileInfo.getmName();
             if (fileName != null) {
                 showIndeterminateProgressNotification(fileInfo);
-
+                Log.d(TAG, "downloadFile: beging connecting");
                 URL url = new URL(uri);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.addRequestProperty("Authorization", "Bearer " +
@@ -144,10 +145,11 @@ public class FileDownloadManager {
 
                 input = new BufferedInputStream(urlConnection.getInputStream());
                 output = new FileOutputStream(dir.getAbsolutePath() + File.separator + fileName);
-
+                Log.d(TAG, "downloadFile: connected");
                 String contentLength = urlConnection.getHeaderField("Content-Length");
-                writeData(input, output, fileInfo.getId(), Long.parseLong(contentLength));
 
+                writeData(input, output, fileInfo.getId(), Long.parseLong(contentLength));
+                Log.d(TAG, "downloadFile: finish writing data");
                 urlConnection.disconnect();
             }
             if (!isStopCurrent) {
@@ -261,6 +263,7 @@ public class FileDownloadManager {
             total += count;
             if (fileLength > 0) {
                 if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
+                    Log.d(TAG, "writeData: " + total +"/" + fileLength);
                     builder.setProgress(100, (int) (total * 100 / fileLength), false);
                     builder.setContentText(MattermostApp.getSingleton()
                             .getString(R.string.downloading));

@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.os.Environment;
+import android.os.StatFs;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.GridLayout;
@@ -280,7 +282,17 @@ public class FilesView extends GridLayout {
     }
 
     private void downloadFile(FileInfo fileInfo, FileDownloadManager.FileDownloadListener fileDownloadListener) {
-        FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
+        StatFs statFs = new StatFs(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getPath());
+        long freeSpace = statFs.getAvailableBytes();
+        if(fileInfo.getmSize() >= freeSpace){
+            fileDownloadListener.onError(fileInfo.getId());
+            Toast.makeText(getContext(),
+                    getContext().getString(R.string.not_enough_space),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
+        }
     }
 
     private void clearView() {
