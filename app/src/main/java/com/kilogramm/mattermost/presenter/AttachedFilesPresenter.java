@@ -105,7 +105,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
-            Log.d(TAG, "initRequests: fail", throwable);
             throwable.printStackTrace();
             // TODO обработать различные ошибки (чтобы при отмене ничего не выводилось)
             if (!throwable.getMessage().trim().equals("unexpected end of stream")) {
@@ -133,10 +132,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     }
 
     private void startRequest() {
-        Log.d(TAG, "startRequest: ");
         mFileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
         if (mFileToAttach == null || channelId == null) {
-            Log.d(TAG, "startRequest: no files for upload");
+            // TODO тормозит, сделать асинхронно
             if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
                 sendAllUploaded();
             }

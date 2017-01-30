@@ -265,7 +265,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void showFiles() {
-        Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        /*Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
         if (intent.resolveActivityInfo(MattermostApp.getSingleton()
                 .getApplicationContext().getPackageManager(), 0) != null) {
             startActivity(intent);
@@ -273,7 +273,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             Toast.makeText(this,
                     getString(R.string.no_suitable_app),
                     Toast.LENGTH_SHORT).show();
-        }
+        }*/
+        DownloadsListActivity.start(this);
 
     }
 

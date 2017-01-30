@@ -101,6 +101,13 @@ public class FileInfoRepository {
                 .findFirst();
     }
 
+    public RealmResults<FileInfo> getDownloadedFiles() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(FileInfo.class)
+                .equalTo("uploadState", UploadState.DOWNLOADED.name())
+                .findAll();
+    }
+
     // endregion
 
     // region Check methods
