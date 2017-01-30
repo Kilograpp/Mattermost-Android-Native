@@ -521,10 +521,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     private void initFab() {
         mBinding.fab.hide();
-        /**
-         * TODO kepar
-         * I don`t know next logic
-         */
         mBinding.fab.setOnClickListener(v -> {
             mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
         });
