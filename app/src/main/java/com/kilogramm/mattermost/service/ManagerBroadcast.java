@@ -39,6 +39,7 @@ import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.ServerMethod;
+import com.kilogramm.mattermost.rxtest.ChatFragmentV2;
 import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.tools.FileUtil;
@@ -150,10 +151,7 @@ public class ManagerBroadcast {
                 String MuUserId = MattermostPreference.getInstance().getMyUserId();
                 if (data.getMentions().length() > 0
                         && data.getMentions().equals("[\"" + MuUserId + "\"]")
-                        && !data.getPost().getChannelId().equals(
-                        MattermostPreference.getInstance().getLastChannelId())
                         && !data.getPost().getUserId().equals(MuUserId)) {
-
                     createNotificationNEW(data.getPost(), context);
                 }
                 Log.d(TAG, data.getPost().getMessage());
@@ -278,8 +276,9 @@ public class ManagerBroadcast {
     }
 
     private void createNotificationNEW(Post post, Context context) {
-        if (ChatRxFragment.active && MattermostPreference.getInstance().getLastChannelId()
-                .equals(post.getChannelId())) {
+        String lastId = MattermostPreference.getInstance().getLastChannelId();
+        String newId = post.getChannelId();
+        if (lastId.equals(newId) && ChatFragmentV2.active) {
             return;
         }
 

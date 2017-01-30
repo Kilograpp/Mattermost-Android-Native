@@ -66,7 +66,6 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     private Handler handler;
     private UpdateTask updateTask;
 
-
     public AdapterDirectMenuLeft(RealmResults<Channel> data,
                                  Context context,
                                  OnLeftMenuClickListener mItemClickListener) {
@@ -307,29 +306,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void invalidateStatus(){
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<UserStatus> newStatuses = realm.where(UserStatus.class).findAll();
-        for (IDirect iDirect : this.mAdapterData) {
-            if(iDirect.getType()==IDirect.TYPE_ITEM){
-                realm.executeTransaction(realm1 -> {
-                    UserStatus status = newStatuses.where()
-                            .equalTo("id",((DirectItem) iDirect).userId)
-                            .findFirst();
-                    if(status!=null){
-                        if(!status.getStatus().equals(((DirectItem) iDirect).status)){
-                            ((DirectItem) iDirect).status = status.getStatus();
-                            Log.d(TAG, "invalidateStatus: Status changed: " + iDirect.toString());
-                            notifyItemChanged(mAdapterData.indexOf(iDirect));
-                        }
-                    }
-                });
-            }
-        }
-        realm.close();
+        update(false);
     }
 
     public void invalidateMember() {
-       update(false);
+        update(false);
     }
 
     class UpdateTask implements Runnable{

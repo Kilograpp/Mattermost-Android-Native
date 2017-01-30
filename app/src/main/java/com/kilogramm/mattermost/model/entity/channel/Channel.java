@@ -398,4 +398,27 @@ public class Channel extends RealmObject implements Parcelable {
             return new Channel[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "id='" + id + '\'' +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                ", deleteAt=" + deleteAt +
+                ", teamId='" + teamId + '\'' +
+                ", type='" + type + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", name='" + name + '\'' +
+                ", header='" + header + '\'' +
+                ", purpose='" + purpose + '\'' +
+                ", lastPostAt=" + lastPostAt +
+                ", totalMsgCount=" + totalMsgCount +
+                ", extraUpdateAt=" + extraUpdateAt +
+                ", creatorId='" + creatorId + '\'' +
+                ", username='" + username + '\'' +
+                ", user=" + user +
+                ", unreadedMessage=" + unreadedMessage +
+                '}';
+    }
 }

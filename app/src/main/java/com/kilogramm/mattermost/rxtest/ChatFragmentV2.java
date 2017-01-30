@@ -133,6 +133,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public static boolean active = false;
 
     private Realm mRealm;
+    boolean isSendTyping;
 
     @State
     String mChannelId;
@@ -181,6 +182,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             this.mSearchMessageId = getArguments().getString(SEARCH_MESSAGE_ID);
         }
         getPresenter().initPresenter(this.mTeamId, this.mChannelId, this.mChannelType);
+
+        //FIXME click on item notification, not set last channel
+        MattermostPreference.getInstance().setLastChannelId(mChannelId);
         checkNeededPermissions();
     }
 
@@ -581,11 +585,11 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                         (FileToAttachRepository.getInstance().haveFilesToAttach() &&
                                 !FileToAttachRepository.getInstance().haveUnloadedFiles())) {
                     mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
-                   /* if (!isSendTyping) {
+                    if (!isSendTyping) {
                         isSendTyping = true;
                         MattermostService.Helper.create(getActivity()).sendUserTyping(mChannelId);
                         mBinding.getRoot().postDelayed(() -> isSendTyping = false, TYPING_DURATION);
-                    }*/
+                    }
                 } else {
                     mBinding.btnSend.setTextColor(getResources().getColor(R.color.grey));
                 }

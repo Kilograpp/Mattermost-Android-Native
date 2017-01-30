@@ -421,8 +421,22 @@ public class Post extends RealmObject implements Parcelable {
     public String toString() {
         return "Post{" +
                 "id='" + id + '\'' +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                ", deleteAt=" + deleteAt +
+                ", userId='" + userId + '\'' +
+                ", channelId='" + channelId + '\'' +
+                ", rootId='" + rootId + '\'' +
+                ", parentId='" + parentId + '\'' +
+                ", originalId='" + originalId + '\'' +
                 ", message='" + message + '\'' +
+                ", type='" + type + '\'' +
+                ", hashtags='" + hashtags + '\'' +
+                ", filenames=" + filenames +
                 ", pendingPostId='" + pendingPostId + '\'' +
+                ", props=" + props +
+                ", user=" + user +
+                ", viewed=" + viewed +
                 '}';
     }
 }
