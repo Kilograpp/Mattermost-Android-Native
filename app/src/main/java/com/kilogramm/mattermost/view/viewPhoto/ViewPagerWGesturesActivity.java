@@ -1,14 +1,15 @@
 package com.kilogramm.mattermost.view.viewPhoto;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
@@ -18,8 +19,6 @@ import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
-import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.BaseActivity;
 
@@ -37,28 +36,51 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public static final String TITLE = "title";
     public static final String PHOTO_LIST = "photo_list";
     private static final String TAG = "ViewPagerWGesturesAct";
+    private static final String ANIMDATA = "animdata";
+    private static final int ANIM_DURATION = 300;
 
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
 
     private ArrayList<FileInfo> photosList = new ArrayList<>();
     private FileInfo mOpenedFile;
+    private ImageView mIconDownload;
+
+
+    ImageViewerAnimator animator;
 
     Toast errorToast;
 
-    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList) {
+    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList, int[] screenLocation, int[] size) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
+
+        int orientation = context.getResources().getConfiguration().orientation;
         starter.putExtra(TITLE, title)
                 .putExtra(OPENED_FILE, openedFile)
-                .putStringArrayListExtra(PHOTO_LIST, photoList);
+                .putStringArrayListExtra(PHOTO_LIST, photoList)
+                .putExtra(ANIMDATA + ".orientation", orientation)
+                .putExtra(ANIMDATA + ".left", screenLocation[0])
+                .putExtra(ANIMDATA + ".top", screenLocation[1])
+                .putExtra(ANIMDATA + ".width", size[0])
+                .putExtra(ANIMDATA + ".height", size[1]);
+
         context.startActivity(starter);
+        ((Activity) context).overridePendingTransition(0, 0);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(0, 0);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_photo_viewer);
+        mIconDownload = (ImageView) findViewById(R.id.action_download);
+
+        animator = new ImageViewerAnimator(this, getIntent().getExtras(),
+                binding.viewPager, binding.background, mIconDownload);
+
+        if(savedInstanceState == null) animator.startAnimation(() -> animateToolabar(getToolbarTitle()));
+
 
         List<String> photosIdList = getIntent().getStringArrayListExtra(PHOTO_LIST);
         for (String photoId : photosIdList) {
@@ -70,20 +92,8 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         adapter = new TouchImageAdapter(getSupportFragmentManager(), photosList);
 
         binding.viewPager.setAdapter(adapter);
+        binding.viewPager.setCurrentItem(photosList.indexOf(mOpenedFile));
 
-        String toolbarTitle = "";
-        if (mOpenedFile != null) {
-            int index = 0;
-            for (FileInfo fileInfo : photosList) {
-                ++index;
-                if (fileInfo.getId().equals(mOpenedFile.getId())) {
-                    toolbarTitle = index + " из " + photosList.size();
-                    binding.viewPager.setCurrentItem(index - 1);
-                }
-            }
-        }
-        setupToolbar(toolbarTitle, true);
-        setColorScheme(R.color.black, R.color.black);
 
         binding.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -92,7 +102,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
             @Override
             public void onPageSelected(int position) {
-                String toolbarTitle = (position + 1) + " из " + photosList.size();
+                String toolbarTitle = (position + 1) + " of " + photosList.size();
                 setupToolbar(toolbarTitle, true);
                 setupDownloadIcon(photosList.get(position));
             }
@@ -116,12 +126,34 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         });
     }
 
+    private String getToolbarTitle(){
+        String toolbarTitle = "";
+        if (mOpenedFile != null) {
+            int index = 0;
+            for (FileInfo fileInfo : photosList) {
+                ++index;
+                if (fileInfo.getId().equals(mOpenedFile.getId())) {
+                    toolbarTitle = index + " of " + photosList.size();
+//                    binding.viewPager.setCurrentItem(index - 1);
+                }
+            }
+        }
+        return toolbarTitle;
+    }
+    private void animateToolabar(String title){
+//        setTransparentActionBar(0);
+        if(title == null) title = "";
+        setupToolbar(title, true);
+//        setColorScheme(R.color.black, R.color.black);
+
+    }
+
     private void setupDownloadIcon(FileInfo fileInfo) {
         if (fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD
                 || fileInfo.getUploadState() == UploadState.DOWNLOADING) {
-            findViewById(R.id.action_download).setVisibility(View.GONE);
+            mIconDownload.setVisibility(View.GONE);
         } else {
-            findViewById(R.id.action_download).setVisibility(View.VISIBLE);
+            mIconDownload.setVisibility(View.VISIBLE);
         }
     }
 
@@ -133,6 +165,11 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void finish() {
+        animator.finishWithAnimation(super::finish);
     }
 
     private void createDialog(FileInfo fileInfo) {
@@ -189,10 +226,20 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
         });
     }
 
-    public void setTransparent(float v) {
-//        getWindow().getDecorView().setAlpha(1);
-//        binding.getRoot().setAlpha(Math.abs(1 - v / 100));
-        binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-        binding.getRoot().setAlpha(v);
+    public void setBackgroundAlpha(float alpha){
+        animator.setBackgroundAlpha(alpha);
     }
+
+    public void setBackgroundAlpha(float alpha, int duration){
+        animator.setBackgroundAlpha(alpha, duration);
+    }
+
+//    public void setTransparent(float v) {
+////        getWindow().getDecorView().setAlpha(1);
+////        binding.getRoot().setAlpha(Math.abs(1 - v / 100));
+////        binding.getRoot().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+////        binding.getRoot().setAlpha(v);
+//    }
+
 }
+

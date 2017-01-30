@@ -58,7 +58,6 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
             actionBar.setBackgroundDrawable(
                     new ColorDrawable(getResources().getColor(appBarColorRes)));
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setStatusBarColorActivity(portStatusBarColorRes);
         }
@@ -68,6 +67,7 @@ public abstract class BaseActivity<P extends Presenter> extends NucleusAppCompat
     public void setStatusBarColorActivity(int portStatusBarColorRes) {
         getWindow().setStatusBarColor(getResources().getColor(portStatusBarColorRes));
     }
+
 
     public void setupToolbar(String title, Boolean hasButtonBack) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
