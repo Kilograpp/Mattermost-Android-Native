@@ -182,6 +182,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             this.mSearchMessageId = getArguments().getString(SEARCH_MESSAGE_ID);
         }
         getPresenter().initPresenter(this.mTeamId, this.mChannelId, this.mChannelType);
+
+        //FIXME click on item notification, not set last channel
+        MattermostPreference.getInstance().setLastChannelId(mChannelId);
     }
 
     @Nullable

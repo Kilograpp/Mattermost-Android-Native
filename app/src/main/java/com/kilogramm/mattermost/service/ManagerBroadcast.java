@@ -276,8 +276,9 @@ public class ManagerBroadcast {
     }
 
     private void createNotificationNEW(Post post, Context context) {
-        if (MattermostPreference.getInstance().getLastChannelId()
-                .equals(post.getChannelId()) && ChatFragmentV2.active) {
+        String lastId = MattermostPreference.getInstance().getLastChannelId();
+        String newId = post.getChannelId();
+        if (lastId.equals(newId) && ChatFragmentV2.active) {
             return;
         }
 
