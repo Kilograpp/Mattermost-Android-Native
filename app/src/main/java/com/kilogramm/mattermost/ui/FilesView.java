@@ -1,11 +1,16 @@
 package com.kilogramm.mattermost.ui;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,7 +132,7 @@ public class FilesView extends GridLayout {
                             if (item.getmMimeType() != null
                                     && item.getmMimeType().contains("image")) {
                                 fileIdList.add(item.getId());
-                                if(fileInfo.getId() == item.getId())
+                                if (fileInfo.getId() == item.getId())
                                     clicked = item;
                             }
                         }
@@ -188,7 +193,7 @@ public class FilesView extends GridLayout {
                 + "/api/v3/files/"
                 + fileInfo.getId()
                 + "/get_thumbnail";
-        ImageLoader.getInstance().displayImage(thumb_url,binding.image, options, new ImageLoadingListener() {
+        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
             }
@@ -212,7 +217,7 @@ public class FilesView extends GridLayout {
         this.addView(binding.getRoot());
     }
 
-    private void resizeImageView(Bitmap image, ImageView imageView){
+    private void resizeImageView(Bitmap image, ImageView imageView) {
         int displayWidth = getContext().getResources().getDisplayMetrics().widthPixels;
         int displayHeight = getContext().getResources().getDisplayMetrics().heightPixels;
         float scale = getContext().getResources().getDisplayMetrics().density;
@@ -329,8 +334,20 @@ public class FilesView extends GridLayout {
         builder.show();
     }
 
-    private void downloadFile(FileInfo fileInfo, FileDownloadManager.FileDownloadListener fileDownloadListener) {
-        FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
+    private void downloadFile(FileInfo fileInfo,
+                              FileDownloadManager.FileDownloadListener fileDownloadListener) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getContext(),
+                        getContext().getString(R.string.no_premission_for_download),
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        } else {
+            FileDownloadManager.getInstance().addItem(fileInfo, fileDownloadListener);
+        }
     }
 
     private void clearView() {
