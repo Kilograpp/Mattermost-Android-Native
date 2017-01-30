@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.view.channel;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -21,7 +22,6 @@ import com.kilogramm.mattermost.view.BaseActivity;
 
 import java.util.List;
 
-import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
 /**
@@ -35,6 +35,8 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
     SearchView searchView;
 
     private AddMembersAdapterNotRealm addMembersAdapterNotRealm;
+
+    private boolean wasMembersAdded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,12 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(wasMembersAdded){
+            Intent intent = new Intent();
+            intent.putExtra("code", "user_added");
+            setResult(Activity.RESULT_OK, intent);
+            finish();
+        }
         onBackPressed();
         return super.onOptionsItemSelected(item);
     }
@@ -62,6 +70,12 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         Intent starter = new Intent(context, AddMembersActivity.class);
         starter.putExtra(CHANNEL_ID, channelId);
         context.startActivity(starter);
+    }
+
+    public static void startForResult(Activity context, String channelId, int code) {
+        Intent starter = new Intent(context, AddMembersActivity.class);
+        starter.putExtra(CHANNEL_ID, channelId);
+        context.startActivityForResult(starter, code);
     }
 
     public TextWatcher getMassageTextWatcher() {
@@ -92,6 +106,7 @@ public class AddMembersActivity extends BaseActivity<AddMembersPresenter> {
         if (searchView.getQuery().length() == 0) {
             getPresenter().getFoundUsers(null);
         }
+        wasMembersAdded = true;
         searchView.setIconified(true);
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }

@@ -205,7 +205,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                             mChannel.getType().equals(Channel.OPEN) ? "channel" : "private group"),
                     Toast.LENGTH_SHORT).show();
             ChannelRepository.remove(mChannel);
-            channelActivity.finishActivity();
+//            channelActivity.finishActivity();
+            channelActivity.onBackPressed();
         }));
     }
 
