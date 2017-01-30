@@ -19,7 +19,6 @@ import com.kilogramm.mattermost.model.FileDownloadManager;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
-import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
