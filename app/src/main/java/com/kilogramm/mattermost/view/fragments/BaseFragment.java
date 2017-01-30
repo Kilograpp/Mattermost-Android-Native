@@ -1,12 +1,8 @@
 package com.kilogramm.mattermost.view.fragments;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.View;
-import android.widget.Toast;
 
-import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.view.BaseActivity;
 
 import icepick.Icepick;

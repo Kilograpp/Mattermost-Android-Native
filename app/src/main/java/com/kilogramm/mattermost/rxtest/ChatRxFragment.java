@@ -251,6 +251,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
 
     public void startLoad() {
         if (searchMessageId != null) {
+            getPresenter().requestExtraInfo();
             getPresenter().requestLoadBeforeAndAfter(searchMessageId);
         } else {
             getPresenter().requestExtraInfo();
@@ -681,8 +682,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         binding.rev.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int bottomRow =
-                        (recyclerView == null || recyclerView.getChildCount() == 0)
+                int bottomRow = (recyclerView == null || recyclerView.getChildCount() == 0)
                                 ? 0
                                 : recyclerView.getAdapter().getItemCount() - 1;
                 int lastVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
@@ -769,7 +769,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         }
     }
 
-    public void OnClickOpenGallery() {
+    /*public void OnClickOpenGallery() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -787,7 +787,7 @@ public class ChatRxFragment extends BaseFragment<ChatRxPresenter> implements OnI
         } else {
             openGallery();
         }
-    }
+    }*/
 
     private void openGallery() {
         openFile(getActivity(), "image/*", PICK_IMAGE);

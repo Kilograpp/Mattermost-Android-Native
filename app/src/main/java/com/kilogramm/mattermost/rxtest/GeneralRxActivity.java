@@ -127,7 +127,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_CANCELED)
             if (requestCode == ChannelActivity.REQUEST_ID)
-                ((ChatRxFragment) getFragmentManager().findFragmentById(binding.contentFrame.getId()))
+                ((ChatFragmentV2) getFragmentManager().findFragmentById(binding.contentFrame.getId()))
                         .setChannelName(ChannelRepository
                                 .query(new ChannelRepository.ChannelByIdSpecification(currentChannel))
                                 .first()
@@ -141,8 +141,9 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             if (requestCode == ChatRxFragment.SEARCH_CODE) {
                 if (data != null) {
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
-
-                    setFragmentChat(data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
+                    Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+                    setFragmentChat(ChatFragmentV2.START_SEARCH,
+                            data.getStringExtra(SearchMessageActivity.CHANNEL_ID),
                             data.getStringExtra(SearchMessageActivity.CHANNEL_NAME),
                             data.getStringExtra(SearchMessageActivity.TYPE_CHANNEL));
                 }
@@ -292,15 +293,14 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
         binding.progressBar.setVisibility(View.VISIBLE);
     }
 
-    public void setFragmentChat(String channelId, String channelName, String type) {
-        replaceFragment(channelId, channelName);
+    public void setFragmentChat(String code, String channelId, String channelName, String type) {
+        replaceFragment(code, channelId, channelName, type);
         Log.d(TAG, "setFragmentChat");
         closeProgressBar();
-        leftMenuRxFragment.onChannelClick(channelId, channelName, type);
+       // leftMenuRxFragment.onChannelClick(channelId, channelName, type);
         leftMenuRxFragment.setSelectItemMenu(channelId, type);
     }
-
-    private void replaceFragment(String channelId, String channelName) {
+    private void replaceFragment(String startCode, String channelId, String channelName, String channelType) {
         binding.drawerLayout.closeDrawer(GravityCompat.START);
         closeProgressBar();
         if (MattermostPreference.getInstance().getLastChannelId() != null &&
@@ -308,7 +308,10 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             FileToAttachRepository.getInstance().deleteUploadedFiles();
         }
         if (!channelId.equals(currentChannel) || searchMessageId != null) {
-            ChatRxFragment mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
+            ChatFragmentV2 mCurrentFragment = ChatFragmentV2.createFragment(
+                    (searchMessageId!=null)? ChatFragmentV2.START_SEARCH : ChatFragmentV2.START_NORMAL,
+                    channelId, channelName, channelType, searchMessageId);
+            //ChatRxFragment mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), mCurrentFragment, FRAGMENT_TAG)
@@ -348,7 +351,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                     getPresenter().requestSave(openChannelName, openChannelId);
                 }
 
-                this.setFragmentChat(openChannelId, openChannelName, openChannelType);
+                this.setFragmentChat(ChatFragmentV2.START_NORMAL, openChannelId, openChannelName, openChannelType);
                 return true;
             }
         }
@@ -388,8 +391,8 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     @Override
-    public void onChange(String channelId, String name) {
-        replaceFragment(channelId, name);
+    public void onChange(String channelId, String name, String type) {
+        replaceFragment(ChatFragmentV2.START_NORMAL,channelId, name, type);
     }
 
     @Override

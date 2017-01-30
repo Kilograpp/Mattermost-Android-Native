@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -41,12 +42,14 @@ import javax.net.ssl.X509TrustManager;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.log.AndroidLogger;
+import io.realm.log.RealmLog;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 25.07.2016.
  */
-public class MattermostApp extends Application {
+public class MattermostApp extends MultiDexApplication {
 
     public static final String URL_WEB_SOCKET = "wss://mattermost.kilograpp.com/api/v3/users/websocket";
 
@@ -74,16 +77,18 @@ public class MattermostApp extends Application {
         return mattermostRetrofitService;
     }
 
+
     @Override
     public void onCreate() {
-        MultiDex.install(getApplicationContext());
         super.onCreate();
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+        // Realm.init(getApplicationContext());
+        Realm.init(getApplicationContext());
+        RealmConfiguration configuration = new RealmConfiguration.Builder()
                 .name("mattermostDb.realm")
                 .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
                 .build();

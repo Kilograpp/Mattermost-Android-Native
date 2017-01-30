@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.kilogramm.mattermost;
+
+import javax.annotation.ParametersAreNonnullByDefault;
