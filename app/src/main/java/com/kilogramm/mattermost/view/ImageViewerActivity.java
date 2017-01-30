@@ -24,7 +24,7 @@ import com.kilogramm.mattermost.viewmodel.ImageViewerViewModel;
 /**
  * Created by Evgeny on 05.09.2016.
  */
-public class ImageViewerActivity extends BaseActivity {
+public class ImageViewerActivity extends BaseActivity {// FIXME: 24.01.17 This class is not used
 
     public static final String COLOR = "color";
     public static final String TITLE = "title";

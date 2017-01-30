@@ -46,6 +46,10 @@ public class FileInfo extends RealmObject implements Parcelable {
         return mSize;
     }
 
+    public int getWidth(){return mWidth;}
+
+    public int getHeight(){return mHeight;}
+
     public UploadState getUploadState() {
         return (uploadState != null) ? UploadState.valueOf(uploadState) : null;
     }
