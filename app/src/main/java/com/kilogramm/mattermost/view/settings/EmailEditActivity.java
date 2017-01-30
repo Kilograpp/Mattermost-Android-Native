@@ -59,9 +59,6 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
         switch (item.getItemId()) {
             case R.id.save:
                 mMenuItem = item;
-                BaseActivity.hideKeyboard(this);
-                item.setVisible(false);
-                mBinding.progressBar.setVisibility(View.VISIBLE);
                 onClickSave();
                 return true;
             case android.R.id.home:
@@ -75,17 +72,23 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
 
     private void onClickSave() {
         hideKeyboard(this);
-        String newEmail = mBinding.newEmail.getText().toString();
-        if (newEmail != null && newEmail.length() > 0
-                && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-            User editedUser = new User(UserRepository.query(new UserRepository.
-                    UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
-            editedUser.setEmail(mBinding.newEmail.getText().toString());
-            getPresenter().requestSave(editedUser);
-        } else {
-            showErrorText(getString(R.string.invalid_email));
-            hideProgressBar();
-        }
+        if(areTextfieldsFilled()) {
+            BaseActivity.hideKeyboard(this);
+            mMenuItem.setVisible(false);
+            mBinding.progressBar.setVisibility(View.VISIBLE);
+
+            String newEmail = mBinding.newEmail.getText().toString();
+            if (newEmail != null && newEmail.length() > 0
+                    && android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+                User editedUser = new User(UserRepository.query(new UserRepository.
+                        UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first());
+                editedUser.setEmail(mBinding.newEmail.getText().toString());
+                getPresenter().requestSave(editedUser);
+            } else {
+                showErrorText(getString(R.string.invalid_email));
+                hideProgressBar();
+            }
+        } else showErrorText("Enter your new Email");
     }
 
     public static void start(Context context) {
@@ -101,5 +104,13 @@ public class EmailEditActivity extends BaseActivity<EmailEditPresenter> {
     public void hideProgressBar(){
         mMenuItem.setVisible(true);
         mBinding.progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private boolean areTextfieldsFilled() {
+        if (mBinding.currentEmail.getText().length() != 0 &&
+                mBinding.newEmail.getText().length() != 0)
+            return true;
+        else
+            return false;
     }
 }
