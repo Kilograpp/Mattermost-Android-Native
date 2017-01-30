@@ -118,7 +118,7 @@ public class ChannelRepository {
                     channel.setUser(realm1.where(User.class)
                             .equalTo("id", name)
                             .findFirst());
-                    channel.setUsername(channel.getUser().getUsername());
+                    if(channel.getUser() != null) channel.setUsername(channel.getUser().getUsername());
                 }
                 realm.insertOrUpdate(channel);
             }
@@ -134,6 +134,23 @@ public class ChannelRepository {
     public static RealmResults<Channel> query(Specification specification) {
         Realm realm = Realm.getDefaultInstance();
         return ((RealmSpecification) specification).toRealmResults(realm);
+    }
+
+    public static Boolean isExistChannelDirect(String userId, String myUserId) {
+        Boolean isExist = false;
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        String id = userId + "__" + myUserId;
+        String revertId = myUserId + "__" + userId;
+        long count = realm.where(Channel.class)
+                .equalTo("name", id)
+                .or()
+                .equalTo("name", revertId)
+                .count();
+        isExist = count!=0;
+        realm.commitTransaction();
+        realm.close();
+        return isExist;
     }
 
     // region Specification

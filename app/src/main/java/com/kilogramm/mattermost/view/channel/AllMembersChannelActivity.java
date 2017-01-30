@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -125,9 +126,17 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
             if (channels.size() > 0 && PreferenceRepository.query(
                     new PreferenceRepository.PreferenceByNameSpecification(id)).size() > 0) {
                 MattermostPreference.getInstance().setLastChannelId(channels.first().getId());
-                getPresenter().savePreferences(channels.first().getUser().getId());
-                User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
-                showJumpDialog(user.getUsername());
+
+                RealmResults<User> rUser = UserRepository.query(new UserRepository.UserByIdSpecification(id));
+                User user =  channels.first().getUser();
+                if(user == null && rUser.size()!=0) user = rUser.first();
+                if(user != null) {
+                    getPresenter().savePreferences(user.getId());
+                    showJumpDialog(user.getUsername());
+                }else{
+                    Toast.makeText(this,"User is null, refer to the developers",Toast.LENGTH_LONG).show();
+                }
+
             } else startDialog(id);
         }
     }

@@ -2,16 +2,19 @@ package com.kilogramm.mattermost.rxtest.left_menu.adapters;
 
 import android.app.Service;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.model.UserMember;
-import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.member.Member;
@@ -31,6 +34,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -47,6 +52,7 @@ import rx.schedulers.Schedulers;
 public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static final String TAG = "AdapterDirectMenuLeft";
+    public static final int POST_TIME = 1500;
 
     private LayoutInflater mInflater;
     private Context mContext;
@@ -56,6 +62,10 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
 
     private int mSelectedItem = -1;
     private OnLeftMenuClickListener mItemClickListener;
+    private AtomicBoolean isWork = new AtomicBoolean(false);
+    private Handler handler;
+    private UpdateTask updateTask;
+
 
     public AdapterDirectMenuLeft(RealmResults<Channel> data,
                                  Context context,
@@ -63,9 +73,11 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
         this.mContext = context;
         this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         this.mItemClickListener = mItemClickListener;
+        handler = new Handler(Looper.myLooper());
         Log.d(TAG, "AdapterDirectMenuLeft() called with: data = [" + data + "], context = [" + context + "], mItemClickListener = [" + mItemClickListener + "]");
         update();
     }
+
 
 
     @Override
@@ -129,12 +141,17 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                     .sortBy(entry -> !entry.getKey())
                     .flatMap(entry -> {
                         List<IDirect> value = entry.getValue();
-                        Collections.sort(value, (o1, o2) -> ((DirectItem) o1).username.compareTo(((DirectItem) o2).username));
+                        Collections.sort(value, (o1, o2) -> {
+                            if(TextUtils.isEmpty(((DirectItem) o1).username) || TextUtils.isEmpty(((DirectItem) o2).username)) return 0;
+                            else return ((DirectItem) o1).username.compareTo(((DirectItem) o2).username);
+                        }
+                        );
                         if (!entry.getKey()) {
                             value.add(0, new DirectHeader("Outside this team"));
                         }
                         return Stream.of(value);
                     }).collect(Collectors.toList());
+
 
             return list;
         } else {
@@ -147,36 +164,45 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void update(boolean fullUpdate){
-        Log.d(TAG, "update() called with: channels = [update(RealmResults<Channel> channels)]");
-
-        addOrUpdateAsyncV2()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .doOnError(Throwable::printStackTrace)
-                .subscribe(iDirects -> {
-                    if(iDirects!=null){
-                            if(fullUpdate) {
+        if(isWork.get() == false) {
+            Log.d(TAG, "update() called with: channels = [update(RealmResults<Channel> channels)]");
+            isWork.set(true);
+            addOrUpdateAsyncV2()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .doOnError(Throwable::printStackTrace)
+                    .subscribe(iDirects -> {
+                        if (iDirects != null) {
+                            if (fullUpdate) {
                                 mAdapterData.clear();
                                 mAdapterData.addAll(iDirects);
                                 notifyDataSetChanged();
                                 Log.d(TAG, "notifyDataSetChanged()");
-                            } else{
+                            } else {
                                 DirectItem directItem;
-                                for(int i=0 ; i< getItemCount() ; i++){
+                                for (int i = 0; i < getItemCount(); i++) {
                                     IDirect iDirect = mAdapterData.get(i);
-                                    if(iDirect.getType() ==  IDirect.TYPE_ITEM){
+                                    if (iDirect.getType() == IDirect.TYPE_ITEM) {
                                         directItem = (DirectItem) iDirect;
-                                        if(directItem.isUpdate){
+                                        if (directItem.isUpdate) {
                                             notifyItemChanged(i);
                                             directItem.isUpdate = false;
                                         }
                                     }
                                 }
                             }
-                    } else {
-                        Log.d(TAG, "update: iDirect is null");
-                    }
-                });
+                        } else {
+                            Log.d(TAG, "update: iDirect is null");
+                        }
+                        isWork.set(false);
+                    });
+        }else{
+            Log.d(TAG,"addOrUpdateAsyncV2 overload");
+            if(updateTask == null) updateTask = new UpdateTask();
+            handler.removeCallbacks(updateTask);
+            updateTask.fullUpdate.set(updateTask.fullUpdate.get() || fullUpdate);
+            handler.postDelayed(updateTask,POST_TIME);
+        }
     }
 
 
@@ -191,7 +217,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                 realm.commitTransaction();
                 realm.close();
 
-                Log.d(TAG, "addOrUpdateAsync: " + Thread.currentThread().getId() + "mData size = " + mData.size());
+                Log.d(TAG,  "mData size = " + mData.size());
                 List<String> newIds = Stream.of(channels).map(channel -> channel.getId()).collect(Collectors.toList());
                 Set<String> oldIds = new HashSet<>(mData.keySet());
                 oldIds.removeAll(newIds);
@@ -203,7 +229,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                         if (!mData.containsKey(channel.getId())) {
                             DirectItem item = buildIDirectItem(new DirectItem(),channel.getId());
                             item.isUpdate = false;
-                            mData.put(channel.getId(), item);
+                            if(!TextUtils.isEmpty(item.username)) mData.put(channel.getId(), item);
                         }
                     }
                 }
@@ -304,5 +330,14 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
 
     public void invalidateMember() {
        update(false);
+    }
+
+    class UpdateTask implements Runnable{
+        AtomicBoolean fullUpdate = new AtomicBoolean(false);
+        @Override
+        public void run() {
+            Log.d(TAG, "UpdateTask start");
+            update(fullUpdate.get());
+        }
     }
 }

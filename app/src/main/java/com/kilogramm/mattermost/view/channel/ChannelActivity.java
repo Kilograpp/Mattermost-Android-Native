@@ -244,12 +244,20 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
             RealmResults<Channel> channels = ChannelRepository.query(new ChannelByNameSpecification(null, id));
             if (channels.size() > 0) {
                 MattermostPreference.getInstance().setLastChannelId(channels.first().getId());
-                PreferenceRepository.update(new PreferenceRepository.PreferenceByNameSpecification(
-                        channels.first().getUser().getId()), "true");
-                getPresenter().savePreferences();
+                RealmResults<User> rUser = UserRepository.query(new UserRepository.UserByIdSpecification(id));
 
-                User user = UserRepository.query(new UserRepository.UserByIdSpecification(id)).first();
-                showJumpDialog(user.getUsername());
+                User user =  channels.first().getUser();
+
+                if(user == null && rUser.size()!=0) user = rUser.first();
+
+                if(user != null) {
+                    PreferenceRepository.update(new PreferenceRepository.PreferenceByNameSpecification(
+                            user.getId()), "true");
+                    getPresenter().savePreferences();
+                    showJumpDialog(user.getUsername());
+                }else{
+                    Toast.makeText(this,"User is null, refer to the developers",Toast.LENGTH_LONG).show();
+                }
             } else {
                 startDialog(id);
             }

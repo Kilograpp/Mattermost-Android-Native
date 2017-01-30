@@ -1,11 +1,7 @@
 package com.kilogramm.mattermost.network;
 
-import com.annimon.stream.Collectors;
-import com.annimon.stream.Stream;
-import com.facebook.stetho.common.ArrayListAccumulator;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.Posts;
-import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.SearchParams;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -37,8 +33,6 @@ import java.util.Map;
 
 import okhttp3.ResponseBody;
 import rx.Observable;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Evgeny on 26.12.2016.
@@ -79,6 +73,7 @@ public class ServerMethod {
                 }
         ));
     }
+
 
     public Observable<InitObject> initLoad() {
         return mApi.initLoad();
@@ -226,6 +221,13 @@ public class ServerMethod {
     }
 
     public Observable<Channel> createDirect(String teamId, User user) {
+
+        return mApi.createDirect(teamId, user);
+    }
+
+    public Observable<Channel> createDirect(String teamId, String userId) {
+        LogoutData user = new LogoutData();
+        user.setUserId(userId);
         return mApi.createDirect(teamId, user);
     }
 
