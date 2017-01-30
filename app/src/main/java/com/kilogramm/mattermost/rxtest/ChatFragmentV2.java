@@ -190,6 +190,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         //FIXME click on item notification, not set last channel
         MattermostPreference.getInstance().setLastChannelId(mChannelId);
         checkNeededPermissions();
+
+//        onResume();
     }
 
     @Nullable
@@ -218,7 +220,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public void onResume() {
         super.onResume();
         setupToolbar("", mChannelName, v -> {
-            if (ChatUtils.isDirectChannel(mChannelType)) {
+                        if (ChatUtils.isDirectChannel(mChannelType)) {
                 String userId = ChatUtils.getDirectUserId(mChannelId);
                 if (userId != null) {
                     ProfileRxActivity.start(getActivity(), userId);
