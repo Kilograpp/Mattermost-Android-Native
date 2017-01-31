@@ -126,17 +126,19 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
     private static final int PICKFILE_REQUEST_CODE = 5;
-    private static final int WRITE_STORAGE_PERMISSION_REQUEST_CODE = 6;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 7;
-    private static final int PICK_FROM_GALLERY = 8;
-    public static final int ADD_MEMBER_CODE= 9;
+
+    private static final int PERMISSION_REQUEST_CODE_WRITE_STORAGE = 6;
+    private static final int PERMISSION_REQUEST_CODE_CAMERA = 7;
+    private static final int PERMISSION_REQUEST_CODE_GALLERY = 8;
+    private static final int PERMISSION_REQUEST_CODE_FILES = 9;
+
+    public static final int ADD_MEMBER_CODE= 10;
 
 
     private FragmentChatMvpBinding mBinding;
 
     public static boolean active = false;
 
-    private Realm mRealm;
     boolean isSendTyping;
 
     @State
@@ -189,9 +191,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
         //FIXME click on item notification, not set last channel
         MattermostPreference.getInstance().setLastChannelId(mChannelId);
-        checkNeededPermissions();
 
-//        onResume();
+        checkNeededPermissions();
     }
 
     @Nullable
@@ -235,7 +236,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                     Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
                 }
             } else {
-//                ChannelActivity.start(getActivity(), mChannelId);
                 startChannelActivity();
             }
         }, v -> searchMessage());
@@ -269,7 +269,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public void OnItemClick(View view, String item) {
         if (PostRepository.query(new PostByIdSpecification(item)).size() != 0) {
             Post post = new Post(PostRepository.query(new PostByIdSpecification(item)).first());
-            // removeablePosition = adapter.getPositionById(item);
             switch (view.getId()) {
                 case R.id.sendStatusError:
                     showErrorSendMenu(view, post);
@@ -287,7 +286,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     @Override
     public void onItemAdded() {
         mBinding.rev.smoothScrollToPosition(mBinding.rev.getAdapter().getItemCount() - 1);
-        //disableLoaders();
     }
 
     @Override
@@ -370,19 +368,26 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case PICK_FROM_GALLERY:
+            case PERMISSION_REQUEST_CODE_GALLERY:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //openGallery();
+                    openGallery();
                 }
                 break;
-            case CAMERA_PERMISSION_REQUEST_CODE:
+            case PERMISSION_REQUEST_CODE_CAMERA:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //dispatchTakePictureIntent();
+                    dispatchTakePictureIntent();
+                }
+                break;
+            case PERMISSION_REQUEST_CODE_FILES:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openFilePicker();
                 }
                 break;
         }
@@ -400,11 +405,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         initBroadcastReceiver();
         initFab();
         initWritingFieldFocusListener();
-
-        //TODO kepar wtf? :):):)
-        /*if (adapter.getItemCount() > 0) {
-            binding.rev.smoothScrollToPosition(adapter.getItemCount() - 1);
-        }*/
 
         getPresenter().startLoadInfoChannel();
 
@@ -720,14 +720,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         bundle.putString(START_CODE, startCode);
         if (startCode.equals(START_SEARCH) && searchId != null && !searchId.equals("")) {
             bundle.putString(SEARCH_MESSAGE_ID, searchId);
-        } /*else {
-            throw new IllegalArgumentException("createFragment() called with: " +
-                    "\nstartCode = [" + startCode + "], " +
-                    "\nchannelId = [" + channelId + "], " +
-                    "\nchannelName = [" + channelName + "], " +
-                    "\nchannelType = [" + channelType + "], " +
-                    "\nsearchId = [" + searchId + "]");
-        }*/
+        }
         chatFragment.setArguments(bundle);
         return chatFragment;
     }
@@ -814,8 +807,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             if (!mChannelType.equals("D")) {
                 if (obj != null)
                     mapType.remove(obj.getUserId());
-            } else {
-                //getPresenter().requestUserStatus();
             }
         } else setupTypingText("");
     }
@@ -827,7 +818,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+                        PERMISSION_REQUEST_CODE_WRITE_STORAGE);
             }
         }
     }
@@ -848,9 +839,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             closeEditView();
         }
         post.setUserId(MattermostPreference.getInstance().getMyUserId());
-        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
-        //post.setUser(userRepository.query(new UserByIdSpecification(post.getUserId())).first());
-        // post.setId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         post.setFilenames(mBinding.attachedFilesLayout.getAttachedFiles());
         post.setPendingPostId(String.format("%s:%s", post.getUserId(), post.getCreateAt()));
         String message = post.getMessage().trim();
@@ -861,7 +849,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 ) {
             getPresenter().requestSendToServer(post);
             hideAttachedFilesLayout();
-            //WebSocketService.with(context).sendTyping(channelId, teamId.getId());
         } else {
             if (!FileToAttachRepository.getInstance().getFilesForAttach().isEmpty()) {
                 Toast.makeText(getActivity(), getString(R.string.wait_files), Toast.LENGTH_SHORT).show();
@@ -923,8 +910,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
             getPresenter().startRequestLoadSearch(mSearchMessageId);
         } else if (mStartCode.equals(START_NORMAL)) {
             getPresenter().startRequestLoadNormal();
-        } else {
-            //showError();
         }
     }
 
@@ -961,7 +946,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                             Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{android.Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        CAMERA_PERMISSION_REQUEST_CODE);
+                        PERMISSION_REQUEST_CODE_CAMERA);
             } else {
                 dispatchTakePictureIntent();
             }
@@ -988,7 +973,19 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     private void openGallery() {
-        openFile(getActivity(), "image/*", PICK_IMAGE);
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE_GALLERY);
+            } else {
+                openFile(getActivity(), "image/*", PICK_IMAGE);
+            }
+        } else {
+            openFile(getActivity(), "image/*", PICK_IMAGE);
+        }
     }
 
     private void pickFile() {
@@ -998,7 +995,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+                        PERMISSION_REQUEST_CODE_FILES);
             } else {
                 openFilePicker();
             }
