@@ -2,18 +2,27 @@ package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDownloadsListBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.tools.FileUtil;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -43,6 +52,39 @@ public class DownloadsListAdapter extends RealmRecyclerViewAdapter<FileInfo, Dow
                 .setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
 
         holder.mBinding.getRoot().setOnClickListener(getFileClickListener(fileInfo));
+
+        if(fileInfo.getmMimeType().contains("image")) {
+            holder.mBinding.icDownloadedFile.setVisibility(View.GONE);
+            holder.mBinding.imageViewImage.setVisibility(View.VISIBLE);
+
+            Map<String, String> headers = new HashMap();
+            headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
+
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+                    .showImageOnLoading(R.drawable.slices)
+                    .showImageOnFail(R.drawable.slices)
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .extraForDownloader(headers)
+                    .considerExifParams(true)
+                    .build();
+
+            String thumb_url = "https://"
+                    + MattermostPreference.getInstance().getBaseUrl()
+                    + "/api/v3/files/"
+                    + fileInfo.getId()
+                    + "/get_thumbnail";
+
+            ImageLoader.getInstance().displayImage(thumb_url, holder.mBinding.imageViewImage, options);
+        } else {
+            holder.mBinding.icDownloadedFile.setVisibility(View.VISIBLE);
+            holder.mBinding.imageViewImage.setVisibility(View.GONE);
+        }
+
+
+
     }
 
     private View.OnClickListener getFileClickListener(FileInfo fileInfo) {
