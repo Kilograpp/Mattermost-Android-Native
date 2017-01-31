@@ -200,18 +200,25 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     @Override
     public void onStart() {
         super.onStart();
-        active = true;
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
         active = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        active = true;
         setupToolbar("", mChannelName, v -> {
             if (ChatUtils.isDirectChannel(mChannelType)) {
                 String userId = ChatUtils.getDirectUserId(mChannelId);
