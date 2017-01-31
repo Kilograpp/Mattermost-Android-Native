@@ -113,10 +113,12 @@
     <string name="tag_notificationPushFragment">notificationPushFragment</string>
     <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
 
+    <string name="prepare_for_download">Prepare for download…</string>
     <string name="downloading">Downloading…</string>
     <string name="downloaded">Downloaded</string>
     <string name="error_during_file_download">Error during file download</string>
     <string name="error_during_file_upload">Error during file upload</string>
+    <string name="not_enough_space">Not enough disk space</string>
     <string name="file_exists">File exists. Do you want to replace it?</string>
     <string name="no_premission_for_download">You have no permission to write to external storage</string>
     <string name="replace">Replace</string>
