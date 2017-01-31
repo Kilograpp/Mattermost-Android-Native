@@ -50,7 +50,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     private FileUtil mFileUtil;
 
     public void requestUploadFileToServer(String channelId) {
-        Log.d(TAG, "requestUploadFileToServer: ");
         this.channelId = channelId;
         startRequest();
     }
@@ -65,7 +64,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
 
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
-            Log.d(TAG, "initRequests: ");
             String filePath = mFileUtil.getPath(Uri.parse(mFileToAttach.getUriAsString()));
             String mimeType = mFileUtil.getMimeType(filePath);
 
@@ -76,9 +74,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                 file = new File(mFileToAttach.getUriAsString());
             }
             this.fileName = file.getName();
-            if (file.exists()) {
-                Log.d(TAG, "initRequests: file exists");
-            }
             FileToAttachRepository.getInstance().updateUploadStatus(mFileToAttach.getId(), UploadState.UPLOADING);
             ProgressRequestBody fileBody = new ProgressRequestBody(file, mimeType, mFileToAttach.getId());
 
@@ -91,7 +86,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
                     .subscribeOn(Schedulers.computation())
                     .observeOn(Schedulers.computation());
         }, (attachedFilesLayout, fileUploadResponse) -> {
-            Log.d(TAG, "initRequests: success");
             if (fileUploadResponse.getFile_infos() != null
                     && fileUploadResponse.getFile_infos().size() != 0) {
                 Log.d(TAG, fileUploadResponse.toString());
@@ -105,7 +99,6 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             }
             startRequest();
         }, (attachedFilesLayout1, throwable) -> {
-            Log.d(TAG, "initRequests: fail", throwable);
             throwable.printStackTrace();
             // TODO обработать различные ошибки (чтобы при отмене ничего не выводилось)
             if (!throwable.getMessage().trim().equals("unexpected end of stream")) {
@@ -133,10 +126,9 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
     }
 
     private void startRequest() {
-        Log.d(TAG, "startRequest: ");
         mFileToAttach = FileToAttachRepository.getInstance().getUnloadedFile();
         if (mFileToAttach == null || channelId == null) {
-            Log.d(TAG, "startRequest: no files for upload");
+            // TODO тормозит, сделать асинхронно
             if (FileToAttachRepository.getInstance().haveFilesToAttach()) {
                 sendAllUploaded();
             }

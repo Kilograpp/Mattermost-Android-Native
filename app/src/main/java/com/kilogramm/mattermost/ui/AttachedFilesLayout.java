@@ -95,9 +95,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
 
                     if (ni != null && ni.isConnectedOrConnecting()) {
                         getPresenter().requestUploadFileToServer(mChannelId);
-                        Log.i(TAG, "Network " + ni.getTypeName() + " connected");
-                    } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                        Log.d(TAG, "There's no network connectivity");
                     }
                 }
             }
@@ -106,7 +103,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     public void addItems(List<Uri> uriList, String channelId) {
-        Log.d(TAG, "addItems: " + uriList.size());
         this.mChannelId = channelId;
         if (this.mUriList == null) this.mUriList = new ArrayList<>();
         this.mUriList.addAll(uriList);
@@ -114,7 +110,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void uploadNext() {
-        Log.d(TAG, "uploadNext: ");
         if (mUriList.size() > 0) {
             addItem(mUriList.get(0));
             mUriList.remove(mUriList.get(0));
@@ -122,7 +117,6 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void addItem(Uri uri) {
-        Log.d(TAG, "addItem: " + uri.toString());
         if(FileToAttachRepository.getInstance().getFilesForAttach().size() == FILE_TO_ATTACH_MAX){
             Toast.makeText(getContext(), String.format("%s %d", getContext().getString(R.string.too_much_files), FILE_TO_ATTACH_MAX + 1), Toast.LENGTH_SHORT).show();
             return;
@@ -139,10 +133,8 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
     }
 
     private void uploadFileToServer(Uri uri, String filePath, String channelId, boolean isTemporaryFile) {
-        Log.d(TAG, "uploadFileToServer: " + uri.toString());
         final File file = new File(filePath);
         if(file.length() > 1024 * 1024 * 50){
-            Log.d(TAG, "file too big");
             Toast.makeText(getContext(), getContext().getString(R.string.file_too_big), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -156,9 +148,7 @@ public class AttachedFilesLayout extends NucleusLayout<AttachedFilesPresenter> i
                 getPresenter().requestUploadFileToServer(channelId);
             }
         } else {
-            Log.d(TAG, "file doesn't exists");
             Toast.makeText(getContext(), getContext().getString(R.string.cannot_open_file_to_attach), Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 

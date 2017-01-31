@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/circleFrame"
+            android:layout_width="@dimen/file_circle_size"
+            android:layout_height="@dimen/file_circle_size"
+            android:layout_margin="15dp"
+            android:background="@drawable/circle_blue">
+
+            <ImageView
+                android:id="@+id/icDownloadedFile"
+                android:layout_width="@dimen/file_download_icon_size"
+                android:layout_height="@dimen/file_download_icon_size"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/ic_downloaded_file" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewName"
+                style="@style/textNormalBlackBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tool:text="sadf adsfsd.ptx" />
+
+            <TextView
+                android:id="@+id/textViewSize"
+                style="@style/textBigGrey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tool:text="4,3 MB" />
+
+        </LinearLayout>
+    </LinearLayout>
+</layout>
