@@ -212,7 +212,7 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         }
                     }
                 } else {
-                    return e.getMessage();
+                    return error.getMessage();
                 }
                 return (error != null) ?
                         (error.getMessage() != null) ? error.getMessage() : error.getError() :

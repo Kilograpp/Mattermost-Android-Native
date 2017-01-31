@@ -124,14 +124,11 @@ public class FilesView extends GridLayout {
 
                     binding.image.setOnClickListener(view -> {
                         ArrayList<String> fileIdList = new ArrayList<>();
-                        FileInfo clicked = items.get(0);
 
                         for (FileInfo item : items) {
                             if (item.getmMimeType() != null
                                     && item.getmMimeType().contains("image")) {
                                 fileIdList.add(item.getId());
-                                if (fileInfo.getId() == item.getId())
-                                    clicked = item;
                             }
                         }
 
