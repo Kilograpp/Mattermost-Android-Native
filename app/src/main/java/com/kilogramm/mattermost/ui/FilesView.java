@@ -205,7 +205,6 @@ public class FilesView extends GridLayout {
             public void onLoadingCancelled(String imageUri, View view) {
             }
         });
-//        ImageLoader.getInstance().displayImage(thumb_url, binding.image, options);
         binding.fileSize.setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
 
         this.addView(binding.getRoot());
