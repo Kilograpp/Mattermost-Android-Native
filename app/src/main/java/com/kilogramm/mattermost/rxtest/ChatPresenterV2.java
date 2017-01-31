@@ -135,7 +135,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                             }*/
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
-                    sendError(getError(throwable));
+                    sendError(parceError(throwable));
                 }
         );
     }

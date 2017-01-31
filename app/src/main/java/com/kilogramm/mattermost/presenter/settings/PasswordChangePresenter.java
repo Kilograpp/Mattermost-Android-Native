@@ -41,7 +41,7 @@ public class PasswordChangePresenter extends BaseRxPresenter<PasswordChangeActiv
                     if (user != null){
                         sendGood(editProfileRxActivity.getString(R.string.email_updated));
                     }
-                },(editProfileRxActivity, throwable) -> sendError(getError(throwable)));
+                },(editProfileRxActivity, throwable) -> sendError(parceError(throwable)));
     }
 
     @Override
