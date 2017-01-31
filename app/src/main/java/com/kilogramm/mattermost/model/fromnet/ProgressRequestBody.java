@@ -49,7 +49,6 @@ public class ProgressRequestBody extends RequestBody {
 
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
-        Log.d(TAG, "writeTo: " + fileId);
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long uploaded = 0;
@@ -70,7 +69,7 @@ public class ProgressRequestBody extends RequestBody {
             if (fileLength == 0) {
                 FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
             }
-            while ((read = in.read(buffer)) != -1 && fileToAttach != null && fileToAttach.isValid()) {
+            while ((read = in.read(buffer)) != -1 && fileToAttach.isValid()) {
                 uploaded += read;
                 if (System.currentTimeMillis() - lastTimeUpdate > UPDATE_TIME_PROGRESS_MS) {
                     lastTimeUpdate = System.currentTimeMillis();
@@ -78,7 +77,7 @@ public class ProgressRequestBody extends RequestBody {
                 }
                 sink.write(buffer, 0, read);
             }
-            if (fileToAttach != null && fileToAttach.isValid()) {
+            if (fileToAttach.isValid()) {
                 FileToAttachRepository.getInstance().updateProgress(mFile.getName(), 100);
             }
         } finally {
