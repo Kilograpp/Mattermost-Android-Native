@@ -58,7 +58,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             sendShowNextButton(true);
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
-            sendShowError(getError(throwable));
+            sendShowError(parceError(throwable, "Couldn't find existing team matching this URL"));
             sendShowNextButton(true);
         });
     }

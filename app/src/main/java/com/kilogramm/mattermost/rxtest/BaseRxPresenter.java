@@ -96,8 +96,8 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
     /**
      * @param requestTag may be any string as you want,
      * but it's desirable to use constants defined above */
+
     public String parceError(Throwable e, String requestTag) {
-//        if (e == null && requestTag.equals(NO_NETWORK)) {
         if (!isNetworkAvailable()) {
             return "No connection to the network";
         } else if (e instanceof HttpException) {
@@ -227,6 +227,10 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
         } else {
             return e.getMessage();
         }
+    }
+
+    public String parceError(Throwable e){
+        return parceError(e, null);
     }
 
     public boolean isNetworkAvailable() {

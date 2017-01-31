@@ -109,7 +109,7 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                     updateAvatarTime();
                     imageUri = null;
                     sendUriNull();
-                },(editProfileRxActivity, throwable) -> sendError(getError(throwable)));
+                },(editProfileRxActivity, throwable) -> sendError(parceError(throwable)));
     }
 
     private void updateAvatarTime(){
