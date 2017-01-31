@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -32,6 +31,7 @@ import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.presenter.channel.ChannelPresenter;
+import com.kilogramm.mattermost.rxtest.ChatFragmentV2;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
 import com.kilogramm.mattermost.utils.ColorGenerator;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -45,13 +45,15 @@ import nucleus.factory.RequiresPresenter;
  */
 @RequiresPresenter(ChannelPresenter.class)
 public class ChannelActivity extends BaseActivity<ChannelPresenter> implements View.OnClickListener {
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_ID = "CHANNEL_ID";
 
     public static final int REQUEST_ID = 201;
 
     ActivityChannelBinding mBinding;
     String mChannelId;
     AllMembersAdapter mAllMembersAdapter;
+
+    private boolean changed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +91,8 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
                 AllMembersChannelActivity.start(this, mChannelId);
                 break;
             case R.id.cardViewAddMembers:
-                AddMembersActivity.start(this, mChannelId);
+//                AddMembersActivity.start(this, mChannelId);
+                AddMembersActivity.startForResult(this, mChannelId, ChatFragmentV2.ADD_MEMBER_CODE);
                 break;
             case R.id.cardViewLeave:
                 if (getPresenter().getMemberCount() == 1) {
@@ -105,9 +108,26 @@ public class ChannelActivity extends BaseActivity<ChannelPresenter> implements V
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        setResult(RESULT_CANCELED, new Intent());
-        finish();
+        onBackPressed();
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK && requestCode == ChatFragmentV2.ADD_MEMBER_CODE)
+            changed = true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(changed){
+            Intent intent = new Intent(this, ChannelActivity.class);
+            setResult(Activity.RESULT_OK, intent);
+        } else
+            setResult(Activity.RESULT_CANCELED, new Intent());
+
+        finish();
     }
 
     public void setCTollBarTitle(final String name) {

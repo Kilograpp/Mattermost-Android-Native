@@ -12,7 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -40,9 +39,7 @@ import com.kilogramm.mattermost.model.websocket.WebSocketObj;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.ChatFragmentV2;
-import com.kilogramm.mattermost.rxtest.ChatRxFragment;
 import com.kilogramm.mattermost.rxtest.GeneralRxActivity;
-import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.tools.NetworkUtil;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.squareup.picasso.Picasso;
@@ -312,7 +309,7 @@ public class ManagerBroadcast {
                         .transform(new RoundTransformation(90, 0))
                         .into(remoteViews, R.id.avatar, post.getChannelId().hashCode(), notificationBuilder.build()));
 
-        notificationManager.notify(post.getChannelId().hashCode(), notificationBuilder.build());
+//        notificationManager.notify(post.getChannelId().hashCode(), notificationBuilder.build()); //picasso done it for us
     }
 
     private static Notification.Builder showNotification(Context context) {

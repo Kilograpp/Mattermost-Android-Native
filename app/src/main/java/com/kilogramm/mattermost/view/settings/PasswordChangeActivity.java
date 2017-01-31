@@ -51,9 +51,6 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
         switch (item.getItemId()) {
             case R.id.save:
                 mMenuItem = item;
-                BaseActivity.hideKeyboard(this);
-                item.setVisible(false);
-                mBinding.progressBar.setVisibility(View.VISIBLE);
                 onClickSave();
                 return true;
             case android.R.id.home:
@@ -67,13 +64,18 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
 
     private void onClickSave() {
         hideKeyboard(this);
-        if(mBinding.newPassword.getText().toString().equals(mBinding.newPasswordConfirm.getText().toString())) {
-            getPresenter().requestSave(mBinding.currentPassword.getText().toString(),
-                    mBinding.newPassword.getText().toString());
-        } else {
-            showErrorText(getString(R.string.error_in_confirm_password));
-            hideProgressBar();
-        }
+        if (areTextfieldsFilled()) {
+            BaseActivity.hideKeyboard(this);
+            mMenuItem.setVisible(false);
+            mBinding.progressBar.setVisibility(View.VISIBLE);
+            if (mBinding.newPassword.getText().toString().equals(mBinding.newPasswordConfirm.getText().toString())) {
+                getPresenter().requestSave(mBinding.currentPassword.getText().toString(),
+                        mBinding.newPassword.getText().toString());
+            } else {
+                showErrorText(getString(R.string.error_in_confirm_password));
+                hideProgressBar();
+            }
+        } else showErrorText("Some fields are not filled");
     }
 
     public static void start(Context context) {
@@ -81,12 +83,21 @@ public class PasswordChangeActivity extends BaseActivity<PasswordChangePresenter
         context.startActivity(starter);
     }
 
-    public void showSuccessMessage(){
+    public void showSuccessMessage() {
         Toast.makeText(this, getString(R.string.password_changed), Toast.LENGTH_SHORT).show();
     }
 
-    public void hideProgressBar(){
+    public void hideProgressBar() {
         mMenuItem.setVisible(true);
         mBinding.progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private boolean areTextfieldsFilled() {
+        if (mBinding.currentPassword.getText().length() != 0 &&
+                mBinding.newPassword.getText().length() != 0 &&
+                mBinding.newPasswordConfirm.getText().length() != 0)
+            return true;
+        else
+            return false;
     }
 }

@@ -94,6 +94,9 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import nucleus.factory.RequiresPresenter;
 
+import static android.view.View.GONE;
+import static com.kilogramm.mattermost.view.channel.ChannelActivity.REQUEST_ID;
+
 /**
  * Created by Evgeny on 21.01.2017.
  */
@@ -110,7 +113,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     public static final String START_SEARCH = "start_search";
     private static final String START_CODE = "start_code";
 
-    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final String CHANNEL_NAME = "channel_name";
     private static final String CHANNEL_TYPE = "channel_type";
     private static final String SEARCH_MESSAGE_ID = "search_message_id";
@@ -126,6 +129,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private static final int WRITE_STORAGE_PERMISSION_REQUEST_CODE = 6;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 7;
     private static final int PICK_FROM_GALLERY = 8;
+    public static final int ADD_MEMBER_CODE= 9;
 
 
     private FragmentChatMvpBinding mBinding;
@@ -186,6 +190,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         //FIXME click on item notification, not set last channel
         MattermostPreference.getInstance().setLastChannelId(mChannelId);
         checkNeededPermissions();
+
+//        onResume();
     }
 
     @Nullable
@@ -221,7 +227,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         super.onResume();
         active = true;
         setupToolbar("", mChannelName, v -> {
-            if (ChatUtils.isDirectChannel(mChannelType)) {
+                        if (ChatUtils.isDirectChannel(mChannelType)) {
                 String userId = ChatUtils.getDirectUserId(mChannelId);
                 if (userId != null) {
                     ProfileRxActivity.start(getActivity(), userId);
@@ -229,7 +235,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                     Toast.makeText(getActivity(), "Error load user_id", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                ChannelActivity.start(getActivity(), mChannelId);
+//                ChannelActivity.start(getActivity(), mChannelId);
+                startChannelActivity();
             }
         }, v -> searchMessage());
         NotificationManager notificationManager = (NotificationManager)
@@ -351,6 +358,9 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                         }
                     }
                 }
+            } else if (requestCode == ADD_MEMBER_CODE || requestCode == REQUEST_ID){
+                initView();
+                showList();
             }
         }
         if (pickedFiles.size() > 0) {
@@ -405,7 +415,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         if (fileToAttachRealmResults != null && fileToAttachRealmResults.size() > 0) {
             mBinding.attachedFilesLayout.setVisibility(View.VISIBLE);
         } else {
-            mBinding.attachedFilesLayout.setVisibility(View.GONE);
+            mBinding.attachedFilesLayout.setVisibility(GONE);
         }
         mBinding.attachedFilesLayout.setEmptyListListener(this);
         mBinding.attachedFilesLayout.setmAllUploadedListener(this);
@@ -898,14 +908,14 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     private void closeEditView() {
         mBinding.editReplyMessageLayout.editableText.setText(null);
-        mBinding.editReplyMessageLayout.getRoot().setVisibility(View.GONE);
+        mBinding.editReplyMessageLayout.getRoot().setVisibility(GONE);
         rootPost = null;
         mBinding.btnSend.setText(getString(R.string.send));
     }
 
     public void hideAttachedFilesLayout() {
         mBinding.btnSend.setTextColor(getResources().getColor(R.color.colorPrimary));
-        mBinding.attachedFilesLayout.setVisibility(View.GONE);
+        mBinding.attachedFilesLayout.setVisibility(GONE);
     }
 
     public void startLoad() {
@@ -1030,7 +1040,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     public void setVisibleProgressBar(Boolean aBoolean) {
-        mBinding.progressBar.setVisibility((aBoolean) ? View.VISIBLE : View.GONE);
+        mBinding.progressBar.setVisibility((aBoolean) ? View.VISIBLE : GONE);
     }
 
     public void setRefreshing(boolean b) {
@@ -1107,6 +1117,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public void showList() {
         mBinding.rev.setVisibility(View.VISIBLE);
+        mBinding.emptyList.setVisibility(View.GONE);
         mBinding.newMessageLayout.setVisibility(View.VISIBLE);
     }
 
@@ -1151,7 +1162,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     }
 
     public void showEmptyList(String channelId) {
-        mBinding.progressBar.setVisibility(View.GONE);
+        mBinding.progressBar.setVisibility(GONE);
         try {
             Channel channel = ChannelRepository.query(
                     new ChannelRepository.ChannelByIdSpecification(channelId)).last();
@@ -1185,7 +1196,8 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 }
                 mBinding.emptyListInviteOthers.setText(getResources().getString(R.string.empty_dialog_invite));
                 mBinding.emptyListInviteOthers.setOnClickListener(
-                        v -> AddMembersActivity.start(getActivity(), channel.getId()));
+//                        v -> AddMembersActivity.start(getActivity(), channel.getId()));
+                        v -> startAddMembersActivity());
                 mBinding.emptyListInviteOthers.setVisibility(View.VISIBLE);
             }
             mBinding.emptyList.setVisibility(View.VISIBLE);
@@ -1193,6 +1205,18 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         } catch (IndexOutOfBoundsException e) {
             Log.e(TAG, "showEmptyList: ", e);
         }
+    }
+
+    private void startChannelActivity(){
+        Intent starter = new Intent(getActivity(), ChannelActivity.class);
+        starter.putExtra(CHANNEL_ID, mChannelId);
+        startActivityForResult(starter, REQUEST_ID);
+    }
+
+    private void startAddMembersActivity(){
+        Intent starter = new Intent(getActivity(), AddMembersActivity.class);
+        starter.putExtra(CHANNEL_ID, mChannelId);
+        startActivityForResult(starter, ADD_MEMBER_CODE);
     }
 
     public void invalidateAdapter() {
@@ -1320,4 +1344,5 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
         STATE_NORMAL,
         STATE_DEFAULT
     }
+
 }

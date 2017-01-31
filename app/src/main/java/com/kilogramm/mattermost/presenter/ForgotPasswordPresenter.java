@@ -56,7 +56,7 @@ public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActiv
                 }, (forgotPasswordActivity, throwable) -> {
                     throwable.printStackTrace();
                     sendShowProgress(false);
-                    sendShowErrorText(getError(throwable));
+                    sendShowErrorText("We couldn’t find an account with that address.");
                 });
     }
 
