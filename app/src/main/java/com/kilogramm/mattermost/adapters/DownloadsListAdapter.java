@@ -1,12 +1,19 @@
 package com.kilogramm.mattermost.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.kilogramm.mattermost.MattermostApp;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDownloadsListBinding;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.tools.FileUtil;
+
+import java.io.File;
 
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
@@ -30,19 +37,36 @@ public class DownloadsListAdapter extends RealmRecyclerViewAdapter<FileInfo, Dow
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         FileInfo fileInfo = getItem(position);
-        if(fileInfo == null || !fileInfo.isValid()) return;
-        holder.mItemDirectListBinding.textViewName.setText(fileInfo.getmName());
-        holder.mItemDirectListBinding.textViewSize
+        if (fileInfo == null || !fileInfo.isValid()) return;
+        holder.mBinding.textViewName.setText(fileInfo.getmName());
+        holder.mBinding.textViewSize
                 .setText(FileUtil.getInstance().convertFileSize(fileInfo.getmSize()));
+
+        holder.mBinding.getRoot().setOnClickListener(getFileClickListener(fileInfo));
     }
 
-    public static class MyViewHolder extends RealmViewHolder{
+    private View.OnClickListener getFileClickListener(FileInfo fileInfo) {
+        return v -> {
+            Intent intent = FileUtil.getInstance().createOpenFileIntent(FileUtil.getInstance().getDownloadedFilesDir()
+                    + File.separator + fileInfo.getmName());
+            if (intent != null && intent.resolveActivityInfo(MattermostApp.getSingleton()
+                    .getApplicationContext().getPackageManager(), 0) != null) {
+                context.startActivity(intent);
+            } else {
+                Toast.makeText(context,
+                        context.getString(R.string.no_suitable_app),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
 
-        private ItemDownloadsListBinding mItemDirectListBinding;
+    public static class MyViewHolder extends RealmViewHolder {
+
+        private ItemDownloadsListBinding mBinding;
 
         public MyViewHolder(ItemDownloadsListBinding binding) {
             super(binding.getRoot());
-            this.mItemDirectListBinding = binding;
+            this.mBinding = binding;
         }
 
         public static MyViewHolder create(LayoutInflater inflater, ViewGroup parent) {

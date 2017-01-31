@@ -107,7 +107,6 @@ public class FilesView extends GridLayout {
                     } else {
                         binding.downloadFileControls.hideProgressControls();
                     }
-//                    setupFileClickListeners(binding, fileInfo);
                 } else {
                     binding.downloadFileControls.hideProgressControls();
                 }
