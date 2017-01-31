@@ -185,6 +185,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
         //FIXME click on item notification, not set last channel
         MattermostPreference.getInstance().setLastChannelId(mChannelId);
+        checkNeededPermissions();
     }
 
     @Nullable
@@ -231,7 +232,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 ChannelActivity.start(getActivity(), mChannelId);
             }
         }, v -> searchMessage());
-        checkNeededPermissions();
         NotificationManager notificationManager = (NotificationManager)
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(mChannelId.hashCode());
@@ -532,10 +532,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     private void initFab() {
         mBinding.fab.hide();
-        /**
-         * TODO kepar
-         * I don`t know next logic
-         */
         mBinding.fab.setOnClickListener(v -> {
             mBinding.rev.scrollToPosition(adapter.getItemCount() - 1);
         });
@@ -1076,7 +1072,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public void slideToMessageById() {
         if (adapter != null) {
-            adapter.setmHighlitedPost(mSearchMessageId);
+            adapter.setmHighlightedPostId(mSearchMessageId);
             positionItemMessage = adapter.getPositionById(mSearchMessageId);
         }
 
@@ -1095,12 +1091,12 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                 int pFirst = layoutManager.findFirstVisibleItemPosition();
                 int pLast = layoutManager.findLastVisibleItemPosition();
 
-                if (adapter != null && adapter.getmHighlitedPost() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
+                if (adapter != null && adapter.getmHighlightedPostId() != null && pFirst < positionItemMessage && positionItemMessage < pLast && !isFocus) {
                     isFocus = true;
                 }
 
                 if (isFocus && pFirst > positionItemMessage || positionItemMessage > pLast) {
-                    if (adapter != null) adapter.setmHighlitedPost(null);
+                    if (adapter != null) adapter.setmHighlightedPostId(null);
                     adapter.notifyDataSetChanged();
                     isFocus = false;
                     mBinding.rev.removeOnScrollListener(this);

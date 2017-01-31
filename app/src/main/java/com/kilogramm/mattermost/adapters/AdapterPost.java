@@ -34,7 +34,11 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     private Boolean isTopLoading = false;
     private Boolean isBottomLoading = false;
 
-    private String mHighlitedPost;
+    /**
+     * String for {@link Post#id} of the highlighted post. Post will be highlighted if user come to this chat
+     * by tap on this post in search results
+     */
+    private String mHighlightedPostId;
 
     public AdapterPost(Context context, RealmResults adapterData, OnItemClickListener<String> listener) {
         super(adapterData);
@@ -88,61 +92,70 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
-            if (getItemViewType(position) == ITEM) {
-                int pos = isTopLoading ? position - 1 : position;
-                if(getData().get(pos).isValid()) {
-                    Post post = getData().get(pos);
-                    Calendar curDate = Calendar.getInstance();
-                    Calendar preDate = Calendar.getInstance();
-                    Post prePost;
-                    Boolean isTitle = false;
-                    Post root = null;
-                    if (pos - 1 >= 0) {
-                        prePost = getData().get(pos - 1);
-                        curDate.setTime(new Date(post.getCreateAt()));
-                        preDate.setTime(new Date(prePost.getCreateAt()));
-                        if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
-                            isTitle = true;
-                        }
-                        if (post.getRootId() != null
-                                && post.getRootId().length() > 0
-                                && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
-                            root = getData().where().equalTo("id", post.getRootId()).findFirst();
-                        }
-                    }
-                    if (pos - 1 == -1) {
+        if (getItemViewType(position) == ITEM) {
+            int pos = isTopLoading ? position - 1 : position;
+            if (getData().get(pos).isValid()) {
+                Post post = getData().get(pos);
+                Calendar curDate = Calendar.getInstance();
+                Calendar preDate = Calendar.getInstance();
+                Post prePost;
+                Boolean isTitle = false;
+                Post root = null;
+                if (pos - 1 >= 0) {
+                    prePost = getData().get(pos - 1);
+                    curDate.setTime(new Date(post.getCreateAt()));
+                    preDate.setTime(new Date(prePost.getCreateAt()));
+                    if (curDate.get(Calendar.DAY_OF_MONTH) != preDate.get(Calendar.DAY_OF_MONTH)) {
                         isTitle = true;
                     }
-                    Post postAbove;
-                    if (holder.getAdapterPosition() >= 1 && post != null) {
-                        postAbove = getItem(holder.getAdapterPosition() - 1);
-                        if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
-                            if (postAbove != null
-                                    && postAbove.getUser() != null && post.getUser() != null
-                                    && postAbove.getUser().getId().equals(post.getUser().getId())) {
-                                ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
-                                ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
-                                ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
-                            } else {
-                                ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                                ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                                ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
-                            }
-                        } else {
-                            ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
-                            ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
-                            ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
-                        }
+                    if (post.getRootId() != null
+                            && post.getRootId().length() > 0
+                            && getData().where().equalTo("id", post.getRootId()).findAll().size() != 0) {
+                        root = getData().where().equalTo("id", post.getRootId()).findFirst();
                     }
-
-                    holder.bindToItem(post, mContext, isTitle, root, mListener);
-                    holder.changeChatItemBackground(mContext, mHighlitedPost != null && mHighlitedPost.equals(post.getId()));
-                } else {
-                    Log.d(TAG, " NOT VALID onBindViewHolder() called with: holder = [" + holder + "], position = [" + position + "]");
                 }
+                if (pos - 1 == -1) {
+                    isTitle = true;
+                }
+                Post postAbove;
+                if (holder.getAdapterPosition() >= 1 && post != null) {
+                    postAbove = getItem(holder.getAdapterPosition() - 1);
+                    if (!post.isSystemMessage() && !isTitle && post.getProps() == null) {
+                        if (postAbove != null
+                                && postAbove.getUser() != null && post.getUser() != null
+                                && postAbove.getUser().getId().equals(post.getUser().getId())) {
+                            ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.GONE);
+                            ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.GONE);
+                            ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.GONE);
+                        } else {
+                            showAllViews(holder);
+                        }
+                    } else {
+                        showAllViews(holder);
+                    }
+                } else {
+                    showAllViews(holder);
+                }
+
+                holder.bindToItem(post, mContext, isTitle, root, mListener);
+                holder.changeChatItemBackground(mContext, mHighlightedPostId != null && mHighlightedPostId.equals(post.getId()));
             } else {
-                holder.bindToLoadingBottom();
+                Log.d(TAG, " NOT VALID onBindViewHolder() called with: holder = [" + holder + "], position = [" + position + "]");
             }
+        } else {
+            holder.bindToLoadingBottom();
+        }
+    }
+
+    /**
+     * Shows avatar, time and nickname for post.
+     *
+     * @param holder
+     */
+    private void showAllViews(PostViewHolder holder) {
+        ((ChatListItemBinding) holder.getmBinding()).time.setVisibility(View.VISIBLE);
+        ((ChatListItemBinding) holder.getmBinding()).nick.setVisibility(View.VISIBLE);
+        ((ChatListItemBinding) holder.getmBinding()).avatar.setVisibility(View.VISIBLE);
     }
 
     public void setLoadingTop(Boolean enabled) {
@@ -188,11 +201,16 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
         return count;
     }
 
-    public String getmHighlitedPost() {
-        return mHighlitedPost;
+    public String getmHighlightedPostId() {
+        return mHighlightedPostId;
     }
 
-    public void setmHighlitedPost(String mHighlitedPost) {
-        this.mHighlitedPost = mHighlitedPost;
+    /**
+     * Set id for {@link Post}, that must be highlighted.
+     *
+     * @param mHighlightedPostId id of the post that must be highlighted
+     */
+    public void setmHighlightedPostId(String mHighlightedPostId) {
+        this.mHighlightedPostId = mHighlightedPostId;
     }
 }

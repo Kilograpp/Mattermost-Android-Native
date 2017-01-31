@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
@@ -86,18 +87,10 @@ public class MattermostApp extends MultiDexApplication {
         }
         singleton = this;
         FileUtil.createInstance(getApplicationContext());
-        // Realm.init(getApplicationContext());
-        Realm.init(getApplicationContext());
-        RealmConfiguration configuration = new RealmConfiguration.Builder()
-                .name("mattermostDb.realm")
-                .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
-                .build();
-        Realm.compactRealm(configuration);
-        Realm.removeDefaultConfiguration();
-        Realm.setDefaultConfiguration(configuration);
+
         PicassoService.create(getApplicationContext());
         MattermostPreference.createInstance(getApplicationContext());
-
+        setupRealm();
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
@@ -117,6 +110,19 @@ public class MattermostApp extends MultiDexApplication {
         ImageLoader.getInstance().init(config);
         ServerMethod.buildServerMethod(getMattermostRetrofitService());
         disableSSLCertificateChecking();
+    }
+
+    private void setupRealm(){
+        // Realm.init(getApplicationContext());
+        Realm.init(getApplicationContext());
+        RealmLog.add(new AndroidLogger(Log.WARN));
+        RealmConfiguration configuration = new RealmConfiguration.Builder()
+                .name("mattermostDb.realm")
+                .migration((realm, oldVersion, newVersion) -> realm.deleteAll())
+                .build();
+        Realm.compactRealm(configuration);
+        Realm.removeDefaultConfiguration();
+        Realm.setDefaultConfiguration(configuration);
     }
 
     public static rx.Observable<LogoutData> logout() {

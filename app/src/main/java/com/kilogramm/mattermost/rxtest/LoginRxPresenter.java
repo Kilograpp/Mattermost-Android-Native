@@ -71,6 +71,12 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         initRequestInitLoad();
     }
 
+    @Override
+    protected void onDestroy() {
+        realm.close();
+        super.onDestroy();
+    }
+
     // This method must have View argument for data binding
     public void onClickSignIn(View v) {
         requestLogin();
