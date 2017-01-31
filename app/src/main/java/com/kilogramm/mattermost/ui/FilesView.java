@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.os.Environment;
 import android.os.StatFs;
@@ -33,7 +32,6 @@ import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
@@ -127,26 +125,21 @@ public class FilesView extends GridLayout {
 
                     binding.image.setOnClickListener(view -> {
                         ArrayList<String> fileIdList = new ArrayList<>();
-                        FileInfo clicked = items.get(0);
 
                         for (FileInfo item : items) {
                             if (item.getmMimeType() != null
                                     && item.getmMimeType().contains("image")) {
                                 fileIdList.add(item.getId());
-                                if (fileInfo.getId() == item.getId())
-                                    clicked = item;
                             }
                         }
 
-                        int[] location = new int[2];
-                        int[] size = new int[]{view.getWidth(), clicked.getHeight()};
-                        binding.image.getLocationOnScreen(location);
+//                        int[] size = new int[]{view.getWidth(), clicked.getHeight()};
+                        int[] size = new int[]{200, 200};
 
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
                                 fileInfo.getId(),
-                                fileIdList,
-                                location, size);
+                                fileIdList, size);
                     });
                 } else {
                     initAndAddItem(binding, fileInfo);
