@@ -1,5 +1,7 @@
 <resources>
 
+<!--TODO this file needs review and refactor -->
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
@@ -148,6 +150,10 @@
     </style>
 
     <style name="textBigBlackBold" parent="@style/textBigNormalBlack">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textNormalBlackBold" parent="@style/textNormalBlack">
         <item name="android:textStyle">bold</item>
     </style>
 

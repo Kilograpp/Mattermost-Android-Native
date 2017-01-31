@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.os.Environment;
+import android.os.StatFs;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -177,8 +179,7 @@ public class FilesView extends GridLayout {
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .bitmapConfig(Bitmap.Config.RGB_565)
-//                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)// it's the default value, so it's not necessary to use it
-                .imageScaleType(ImageScaleType.NONE)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
                 .showImageOnLoading(R.drawable.slices)
                 .showImageOnFail(R.drawable.slices)
                 .resetViewBeforeLoading(true)
@@ -255,10 +256,12 @@ public class FilesView extends GridLayout {
 
             @Override
             public void onError(String fileId) {
-                binding.downloadFileControls.post(() -> Toast.makeText(getContext(),
-                        getContext().getString(R.string.error_during_file_download),
-                        Toast.LENGTH_SHORT).show());
-
+                binding.downloadFileControls.post(() -> {
+                    Toast.makeText(getContext(),
+                            getContext().getString(R.string.error_during_file_download),
+                            Toast.LENGTH_SHORT).show();
+                    binding.downloadFileControls.hideProgressControls();
+                });
             }
         };
     }
@@ -279,17 +282,12 @@ public class FilesView extends GridLayout {
                 }
                 if (fileInfo.getUploadState() == UploadState.DOWNLOADING ||
                         fileInfo.getUploadState() == UploadState.WAITING_FOR_DOWNLOAD) {
-                    // TODO убрать, если не потребуется. Этот метод итак вызывается при клике на иконку
-                    // загрузки в DownloadFilesControls
-//                    binding.downloadFileControls.showProgressControls();
                 }
             }
 
             @Override
             public void onClickCancel() {
-                FileInfoRepository.getInstance().updateUploadStatus(fileInfo.getId(),
-                        UploadState.IN_LIST);
-                FileDownloadManager.getInstance().stopDownloadCurrentFile(fileInfo);
+                FileDownloadManager.getInstance().stopDownloadCurrentFile();
             }
         };
     }
@@ -336,7 +334,16 @@ public class FilesView extends GridLayout {
 
     private void downloadFile(FileInfo fileInfo,
                               FileDownloadManager.FileDownloadListener fileDownloadListener) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        StatFs statFs = new StatFs(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getPath());
+        long freeSpace = statFs.getAvailableBytes();
+
+        if(fileInfo.getmSize() >= freeSpace){
+            fileDownloadListener.onError(fileInfo.getId());
+            Toast.makeText(getContext(),
+                    getContext().getString(R.string.not_enough_space),
+                    Toast.LENGTH_SHORT).show();
+        } else if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {

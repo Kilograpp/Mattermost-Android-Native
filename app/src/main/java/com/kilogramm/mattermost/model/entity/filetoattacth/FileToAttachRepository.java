@@ -45,29 +45,6 @@ public class FileToAttachRepository {
             realm1.copyToRealm(item);
         });
     }
-
-    public void addForDownload(String fileName) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.executeTransaction(realm1 -> {
-            FileToAttach fileToAttach = realm
-                    .where(FileToAttach.class)
-                    .equalTo("fileName", fileName)
-                    .findFirst();
-            if(fileToAttach == null || !fileToAttach.isValid()) {
-                Number id = realm1.where(FileToAttach.class).max("id");
-                AtomicLong primaryKeyValue;
-                if (id != null) {
-                    primaryKeyValue = new AtomicLong(id.longValue());
-                } else {
-                    primaryKeyValue = new AtomicLong(0);
-                }
-                fileToAttach = new FileToAttach(primaryKeyValue.incrementAndGet(), fileName, UploadState.WAITING_FOR_DOWNLOAD);
-                fileToAttach.setProgress(0);
-                realm1.copyToRealm(fileToAttach);
-            }
-        });
-    }
-
     //endregion
 
     // region Update methods
