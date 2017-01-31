@@ -33,6 +33,7 @@ import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
+import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.websocket.WebSocketObj;
@@ -56,6 +57,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import rx.schedulers.Schedulers;
 
 import static com.kilogramm.mattermost.view.direct.WholeDirectListHolder.getImageUrl;
@@ -286,7 +288,7 @@ public class ManagerBroadcast {
                 new ChannelRepository.ChannelByIdSpecification(post.getChannelId())).first();
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                openDialogIntent(context, channel), PendingIntent.FLAG_CANCEL_CURRENT);
+                openDialogIntent(context, channel, post.getUserId()), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pendingIntentClose = PendingIntent.getBroadcast(context, 0,
                 closeNotificationIntent(context), 0);
@@ -332,6 +334,13 @@ public class ManagerBroadcast {
         }
     }
 
+    private static String getUserNameFromDirectChannel(String userId) {
+        String userName = "....";
+        RealmResults<User> rUser = UserRepository.query(new UserRepository.UserByIdSpecification(userId));
+        if(rUser.size()!=0) userName = rUser.first().getUsername();
+        return userName;
+    }
+
     /**
      * Create a text of the notification. If post.getMessage() have some text, it will be
      * displayed. If not, but message has attached file, there will be message about it.
@@ -360,12 +369,12 @@ public class ManagerBroadcast {
         return context.getResources().getString(R.string.notification_sent_attachment);
     }
 
-    private Intent openDialogIntent(Context context, Channel channel) {
+    private Intent openDialogIntent(Context context, Channel channel,String userId) {
         Intent intent = new Intent(context, GeneralRxActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(CHANNEL_ID, channel.getId());
         if (Objects.equals(channel.getType(), Channel.DIRECT)) {
-            intent.putExtra(CHANNEL_NAME, channel.getUsername());
+            intent.putExtra(CHANNEL_NAME, getUserNameFromDirectChannel(userId));
         } else {
             intent.putExtra(CHANNEL_NAME, channel.getDisplayName());
         }
