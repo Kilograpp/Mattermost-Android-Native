@@ -213,4 +213,9 @@ public class AdapterPost extends RealmAD<Post, PostViewHolder> {
     public void setmHighlightedPostId(String mHighlightedPostId) {
         this.mHighlightedPostId = mHighlightedPostId;
     }
+
+    public void updatePostById(String postId){
+        int position = getPositionById(postId);
+        if(position > 0) notifyItemChanged(position);
+    }
 }

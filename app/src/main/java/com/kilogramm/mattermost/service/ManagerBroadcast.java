@@ -206,12 +206,27 @@ public class ManagerBroadcast {
                 break;
             case WebSocketObj.EVENT_POST_EDITED:
                 data = getPost(dataJSON);
+                if (broadcastJSON != null) {
+                    broadcast = new BroadcastBilder()
+                            .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                            .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                            .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
+                            .build();
+                }
+                if(webSocketObj!=null) webSocketObj.setPostId(data.getPost().getId());
                 UserRepository.updateUserMessage(data.getPost().getId(), data.getPost().getMessage());
                 break;
             case WebSocketObj.EVENT_POST_DELETED:
                 data = getPost(dataJSON);
                 break;
             case WebSocketObj.EVENT_STATUS_CHANGE:
+                if (broadcastJSON != null) {
+                    broadcast = new BroadcastBilder()
+                            .setChannelId(broadcastJSON.getString(WebSocketObj.CHANNEL_ID))
+                            .setTeamId(broadcastJSON.getString(WebSocketObj.TEAM_ID))
+                            .setUserID(broadcastJSON.getString(WebSocketObj.USER_ID))
+                            .build();
+                }
                 data = getStatus(dataJSON);
                 break;
             case WebSocketObj.ALL_USER_STATUS:

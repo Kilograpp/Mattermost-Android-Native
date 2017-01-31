@@ -12,6 +12,8 @@ import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Map;
 
+import io.realm.annotations.Ignore;
+
 /**
  * Created by Evgeny on 31.08.2016.
  */
@@ -63,6 +65,9 @@ public class WebSocketObj implements Parcelable {
     @SerializedName("user_id")
     @Expose
     private String userId;
+    @Ignore
+    @Expose
+    private String postId;
     @SerializedName("event")
     @Expose
     private String event;
@@ -163,6 +168,14 @@ public class WebSocketObj implements Parcelable {
     public void setData(Data data) {
         this.data = data;
         if(data!=null) userId = data.getUserId();
+    }
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
     }
 
     public WebSocketObj() {
@@ -271,6 +284,7 @@ public class WebSocketObj implements Parcelable {
         dest.writeString(this.teamId);
         dest.writeString(this.channelId);
         dest.writeString(this.userId);
+        dest.writeString(this.postId);
         dest.writeString(this.event);
         dest.writeParcelable(this.broadcast, flags);
         dest.writeValue(this.seqReplay);
@@ -286,6 +300,7 @@ public class WebSocketObj implements Parcelable {
         this.teamId = in.readString();
         this.channelId = in.readString();
         this.userId = in.readString();
+        this.postId = in.readString();
         this.event = in.readString();
         this.broadcast = in.readParcelable(Broadcast.class.getClassLoader());
         this.seqReplay = (Integer) in.readValue(Integer.class.getClassLoader());

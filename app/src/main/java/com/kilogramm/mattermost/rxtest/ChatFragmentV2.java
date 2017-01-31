@@ -26,6 +26,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -51,6 +52,7 @@ import com.kilogramm.mattermost.adapters.command.CommandAdapter;
 import com.kilogramm.mattermost.databinding.EditDialogLayoutBinding;
 import com.kilogramm.mattermost.databinding.FragmentChatMvpBinding;
 import com.kilogramm.mattermost.model.entity.CommandObject;
+import com.kilogramm.mattermost.model.entity.Data;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
@@ -438,6 +440,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public void initBtnSendOnClickListener() {
         mBinding.btnSend.setOnClickListener(view -> {
+            adapter.updatePostById("");
             if (!mBinding.btnSend.getText().equals("Save"))
                 if (mBinding.writingMessage.getText().toString().startsWith("/")) {
                     sendCommand();
@@ -530,6 +533,14 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                         getActivity().runOnUiThread(() -> showTyping(null));
                     } else if (obj.getEvent().equals(WebSocketObj.EVENT_TYPING)) {
                         getActivity().runOnUiThread(() -> showTyping(obj));
+                    }else if(obj.getEvent().equals(WebSocketObj.EVENT_POST_EDITED)){
+                        if(!TextUtils.isEmpty(obj.getPostId())){
+                            getActivity().runOnUiThread(() -> {
+                                if(adapter!=null){
+                                    adapter.updatePostById(obj.getPostId());
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -537,6 +548,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
         IntentFilter intentFilter = new IntentFilter(WebSocketObj.EVENT_TYPING);
         intentFilter.addAction(WebSocketObj.EVENT_POSTED);
+        intentFilter.addAction(WebSocketObj.EVENT_POST_EDITED);
         getActivity().registerReceiver(brReceiverTyping, intentFilter);
     }
 
