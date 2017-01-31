@@ -24,13 +24,13 @@ repositories {
 
 
 def getMyVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 100
     println "VersionCode is set to $code"
     return code
 }
 
 def getMyVersionName = { ->
-    def name = project.hasProperty('versionName') ? versionName : "Default";
+    def name = project.hasProperty('versionName') ? versionName : "v1.0.0";
     println "VersionName is set to $name"
     return name
 }

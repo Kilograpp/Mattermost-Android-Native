@@ -37,7 +37,6 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
     public static final String PHOTO_LIST = "photo_list";
     private static final String TAG = "ViewPagerWGesturesAct";
     private static final String ANIMDATA = "animdata";
-    private static final int ANIM_DURATION = 300;
 
     private ActivityPhotoViewerBinding binding;
     private TouchImageAdapter adapter;
@@ -51,7 +50,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
 
     Toast errorToast;
 
-    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList, int[] screenLocation, int[] size) {
+    public static void start(Context context, String title, String openedFile, ArrayList<String> photoList, int[] size) {
         Intent starter = new Intent(context, ViewPagerWGesturesActivity.class);
 
         int orientation = context.getResources().getConfiguration().orientation;
@@ -59,8 +58,7 @@ public class ViewPagerWGesturesActivity extends BaseActivity implements FileDown
                 .putExtra(OPENED_FILE, openedFile)
                 .putStringArrayListExtra(PHOTO_LIST, photoList)
                 .putExtra(ANIMDATA + ".orientation", orientation)
-                .putExtra(ANIMDATA + ".left", screenLocation[0])
-                .putExtra(ANIMDATA + ".top", screenLocation[1])
+
                 .putExtra(ANIMDATA + ".width", size[0])
                 .putExtra(ANIMDATA + ".height", size[1]);
 

@@ -136,7 +136,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
 
     public static final int ADD_MEMBER_CODE= 10;
 
-
     private FragmentChatMvpBinding mBinding;
 
     public static boolean active = false;
@@ -172,7 +171,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private AdapterPost adapter;
     private UsersDropDownListAdapterV2 dropDownListAdapter;
     private CommandAdapter commandAdapter;
-
 
     Map<String, String> mapType;
 

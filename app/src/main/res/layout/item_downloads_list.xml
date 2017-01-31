@@ -23,6 +23,15 @@
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_downloaded_file" />
 
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/imageViewImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:transitionName="@string/transitions_image"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:riv_corner_radius="5dip" />
+
         </FrameLayout>
 
         <LinearLayout

@@ -30,20 +30,7 @@ import com.kilogramm.mattermost.view.BaseActivity;
  */
 
 public class ImageViewerAnimator {
-    private static final int ANIM_DURATION = 300;
-    private static final String ANIMDATA = "animdata";
-    //    ActivityPhotoViewerBinding binding;
-    private float mWidthScale;
-    private float mHeightScale;
-    private float mLeftDelta;
-    private float mTopDelta;
-    final int thumbnailTop;
-
-    final int thumbnailLeft;
-    final int thumbnailWidth;
-    final int thumbnailHeight;
-    private int mOriginalOrientation;
-
+    public static final int ANIM_DURATION = 300;
     private TimeInterpolator sDecelerator;
     private ColorDrawable mBackground;
     private Context context;
@@ -62,37 +49,16 @@ public class ImageViewerAnimator {
         mBackground = new ColorDrawable(Color.BLACK);
         background.setBackground(mBackground);
 
-
-        thumbnailTop = bundle.getInt(ANIMDATA + ".top");
-        thumbnailLeft = bundle.getInt(ANIMDATA + ".left");
-        thumbnailWidth = bundle.getInt(ANIMDATA + ".width");
-        thumbnailHeight = bundle.getInt(ANIMDATA + ".height");
-        mOriginalOrientation = bundle.getInt(ANIMDATA + ".orientation");
-
         sDecelerator = new DecelerateInterpolator();
     }
 
     public void startAnimation(Runnable onFinishAnimation) {
         ViewTreeObserver observer = imageView.getViewTreeObserver();
         observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-
             @Override
             public boolean onPreDraw() {
                 imageView.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                // Figure out where the thumbnail and full size versions are, relative
-                // to the screen and each other
-                int[] screenLocation = new int[2];
-                imageView.getLocationOnScreen(screenLocation);
-                mLeftDelta = thumbnailLeft - screenLocation[0];
-                mTopDelta = thumbnailTop - screenLocation[1];
-
-                // Scale factors to make the large version the same size as the thumbnail
-                mWidthScale = (float) thumbnailWidth / imageView.getWidth();
-//                mHeightScale = (float) thumbnailHeight / imageView.getHeight();//
-
                 runEnterAnimation(onFinishAnimation);
-
                 return true;
             }
         });
@@ -104,19 +70,15 @@ public class ImageViewerAnimator {
         // size/location, from which we'll animate it back up
         imageView.setPivotX(imageView.getWidth() / 2);
         imageView.setPivotY(imageView.getHeight() / 2);
-        imageView.setScaleX(mWidthScale);
-        imageView.setScaleY(mWidthScale);
-        imageView.setTranslationX(0);
-        imageView.setTranslationY(0);
+        imageView.setScaleX(0);
+        imageView.setScaleY(0);
         imageView.setAlpha(0.f);
 
         // Animate scale and translation to go from thumbnail to full size
         imageView.animate().setDuration(ANIM_DURATION)
                 .scaleX(1).scaleY(1)
-                .translationX(0).translationY(0)
                 .alpha(1)
-                .setInterpolator(sDecelerator)
-        ;
+                .setInterpolator(sDecelerator);
 
         // Fade in the black background
         ObjectAnimator bgAnim = ObjectAnimator.ofInt(mBackground, "alpha", 0, 255);
@@ -149,9 +111,6 @@ public class ImageViewerAnimator {
 
         imageView.setPivotX(imageView.getWidth() / 2);
         imageView.setPivotY(imageView.getHeight() / 2);
-        mLeftDelta = 0;
-        mTopDelta = 0;
-
 
         //animate toolbar and status bar
         ValueAnimator valueAnimator = new ValueAnimator();
@@ -163,8 +122,7 @@ public class ImageViewerAnimator {
 
         // Animate image back to thumbnail size/location
         imageView.animate().setDuration(ANIM_DURATION)
-                .scaleX(mWidthScale).scaleY(mWidthScale)
-                .translationX(mLeftDelta).translationY(mTopDelta)
+                .scaleX(0).scaleY(0)
                 .alpha(0.f)
                 .withEndAction(endAction);
 //
