@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +37,8 @@ public class PhotoViewFragment extends Fragment {
     private FragmentPhotoViewBinding photoBinding;
     private FileInfo mFileInfo;
     private boolean isTouchable = true;
+
+
 
     static PhotoViewFragment newInstance(FileInfo fileInfo) {
         PhotoViewFragment photoViewFragment = new PhotoViewFragment();
@@ -126,48 +127,51 @@ public class PhotoViewFragment extends Fragment {
         });
         photoBinding.image.setOnTouchListener(new View.OnTouchListener() {
             float startPosition;
+            int displayHeight = getActivity().getResources().getDisplayMetrics().heightPixels;
             @Override
             public boolean onTouch(View view1, MotionEvent event) {
-                if(!isTouchable) return false;
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_MOVE: {
-                        if(photoBinding.image.getCurrentZoom() != 1)
-                            return false;
-                        if(event.getPointerCount() == 1) {
-                            float deltaY = event.getRawY() - startPosition;
-                            view1.setY(deltaY);
-                            float alpha = (1 - 2*Math.abs(deltaY )/getActivity().getResources().getDisplayMetrics().heightPixels/4);
-                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(alpha);
+                if (isTouchable && !photoBinding.image.isZoomed()) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_MOVE: {
+                            if (photoBinding.image.isZoomed())
+                                return false;
+                            if (event.getPointerCount() == 1) {
+                                float deltaY = event.getRawY() - startPosition;
+                                view1.setY(deltaY);
+                                float alpha = (1 - 2 * Math.abs(deltaY) / displayHeight / 4);
+                                ((ViewPagerWGesturesActivity) getActivity()).setBackgroundAlpha(alpha);
+//                                photoBinding.image.setAlpha(0);
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP: {
-                        ((TouchImageView)view1).setZoomEnable(true);
-                        if(photoBinding.image.getCurrentZoom() == 1 && Math.abs(view1.getY()) >=
-                                getActivity().getResources().getDisplayMetrics().heightPixels/4) {
-                            isTouchable = false;
-                            view1.animate().translationY((event.getRawY() - startPosition) > 0?
-                                    getResources().getDisplayMetrics().heightPixels + view1.getHeight()
-                                    : -view1.getHeight()).withEndAction(() -> getActivity().finish());
-                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(0, 300);
-                        }
-                        else {
-                            view1.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).setDuration(300);
-                            ((ViewPagerWGesturesActivity)getActivity()).setBackgroundAlpha(1);
-                        }
-                        break;
-                    }
-                    case MotionEvent.ACTION_DOWN: {
-                        startPosition = event.getRawY();
-                        Log.i(TAG, "onTouch: ACTION_DOWN: " + event.getRawY());
-                        break;
-                    }
+                        case MotionEvent.ACTION_UP: {
+                            ((TouchImageView) view1).setZoomEnable(true);
+                            if (photoBinding.image.isZoomed() && Math.abs(view1.getY()) >= displayHeight / 4) {
+                                isTouchable = false;
+                                view1.animate().
+                                        translationY((event.getRawY() - startPosition) > 0 ?
+                                                displayHeight + view1.getHeight() :
+                                                -view1.getHeight())
+                                        .withEndAction(() -> getActivity().finish());
 
-                    case MotionEvent.ACTION_POINTER_DOWN: {
-                        break;
+                                ((ViewPagerWGesturesActivity) getActivity())
+                                        .setBackgroundAlpha(0, ImageViewerAnimator.ANIM_DURATION);
+                            } else {
+                                view1.animate().translationY(0)
+                                        .setInterpolator(new DecelerateInterpolator())
+                                        .setDuration(300);
+                                ((ViewPagerWGesturesActivity) getActivity()).setBackgroundAlpha(1);
+                            }
+                            break;
+                        }
+                        case MotionEvent.ACTION_DOWN: {
+                            startPosition = event.getRawY();
+                            break;
+                        }
                     }
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
         photoBinding.image.setVerticalSwipeListener(new VerticalSwipeListener() {
@@ -184,7 +188,8 @@ public class PhotoViewFragment extends Fragment {
             }
         });
     }
-    public void setTouchable(boolean isTouchable){
+
+    public void setTouchable(boolean isTouchable) {
         this.isTouchable = isTouchable;
     }
 }

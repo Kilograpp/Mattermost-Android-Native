@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -31,7 +30,6 @@ import com.kilogramm.mattermost.view.viewPhoto.ViewPagerWGesturesActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
@@ -137,15 +135,13 @@ public class FilesView extends GridLayout {
                             }
                         }
 
-                        int[] location = new int[2];
-                        int[] size = new int[]{view.getWidth(), clicked.getHeight()};
-                        binding.image.getLocationOnScreen(location);
+//                        int[] size = new int[]{view.getWidth(), clicked.getHeight()};
+                        int[] size = new int[]{200, 200};
 
                         ViewPagerWGesturesActivity.start(getContext(),
                                 binding.title.getText().toString(),
                                 fileInfo.getId(),
-                                fileIdList,
-                                location, size);
+                                fileIdList, size);
                     });
                 } else {
                     initAndAddItem(binding, fileInfo);
@@ -177,8 +173,6 @@ public class FilesView extends GridLayout {
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .bitmapConfig(Bitmap.Config.RGB_565)
-//                .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)// it's the default value, so it's not necessary to use it
-                .imageScaleType(ImageScaleType.NONE)
                 .showImageOnLoading(R.drawable.slices)
                 .showImageOnFail(R.drawable.slices)
                 .resetViewBeforeLoading(true)
