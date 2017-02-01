@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/contentLay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressWait"
+        android:layout_margin="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        app:mpb_progressStyle="circular"
+        app:theme="@style/ProgressWhite" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle_shape"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressDrawable="@drawable/circular_white_progress_bar"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_close_grey_stroke" />
+
+    <ImageView
+        android:id="@+id/iconActionDownload"
+        android:layout_width="@dimen/file_download_icon_size"
+        android:layout_height="@dimen/file_download_icon_size"
+        android:layout_gravity="center"
+        app:srcCompat="@drawable/ic_file_download" />
+
+</FrameLayout>

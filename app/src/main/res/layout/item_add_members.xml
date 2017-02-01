@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/circleImageViewMemberIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="@dimen/activity_horizontal_margin" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/circleImageViewMemberIcon"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
+            android:background="@color/light_grey" />
+
+        <TextView
+            android:id="@+id/textViewMemberName"
+            style="@style/textVeryBigDarkGrey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="50dp"
+            android:layout_toEndOf="@+id/circleImageViewMemberIcon"
+            android:padding="2dp"
+            android:singleLine="true"
+            android:layout_marginRight="@dimen/margin_end_list_members" />
+
+        <ImageView
+            style="@style/textVeryBigDarkGrey"
+            android:foregroundGravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            app:srcCompat="@drawable/ic_add_members" />
+
+    </RelativeLayout>
+</layout>

@@ -1,5 +1,7 @@
 <resources>
 
+<!--TODO this file needs review and refactor -->
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
@@ -10,29 +12,254 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>
     </style>
 
 
+    <style name="searchActivityStyle" parent="AppTheme">
+        <item name="colorControlActivated">@color/icon_team_color_end</item>
+    </style>
     <style name="TitleBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/title_text_size</item>
     </style>
 
-    <style name="DiscriptionBlackTextStyle" parent="TextAppearance.AppCompat">
+    <style name="DescriptionBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
-        <item name="android:textColorHint">@color/grey</item>
-        <item name="android:textSize">@dimen/discription_text_size</item>
+        <item name="android:textColorHint">@color/hint_grey</item>
+        <item name="android:textSize">@dimen/description_text_size</item>
     </style>
 
     <style name="HintTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/grey</item>
-        <item name="android:textSize">@dimen/discription_text_size</item>
+        <item name="android:textSize">@dimen/description_text_size</item>
     </style>
 
     <style name="Transparent" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+
+    <!--SCROLLBAR-->
+    <style name="scrollbar_shape_style">
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">false</item>
+        <item name="android:scrollbarStyle">insideInset</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadeScrollbars">false</item>
+        <item name="android:scrollbarThumbVertical">@drawable/scroll_bar_vertical_thumb</item>
+        <item name="android:scrollbarSize">5dp</item>
+    </style>
+
+    <!-- For dialog picker-->
+    <style name="FilePickerTheme" parent="NNF_BaseTheme.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
+        <item name="alertDialogTheme">@style/FilePickerDialogTheme</item>
+    </style>
+
+    <style name="FilePickerDialogTheme" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/file_picker_icon</item>
+    </style>
+
+    <!--POPUP MENU-->
+    <style name="PopupMenu" parent="@android:style/Widget.DeviceDefault.Light.PopupMenu">
+        <item name="android:textSize">10sp</item>
+        <item name="android:popupBackground">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="myPopupMenuTextAppearanceSmall" parent="@android:style/TextAppearance.DeviceDefault.Widget.PopupMenu.Small">
+        <item name="android:textColor">#000</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+    <style name="myPopupMenuTextAppearanceLarge" parent="@android:style/TextAppearance.DeviceDefault.Widget.PopupMenu.Large">
+        <item name="android:textColor">#000</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!--BLUE-->
+    <style name="textBlue" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/title_blue</item>
+    </style>
+
+    <style name="textLightBlue" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/icon_team_color_end</item>
+    </style>
+
+    <style name="textNormalBlue" parent="@style/textBlue"/>
+
+    <style name="textBigLightBlue" parent="textLightBlue">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="textLightBigBoldBlue" parent="textBigLightBlue">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textDarkGreyCaps" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="textLittleBlue" parent="@style/textBlue">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!--RED-->
+    <style name="textRed" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/textColorRed</item>
+    </style>
+
+
+    <!--BLACK-->
+    <style name="textBlack" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="textSmallNormalBlack" parent="@style/textBlack">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="textNormalBlack" parent="@style/textBlack">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textBigNormalBlack" parent="@style/textBlack">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="textVeryBigBlack" parent="@style/textBlack">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="textLargeBlack" parent="@style/textBlack">
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <style name="textBigBlackHeader" parent="@style/textBlack">
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="textBigBlackBold" parent="@style/textBigNormalBlack">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textNormalBlackBold" parent="@style/textNormalBlack">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="linkSmallNormalBlack" parent="@style/textSmallNormalBlack">
+        <item name="android:linksClickable">true</item>
+    </style>
+
+
+    <!--WHITE-->
+    <style name="textWhite" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="textNormalWhite" parent="@style/textWhite">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textNormalTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textBigTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textTitleWhite" parent="@style/textWhite">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="textBigWhite" parent="@style/textWhite">
+        <item name="android:textSize">25sp</item>
+    </style>
+
+
+    <!--GREY-->
+    <style name="textGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
+    <style name="textLittleGrey" parent="@style/textGrey">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="textBigGrey" parent="@style/textGrey">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="textBigDarkGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="textLightGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/light_grey</item>
+    </style>
+
+    <style name="textNormalGrey" parent="@style/textLightGrey">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+
+    <style name="textVeryBigDarkGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:keyTextSize">14sp</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="ChatBottomToolbar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/bottom_toolbar_icon_size</item>
+        <item name="android:padding">@dimen/bottom_toolbar_margin</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="CardView.Light.Blue" parent="CardView.Light">
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+    </style>
+
+    <style name="ProgressWhite" parent="AppTheme">
+        <item name="colorAccent">@color/white</item>
+    </style>
+
+    <style name="MaterialDialogSheet" parent="@android:style/Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowAnimationStyle">@style/MaterialDialogSheetAnimation</item>
+    </style>
+
+    <style name="MaterialDialogSheetAnimation">
+        <item name="android:windowEnterAnimation">@anim/bottom_sheet_show</item>
+        <item name="android:windowExitAnimation">@anim/bottom_sheet_hide</item>
     </style>
 
 </resources>

@@ -3,38 +3,71 @@ package com.kilogramm.mattermost.presenter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.kilogramm.mattermost.MattermostApp;
-import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.ForgotData;
-import com.kilogramm.mattermost.network.ApiMethod;
-import com.kilogramm.mattermost.network.MattermostHttpSubscriber;
+import com.kilogramm.mattermost.network.ServerMethod;
+import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 
-import nucleus.presenter.Presenter;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import rx.schedulers.Schedulers;
 
 /**
  * Created by kraftu on 13.09.16.
  */
-public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
+public class ForgotPasswordPresenter extends BaseRxPresenter<ForgotPasswordActivity> {
 
-    private MattermostApp mMattermostApp;
+    private static final String EMAIL_PATTERN =
+            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
-    private Subscription mSubscription;
+    private static final int REQUEST_SEND_EMAIL = 1;
+
+    private String userEmail;
+
+    private Pattern pattern;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         super.onCreate(savedState);
-        mMattermostApp = MattermostApp.getSingleton();
-
+        this.userEmail = "";
+        initSendEmailRequest();
+        sendShowProgress(false);
+        pattern = Pattern.compile(EMAIL_PATTERN);
     }
 
-    @Override
-    protected void onTakeView(ForgotPasswordActivity forgotPasswordActivity) {
-        super.onTakeView(forgotPasswordActivity);
-        getView().showProgress(false);
+    public boolean validate(final String value) {
+        Matcher matcher = pattern.matcher(value);
+        return matcher.matches();
+    }
+
+    private void initSendEmailRequest() {
+        restartableFirst(REQUEST_SEND_EMAIL,
+                () -> ServerMethod.getInstance()
+                        .forgotPassword(new ForgotData(userEmail))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                , (forgotPasswordActivity, forgotData) -> {
+                    sendShowProgress(false);
+                    sendHideKeyBoard();
+                    sendFinishActivity();
+                    sendShowMessage(forgotData.email);
+                }, (forgotPasswordActivity, throwable) -> {
+                    throwable.printStackTrace();
+                    sendShowProgress(false);
+                    sendShowErrorText("We couldn’t find an account with that address.");
+                });
+    }
+
+    public void requestSendEmail(String userEmail) {
+        this.userEmail = userEmail;
+        if(validate(userEmail)) {
+            sendShowProgress(true);
+            start(REQUEST_SEND_EMAIL);
+        }else{
+            sendShowErrorText("Please enter a valid e-mail");
+        }
     }
 
     @Override
@@ -42,48 +75,29 @@ public class ForgotPasswordPresenter extends Presenter<ForgotPasswordActivity> {
         super.onDestroy();
     }
 
-    public void sendEmail(String userEmail){
-
-        if(mSubscription!=null && !mSubscription.isUnsubscribed()){
-            mSubscription.unsubscribe();
-        }
-
-        //TODO FIX logic
-        ApiMethod service = null;
-        try{
-            service = mMattermostApp.getMattermostRetrofitService();
-        } catch (IllegalArgumentException e){
-            e.printStackTrace();
-            getView().showErrorText("Url is not valid https://");
-            return;
-        }
-
-        getView().showProgress(true);
-
-        mSubscription = service.forgotPassword(new ForgotData(userEmail))
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new MattermostHttpSubscriber<ForgotData>() {
-                    @Override
-                    public void onCompleted() {
-                        getView().showProgress(false);
-                        getView().hideKeyboard();
-                        getView().finishActivity();
-                    }
-
-                    @Override
-                    public void onErrorMattermost(HttpError httpError, Throwable e) {
-                        getView().showProgress(false);
-                        getView().showErrorText(httpError.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(ForgotData forgotData) {
-                        getView().showMessage(forgotData.email);
-                    }
-                });
-
+    private void sendShowErrorText(String errorMessage) {
+        createTemplateObservable(errorMessage)
+                .subscribe(split((forgotPasswordActivity, s) ->
+                        forgotPasswordActivity.showErrorText(errorMessage)));
     }
 
+    private void sendShowProgress(Boolean bool) {
+        createTemplateObservable(bool)
+                .subscribe(split(ForgotPasswordActivity::showProgress));
+    }
 
+    private void sendHideKeyBoard() {
+        createTemplateObservable(new Object())
+                .subscribe(split((forgotPasswordActivity, o) -> forgotPasswordActivity.hideKeyboard()));
+    }
+
+    private void sendFinishActivity() {
+        createTemplateObservable(new Object())
+                .subscribe(split((forgotPasswordActivity, o) -> forgotPasswordActivity.finishActivity()));
+    }
+
+    private void sendShowMessage(String message) {
+        createTemplateObservable(message)
+                .subscribe(split((forgotPasswordActivity, s) -> forgotPasswordActivity.showMessage(message)));
+    }
 }

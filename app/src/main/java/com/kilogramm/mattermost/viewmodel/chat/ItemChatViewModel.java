@@ -1,20 +1,17 @@
 package com.kilogramm.mattermost.viewmodel.chat;
 
-import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
-import com.kilogramm.mattermost.model.entity.Post;
+import com.kilogramm.mattermost.model.entity.post.Post;
 import com.kilogramm.mattermost.ui.FilesView;
 import com.kilogramm.mattermost.viewmodel.ViewModel;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -28,16 +25,22 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     private static final String TAG = "ItemChatViewModel";
 
     private Post post;
-    private Context context;
-    private ImageView targetImageView;
     private ObservableInt titleVisibility;
+    private ObservableInt controlMenuVisibility;
+    private ObservableInt progressSendVisibility;
+    private ObservableInt progressErrorSendVisibility;
 
-    public ItemChatViewModel(Context context, Post post){
-        this.context = context;
+    public ItemChatViewModel(Post post){
         this.post = post;
         this.titleVisibility = new ObservableInt(View.GONE);
+        this.controlMenuVisibility = new ObservableInt(View.VISIBLE);
+        this.progressSendVisibility = new ObservableInt(View.VISIBLE);
+        this.progressErrorSendVisibility = new ObservableInt(View.VISIBLE);
     }
 
+    public ItemChatViewModel(){
+
+    }
 
     public String getMessage() {
         return post.getMessage();
@@ -51,14 +54,19 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
     }
 
     public String getImageUrl(){
-        if(post.getUser()!=null){
+       return getUrl(post);
+    }
+
+    public String getUrl(Post post) {
+        if(post.getUser()!=null && !post.isSystemMessage()){
             return "https://"
                     + MattermostPreference.getInstance().getBaseUrl()
                     + "/api/v3/users/"
                     + post.getUser().getId()
-                    + "/image";
+                    + "/image?time="
+                    + post.getUser().getLastPictureUpdate();
         } else {
-            return "";
+            return null;
         }
     }
 
@@ -82,18 +90,39 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
         }
     }
 
-    @BindingAdapter("bind:items")
-    public static void setItems(FilesView v, Post post){
-        for (String s : post.getFilenames()) {
-            Log.d(TAG, "post "+ post.getMessage() +"\n"+ post.getFilenames());
-        }
-        v.setItems(post.getFilenames());
+    public ObservableInt getControlMenuVisibility() {
+        if (post.getUpdateAt() != null && post.getUpdateAt() != Post.NO_UPDATE
+                && post.getProps()== null)
+            return post.isSystemMessage() ? new ObservableInt(View.GONE) : controlMenuVisibility;
+        return new ObservableInt(View.GONE);
     }
 
+    public ObservableInt getProgressSendVisibility() {//// TODO: 12.01.17
+        if (post.getUpdateAt() == null)
+            return progressSendVisibility;
+        else
+            return new ObservableInt(View.GONE);
+    }
+
+    public ObservableInt getProgressErrorSendVisibility() {
+        if (post.getUpdateAt() != null && post.getUpdateAt() == Post.NO_UPDATE)
+            return progressErrorSendVisibility;
+        else
+            return new ObservableInt(View.GONE);
+
+    }
+
+    @BindingAdapter("bind:items")
+    public static void setItems(FilesView v, Post post){
+        if(post!=null) {
+//            v.setItems(post.getFilenames());
+            v.setFileForPost(post.getId());
+        }
+    }
 
     @Override
     public void destroy() {
-        context = null;
+
     }
 
     @Override
@@ -117,7 +146,8 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
 
     @BindingAdapter({"bind:imageUrl"})
     public static void loadImage(ImageView view, String imageUrl) {
-        if(imageUrl!=null && imageUrl!="") {
+        if (imageUrl != null) {
+            view.setRotation(0);
             Picasso.with(view.getContext())
                     .load(imageUrl)
                     .resize(60, 60)
@@ -128,9 +158,10 @@ public class ItemChatViewModel extends BaseObservable implements ViewModel {
                             .getResources()
                             .getDrawable(R.drawable.ic_person_grey_24dp))
                     .into(view);
+        } else {
+            view.setImageResource(R.drawable.ic_system_grey_24dp);
         }
     }
-
 
     public ObservableInt getTitleVis() {
         return titleVisibility;

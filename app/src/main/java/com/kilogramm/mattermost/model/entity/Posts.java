@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.model.entity;
 
 import com.google.gson.annotations.SerializedName;
+import com.kilogramm.mattermost.model.entity.post.Post;
 
 import java.util.Map;
 
@@ -9,7 +10,7 @@ import java.util.Map;
  */
 public class Posts {
     @SerializedName("posts")
-    Map<String,Post> posts;
+    Map<String, Post> posts;
 
     public Map<String, Post> getPosts() {
         return posts;

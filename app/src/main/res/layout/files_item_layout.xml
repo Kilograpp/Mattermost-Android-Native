@@ -1,28 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:background="@drawable/files_item_background"
-        android:padding="10dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <ImageView
-            android:transitionName="@string/transitions_image"
-            android:id="@+id/image"
-            android:layout_width="100dp"
-            android:layout_height="100dp"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:padding="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <TextView
-                android:textColor="@color/black"
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <FrameLayout
+                android:id="@+id/circleFrame"
+                android:layout_width="@dimen/file_circle_size"
+                android:layout_height="@dimen/file_circle_size"
+                android:layout_margin="5dp"
+                android:background="@drawable/circle_blue">
+
+                <com.kilogramm.mattermost.ui.DownloadFileControls
+                    android:id="@+id/downloadFileControls"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/icDownloadedFile"
+                    android:layout_width="@dimen/file_download_icon_size"
+                    android:layout_height="@dimen/file_download_icon_size"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_downloaded_file" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/light_blue"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/fileSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/grey" />
+                </FrameLayout>
+            </LinearLayout>
         </LinearLayout>
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:transitionName="@string/transitions_image"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:riv_corner_radius="5dip" />
     </LinearLayout>
 </layout>

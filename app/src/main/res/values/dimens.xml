@@ -1,10 +1,64 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_horizontal_text_margin">4dp</dimen>"
+    <dimen name="activity_vertical_text_margin">4dp</dimen>"
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_vertical_start">32dp</dimen>
 
     <dimen name="title_text_size">35sp</dimen>
-    <dimen name="discription_text_size">15sp</dimen>
+    <dimen name="description_text_size">15sp</dimen>
     <dimen name="standart_margin">10dp</dimen>
     <dimen name="left_padding">15dp</dimen>
+
+    <dimen name="margin_end_list_members">60dp</dimen>
+    <dimen name="progress_bar">60dp</dimen>
+
+    <dimen name="image_height">250dp</dimen>
+
+    <dimen name="file_circle_size">60dp</dimen>
+    <dimen name="file_download_icon_size">30dp</dimen>
+
+    <!--setting-->
+    <dimen name="settings_title_margin">24dp</dimen>
+    <dimen name="bottom_sheet_circle_size">60dp</dimen>
+    <dimen name="bottom_sheet_icon_size">25dp</dimen>
+
+    <!--Direct list-->
+    <dimen name="margin_start">5dp</dimen>
+    <dimen name="circle_image_size">40dp</dimen>
+    <dimen name="circle_icon_size">60dp</dimen>
+
+    <dimen name="comment_margin_element">10dp</dimen>
+    <dimen name="comment_margin_text">20dp</dimen>
+    <dimen name="image_comment_size">20dp</dimen>
+
+    <!--Bottom toolbar-->
+    <dimen name="bottom_toolbar_icon_size">40dp</dimen>
+    <dimen name="bottom_toolbar_margin">10dp</dimen>
+
+    <!--Search-->
+    <dimen name="search_image_margin_start">15dp</dimen>
+    <dimen name="search_image_margin_end">20dp</dimen>
+    <dimen name="search_edit_text_margin">10dp</dimen>
+    <dimen name="search_view_margin">10dp</dimen>
+    <dimen name="search_margin">10dp</dimen>
+    <dimen name="search_double_margin">20dp</dimen>
+    <dimen name="search_some_margin">15dp</dimen>
+    <dimen name="search_margin_top_bottom">5dp</dimen>
+    <dimen name="card_corner_radius">0dp</dimen>
+
+    <dimen name="progress_bar_margin">5dp</dimen>
+
+    <dimen name="create_new_ch_gr_ll_margin">15dp</dimen>
+
+    <!--About Mattermost-->
+    <dimen name="about_margin_top">30dp</dimen>
+    <dimen name="about_big_icon_size">160dp</dimen>
+    <dimen name="about_margin_start_end">20dp</dimen>
+    <dimen name="about_margin_top_small">20dp</dimen>
+    <dimen name="about_margin_top_normal">40dp</dimen>
+    <dimen name="about_margin_top_big">60dp</dimen>
+    <dimen name="about_margin_bottom_small">15dp</dimen>
+
 </resources>

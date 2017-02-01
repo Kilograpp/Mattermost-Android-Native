@@ -7,18 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
-import com.bumptech.glide.Glide;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityImageViewerBinding;
 import com.kilogramm.mattermost.viewmodel.ImageViewerViewModel;
@@ -26,7 +24,7 @@ import com.kilogramm.mattermost.viewmodel.ImageViewerViewModel;
 /**
  * Created by Evgeny on 05.09.2016.
  */
-public class ImageViewerActivity extends BaseActivity {
+public class ImageViewerActivity extends BaseActivity {// FIXME: 24.01.17 This class is not used
 
     public static final String COLOR = "color";
     public static final String TITLE = "title";
@@ -35,12 +33,14 @@ public class ImageViewerActivity extends BaseActivity {
     private static final int ANIM_DURATION = 200;
 
     private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
-    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+
     ColorDrawable mBackground;
+
     int mLeftDelta;
     int mTopDelta;
     float mWidthScale;
     float mHeightScale;
+
     private String imageUrl;
     private ActivityImageViewerBinding binding;
     private ImageViewerViewModel viewModel;
@@ -53,10 +53,6 @@ public class ImageViewerActivity extends BaseActivity {
         viewModel = new ImageViewerViewModel(this, imageUrl);
         binding.setViewModel(viewModel);
 
-        Glide.with(getApplicationContext())
-                .load(imageUrl)
-                .placeholder(Color.RED)
-                .into(binding.image);
         String title = getIntent().getStringExtra(TITLE);
         setupToolbar(title, true);
 
@@ -67,7 +63,6 @@ public class ImageViewerActivity extends BaseActivity {
 
         mBackground = new ColorDrawable(Color.BLACK);
         binding.topLayout.setBackground(mBackground);
-
 
         if (savedInstanceState == null) {
             ViewTreeObserver observer = binding.image.getViewTreeObserver();
@@ -98,8 +93,19 @@ public class ImageViewerActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        runExitAnimation(() -> finish());
+        runExitAnimation(this::finish);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     public void finish() {
         super.finish();
@@ -107,23 +113,22 @@ public class ImageViewerActivity extends BaseActivity {
         overridePendingTransition(0, 0);
     }
 
-    public static void startActivity(Context context, View view, String title, String imageUrl){
-        Intent intent = new Intent(context,ImageViewerActivity.class);
+    public static void startActivity(Context context, View view, String title, String imageUrl) {
+        Intent intent = new Intent(context, ImageViewerActivity.class);
         int colour = context.getResources().getColor(R.color.black);
         intent.putExtra(COLOR, colour);
         intent.putExtra(TITLE, title);
         intent.putExtra(IMAGE_URL, imageUrl);
-        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(colour);
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view,bitmap,0,0);
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, bitmap, 0, 0);
         context.startActivity(intent, optionsCompat.toBundle());
     }
 
-    public static final void start(Context context, View view, String title, String imageUrl){
+    public static final void start(Context context, View view, String title, String imageUrl) {
         int[] screenLocation = new int[2];
         view.getLocationOnScreen(screenLocation);
-        Intent subActivity = new Intent(context,
-                ImageViewerActivity.class);
+        Intent subActivity = new Intent(context, ImageViewerActivity.class);
         int orientation = context.getResources().getConfiguration().orientation;
         subActivity.
                 putExtra(PACKAGE + ".orientation", orientation).
@@ -139,6 +144,7 @@ public class ImageViewerActivity extends BaseActivity {
         // to our custom one
         ((Activity) context).overridePendingTransition(0, 0);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -146,7 +152,7 @@ public class ImageViewerActivity extends BaseActivity {
     }
 
     public void runEnterAnimation() {
-        final long duration = (long) (ANIM_DURATION * 1);
+        final long duration = (long) (ANIM_DURATION);
 
         // Set starting values for properties we're going to animate. These
         // values scale and position the full size version down to the thumbnail
@@ -189,7 +195,7 @@ public class ImageViewerActivity extends BaseActivity {
     }
 
     public void runExitAnimation(final Runnable endAction) {
-        final long duration = (long) (ANIM_DURATION * 1);
+        final long duration = (long) (ANIM_DURATION);
 
         // No need to set initial values for the reverse animation; the image is at the
         // starting size/location that we want to start from. Just animate to the
@@ -222,10 +228,8 @@ public class ImageViewerActivity extends BaseActivity {
         shadowAnim.start();
         // Animate a color filter to take the image back to grayscale,
         // in parallel with the image scaling and moving into place.
-        ObjectAnimator colorizer =
-                ObjectAnimator.ofFloat(ImageViewerActivity.this, "saturation", 1, 0);
+        ObjectAnimator colorizer = ObjectAnimator.ofFloat(ImageViewerActivity.this, "saturation", 1, 0);
         colorizer.setDuration(duration);
         colorizer.start();
-
     }
 }

@@ -31,33 +31,31 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         setupToolbar(getString(R.string.title_forgot_password), true);
-        setColorScheme(R.color.colorPrimary,R.color.colorPrimaryDark);
-        binding.buttonRecovery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPresenter().sendEmail(getEmailText());
-            }
-        });
+        setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
+        binding.buttonRecovery.setOnClickListener(view -> getPresenter().requestSendEmail(getEmailText()));
     }
 
-    public String getEmailText(){
-        return  binding.editEmail.getText().toString();
+    public String getEmailText() {
+        return binding.editEmail.getText().toString();
     }
-    public void showProgress(boolean show){
+
+    public void showProgress(boolean show) {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public void showErrorText(String text){
-        Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
+    public void showErrorText(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
-    public void showMessage(String userEmail){
-        Toast.makeText(this,String.format(getString(R.string.text_forgot_password),userEmail),Toast.LENGTH_SHORT).show();
+    public void showMessage(String userEmail) {
+        Toast.makeText(this, String.format(getString(R.string.text_forgot_password),
+                userEmail),
+                Toast.LENGTH_SHORT).show();
     }
 
-    public void finishActivity(){
+    public void finishActivity() {
         finish();
     }
 
@@ -71,7 +69,8 @@ public class ForgotPasswordActivity extends BaseActivity<ForgotPasswordPresenter
         Intent starter = new Intent(context, ForgotPasswordActivity.class);
         context.startActivity(starter);
     }
-    public void hideKeyboard(){
+
+    public void hideKeyboard() {
         hideKeyboard(this);
     }
 }

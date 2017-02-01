@@ -2,23 +2,13 @@ package com.kilogramm.mattermost.network;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.RealmString;
+import com.kilogramm.mattermost.tools.NetworkUtil;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.realm.RealmList;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -33,85 +23,65 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MattermostRetrofitService {
 
 
-    public static final int TIMEOUT = 15;
+    public static final int TIMEOUT = 40;
 
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        HttpLoggingInterceptor headerInterceprion = new HttpLoggingInterceptor();
-        headerInterceprion.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    String token;
-                    if((token = MattermostPreference.getInstance().getAuthToken())!=null){
-                        Request request = original.newBuilder()
-                                .addHeader("Authorization","Bearer " + token)
-                                .build();
-                        return chain.proceed(request);
-                    } else {
-                        return chain.proceed(original);
-                    }
-                })
+        logging.setLevel(HttpLoggingInterceptor.Level.NONE);
+        HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
+        headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client;
+        if (BuildConfig.DEBUG) {
+            client = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .addInterceptor(getAuthInterceptor())
+                    .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .addNetworkInterceptor(new StethoInterceptor())
+                    .cookieJar(NetworkUtil.getCookieJar())
+                    .build();
+        } else {
+            client = new OkHttpClient.Builder()
+                    .addInterceptor(getAuthInterceptor())
+                    .addInterceptor(logging)
+                    .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+                    .addNetworkInterceptor(new StethoInterceptor())
+                    .cookieJar(NetworkUtil.getCookieJar())
+                    .build();
+        }
 
-                .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT,TimeUnit.SECONDS)
-                .addNetworkInterceptor(new StethoInterceptor())
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        MattermostPreference.getInstance().saveCookies(cookies);
-                    }
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> cookies = MattermostPreference.getInstance().getCookies();
-                        return cookies != null ? cookies : new ArrayList<>();
-                    }
-                })
-                .build();
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(new TypeToken<RealmList<RealmString>>() {}.getType(), new TypeAdapter<RealmList<RealmString>>() {
-
-                    @Override
-                    public void write(JsonWriter out, RealmList<RealmString> value) throws IOException {
-                        out.beginArray();
-                        for (RealmString realmString : value) {
-                            out.value(realmString.getString());
-                        }
-                        out.endArray();
-                    }
-
-                    @Override
-                    public RealmList<RealmString> read(JsonReader in) throws IOException {
-                        RealmList<RealmString> list = new RealmList<>();
-                        in.beginArray();
-                        while (in.hasNext()) {
-                            list.add(new RealmString(in.nextString()));
-                        }
-                        in.endArray();
-                        return list;
-                    }
-                })
-                .setLenient()
-                .create();
+        Gson gson = NetworkUtil.createGson();
 
         try {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://"+MattermostPreference.getInstance().getBaseUrl() + "/")
+                    .baseUrl("https://" + MattermostPreference.getInstance().getBaseUrl() + "/")
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .build();
             return retrofit.create(ApiMethod.class);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw e;
         }
     }
 
-    public static ApiMethod refreshRetrofitService(){
+    public static ApiMethod refreshRetrofitService() {
         return create();
     }
 
+    public static Interceptor getAuthInterceptor() {
+        return chain -> {
+            Request original = chain.request();
+            String token;
+            if ((token = MattermostPreference.getInstance().getAuthToken()) != null) {
+                Request request = original.newBuilder()
+                        .addHeader("Authorization", "Bearer " + token)
+                        .build();
+                return chain.proceed(request);
+            } else {
+                return chain.proceed(original);
+            }
+        };
+    }
 }

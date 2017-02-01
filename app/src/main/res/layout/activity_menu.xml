@@ -1,4 +1,5 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <android.support.v4.widget.DrawerLayout
@@ -9,44 +10,87 @@
         <!-- The main content view -->
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <include layout="@layout/toolbar_channel_layout"/>
+            <include layout="@layout/toolbar_channel_layout" />
 
             <FrameLayout
                 android:id="@+id/content_frame"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout="@layout/fragment_chat"/>
+                android:layout_height="match_parent">
+
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="@dimen/circle_image_size"
+                    android:layout_height="@dimen/circle_image_size"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
+            </FrameLayout>
 
         </LinearLayout>
 
         <!-- The navigation drawer -->
-        <ScrollView
-            android:layout_gravity="start"
+        <FrameLayout
+            android:id="@+id/left_container"
             android:layout_width="240dp"
-            android:layout_height="match_parent">
-            <LinearLayout
-                android:orientation="vertical"
-                android:background="@color/colorPrimary"
-                android:layout_width="240dp"
-                android:layout_height="match_parent">
-                <FrameLayout
-                    android:id="@+id/fragmentChannelList"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_menu_channel_list">
-                </FrameLayout>
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="@color/colorPrimary" />
 
-                <FrameLayout
-                    android:id="@+id/fragmentDirectList"
-                    android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/right_menu"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@color/colorPrimary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/profile"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/fragment_menu_direct_list">
-                </FrameLayout>
+                    android:background="@color/color_header"
+                    android:elevation="0dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/header_picture"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/header_username"
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:textColor="@android:color/white"
+                        tools:text="Toolbar Title" />
+
+                </LinearLayout>
+
+                <android.support.design.widget.NavigationView
+                    android:id="@+id/nav_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"
+                    app:elevation="0dp"
+                    app:menu="@menu/right_menu" />
             </LinearLayout>
-        </ScrollView>
+
+        </FrameLayout>
+
     </android.support.v4.widget.DrawerLayout>
 </layout>

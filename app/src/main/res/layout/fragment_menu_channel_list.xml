@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:kilograpp="http://schemas.android.com/apk/res-auto">
-    <data>
-        <variable
-            name="theme"
-            type="com.kilogramm.mattermost.model.entity.ThemeProps"/>
-        <variable
-            name="viewModel"
-            type="com.kilogramm.mattermost.viewmodel.menu.FrMenuChannelViewModel"/>
-    </data>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:padding="@dimen/left_padding"
         android:layout_width="240dp"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/left_padding">
 
-        <TextView
-            android:textColor="@color/white"
-            android:text="@string/channels"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:text="@string/channels"
+                android:textColor="@color/white" />
+
+            <ImageView
+                android:id="@+id/addChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_add_24dp" />
+        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
-            android:paddingTop="@dimen/left_padding"
-            android:paddingBottom="@dimen/left_padding"
-            android:nestedScrollingEnabled="false"
             android:id="@+id/recView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:listitem="@layout/item_channel"/>
+            android:nestedScrollingEnabled="false"
+            android:paddingBottom="@dimen/left_padding"
+            android:paddingTop="@dimen/left_padding"
+            tools:listitem="@layout/item_channel" />
 
         <TextView
-            android:textColor="@color/white"
+            android:id="@+id/btnMoreChannel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{viewModel.onMoreClick}"
-            android:text="@string/more"/>
-
+            android:text="@string/more"
+            android:textColor="@color/white" />
     </LinearLayout>
 </layout>

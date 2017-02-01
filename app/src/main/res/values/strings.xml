@@ -1,30 +1,270 @@
 <resources>
     <string name="app_name">Mattermost</string>
-    <string name="main_discription">All your team communication in one place, searchable and accessable anywhere.</string>
+    <string name="main_description">All your team communication in one place, searchable and accessible anywhere.</string>
 
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
+    <string name="main_url_error">Url is not valid</string>
 
+                    <!--LogIn-->
     <string name="login_hint_email">Email</string>
     <string name="login_hint_password">Password</string>
-    <string name="login_forgot_password">Forgot password</string>
+    <string name="login_forgot_password">Forgot password?</string>
     <string name="login_sign_in">Sign in</string>
+    <string name="network_error">Network error. Please check your Internet connetion</string>
 
     <string name="forgot_password_hint_email">Email</string>
     <string name="forgot_password_recovery_button">Recovery</string>
     <string name="forgot_password_description">Enter the email address associated with your team.</string>
-    <string name="more">More...</string>
-    <string name="direct_message">DIRECT_MESSAGE</string>
+    <string name="more">More…</string>
+    <string name="direct_message">DIRECT MESSAGE</string>
     <string name="channels">CHANNELS</string>
-    <string name="type_something">Type something...</string>
+    <string name="private_groups">PRIVATE GROUPS</string>
+    <string name="type_something">Type something…</string>
     <string name="you_have_no_messages">You have no messages</string>
     <string name="retry">Retry</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="message_empty">Message is empty</string>
+    <string name="wait_files">Wait file for uploading</string>
+    <string name="in_development">In Development</string>
+
+    <string name="all_members_empty">List is empty</string>
 
     <string name="transitions_image">image</string>
     <string name="typing">typing...</string>
+    <string name="send">Send</string>
 
     <string name="title_forgot_password">Password recovery</string>
+    <string name="choose_team">Choose your team</string>
     <string name="text_forgot_password">A password reset link has been sent to %s \nPlease check your inbox.</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="logout">Logout</string>
+    <string name="confirm_post_delete">Confirm Post Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="try_again">Try again</string>
+    <string name="reply">Reply</string>
+    <string name="permalink">Permalink</string>
+    <string name="copy">Copy</string>
+    <string name="edit_post">Edit Post</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="create">Create</string>
+    <string name="message">Message</string>
+    <string name="edit_the_post">Edit the post…</string>
+    <string name="copy_permalink">Copy Permalink</string>
+    <string name="copy_link">Copy Link</string>
+    <string name="edit_message">Edit message</string>
+    <string name="reply_message">Reply message</string>
+
+    <string name="commented_on">Commented on</string>
+    <string name="is_message">s message:</string>
+
+    <string name="title_direct_list">Direct list</string>
+    <string name="title_existing_channels">More channels</string>
+
+    <string name="cannot_load_photo">We cannot load photo. Try to download it on your device and look through any installed app</string>
+
+                    <!--Search posts-->
+    <string name="search_hint">Search</string>
+    <string name="default_text"> If you\'re searching a partial phrase (ex. searching "real", looking
+                                    for "reach" or "reaction"), append a * to your search term. \n\n
+                                    Due to the volume of results, two letter searches and common words like
+                                    "this", "a", and "is" won\'t appear in search results. </string>
+    <string name="empty_search">Search field cannot be empty</string>
+    <string name="no_results_found">Not found</string>
+    <string name="default_message">Your search results will be here</string>
+
+    <string name="cannot_open_file_to_attach">Cannot open file to attach</string>
+    <string name="cannot_attach_photo">Cannot attach photo</string>
+    <string name="too_much_files">Too much files. Attach less then</string>
+    <string name="file_too_big">File must be less than 50 Mb</string>
+    <string name="processing_data">Processing data…</string>
+    <string name="no_suitable_app">There is no suitable application on you device</string>
+    <string name="error_retrieving_data">An error occurred while retrieving data</string>
+
+                    <!--Right MENU-->
+    <string name="invite">Invite</string>
+    <string name="switch_team">Switch Team</string>
+    <string name="files">Files</string>
+    <string name="settings">Settings</string>
+    <string name="invite_new_member">Invite New Member</string>
+    <string name="invite_new_member_n">Member #</string>
+    <string name="help">Help</string>
+    <string name="report_a_problem">Report a Problem</string>
+    <string name="about_mattermost">About Mattermost</string>
+    <string name="email">EMAIL</string>
+    <string name="first_name">FIRST NAME</string>
+    <string name="first_name_optional">FIRST NAME (OPTIONAL)</string>
+    <string name="last_name">LAST NAME</string>
+    <string name="last_name_optional">LAST NAME (OPTIONAL)</string>
+    <string name="add_another">Add another</string>
+
+                    <!--Notification-->
+    <string name="notification">Notification</string>
+    <string name="notification_mob_push">Mobile push notifications</string>
+    <string name="notification_mob_push_description">For mentions and direct messages when online, away or offline</string>
+    <string name="notification_words_trigger">Words that trigger mentions</string>
+    <string name="notification_email">Email notifications</string>
+    <string name="notification_words_channel_mention">\"@channel\",\"@all\"</string>
+
+    <string name="tag_notificationFragment">notificationFragment</string>
+    <string name="tag_notificationPushFragment">notificationPushFragment</string>
+    <string name="tag_wordsTriggerMentionsFragment">wordsTriggerMentionsFragment</string>
+
+    <string name="prepare_for_download">Prepare for download…</string>
+    <string name="downloading">Downloading…</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="error_during_file_download">Error during file download</string>
+    <string name="error_during_file_upload">Error during file upload</string>
+    <string name="not_enough_space">Not enough disk space</string>
+    <string name="file_exists">File exists. Do you want to replace it?</string>
+    <string name="no_premission_for_download">You have no permission to write to external storage</string>
+    <string name="replace">Replace</string>
+    <string name="open_file">Open file</string>
+
+                    <!--Desktop-->
+    <string name="mob_push_title_send">SEND MOBILE PUSH NOTIFICATIONS</string>
+    <string name="mob_push_all">For all activity</string>
+    <string name="mob_push_mentions_direct">For mentions and direct messages</string>
+    <string name="mob_push_never">Never</string>
+    <string name="mob_push_description_send">Notification alerts are pushed to your mobile device when there is activity in Mattermost.</string>
+    <string name="mob_push_title_trigger">TRIGGER PUSH NOTIFICATIONS WHEN</string>
+    <string name="mob_push_on_away_off">Online, away or offline</string>
+    <string name="mob_push_away_off">Away or offline</string>
+    <string name="mob_push_off">Offline</string>
+    <string name="mob_push_description_trigger">Notification alerts are only pushed to your mobile device when your online status matches the selection above.</string>
+
+                     <!--Triggers-->
+    <string name="triggers_first_name">Your case sensitive first name </string>
+    <string name="triggers_username">Your non-case sensitive username </string>
+    <string name="triggers_user_mention">Your username mentioned </string>
+    <string name="triggers_channel_mention">Channel-wide mentions \"@channel\", \"@all\"</string>
+    <string name="triggers_other_mention">OTHER NON-CASE SENSITIVE WORDS</string>
+    <string name="triggers_other_mention_hint">Type words</string>
+    <string name="triggers_other_separate">Separate by commas</string>
+
+                    <!--Add channels-->
+    <string name="add_channels_no_more">No more channels to join</string>
+    <string name="add_channels_no_more_additional">Click \'Create New Channel\' to make a new one</string>
+
+                    <!--Email-->
+    <string name="email_title">SEND EMAIL NOTIFICATIONS</string>
+    <string name="email_immediately">Immediately</string>
+    <string name="email_never">Never</string>
+    <string name="email_description_start">Email notifications are sent for mentions and direct messages when you are offline or away from </string>
+    <string name="email_description_end"> for more than 5 minutes.</string>
+    <string name="name">NAME</string>
+    <string name="username">USERNAME</string>
+    <string name="nickname">NICKNAME</string>
+    <string name="user_updated">User updated</string>
+    <string name="email_updated">Email updated</string>
+    <string name="avatar_updated">Avatar updated</string>
+    <string name="invalid_email">Invalid email</string>
+
+                    <!-- Settings -->
+    <string name="change_email">Change email</string>
+    <string name="change_password">Change password</string>
+    <string name="enter_new_email">Enter new email</string>
+    <string name="new_email">New email</string>
+    <string name="current_email">Current email</string>
+    <string name="current_password">Current password</string>
+    <string name="edit_email">Edit email</string>
+    <string name="edit_password">Edit password</string>
+    <string name="new_password">New password</string>
+    <string name="new_password_again">New password again</string>
+    <string name="error_in_confirm_password">Incorrect second new password</string>
+    <string name="verify_email">Email successfully changed. We will send you the verification email</string>
+    <string name="password_changed">Password was successfully changed</string>
+    <string name="add_another_plus">Add another +</string>
+    <string name="member">Member #</string>
+    <string name="fields_invalid">Some fields are invalid</string>
+    <string name="invitations_were_sended">Invitations were successfully sent</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="file">File</string>
+    <string name="error_fail_capture_image">Failed to capture image</string>
+
+                    <!--Create new channel/group-->
+    <string name="create_new_channel_name_hint">Channel Name*</string>
+    <string name="create_new_group_name_hint">Group Name*</string>
+    <string name="create_new_ch_gr_header_hint">Header (optional)</string>
+    <string name="create_new_ch_gr_purpose_hint">Purpose (optional)</string>
+    <string name="create_new_ch_gr_toolbar_ch">New Channel</string>
+    <string name="create_new_ch_gr_toolbar_gr">New Group</string>
+    <string name="create_new_channel_error"> \t Channel name is required \n</string>
+    <string name="create_new_group_error"> \t Group name is required \n </string>
+    <string name="create_new_channel_ref">Private Groups are only visible to select team members.
+        Any member of a Private Group can add additional members.</string>
+    <string name="create_new_ch_gr_handler_rec">Please use only lower case Latin letters, digits and
+        symbol \'-\'</string>
+
+    <string name="empty_dialog_invite">+ Invite others to this channel</string>
+    <string name="empty_dialog_title">Beginning of %1$s</string>
+    <string name="empty_dialog_beginning_message">This is the start of the %1$s channel, created on %2$s. </string>
+    <string name="empty_dialog_private_message"> Only invited members can see this private group.</string>
+    <string name="empty_dialog_group_message"> Any member can join and read this channel.</string>
+    <string name="empty_dialog_direct_message">This is the start of your direct message history with %1$s.
+        \n\nDirect messages and files shared here are not shown to people outside this area.</string>
+
+                    <!--About-->
+    <string name="about_team_edition">Mattermost Team Edition</string>
+    <string name="about_long_text">All your team communication in one place, instantly searchable and accessible anywhere.</string>
+    <string name="about_version">Version: 3.0.0(3.0.3)</string>
+    <string name="about_copyright">Copyright 2016 Mattermost, Inc. All rights reserved.</string>
+    <string name="about_mattermost_org">Join the Mattermost community at mattermost.org</string>
+    <string name="about_org"><a href="https://www.mattermost.org/">mattermost.org</a></string>
+    <string name="about_kilograpp">This application was developed by <a href="http://kilograpp.com/">Kilograpp Team</a></string>
+
+                    <!--Channel info-->
+    <string name="channel_info">Channel info</string>
+    <string name="group_info">Group info</string>
+    <string name="channel_info_header">Header</string>
+    <string name="channel_info_purpose">Purpose</string>
+    <string name="channel_info_url">URL</string>
+    <string name="channel_info_id">ID</string>
+    <string name="channel_info_add_members">  Add Members</string>
+    <string name="channel_info_count_members">MEMBERS</string>
+    <string name="channel_info_see_all">SEE ALL</string>
+    <string name="channel_info_leave_channel">Leave Channel</string>
+    <string name="channel_info_leave_group">Leave Group</string>
+    <string name="channel_info_delete_channel">Delete Channel</string>
+    <string name="channel_info_delete_group">Delete Group</string>
+    <string name="channel_error">This field is required</string>
+    <string name="channel_info_handle_info">The name of the subdirectory used to navigate to a
+        channel using the site URL appended with the handle name. Must use only valid URL inputs</string>
+
+    <string name="all_members_toolbar">All Members</string>
+    <string name="add_members_toolbar">Add Members</string>
+
+    <string name="channel_header">Edit header</string>
+    <string name="channel_header_toolbar">Channel Header</string>
+    <string name="group_header_toolbar">Group Header</string>
+    <string name="channel_purpose">Edit purpose</string>
+    <string name="channel_purpose_toolbar">Channel Purpose</string>
+    <string name="group_purpose_toolbar">Group Purpose</string>
+    <string name="channel_name_toolbar">Channel Name</string>
+    <string name="group_name_toolbar">Group Name</string>
+    <string name="channel_display_name">Display Name</string>
+    <string name="channel_handle_name">Handle</string>
+    <string name="channel_display_name_edit">Edit name</string>
+    <string name="channel_name_edit">Edit handle</string>
+
+                    <!--Push notifications-->
+    <string name="notification_sent_attachment">"did something new"</string>
+    <string name="notification_sent_pic">"sent picture"</string>
+    <string name="notification_sent_file">uploaded a file</string>
+
+    <string name="ellipsis" msgid="7899829516048813237">"…"</string>
+
+                    <!--Logout dialog-->
+    <string name="logout_dialog_title">WOW!</string>
+    <string name="logout_dialog_message">Do you really want to log out?</string>
+    <string name="logout_dialog_button">LOG OUT</string>
+
+                    <!--Jump into the conversation-->
+    <string name="jump_title">Do you want to jump into the conversation with %1$s ?</string>
+    <string name="jump_button">Jump</string>
 
 </resources>

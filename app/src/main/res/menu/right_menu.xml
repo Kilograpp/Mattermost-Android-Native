@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:icon="@drawable/menu_switch_icon"
+        android:title="@string/switch_team"
+        android:id="@+id/switch_team" />
+    <item
+        android:icon="@drawable/menu_files_icon"
+        android:id="@+id/files"
+        android:title="@string/files" />
+
+    <item
+        android:icon="@drawable/menu_settings_icon"
+        android:id="@+id/settings"
+        android:title="@string/settings" />
+
+    <item
+        android:icon="@drawable/menu_invite_icon"
+        android:id="@+id/invite_new_member"
+        android:title="@string/invite_new_member" />
+
+    <!--<item-->
+        <!--android:icon="@drawable/menu_help_icon"-->
+        <!--android:id="@+id/help"-->
+        <!--android:title="@string/help"/>-->
+
+    <!--<item-->
+        <!--android:icon="@drawable/menu_report_icon"-->
+        <!--android:id="@+id/report_a_problem"-->
+        <!--android:title="@string/report_a_problem"/>-->
+
+    <item
+        android:icon="@drawable/menu_question_icon"
+        android:id="@+id/about_mattermost"
+        android:title="@string/about_mattermost"/>
+
+    <item
+        android:icon="@drawable/menu_logout_icon"
+        android:id="@+id/logout"
+        android:title="@string/logout"/>
+
+</menu>

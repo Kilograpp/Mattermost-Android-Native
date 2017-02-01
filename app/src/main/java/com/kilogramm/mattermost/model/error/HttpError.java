@@ -14,11 +14,21 @@ public class HttpError {
     @SerializedName("detailed_error")
     private String detailedError;
     @SerializedName("request_id")
-    private String reuestId;
+    private String requestId;
     @SerializedName("status_code")
     private Integer statusCode;
     @SerializedName("is_oauth")
     private Boolean isOauth;
+    @SerializedName("error")
+    private String error;
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
 
     public String getId() {
         return id;
@@ -44,12 +54,12 @@ public class HttpError {
         this.detailedError = detailedError;
     }
 
-    public String getReuestId() {
-        return reuestId;
+    public String getRequestId() {
+        return requestId;
     }
 
-    public void setReuestId(String reuestId) {
-        this.reuestId = reuestId;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public Integer getStatusCode() {

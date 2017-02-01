@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar_layout" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <android.support.design.widget.CoordinatorLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/about_margin_top">
+
+                    <ImageView
+                        android:layout_width="@dimen/about_big_icon_size"
+                        android:layout_height="@dimen/about_big_icon_size"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_mm" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|bottom"
+                        app:srcCompat="@drawable/logo" />
+
+                </android.support.design.widget.CoordinatorLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/about_margin_top"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/textBigBlackHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:text="@string/about_team_edition" />
+
+                    <TextView
+                        style="@style/textNormalGrey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/about_margin_start_end"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:layout_marginTop="@dimen/about_margin_top_small"
+                        android:text="@string/about_long_text" />
+
+                    <TextView
+                        style="@style/textBigBlackBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/about_margin_start_end"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:layout_marginTop="@dimen/about_margin_top_normal"
+                        android:text="@string/about_version" />
+
+                    <TextView
+                        android:id="@+id/text_view_mattermost_org"
+                        style="@style/linkSmallNormalBlack"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/about_margin_start_end"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:layout_marginTop="@dimen/about_margin_top_normal"
+                        android:autoLink="web"
+                        android:text="@string/about_mattermost_org" />
+
+                    <TextView
+                        android:id="@+id/text_view_kilograpp_team"
+                        style="@style/linkSmallNormalBlack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="@dimen/about_margin_start_end"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:layout_marginTop="@dimen/about_margin_top_small"
+                        android:text="@string/about_kilograpp" />
+
+                    <TextView
+                        style="@style/textNormalGrey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/about_margin_bottom_small"
+                        android:layout_marginEnd="@dimen/about_margin_start_end"
+                        android:layout_marginStart="@dimen/about_margin_start_end"
+                        android:layout_marginTop="@dimen/about_margin_top_big"
+                        android:text="@string/about_copyright" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>

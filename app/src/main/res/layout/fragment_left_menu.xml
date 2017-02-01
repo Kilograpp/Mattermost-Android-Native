@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/left_swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v4.widget.NestedScrollView
+                android:id="@+id/left_menu_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical">
+
+                    <include
+                        android:id="@+id/left_menu_header"
+                        layout="@layout/left_menu_header" />
+
+
+                        <LinearLayout
+                            android:background="@color/colorPrimary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <include
+                                android:id="@+id/fr_channel"
+                                layout="@layout/fragment_menu_channel_list" />
+
+                            <include
+                                android:id="@+id/fr_private"
+                                layout="@layout/fragment_menu_private_list" />
+
+                            <include
+                                android:id="@+id/fr_direct"
+                                layout="@layout/fragment_menu_direct_list" />
+
+                            <LinearLayout
+                                android:id="@+id/errorLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center"
+                                android:visibility="gone">
+
+                                <TextView
+                                    android:id="@+id/errorText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:gravity="center"
+                                    android:padding="10dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                </LinearLayout>
+            </android.support.v4.widget.NestedScrollView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </FrameLayout>
+</layout>

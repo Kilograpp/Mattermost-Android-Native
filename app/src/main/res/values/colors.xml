@@ -1,17 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#258ad7</color>
+    <!--<color name="colorPrimary">#258ad7</color>-->
     <color name="colorPrimaryDark">#227dc2</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="error_color">#f1453d</color>
 
     <color name="white">#FFF</color>
     <color name="black">#000</color>
-    <color name="grey">#999999</color>
+    <color name="dark_grey">#606060</color>
+    <color name="grey">#8798a4</color>
     <color name="light_grey">#c9c9c9</color>
     <color name="very_light_grey">#d7dee3</color>
+    <color name="very_much_light_grey">#e7eef3</color>
+    <color name="background_activity_grey">#efeff4</color>
     <color name="transparent">#00000000</color>
+
+    <color name="green_send_massage">#00bf30</color>
+    <color name="red_error_send_massage">#d1353d</color>
 
     <color name="blue_selected">#d7ecfa</color>
     <color name="blue_light_selected">#e6f3fa</color>
 
+    <color name="file_picker_icon">#e7c702</color>
+
+    <color name="comment_cardview_Background">#f7f7f7</color>
+
+    <!--Avocode colors-->
+    <color name="colorPrimary">#2380c2</color>
+    <color name="hint_grey">#767676</color>
+    <color name="color_highlight">#d3ddfb</color>
+    <color name="color_header">#2972a1</color>
+
+    <color name="light_blue">#007aff</color>
+
+    <!--Channel-->
+    <color name="textColorRed">#e21b3e</color>
+    <color name="icon_team_color_end">#008edc</color>
+    <color name="title_grey">#8798a4</color>
+    <color name="title_blue">#007aff</color>
+
+    <color name="notification_blue">#0179fb</color>
 </resources>

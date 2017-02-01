@@ -27,8 +27,11 @@ public class MattermostPreference {
     private static final String MY_USER_ID = "my_user_id";
     private static final String COOKIES = "cookies";
     private static final String AUTH_TOKEN = "auth_token";
+    private static final String LAST_CHANNEL_ID = "last_channel_id";
+    private static final String TEAM_ID = "team_id";
+    private static final String SITE_NAME = "site_name";
 
-    public MattermostPreference(Context context){
+    public MattermostPreference(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
     }
 
@@ -39,22 +42,51 @@ public class MattermostPreference {
         return instance;
     }
 
-    public String getBaseUrl(){
-        return sharedPreferences.getString(BASE_URL,null);
+    public String getSiteName(){
+        return sharedPreferences.getString(SITE_NAME,null);
     }
-    public void setBaseUrl(String baseUrl){
+
+    public void setSiteName(String teamId){
+        sharedPreferences.edit().putString(SITE_NAME, teamId).apply();
+    }
+
+    public String getTeamId(){
+        return sharedPreferences.getString(TEAM_ID, null);
+    }
+
+    public void setTeamId(String teamId){
+        sharedPreferences.edit().putString(TEAM_ID, teamId).apply();
+    }
+
+    public String getBaseUrl() {
+        return sharedPreferences.getString(BASE_URL, null);
+    }
+
+    public void setBaseUrl(String baseUrl) {
         sharedPreferences.edit().putString(BASE_URL, baseUrl).apply();
     }
 
-    public String getAuthToken(){
-        return sharedPreferences.getString(AUTH_TOKEN,null);
+    public void setLastChannelId(String id) {
+        sharedPreferences.edit().putString(LAST_CHANNEL_ID, id).apply();
     }
-    public void setAuthToken(String authToken){
+
+    public String getLastChannelId() {
+        return sharedPreferences.getString(LAST_CHANNEL_ID, null);
+    }
+
+    public String getAuthToken() {
+        return sharedPreferences.getString(AUTH_TOKEN, null);
+    }
+
+    public void setAuthToken(String authToken) {
         sharedPreferences.edit().putString(AUTH_TOKEN, authToken).apply();
     }
 
-    public String getMyUserId() { return sharedPreferences.getString(MY_USER_ID, null);}
-    public void setMyUserId(String id){
+    public String getMyUserId() {
+        return sharedPreferences.getString(MY_USER_ID, null);
+    }
+
+    public void setMyUserId(String id) {
         sharedPreferences.edit().putString(MY_USER_ID, id).apply();
     }
 
@@ -64,10 +96,12 @@ public class MattermostPreference {
         sharedPreferences.edit().putString(COOKIES, json).apply();
         Log.d(TAG, json);
     }
-    public List<Cookie> getCookies(){
+
+    public List<Cookie> getCookies() {
         String json = sharedPreferences.getString(COOKIES, null);
-        Type type = new TypeToken<List<Cookie>>(){}.getType();
-        if(json != null) {
+        Type type = new TypeToken<List<Cookie>>() {
+        }.getType();
+        if (json != null) {
             return new Gson().fromJson(json, type);
         } else {
             return null;

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_header"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:elevation="0dp"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/team_header_text"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/team_header_text"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:clickable="false"
+            app:srcCompat="@drawable/ic_menu_team_icon" />
+    </RelativeLayout>
+</layout>
