@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mattermost</string>
+    <string name="app_name">Matternative</string>
     <string name="main_description">All your team communication in one place, searchable and accessible anywhere.</string>
 
     <string name="main_title_url">Your team URL</string>
