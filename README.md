@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/Kilograpp/Mattermost-Android-Native.svg?branch=master)](https://travis-ci.org/Kilograpp/Mattermost-iOS-Swift)
+
 # Mattermost-Android-Native
 
 This is fully native Mattermost Android application written in Java.
