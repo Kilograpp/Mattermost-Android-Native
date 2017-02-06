@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.model.error.HttpError;
 
@@ -102,7 +103,8 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
             return "No connection to the network";
         } else if (e instanceof HttpException) {
             try {
-                HttpError error = new Gson().fromJson(((HttpException) e).response()
+                HttpError error = new Gson().fromJson(((HttpException) e)
+                        .response()
                         .errorBody()
                         .string(), HttpError.class);
 
@@ -218,6 +220,9 @@ public class BaseRxPresenter<ViewType> extends RxPresenter<ViewType> {
                         (error.getMessage() != null) ? error.getMessage() : error.getError() :
                         e.getMessage();
             } catch (IOException e1) {
+                return e.getMessage();
+            } catch (JsonSyntaxException exception){
+                exception.printStackTrace();
                 return e.getMessage();
             }
         } else if (e instanceof UnknownHostException) {

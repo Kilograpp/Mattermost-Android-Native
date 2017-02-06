@@ -27,7 +27,8 @@ public class MattermostRetrofitService {
 
     public static ApiMethod create() throws IllegalArgumentException {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.NONE);
+        // TODO перед релизом выставлдять на NONE
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         HttpLoggingInterceptor headerInterception = new HttpLoggingInterceptor();
         headerInterception.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client;
