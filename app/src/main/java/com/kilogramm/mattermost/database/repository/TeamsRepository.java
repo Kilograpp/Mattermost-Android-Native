@@ -8,5 +8,5 @@ public class TeamsRepository {
 
     public static final String TABLE_NAME_TEAMS = "Teams";
 
-    public static final String FIELD_NAME_NAME = "name";
+    public static final String FIELD_NAME = "name";
 }
