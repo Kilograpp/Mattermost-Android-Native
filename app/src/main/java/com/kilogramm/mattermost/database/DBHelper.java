@@ -25,8 +25,10 @@ import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "mattermostDb, db";
+    private static final String DB_NAME = "mattermostDb.db";
     private static final int DB_VERSION = 1;
+
+    public static final String FIELD_COMMON_ID = "_id";
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -51,7 +53,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void addUsersTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" +  TABLE_NAME_USERS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + UsersRepository.FIELD_USER_NAME + " TEXT,"
                 + UsersRepository.FIELD_NICK_NAME + " TEXT,"
                 + UsersRepository.FIELD_EMAIL + " TEXT,"
@@ -68,7 +70,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void addPostsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" +  TABLE_NAME_POSTS + "("
-                + "_id TEXT PRIMARY KEY"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY"
                 + PostsRepository.FIELD_CREATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_UPDATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_DELETED_AT + " BIGINT,"
@@ -87,7 +89,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void addChannelsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" +  TABLE_NAME_CHANNELS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + ChannelsRepository.FIELD_TYPE + " INTEGER,"
                 + ChannelsRepository.FIELD_DISPLAY_NAME + " TEXT,"
                 + ChannelsRepository.FIELD_NAME + " TEXT,"
@@ -105,14 +107,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void addTeamsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" + TABLE_NAME_TEAMS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + TeamsRepository.FIELD_NAME + " TEXT"
                 + ");");
     }
 
     private void addFileInfosTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" + FileInfosRepository.TABLE_NAME_FILE_INFOS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + FileInfosRepository.FIELD_NAME + " TEXT,"
                 + FileInfosRepository.FIELD_MIME_TYPE + " TEXT,"
                 + FileInfosRepository.FIELD_SIZE + " INTEGER,"
@@ -120,14 +122,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 + FileInfosRepository.FIELD_WIDTH + " INTEGER,"
                 + FileInfosRepository.FIELD_HEIGHT + " INTEGER,"
                 + FileInfosRepository.FIELD_POST_ID + " TEXT,"
-                + FileInfosRepository.FIELD_NAME + " TEXT,"
+                + FileInfosRepository.FIELD_STATE + " TEXT,"
                 + "FOREIGN KEY(" + FileInfosRepository.FIELD_POST_ID + ") REFERENCES " + TABLE_NAME_POSTS + "(_id)"
                 + ");");
     }
 
     private void addPropsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" + TABLE_NAME_PROPS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + PropsRepository.FIELD_FROM_WEBHOOK + " TEXT,"
                 + PropsRepository.FIELD_OVERRIDE_USER_NAME + " TEXT"
                 + ");");
@@ -135,7 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void addAttachmentsTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE" + TABLE_NAME_ATTACHMENTS + "("
-                + "_id TEXT PRIMARY KEY,"
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + AttachmentsRepository.FIELD_COLOR + " TEXT,"
                 + AttachmentsRepository.FIELD_FALLBACK + " TEXT,"
                 + AttachmentsRepository.FIELD_TEXT + " TEXT,"
