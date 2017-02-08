@@ -279,7 +279,7 @@ public class MattermostContentProvider extends ContentProvider {
         if (TextUtils.isEmpty(selection)) {
             selection = FIELD_COMMON_ID + " = " + id;
         } else {
-            selection = FIELD_COMMON_ID + " = " + id + "AND" + selection;
+            selection = selection + "AND" + FIELD_COMMON_ID + " = " + id;
         }
         return selection;
     }
