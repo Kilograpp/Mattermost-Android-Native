@@ -4,13 +4,19 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.kilogramm.mattermost.database.repository.AttachmentsRepository;
 import com.kilogramm.mattermost.database.repository.ChannelsRepository;
+import com.kilogramm.mattermost.database.repository.FileInfosRepository;
 import com.kilogramm.mattermost.database.repository.PostsRepository;
+import com.kilogramm.mattermost.database.repository.PropsRepository;
 import com.kilogramm.mattermost.database.repository.TeamsRepository;
 import com.kilogramm.mattermost.database.repository.UsersRepository;
 
+import static com.kilogramm.mattermost.database.repository.AttachmentsRepository.TABLE_NAME_ATTACHMENTS;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
+import static com.kilogramm.mattermost.database.repository.PropsRepository.TABLE_NAME_PROPS;
+import static com.kilogramm.mattermost.database.repository.TeamsRepository.TABLE_NAME_TEAMS;
 import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE_NAME_USERS;
 
 /**
@@ -19,8 +25,8 @@ import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    static final String DB_NAME = "mattermostDb, db";
-    static final int DB_VERSION = 1;
+    private static final String DB_NAME = "mattermostDb, db";
+    private static final int DB_VERSION = 1;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -33,6 +39,9 @@ public class DBHelper extends SQLiteOpenHelper {
         addPostsTable(db);
         addChannelsTable(db);
         addTeamsTable(db);
+        addFileInfosTable(db);
+        addPropsTable(db);
+        addAttachmentsTable(db);
     }
 
     @Override
@@ -63,13 +72,16 @@ public class DBHelper extends SQLiteOpenHelper {
                 + PostsRepository.FIELD_CREATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_UPDATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_DELETED_AT + " BIGINT,"
-                + PostsRepository.FIELD_USER_ID + " TEXT FOREIGN KEY REFERENCES Users(userId),"
+                + PostsRepository.FIELD_USER_ID + " TEXT,"
                 + PostsRepository.FIELD_ROOT_ID + " TEXT,"
                 + PostsRepository.FIELD_MESSAGE + " TEXT,"
-                + PostsRepository.FIELD_CHANNEL_ID + " TEXT FOREIGN KEY REFERENCES Channels(channelId),"
+                + PostsRepository.FIELD_CHANNEL_ID + " TEXT,"
                 + PostsRepository.FIELD_PENDING_POST_ID + " TEXT,"
-                + PostsRepository.FIELD_PROPS_ID + " INTEGER FOREIGN KEY REFERENCES Props(propsId),"
-                + PostsRepository.FIELD_TYPE + " TEXT"
+                + PostsRepository.FIELD_PROPS_ID + " INTEGER,"
+                + PostsRepository.FIELD_TYPE + " TEXT,"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_USER_ID + ") REFERENCES " + TABLE_NAME_USERS + "(_id),"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_CHANNEL_ID + ") REFERENCES " + TABLE_NAME_CHANNELS + "(_id),"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_PROPS_ID + ") REFERENCES " +  TABLE_NAME_PROPS + "(_id)"
                 + ");");
     }
 
@@ -86,14 +98,49 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ChannelsRepository.FIELD_MENTIONS_COUNT + " INTEGER"
                 + ChannelsRepository.FIELD_MEMBER_COUNT + " INTEGER,"
                 + ChannelsRepository.FIELD_CREATOR_ID + " TEXT,"
-                + ChannelsRepository.FIELD_TEAM_ID + " TEXT FOREIGN KEY REFERENCES Teams(teamId)"
+                + ChannelsRepository.FIELD_TEAM_ID + " TEXT,"
+                + "FOREIGN KEY(" + ChannelsRepository.FIELD_TEAM_ID + ") REFERENCES " + TABLE_NAME_TEAMS + "(_id)"
                 + ");");
     }
 
     private void addTeamsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" + TeamsRepository.TABLE_NAME_TEAMS + "("
+        db.execSQL("CREATE TABLE" + TABLE_NAME_TEAMS + "("
                 + "_id TEXT PRIMARY KEY,"
                 + TeamsRepository.FIELD_NAME + " TEXT"
+                + ");");
+    }
+
+    private void addFileInfosTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE" + FileInfosRepository.TABLE_NAME_FILE_INFOS + "("
+                + "_id TEXT PRIMARY KEY,"
+                + FileInfosRepository.FIELD_NAME + " TEXT,"
+                + FileInfosRepository.FIELD_MIME_TYPE + " TEXT,"
+                + FileInfosRepository.FIELD_SIZE + " INTEGER,"
+                + FileInfosRepository.FIELD_HAS_PREVIEW_IMAGE + " BOOLEAN,"
+                + FileInfosRepository.FIELD_WIDTH + " INTEGER,"
+                + FileInfosRepository.FIELD_HEIGHT + " INTEGER,"
+                + FileInfosRepository.FIELD_POST_ID + " TEXT,"
+                + FileInfosRepository.FIELD_NAME + " TEXT,"
+                + "FOREIGN KEY(" + FileInfosRepository.FIELD_POST_ID + ") REFERENCES " + TABLE_NAME_POSTS + "(_id)"
+                + ");");
+    }
+
+    private void addPropsTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE" + TABLE_NAME_PROPS + "("
+                + "_id TEXT PRIMARY KEY,"
+                + PropsRepository.FIELD_FROM_WEBHOOK + " TEXT,"
+                + PropsRepository.FIELD_OVERRIDE_USER_NAME + " TEXT"
+                + ");");
+    }
+
+    private void addAttachmentsTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE" + TABLE_NAME_ATTACHMENTS + "("
+                + "_id TEXT PRIMARY KEY,"
+                + AttachmentsRepository.FIELD_COLOR + " TEXT,"
+                + AttachmentsRepository.FIELD_FALLBACK + " TEXT,"
+                + AttachmentsRepository.FIELD_TEXT + " TEXT,"
+                + AttachmentsRepository.FIELD_PROPS_ID + " INTEGER,"
+                + "FOREIGN KEY(" + AttachmentsRepository.FIELD_PROPS_ID + ") REFERENCES " + TABLE_NAME_PROPS + "(_id)"
                 + ");");
     }
 }

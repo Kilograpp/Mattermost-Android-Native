@@ -43,7 +43,6 @@ public class MattermostContentProvider extends ContentProvider {
     private static final int CODE_USERS_WITH_ID = 8;
 
     private DBHelper mDbHelper;
-    private SQLiteDatabase mDatabase;
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
@@ -70,7 +69,7 @@ public class MattermostContentProvider extends ContentProvider {
                         String selection,
                         String[] selectionArgs,
                         String sortOrder) {
-        mDatabase = mDbHelper.getWritableDatabase();
+        SQLiteDatabase mDatabase = mDbHelper.getWritableDatabase();
         String tableName;
         Uri notificationUri = null;
         switch (sUriMatcher.match(uri)){
