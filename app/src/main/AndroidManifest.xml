@@ -177,7 +177,8 @@
 
         <provider
             android:authorities="com.kilogramm.mattermost.provider"
-            android:name=".database.MattermostContentProvider"/>
+            android:name=".database.MattermostContentProvider"
+            android:exported="false"/>
 
         <meta-data
             android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"
