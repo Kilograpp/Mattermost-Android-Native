@@ -175,6 +175,11 @@
 
         <service android:name=".service.MattermostService" />
 
+        <provider
+            android:authorities="com.kilogramm.mattermost.provider"
+            android:name=".database.MattermostContentProvider"
+            android:exported="false"/>
+
         <meta-data
             android:name="com.kilogramm.mattermost.network.glide.UnsafeOkHttpGlideModule"
             android:value="GlideModule" />
