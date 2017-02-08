@@ -7,7 +7,6 @@ import android.util.Patterns;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.net.URI;
@@ -15,8 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import icepick.State;
-import io.realm.Realm;
-import io.realm.RealmResults;
 import rx.schedulers.Schedulers;
 
 /**
@@ -46,13 +43,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io());
         }, (mainActivity, initObject) -> {
-            Realm realm = Realm.getDefaultInstance();
-            realm.executeTransaction(realm1 -> {
-                RealmResults<ClientCfg> results = realm.where(ClientCfg.class).findAll();
-                results.deleteAllFromRealm();
-                realm.copyToRealmOrUpdate(initObject.getClientCfg());
-            });
-            realm.close();
+            MattermostPreference.getInstance().setSiteName(initObject.getClientCfg().getSiteName());
             sendVisibleProgress(false);
             sendShowLoginActivity();
             sendShowNextButton(true);
