@@ -158,47 +158,19 @@ public class MattermostContentProvider extends ContentProvider {
         String tableName;
         switch (sUriMatcher.match(uri)) {
             case CODE_CHANNELS:
-                tableName = TABLE_NAME_CHANNELS;
-                break;
             case CODE_CHANNELS_WITH_ID:
-                if (TextUtils.isEmpty(selection)) {
-                    long id = ContentUris.parseId(uri);
-                    selection = String.format("%s = ?", FIELD_COMMON_ID);
-                    selectionArgs = new String[]{String.valueOf(id)};
-                }
                 tableName = TABLE_NAME_CHANNELS;
                 break;
             case CODE_POSTS:
-                tableName = TABLE_NAME_POSTS;
-                break;
             case CODE_POSTS_WITH_ID:
-                if (TextUtils.isEmpty(selection)) {
-                    long id = ContentUris.parseId(uri);
-                    selection = String.format("%s = ?", FIELD_COMMON_ID);
-                    selectionArgs = new String[]{String.valueOf(id)};
-                }
                 tableName = TABLE_NAME_POSTS;
                 break;
             case CODE_TEAMS:
-                tableName = TABLE_NAME_TEAMS;
-                break;
             case CODE_TEAMS_WITH_ID:
-                if (TextUtils.isEmpty(selection)) {
-                    long id = ContentUris.parseId(uri);
-                    selection = String.format("%s = ?", FIELD_COMMON_ID);
-                    selectionArgs = new String[]{String.valueOf(id)};
-                }
                 tableName = TABLE_NAME_TEAMS;
                 break;
             case CODE_USERS:
-                tableName = TABLE_NAME_USERS;
-                break;
             case CODE_USERS_WITH_ID:
-                if (TextUtils.isEmpty(selection)) {
-                    long id = ContentUris.parseId(uri);
-                    selection = String.format("%s = ?", FIELD_COMMON_ID);
-                    selectionArgs = new String[]{String.valueOf(id)};
-                }
                 tableName = TABLE_NAME_USERS;
                 break;
             default:

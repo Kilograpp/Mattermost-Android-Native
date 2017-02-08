@@ -36,7 +36,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.setForeignKeyConstraintsEnabled(true);
         addUsersTable(db);
         addPostsTable(db);
         addChannelsTable(db);
@@ -44,6 +43,12 @@ public class DBHelper extends SQLiteOpenHelper {
         addFileInfosTable(db);
         addPropsTable(db);
         addAttachmentsTable(db);
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
