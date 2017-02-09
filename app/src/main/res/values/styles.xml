@@ -1,7 +1,4 @@
 <resources>
-
-    <!--TODO this file needs review and refactor -->
-
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:textColorHint">@color/grey</item>
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button</item>
