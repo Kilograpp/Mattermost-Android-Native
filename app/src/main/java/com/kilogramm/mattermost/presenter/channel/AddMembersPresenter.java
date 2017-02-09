@@ -176,7 +176,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
             }catch (Exception e){
                 e.printStackTrace();
             }
-            addMembersActivity.requestMember("User added");
+            addMembersActivity.requestMember("ResponsedUser added");
             removeListUser(mUser_id);
         }));
     }

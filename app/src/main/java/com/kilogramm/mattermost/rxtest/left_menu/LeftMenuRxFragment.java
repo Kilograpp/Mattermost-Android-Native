@@ -120,6 +120,11 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         getPresenter().requestInit(Stream.of(mPreferences)
                 .filter(value -> Objects.equals(value.getValue(), "true"))
                 .collect(Collectors.toList()));
+
+        getPresenter().requestInitV2(Stream.of(mPreferences)
+                .filter(value -> Objects.equals(value.getValue(), "true"))
+                .collect(Collectors.toList()));
+
         return view;
     }
 
@@ -174,6 +179,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
     @Override
     public void onRefresh() {
         getPresenter().requestUpdate();
+        getPresenter().requestUpdateV2();
     }
 
     public void setSelectItemMenu(String id, String typeChannel) {
@@ -243,6 +249,7 @@ public class LeftMenuRxFragment extends BaseFragment<LeftMenuRxPresenter> implem
         RealmResults<Channel> channels = ChannelRepository.query(new ChannelDirectByIdSpecification(userTalkToId));
         if (channels.size() == 0) {
             getPresenter().requestSaveData(saveData, userTalkToId);
+            getPresenter().requestSaveDataV2(saveData, userTalkToId);
         } else {
             onChannelClick(channels.get(0).getId(),
                     channels.get(0).getUsername(),

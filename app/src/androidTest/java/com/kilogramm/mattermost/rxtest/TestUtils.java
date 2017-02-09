@@ -21,7 +21,7 @@
 //import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 //import com.kilogramm.mattermost.model.entity.post.Post;
 //import com.kilogramm.mattermost.model.entity.team.Team;
-//import com.kilogramm.mattermost.model.entity.user.User;
+//import com.kilogramm.mattermost.model.entity.user.ResponsedUser;
 //
 //import org.hamcrest.Description;
 //import org.hamcrest.Matcher;
@@ -56,7 +56,7 @@
 //            realm1.delete(Team.class);
 //            realm1.delete(InitObject.class);
 //            realm1.delete(ThemeProps.class);
-//            realm1.delete(User.class);
+//            realm1.delete(ResponsedUser.class);
 //        });
 //    }
 //

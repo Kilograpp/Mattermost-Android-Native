@@ -15,6 +15,7 @@ import com.kilogramm.mattermost.model.entity.member.MembersRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
 import com.kilogramm.mattermost.model.entity.usermember.UserMemberRepository;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
+import com.kilogramm.mattermost.model.request.RequestUser;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 
@@ -34,20 +35,30 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     private static final int REQUEST_UPDATE = 2;
     private static final int REQUEST_INIT = 3;
 
+    private static final int REQUEST_SAVE_V2 = 4;
+    private static final int REQUEST_UPDATE_V2 = 5;
+    private static final int REQUEST_INIT_V2 = 6;
+
     private ListPreferences mListPreferences = new ListPreferences();
     private LogoutData mUser;
 
     private String mTeamId;
     private List<String> mDirectIds = new ArrayList<>();
 
+    /**/
+    private ListPreferences mListPreferencesV2 = new ListPreferences();
+    private RequestUser mUserV2;
+    private List<String> mDirectIdsV2 = new ArrayList<>();
+    /**/
+
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         mUser = new LogoutData();
+        mUserV2 = new RequestUser();
         mTeamId = MattermostPreference.getInstance().getTeamId();
         initRequest();
     }
-
 
     public void requestSaveData(Preferences data, String userId) {
         mListPreferences.getmSaveData().clear();
@@ -70,6 +81,11 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
         initLeftMenuRequest();
         initSaveRequest();
         initChannelUpdateRequest();
+
+        //
+        initLeftMenuRequestV2();
+        initChannelUpdateRequestV2();
+        initSaveRequestV2();
     }
 
     private void initLeftMenuRequest() {
@@ -122,7 +138,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     sendSetRefreshAnimation(false);
                     Log.d(TAG, throwable.getMessage());
                 });
-
     }
 
     private void initSaveRequest() {
@@ -142,6 +157,99 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                     }
                 }, (leftMenuRxFragment, throwable) -> throwable.printStackTrace());
     }
+
+
+
+
+    /*SQLite area*/
+    public void requestSaveDataV2(Preferences data, String userId) {
+        mListPreferences.getmSaveData().clear();
+        mListPreferences.getmSaveData().add(data);
+        mUserV2.setUserId(userId);
+        start(REQUEST_SAVE_V2);
+    }
+
+    public void requestUpdateV2() {
+        getIds().subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(strings -> {
+                    mDirectIdsV2.clear();
+                    mDirectIdsV2.addAll(strings);
+                    start(REQUEST_UPDATE_V2);
+                });
+    }
+
+    public void requestInitV2(List<Preferences> preferences) {
+        this.mDirectIdsV2.clear();
+        List<String> ids = Stream.of(preferences)
+                .map(Preferences::getName)
+                .collect(Collectors.toList());
+        this.mDirectIdsV2.addAll(ids);
+        start(REQUEST_INIT_V2);
+    }
+
+    private void initLeftMenuRequestV2() {
+        restartableFirst(REQUEST_INIT_V2, () ->
+                        ServerMethod.getInstance()
+                                .loadLeftMenuV2(mDirectIdsV2, MattermostPreference.getInstance().getTeamId())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io())
+                , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
+//                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
+//                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
+//                    ChannelRepository.add(responseLeftMenuData.getChannels());
+//                    MembersRepository.add(responseLeftMenuData.getMembers());
+                    sendUpdateMenuView();
+                    sendShowLeftMenu();
+                    sendSelectLastChannel();
+                }, (leftMenuRxFragment, throwable) -> {
+                    sendErrorLoading(parceError(throwable, null));
+                    throwable.printStackTrace();
+                });
+    }
+
+    private void initChannelUpdateRequestV2() {
+        restartableFirst(REQUEST_UPDATE_V2,
+                () -> ServerMethod.getInstance()
+                        .loadLeftMenuV2(mDirectIdsV2, MattermostPreference.getInstance().getTeamId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
+//                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
+//                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
+//                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(), MattermostPreference.getInstance().getMyUserId());
+//                    MembersRepository.add(responseLeftMenuData.getMembers());
+                    sendSetRefreshAnimation(false);
+                    sendInvalidateData();
+                    sendSelectLastChannel();
+                }, (leftMenuRxFragment, throwable) -> {
+                    throwable.printStackTrace();
+                    sendSetRefreshAnimation(false);
+                    Log.d(TAG, throwable.getMessage());
+                });
+    }
+
+    private void initSaveRequestV2() {
+        restartableFirst(REQUEST_SAVE_V2,
+                () -> ServerMethod.getInstance()
+                        .saveOrCreateDirectChannelV2(mListPreferencesV2.getmSaveData(),
+                                mTeamId,
+                                mUserV2.getUserId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io()),
+                (leftMenuRxFragment, channel) -> {
+                    if (channel != null) {
+//                        ChannelRepository.prepareDirectChannelAndAdd(channel, mUser.getUserId());
+                        mListPreferencesV2.getmSaveData().clear();
+                        if (channel.getId() != null)
+                            sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
+                    }
+                }, (leftMenuRxFragment, throwable) -> throwable.printStackTrace());
+    }
+    /*end SQLite area*/
+
+
+
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
         createTemplateObservable(new Channel(channelId, name, type))

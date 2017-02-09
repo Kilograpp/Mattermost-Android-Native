@@ -11,7 +11,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by User on 26.12.2016.
+ * Created by ResponsedUser on 26.12.2016.
  */
 
 public class FileInfo extends RealmObject implements Parcelable {
