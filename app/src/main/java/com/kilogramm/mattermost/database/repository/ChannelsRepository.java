@@ -44,9 +44,7 @@ public class ChannelsRepository {
             values.put(FIELD_PURPOSE, item.getPurpose());
             values.put(FIELD_MESSAGE_COUNT, item.getUnreadedMessage());
             values.put(FIELD_TOTAL_MESSAGE_COUNT, item.getTotalMsgCount());
-            values.put(FIELD_MENTIONS_COUNT, item.getTotalMsgCount()); //temp
-//            values.put(FIELD_MENTIONS_COUNT, item.get());
-//            values.put(FIELD_MEMBER_COUNT, item.get());
+            values.put(FIELD_MENTIONS_COUNT, 0); // так как это значение приходит не от сервака
             values.put(FIELD_CREATOR_ID, item.getCreatorId());
             values.put(FIELD_TEAM_ID, item.getTeamId());
 

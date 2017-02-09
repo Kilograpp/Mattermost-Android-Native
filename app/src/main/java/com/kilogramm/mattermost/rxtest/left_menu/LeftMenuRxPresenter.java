@@ -219,9 +219,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
                     UsersRepository.addResponsedUser(responseLeftMenuDataV2.getStringUserMap());
                     ChannelsRepository.addResponsedChannel(responseLeftMenuDataV2.getChannels());
-//                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
 //                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
-//                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(), MattermostPreference.getInstance().getMyUserId());
 //                    MembersRepository.add(responseLeftMenuData.getMembers());
                     sendSetRefreshAnimation(false);
                     sendInvalidateData();
