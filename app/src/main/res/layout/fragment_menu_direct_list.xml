@@ -18,11 +18,11 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recView"
             android:orientation="vertical"
-            android:nestedScrollingEnabled="false"
+            android:nestedScrollingEnabled="true"
             android:paddingTop="@dimen/left_padding"
             android:paddingBottom="@dimen/left_padding"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="600dp"
             tools:listitem="@layout/item_direction_profile_channel"/>
 
         <TextView

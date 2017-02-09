@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
+import com.kilogramm.mattermost.model.entity.user_v2.UserV2;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.rxtest.left_menu.direct.DirectItem;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
@@ -74,6 +75,29 @@ public class AdapterDirectItemHolder extends BaseLeftHolder {
         }
         mBinding.channelName
                 .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(item.status, mContext),
+                        null, null, null);
+
+        mBinding.executePendingBindings();
+    }
+
+    public void bindTo(UserV2 user, Context mContext) {
+        mBinding.channelName.setText(user.getUsername());
+//        mBinding.unreadedMessage.setText(item.mentionCount != 0
+//                ? "" + item.mentionCount
+//                : "");
+//        if (item.msgCount != item.totalMessageCount) {
+//            setBold(mContext, mBinding.channelName, mBinding.unreadedMessage);
+//        } else {
+//            setDefault(mContext, mBinding.channelName, mBinding.unreadedMessage);
+//        }
+
+//        if (mBinding.linearLayout.isChecked()) {
+//            setTextBlack(mContext, mBinding.channelName, mBinding.unreadedMessage);
+//        } else {
+//            setTextWhite(mContext, mBinding.channelName, mBinding.unreadedMessage);
+//        }
+        mBinding.channelName
+                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(user.getStatus(), mContext),
                         null, null, null);
 
         mBinding.executePendingBindings();

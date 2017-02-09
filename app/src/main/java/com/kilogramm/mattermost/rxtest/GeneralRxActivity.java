@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
 import android.app.Dialog;
-import android.app.DownloadManager;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +20,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMenuBinding;
@@ -31,7 +29,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
-import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragment;
+import com.kilogramm.mattermost.rxtest.left_menu.LeftMenuRxFragmentV2;
 import com.kilogramm.mattermost.rxtest.left_menu.OnChannelChangeListener;
 import com.kilogramm.mattermost.service.MattermostService;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -71,7 +69,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
 
     private ActivityMenuBinding binding;
 
-    private LeftMenuRxFragment leftMenuRxFragment;
+    private LeftMenuRxFragmentV2 leftMenuRxFragment;
 
     @State
     String currentChannel = "";
@@ -279,7 +277,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
     }
 
     private void setupMenu() {
-        leftMenuRxFragment = new LeftMenuRxFragment();
+        leftMenuRxFragment = new LeftMenuRxFragmentV2();
         getFragmentManager().beginTransaction()
                 .replace(binding.leftContainer.getId(), leftMenuRxFragment)
                 .commit();

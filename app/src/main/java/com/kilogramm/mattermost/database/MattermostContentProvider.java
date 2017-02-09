@@ -11,11 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.kilogramm.mattermost.database.repository.ChannelsRepository;
-import com.kilogramm.mattermost.database.repository.PostsRepository;
-import com.kilogramm.mattermost.database.repository.TeamsRepository;
-import com.kilogramm.mattermost.database.repository.UsersRepository;
-
 import static com.kilogramm.mattermost.database.DBHelper.FIELD_COMMON_ID;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
@@ -129,7 +124,7 @@ public class MattermostContentProvider extends ContentProvider {
         Cursor cursor = mDatabase.query(tableName, projection, selection, selectionArgs,
                 null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), notificationUri);
-        return null;
+        return cursor;
     }
 
     @Nullable
