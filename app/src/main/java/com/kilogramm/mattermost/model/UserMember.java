@@ -20,6 +20,7 @@ public class UserMember extends RealmObject {
     @SerializedName("user_id")
     private String userId;
 
+
     public UserMember() {
     }
 
