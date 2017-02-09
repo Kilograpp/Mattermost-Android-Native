@@ -81,29 +81,50 @@ public class MattermostContentProvider extends ContentProvider {
         SQLiteDatabase mDatabase = mDbHelper.getWritableDatabase();
         String tableName;
         Uri notificationUri;
+        boolean withId = false;
         switch (sUriMatcher.match(uri)) {
             case CODE_CHANNELS:
-            case CODE_CHANNELS_WITH_ID:
                 tableName = TABLE_NAME_CHANNELS;
                 notificationUri = CONTENT_URI_CHANNELS;
                 break;
+            case CODE_CHANNELS_WITH_ID:
+                tableName = TABLE_NAME_CHANNELS;
+                notificationUri = CONTENT_URI_CHANNELS;
+                withId = true;
+                break;
             case CODE_POSTS:
-            case CODE_POSTS_WITH_ID:
                 tableName = TABLE_NAME_POSTS;
                 notificationUri = CONTENT_URI_POSTS;
                 break;
+            case CODE_POSTS_WITH_ID:
+                tableName = TABLE_NAME_POSTS;
+                notificationUri = CONTENT_URI_POSTS;
+                withId = true;
+                break;
             case CODE_TEAMS:
-            case CODE_TEAMS_WITH_ID:
                 tableName = TABLE_NAME_TEAMS;
                 notificationUri = CONTENT_URI_TEAMS;
                 break;
+            case CODE_TEAMS_WITH_ID:
+                tableName = TABLE_NAME_TEAMS;
+                notificationUri = CONTENT_URI_TEAMS;
+                withId = true;
+                break;
             case CODE_USERS:
-            case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
                 notificationUri = CONTENT_URI_USERS;
                 break;
+            case CODE_USERS_WITH_ID:
+                tableName = TABLE_NAME_USERS;
+                notificationUri = CONTENT_URI_USERS;
+                withId = true;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
+        }
+
+        if (withId) {
+            selection = addIdToSpecification(uri, selection);
         }
         Cursor cursor = mDatabase.query(tableName, projection, selection, selectionArgs,
                 null, null, sortOrder);
@@ -124,7 +145,6 @@ public class MattermostContentProvider extends ContentProvider {
         Uri resultUri;
         Uri contentUri;
         String tableName;
-        long rowId;
         switch (sUriMatcher.match(uri)) {
             case CODE_CHANNELS:
                 tableName = TABLE_NAME_CHANNELS;
@@ -145,38 +165,53 @@ public class MattermostContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
-        rowId = database.insert(tableName, null, values);
+        long rowId = database.insert(tableName, null, values);
         resultUri = ContentUris.withAppendedId(contentUri, rowId);
         getContext().getContentResolver().notifyChange(resultUri, null);
         return resultUri;
     }
 
-    // TODO продумать нормальный механизм удаления. Сейчас нет защиты от ошибок и не покрываются все ситуации
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         String tableName;
+        boolean withId = false;
         switch (sUriMatcher.match(uri)) {
             case CODE_CHANNELS:
-            case CODE_CHANNELS_WITH_ID:
                 tableName = TABLE_NAME_CHANNELS;
                 break;
+            case CODE_CHANNELS_WITH_ID:
+                tableName = TABLE_NAME_CHANNELS;
+                withId = true;
+                break;
             case CODE_POSTS:
-            case CODE_POSTS_WITH_ID:
                 tableName = TABLE_NAME_POSTS;
                 break;
+            case CODE_POSTS_WITH_ID:
+                tableName = TABLE_NAME_POSTS;
+                withId = true;
+                break;
             case CODE_TEAMS:
-            case CODE_TEAMS_WITH_ID:
                 tableName = TABLE_NAME_TEAMS;
                 break;
+            case CODE_TEAMS_WITH_ID:
+                tableName = TABLE_NAME_TEAMS;
+                withId = true;
+                break;
             case CODE_USERS:
+                tableName = TABLE_NAME_USERS;
+                break;
             case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
+                withId = true;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
 
+        if (withId) {
+            selection = addIdToSpecification(uri, selection);
+        }
         int count = db.delete(tableName, selection, selectionArgs);
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
@@ -188,31 +223,64 @@ public class MattermostContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         String tableName;
+        boolean withId = false;
         switch (sUriMatcher.match(uri)) {
             case CODE_CHANNELS:
-            case CODE_CHANNELS_WITH_ID:
                 tableName = TABLE_NAME_CHANNELS;
                 break;
+            case CODE_CHANNELS_WITH_ID:
+                tableName = TABLE_NAME_CHANNELS;
+                withId = true;
+                break;
             case CODE_POSTS:
-            case CODE_POSTS_WITH_ID:
                 tableName = TABLE_NAME_POSTS;
                 break;
+            case CODE_POSTS_WITH_ID:
+                tableName = TABLE_NAME_POSTS;
+                withId = true;
+                break;
             case CODE_TEAMS:
-            case CODE_TEAMS_WITH_ID:
                 tableName = TABLE_NAME_TEAMS;
                 break;
+            case CODE_TEAMS_WITH_ID:
+                tableName = TABLE_NAME_TEAMS;
+                withId = true;
+                break;
             case CODE_USERS:
+                tableName = TABLE_NAME_USERS;
+                break;
             case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
+                withId = true;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
 
+        if (withId) {
+            selection = addIdToSpecification(uri, selection);
+        }
         int count = db.update(tableName, values, selection, selectionArgs);
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return count;
+    }
+
+    /**
+     * If user specifies uri with item id, call this method to add this id to specification
+     *
+     * @param uri       passed to ContentProvider uri
+     * @param selection specification
+     * @return new specification with item id
+     */
+    private String addIdToSpecification(Uri uri, String selection) {
+        String id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+            selection = FIELD_COMMON_ID + " = " + id;
+        } else {
+            selection = selection + "AND" + FIELD_COMMON_ID + " = " + id;
+        }
+        return selection;
     }
 }
