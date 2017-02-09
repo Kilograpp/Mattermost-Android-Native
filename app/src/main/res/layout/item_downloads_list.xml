@@ -42,14 +42,14 @@
 
             <TextView
                 android:id="@+id/textViewName"
-                style="@style/TextNormalBoldBlack"
+                style="@style/TextBoldBlack"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tool:text="sadf adsfsd.ptx" />
 
             <TextView
                 android:id="@+id/textViewSize"
-                style="@style/textBigGrey"
+                style="@style/TextNormalGrey"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tool:text="4,3 MB" />

@@ -22,7 +22,7 @@
 
         <TextView
             android:id="@+id/textViewMemberName"
-            style="@style/textVeryBigDarkGrey"
+            style="@style/TextVeryBigDarkGrey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -35,7 +35,7 @@
 
         <TextView
             android:id="@+id/textViewStatus"
-            style="@style/textLittleBlue"
+            style="@style/TextSmallBlue"
             android:foregroundGravity="right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

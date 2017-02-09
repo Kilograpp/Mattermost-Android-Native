@@ -53,7 +53,7 @@
                         android:text="@string/about_team_edition" />
 
                     <TextView
-                        style="@style/textNormalGrey"
+                        style="@style/TextSmallLightGrey"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/about_margin_start_end"
@@ -63,7 +63,7 @@
 
                     <TextView
                         android:id="@+id/textViewVesrion"
-                        style="@style/TextBigBoldBlack"
+                        style="@style/TextVeryBigBoldBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/about_margin_start_end"
@@ -93,7 +93,7 @@
                         android:text="@string/about_kilograpp" />
 
                     <TextView
-                        style="@style/textNormalGrey"
+                        style="@style/TextSmallLightGrey"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/about_margin_bottom_small"

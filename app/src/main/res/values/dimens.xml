@@ -13,7 +13,8 @@
 
     <dimen name="text_small">13sp</dimen>
     <dimen name="text_normal">14sp</dimen>
-    <dimen name="text_big">18sp</dimen>
+    <dimen name="text_big">16sp</dimen>
+    <dimen name="text_very_big">18sp</dimen>
     <dimen name="text_large">25sp</dimen>
     <dimen name="text_very_large">35sp</dimen>
 

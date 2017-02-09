@@ -1,6 +1,6 @@
 <resources>
 
-<!--TODO this file needs review and refactor -->
+    <!--TODO this file needs review and refactor -->
 
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:textColorHint">@color/grey</item>
@@ -99,6 +99,10 @@
         <item name="android:textSize">@dimen/text_big</item>
     </style>
 
+    <style name="TextVeryBig" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_very_big</item>
+    </style>
+
     <style name="TextLarge" parent="TextAppearance.AppCompat">
         <item name="android:textSize">@dimen/text_large</item>
     </style>
@@ -114,7 +118,7 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TextNormalBoldWhite" parent="@style/TextNormal">
+    <style name="TextBoldWhite" parent="@style/TextNormal">
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -142,16 +146,16 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="TextNormalBoldBlack" parent="@style/TextNormal">
+    <style name="TextBoldBlack" parent="@style/TextNormal">
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextBigBlack" parent="@style/TextBig">
+    <style name="TextVeryBigBlack" parent="@style/TextVeryBig">
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="TextBigBoldBlack" parent="@style/TextBig">
+    <style name="TextVeryBigBoldBlack" parent="@style/TextVeryBig">
         <item name="android:textColor">@color/black</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -164,82 +168,53 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-
-
-
-
-
-    <!--BLUE-->
-    <style name="textBlue" parent="@android:style/TextAppearance">
+    <!-- Blue -->
+    <style name="TextSmallBlue" parent="@style/TextSmall">
         <item name="android:textColor">@color/title_blue</item>
     </style>
 
-    <style name="textLightBlue" parent="@android:style/TextAppearance">
+    <style name="TextNormalBlue" parent="@style/TextNormal">
+        <item name="android:textColor">@color/title_blue</item>
+    </style>
+
+    <style name="TextBigBoldLightBlue" parent="@style/TextBig">
         <item name="android:textColor">@color/icon_team_color_end</item>
-    </style>
-
-    <style name="textNormalBlue" parent="@style/textBlue"/>
-
-    <style name="textBigLightBlue" parent="textLightBlue">
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="textLightBigBoldBlue" parent="textBigLightBlue">
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="textDarkGreyCaps" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/dark_grey</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">true</item>
-    </style>
-
-    <style name="textLittleBlue" parent="@style/textBlue">
-        <item name="android:textSize">13sp</item>
-    </style>
-
-    <!--RED-->
-    <style name="textRed" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/textColorRed</item>
-    </style>
-
-
-    <!--BLACK-->
-
-
-    <!--GREY-->
-    <style name="textGrey" parent="@android:style/TextAppearance">
+    <!-- Grey -->
+    <style name="TextNormalGrey" parent="@style/TextNormal">
         <item name="android:textColor">@color/grey</item>
     </style>
 
-    <style name="textLittleGrey" parent="@style/textGrey">
-        <item name="android:textSize">13sp</item>
-    </style>
-
-    <style name="textBigGrey" parent="@style/textGrey">
-        <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="textBigDarkGrey" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/dark_grey</item>
-        <item name="android:textSize">18sp</item>
+    <style name="TextSmallLightGrey" parent="@style/TextSmall">
+        <item name="android:textColor">@color/light_grey</item>
     </style>
 
     <style name="textLightGrey" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/light_grey</item>
     </style>
 
-    <style name="textNormalGrey" parent="@style/textLightGrey">
-        <item name="android:textSize">13sp</item>
+    <style name="TextLightGrey" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/light_grey</item>
     </style>
 
-
-    <style name="textVeryBigDarkGrey" parent="@android:style/TextAppearance">
+    <style name="TextVeryBigDarkGrey" parent="@style/TextVeryBig">
         <item name="android:textColor">@color/dark_grey</item>
-        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextNormalDarkGreyCaps" parent="@style/TextNormal">
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Red -->
+    <style name="TextRed" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/textColorRed</item>
     </style>
 
 
+    <!-- =========== HINTS =========== -->
     <style name="DescriptionBlackTextStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/black</item>
         <item name="android:textColorHint">@color/hint_grey</item>

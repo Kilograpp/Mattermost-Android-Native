@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/timeName"
-            style="@style/textVeryBigDarkGrey"
+            style="@style/TextVeryBigDarkGrey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
