@@ -1,9 +1,7 @@
 package com.kilogramm.mattermost;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
@@ -29,11 +27,9 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.FilesView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -91,14 +87,10 @@ public class MattermostApp extends MultiDexApplication {
         PicassoService.create(getApplicationContext());
         MattermostPreference.createInstance(getApplicationContext());
         setupRealm();
-        Stetho.initialize(
-                Stetho.newInitializerBuilder(this)
-                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
-                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this)
-                                .databaseNamePattern(Pattern.compile(".+\\.realm"))
-                                .build())
-                        .build());
+        Stetho.initialize(Stetho.newInitializerBuilder(this)
+                .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                .build());
 
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)

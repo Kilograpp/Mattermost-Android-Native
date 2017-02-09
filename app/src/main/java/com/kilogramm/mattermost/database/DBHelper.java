@@ -57,7 +57,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addUsersTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" +  TABLE_NAME_USERS + "("
+        db.execSQL("CREATE TABLE " +  TABLE_NAME_USERS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + UsersRepository.FIELD_USER_NAME + " TEXT,"
                 + UsersRepository.FIELD_NICK_NAME + " TEXT,"
@@ -74,8 +74,8 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addPostsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" +  TABLE_NAME_POSTS + "("
-                + FIELD_COMMON_ID + " TEXT PRIMARY KEY"
+        db.execSQL("CREATE TABLE " +  TABLE_NAME_POSTS + "("
+                + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + PostsRepository.FIELD_CREATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_UPDATED_AT + " BIGINT,"
                 + PostsRepository.FIELD_DELETED_AT + " BIGINT,"
@@ -93,7 +93,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addChannelsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" +  TABLE_NAME_CHANNELS + "("
+        db.execSQL("CREATE TABLE " +  TABLE_NAME_CHANNELS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + ChannelsRepository.FIELD_TYPE + " INTEGER,"
                 + ChannelsRepository.FIELD_DISPLAY_NAME + " TEXT,"
@@ -111,14 +111,14 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addTeamsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" + TABLE_NAME_TEAMS + "("
+        db.execSQL("CREATE TABLE " + TABLE_NAME_TEAMS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + TeamsRepository.FIELD_NAME + " TEXT"
                 + ");");
     }
 
     private void addFileInfosTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" + FileInfosRepository.TABLE_NAME_FILE_INFOS + "("
+        db.execSQL("CREATE TABLE " + FileInfosRepository.TABLE_NAME_FILE_INFOS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + FileInfosRepository.FIELD_NAME + " TEXT,"
                 + FileInfosRepository.FIELD_MIME_TYPE + " TEXT,"
@@ -133,7 +133,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addPropsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" + TABLE_NAME_PROPS + "("
+        db.execSQL("CREATE TABLE " + TABLE_NAME_PROPS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + PropsRepository.FIELD_FROM_WEBHOOK + " TEXT,"
                 + PropsRepository.FIELD_OVERRIDE_USER_NAME + " TEXT"
@@ -141,7 +141,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addAttachmentsTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE" + TABLE_NAME_ATTACHMENTS + "("
+        db.execSQL("CREATE TABLE " + TABLE_NAME_ATTACHMENTS + "("
                 + FIELD_COMMON_ID + " TEXT PRIMARY KEY,"
                 + AttachmentsRepository.FIELD_COLOR + " TEXT,"
                 + AttachmentsRepository.FIELD_FALLBACK + " TEXT,"
