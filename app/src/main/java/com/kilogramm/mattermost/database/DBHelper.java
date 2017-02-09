@@ -86,9 +86,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 + PostsRepository.FIELD_PENDING_POST_ID + " TEXT,"
                 + PostsRepository.FIELD_PROPS_ID + " INTEGER,"
                 + PostsRepository.FIELD_TYPE + " TEXT,"
-                + "FOREIGN KEY(" + PostsRepository.FIELD_USER_ID + ") REFERENCES " + TABLE_NAME_USERS + "(_id),"
-                + "FOREIGN KEY(" + PostsRepository.FIELD_CHANNEL_ID + ") REFERENCES " + TABLE_NAME_CHANNELS + "(_id),"
-                + "FOREIGN KEY(" + PostsRepository.FIELD_PROPS_ID + ") REFERENCES " +  TABLE_NAME_PROPS + "(_id)"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_USER_ID + ") REFERENCES " + TABLE_NAME_USERS + "(" + FIELD_COMMON_ID + "),"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_CHANNEL_ID + ") REFERENCES " + TABLE_NAME_CHANNELS + "(" + FIELD_COMMON_ID + "),"
+                + "FOREIGN KEY(" + PostsRepository.FIELD_PROPS_ID + ") REFERENCES " +  TABLE_NAME_PROPS + "(" + FIELD_COMMON_ID + ")"
                 + ");");
     }
 
@@ -106,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ChannelsRepository.FIELD_MEMBER_COUNT + " INTEGER,"
                 + ChannelsRepository.FIELD_CREATOR_ID + " TEXT,"
                 + ChannelsRepository.FIELD_TEAM_ID + " TEXT,"
-                + "FOREIGN KEY(" + ChannelsRepository.FIELD_TEAM_ID + ") REFERENCES " + TABLE_NAME_TEAMS + "(_id)"
+                + "FOREIGN KEY(" + ChannelsRepository.FIELD_TEAM_ID + ") REFERENCES " + TABLE_NAME_TEAMS + "(" + FIELD_COMMON_ID + ")"
                 + ");");
     }
 
@@ -128,7 +128,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + FileInfosRepository.FIELD_HEIGHT + " INTEGER,"
                 + FileInfosRepository.FIELD_POST_ID + " TEXT,"
                 + FileInfosRepository.FIELD_STATE + " TEXT,"
-                + "FOREIGN KEY(" + FileInfosRepository.FIELD_POST_ID + ") REFERENCES " + TABLE_NAME_POSTS + "(_id)"
+                + "FOREIGN KEY(" + FileInfosRepository.FIELD_POST_ID + ") REFERENCES " + TABLE_NAME_POSTS + "(" + FIELD_COMMON_ID + ")"
                 + ");");
     }
 
@@ -147,7 +147,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + AttachmentsRepository.FIELD_FALLBACK + " TEXT,"
                 + AttachmentsRepository.FIELD_TEXT + " TEXT,"
                 + AttachmentsRepository.FIELD_PROPS_ID + " INTEGER,"
-                + "FOREIGN KEY(" + AttachmentsRepository.FIELD_PROPS_ID + ") REFERENCES " + TABLE_NAME_PROPS + "(_id)"
+                + "FOREIGN KEY(" + AttachmentsRepository.FIELD_PROPS_ID + ") REFERENCES " + TABLE_NAME_PROPS + "(" + FIELD_COMMON_ID + ")"
                 + ");");
     }
 }
