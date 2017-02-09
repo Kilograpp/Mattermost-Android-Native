@@ -11,11 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.kilogramm.mattermost.database.repository.ChannelsRepository;
-import com.kilogramm.mattermost.database.repository.PostsRepository;
-import com.kilogramm.mattermost.database.repository.TeamsRepository;
-import com.kilogramm.mattermost.database.repository.UsersRepository;
-
 import static com.kilogramm.mattermost.database.DBHelper.FIELD_COMMON_ID;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
@@ -39,7 +34,7 @@ public class MattermostContentProvider extends ContentProvider {
     public static final Uri CONTENT_URI_POSTS = Uri.parse("content://" + AUTHORITY + "/"
             + TABLE_NAME_POSTS);
     public static final Uri CONTENT_URI_TEAMS = Uri.parse("content://" + AUTHORITY + "/"
-            + TABLE_NAME_POSTS);
+            + TABLE_NAME_TEAMS);
 
     private static final int CODE_CHANNELS = 1;
     private static final int CODE_CHANNELS_WITH_ID = 2;
@@ -169,6 +164,39 @@ public class MattermostContentProvider extends ContentProvider {
         resultUri = ContentUris.withAppendedId(contentUri, rowId);
         getContext().getContentResolver().notifyChange(resultUri, null);
         return resultUri;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        String tableName = "" ;
+
+        switch (sUriMatcher.match(uri)){
+            case CODE_CHANNELS:
+                tableName = TABLE_NAME_CHANNELS;
+                break;
+            case CODE_POSTS:
+                tableName = TABLE_NAME_POSTS;
+                break;
+            case CODE_TEAMS:
+                tableName = TABLE_NAME_TEAMS;
+                break;
+            case CODE_USERS:
+                tableName = TABLE_NAME_USERS;
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
+        }
+
+        long count = 0;
+        db.beginTransaction();
+        for (ContentValues value : values) {
+            count += db.insert(tableName, null, value);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        getContext().getContentResolver().notifyChange(uri, null);
+        return values.length;
     }
 
     @Override
