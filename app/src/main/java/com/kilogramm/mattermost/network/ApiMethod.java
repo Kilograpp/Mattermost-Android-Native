@@ -503,7 +503,7 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/")
-    Observable<List<Channel>> getChannelsTeamNewV2(@Path("teamId") String teamId);
+    Observable<List<ResponsedChannel>> getChannelsTeamNewV2(@Path("teamId") String teamId);
 
     @Headers({
             "Accept: application/json",

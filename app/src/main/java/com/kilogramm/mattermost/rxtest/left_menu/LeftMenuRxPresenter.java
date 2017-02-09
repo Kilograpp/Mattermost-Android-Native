@@ -6,6 +6,8 @@ import android.util.Log;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.database.repository.ChannelsRepository;
+import com.kilogramm.mattermost.database.repository.UsersRepository;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
@@ -195,9 +197,9 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
                 , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
-//                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
+                    UsersRepository.addResponsedUser(responseLeftMenuDataV2.getStringUserMap());
+                    ChannelsRepository.addResponsedChannel(responseLeftMenuDataV2.getChannels());
 //                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
-//                    ChannelRepository.add(responseLeftMenuData.getChannels());
 //                    MembersRepository.add(responseLeftMenuData.getMembers());
                     sendUpdateMenuView();
                     sendShowLeftMenu();
@@ -215,6 +217,8 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                 , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
+                    UsersRepository.addResponsedUser(responseLeftMenuDataV2.getStringUserMap());
+                    ChannelsRepository.addResponsedChannel(responseLeftMenuDataV2.getChannels());
 //                    UserRepository.add(responseLeftMenuData.getStringUserMap().values());
 //                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
 //                    ChannelRepository.prepareChannelAndAdd(responseLeftMenuData.getChannels(), MattermostPreference.getInstance().getMyUserId());

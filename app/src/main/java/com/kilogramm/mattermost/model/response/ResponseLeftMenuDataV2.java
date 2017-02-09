@@ -14,11 +14,11 @@ import java.util.Map;
 public class ResponseLeftMenuDataV2 {
     private Map<String, ResponsedUser> stringUserMap;
     private List<UserMember> userMembers;
-    private List<Channel> channels;
+    private List<ResponsedChannel> channels;
     private List<Member> members;
 
     public void setDataV2(Map<String, ResponsedUser> stringUserMap,List<UserMember> userMembers,
-                          List<Channel> channels, List<Member> members) {
+                          List<ResponsedChannel> channels, List<Member> members) {
         this.stringUserMap = stringUserMap;
         this.userMembers = userMembers;
         this.channels = channels;
@@ -29,7 +29,7 @@ public class ResponseLeftMenuDataV2 {
         return this.stringUserMap;
     }
 
-    public List<Channel> getChannels() {
+    public List<ResponsedChannel> getChannels() {
         return this.channels;
     }
 
