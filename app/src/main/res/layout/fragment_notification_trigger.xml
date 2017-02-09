@@ -24,7 +24,7 @@
 
                     <TextView
                         android:id="@+id/textViewTitleFirstName"
-                        style="@style/textVeryBigBlack"
+                        style="@style/TextBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"
@@ -49,7 +49,7 @@
 
                     <TextView
                         android:id="@+id/textViewTitleUserName"
-                        style="@style/textVeryBigBlack"
+                        style="@style/TextBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"
@@ -74,7 +74,7 @@
 
                     <TextView
                         android:id="@+id/textViewTitleUserNameMentioned"
-                        style="@style/textVeryBigBlack"
+                        style="@style/TextBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"
@@ -99,7 +99,7 @@
 
                     <TextView
                         android:id="@+id/textViewTitleChannelMentioned"
-                        style="@style/textVeryBigBlack"
+                        style="@style/TextBigBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"
@@ -132,7 +132,7 @@
 
                     <EditText
                         android:id="@+id/editTextOtherMention"
-                        style="@style/textVeryBigBlack"
+                        style="@style/TextBigBlack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/activity_horizontal_margin"

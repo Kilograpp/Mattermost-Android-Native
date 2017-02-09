@@ -12,7 +12,7 @@
         android:layout_marginEnd="10dp" />
 
     <TextView
-        style="@style/textBlack"
+        style="@style/TextNormalBlack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/processing_data" />

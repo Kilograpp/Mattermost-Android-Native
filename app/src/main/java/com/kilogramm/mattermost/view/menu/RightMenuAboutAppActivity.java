@@ -30,6 +30,8 @@ public class RightMenuAboutAppActivity extends BaseActivity {
         
         mBinding.textViewMattermostOrg.setMovementMethod(LinkMovementMethod.getInstance());
         mBinding.textViewKilograppTeam.setMovementMethod(LinkMovementMethod.getInstance());
+
+        mBinding.textViewVesrion.setText("Version: " + getString(R.string.app_version));
     }
 
     @Override

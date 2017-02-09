@@ -46,7 +46,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        style="@style/textBigBlackHeader"
+                        style="@style/TextLargeBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/about_margin_start_end"
@@ -62,7 +62,8 @@
                         android:text="@string/about_long_text" />
 
                     <TextView
-                        style="@style/textBigBlackBold"
+                        android:id="@+id/textViewVesrion"
+                        style="@style/TextBigBoldBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/about_margin_start_end"
@@ -72,7 +73,7 @@
 
                     <TextView
                         android:id="@+id/text_view_mattermost_org"
-                        style="@style/linkSmallNormalBlack"
+                        style="@style/TextSmallBlackLinks"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/about_margin_start_end"
@@ -83,7 +84,7 @@
 
                     <TextView
                         android:id="@+id/text_view_kilograpp_team"
-                        style="@style/linkSmallNormalBlack"
+                        style="@style/TextSmallBlackLinks"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="@dimen/about_margin_start_end"

@@ -17,7 +17,7 @@
 
             <TextView
                 android:id="@+id/avatarChannel"
-                style="@style/textNormalWhite"
+                style="@style/TextNormalWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/circle_background"

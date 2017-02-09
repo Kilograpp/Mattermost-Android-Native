@@ -138,7 +138,7 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
                 binding.progressBar.setVisibility(View.VISIBLE);
                 getPresenter().setFirstChannelBeforeLeave();
             }
-            if (requestCode == ChatRxFragment.SEARCH_CODE) {
+            if (requestCode == ChatFragmentV2.SEARCH_CODE) {
                 if (data != null) {
                     searchMessageId = data.getStringExtra(SearchMessageActivity.MESSAGE_ID);
                     Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
@@ -312,7 +312,6 @@ public class GeneralRxActivity extends BaseActivity<GeneralRxPresenter> implemen
             ChatFragmentV2 mCurrentFragment = ChatFragmentV2.createFragment(
                     (searchMessageId!=null)? ChatFragmentV2.START_SEARCH : ChatFragmentV2.START_NORMAL,
                     channelId, channelName, channelType, searchMessageId);
-            //ChatRxFragment mCurrentFragment = ChatRxFragment.createFragment(channelId, channelName, searchMessageId);
             currentChannel = channelId;
             getFragmentManager().beginTransaction()
                     .replace(binding.contentFrame.getId(), mCurrentFragment, FRAGMENT_TAG)

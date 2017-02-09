@@ -79,7 +79,6 @@ import com.kilogramm.mattermost.view.chat.OnItemClickListener;
 import com.kilogramm.mattermost.view.chat.PostViewHolder;
 import com.kilogramm.mattermost.view.fragments.BaseFragment;
 import com.kilogramm.mattermost.view.search.SearchMessageActivity;
-import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -123,7 +122,7 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
     private static final String REPLY_MESSAGE = "reply_message";
     private static final String EDIT_MESSAGE = "edit_message";
 
-    private static final int SEARCH_CODE = 0;
+    public static final int SEARCH_CODE = 0;
     private static final int PICK_IMAGE = 1;
     private static final int CAMERA_PIC_REQUEST = 2;
     private static final int FILE_CODE = 3;
@@ -321,24 +320,6 @@ public class ChatFragmentV2 extends BaseFragment<ChatPresenterV2> implements OnM
                             getString(R.string.cannot_attach_photo),
                             Toast.LENGTH_SHORT)
                             .show();
-                }
-            } else if (requestCode == FILE_CODE) {
-                if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        ClipData clip = data.getClipData();
-                        if (clip != null) {
-                            for (int i = 0; i < clip.getItemCount(); i++) {
-                                pickedFiles.add(clip.getItemAt(i).getUri());
-                            }
-                        }
-                    } else {
-                        ArrayList<String> paths = data.getStringArrayListExtra(FilePickerActivity.EXTRA_PATHS);
-                        if (paths != null) {
-                            for (String path : paths) {
-                                pickedFiles.add(Uri.parse(path));
-                            }
-                        }
-                    }
                 }
             } else if ((requestCode == PICKFILE_REQUEST_CODE || requestCode == PICK_IMAGE)) {
                 if (data != null) {

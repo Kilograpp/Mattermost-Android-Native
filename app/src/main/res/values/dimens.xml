@@ -6,10 +6,25 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_vertical_start">32dp</dimen>
 
-    <dimen name="title_text_size">35sp</dimen>
-    <dimen name="description_text_size">15sp</dimen>
     <dimen name="standart_margin">10dp</dimen>
     <dimen name="left_padding">15dp</dimen>
+
+    <!-- ============== Text sizes ================= -->
+
+    <dimen name="text_small">13sp</dimen>
+    <dimen name="text_normal">14sp</dimen>
+    <dimen name="text_big">18sp</dimen>
+    <dimen name="text_large">25sp</dimen>
+    <dimen name="text_very_large">35sp</dimen>
+
+
+    <dimen name="description_text_size">15sp</dimen>
+
+
+
+
+
+
 
     <dimen name="margin_end_list_members">60dp</dimen>
     <dimen name="progress_bar">60dp</dimen>

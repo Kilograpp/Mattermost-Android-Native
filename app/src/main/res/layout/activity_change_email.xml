@@ -49,7 +49,7 @@
 
             <TextView
                 android:id="@+id/currentEmail"
-                style="@style/textVeryBigBlack"
+                style="@style/TextBigBlack"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -73,7 +73,7 @@
 
             <EditText
                 android:id="@+id/newEmail"
-                style="@style/textVeryBigBlack"
+                style="@style/TextBigBlack"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
