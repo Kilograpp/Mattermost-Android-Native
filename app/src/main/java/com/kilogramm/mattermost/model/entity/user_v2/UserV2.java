@@ -156,4 +156,15 @@ public class UserV2 {
 
         return cv;
     }
+    public static ContentValues getMockableUserData2(String name, String username, String inTeam){
+        ContentValues cv = new ContentValues();
+        if(name!=null) cv.put(DBHelper.FIELD_COMMON_ID, name);
+        cv.put(UsersRepository.FIELD_USER_NAME, username);
+        cv.put(UsersRepository.FIELD_FIRST_NAME, name);
+        cv.put(UsersRepository.FIELD_LAST_NAME, name + "ович");
+        cv.put(UsersRepository.FIELD_NICK_NAME, name+"."+name);
+        cv.put(UsersRepository.FIELD_IN_TEAM, inTeam);
+
+        return cv;
+    }
 }

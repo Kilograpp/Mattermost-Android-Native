@@ -24,7 +24,6 @@ package com.kilogramm.mattermost.rxtest.left_menu.adapters;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.SparseIntArray;
 
 /**
@@ -39,7 +38,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     private static final int CHANGED = 3;
     private static final int ALL = -1;
 
-    private final String mComparisonColumn;
+    private final String[] mComparisonColumn;
     private final DataSetObserver mDataSetObserver;
     private int mRowIdColumn;
     private Cursor mCursor;
@@ -49,7 +48,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         this(cursor, null);
     }
 
-    public CursorRecyclerViewAdapter(Cursor cursor, String comparisonColumn) {
+    public CursorRecyclerViewAdapter(Cursor cursor, String[] comparisonColumn) {
         mCursor = cursor;
         mComparisonColumn = comparisonColumn;
         mDataValid = cursor != null;
@@ -83,6 +82,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return 0;
     }
 
+
     @Override
     public void setHasStableIds(boolean hasStableIds) {
         super.setHasStableIds(true);
@@ -114,7 +114,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         } else {
             SparseIntArray changes = null;
 
-            if (cursor != null && cursor != mCursor && !TextUtils.isEmpty(mComparisonColumn)) {
+            if (cursor != null && cursor != mCursor && mComparisonColumn!=null && mComparisonColumn.length!=0) {
                 changes = diffCursors(mCursor, cursor);
             }
             Cursor old = swapCursor(cursor, changes);
@@ -182,7 +182,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
                     do {
 
                         // we found a record match
-                        if (oldCursor.getInt(mRowIdColumn) == newCursor.getInt(mRowIdColumn)) {
+                        if (compareId(oldCursor, newCursor)) {
                             oldRecordFound = true;
                             break;
                         }
@@ -217,7 +217,11 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         int newCursorPosition = newCursor.getPosition();
 
         if (newCursor.moveToFirst()) {
-            int columnIndex = oldCursor.getColumnIndex(mComparisonColumn);
+            int[] columnIndexs = new int[mComparisonColumn.length];
+            for (int i = 0; i < mComparisonColumn.length; i++) {
+                columnIndexs[i] = oldCursor.getColumnIndex(mComparisonColumn[i]);
+            }
+            //int columnIndex = oldCursor.getColumnIndex(mComparisonColumn);
             int cursorIndex = 0;
 
             // loop
@@ -230,12 +234,15 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
                     do {
 
                         // we found a record match
-                        if (oldCursor.getInt(mRowIdColumn) == newCursor.getInt(mRowIdColumn)) {
+                        if (compareId(oldCursor, newCursor)) {
                             newRecordFound = true;
 
                             // values are different, this record has changed
-                            if (!oldCursor.getString(columnIndex).contentEquals(newCursor.getString(columnIndex))) {
-                                changes.put(cursorIndex, CHANGED);
+                            for (int columnIndex : columnIndexs) {
+                                if (!oldCursor.getString(columnIndex).contentEquals(newCursor.getString(columnIndex))) {
+                                    changes.put(cursorIndex, CHANGED);
+                                break;
+                                }
                             }
                             break;
                         }
@@ -264,6 +271,26 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         return changes;
     }
 
+    private boolean compareId(Cursor oldCursor, Cursor newCursor) {
+        boolean isCompare = false;
+        switch (oldCursor.getType(mRowIdColumn)){
+            case Cursor.FIELD_TYPE_STRING:
+                isCompare =  oldCursor.getString(mRowIdColumn).equals(newCursor.getString(mRowIdColumn));
+                break;
+            case Cursor.FIELD_TYPE_FLOAT:
+                isCompare = oldCursor.getFloat(mRowIdColumn) == newCursor.getFloat(mRowIdColumn);
+                break;
+            case Cursor.FIELD_TYPE_INTEGER:
+                isCompare = oldCursor.getInt(mRowIdColumn) == newCursor.getInt(mRowIdColumn);
+                break;
+            default:
+                isCompare =  oldCursor.getLong(mRowIdColumn) == newCursor.getLong(mRowIdColumn);
+                break;
+        }
+        return isCompare;
+    }
+
+
     /**
      *
      * @param newCursor
@@ -271,6 +298,11 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * @return
      */
     private Cursor swapCursor(Cursor newCursor, SparseIntArray changes) {
+
+        if(!mDataValid) {
+            mDataValid = true;
+            mRowIdColumn = mDataValid ? newCursor.getColumnIndex("_id") : -1;
+        }
 
         if (newCursor == mCursor) {
             return null;

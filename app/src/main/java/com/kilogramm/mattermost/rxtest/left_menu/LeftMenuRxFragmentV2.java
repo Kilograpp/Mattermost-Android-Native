@@ -19,6 +19,7 @@ import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.database.DBHelper;
 import com.kilogramm.mattermost.database.MattermostContentProvider;
+import com.kilogramm.mattermost.database.repository.UsersRepository;
 import com.kilogramm.mattermost.databinding.FragmentLeftMenuBinding;
 import com.kilogramm.mattermost.model.UserMember;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -136,7 +137,6 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"John");
                 if(i%2 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
                         UserV2.getMockableUserData(null, i%3 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"John"});
-
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"EOPCp");
                 if(i%3 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
                         UserV2.getMockableUserData(null, i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"EOPCp"});
@@ -148,6 +148,9 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"Ijerf");
                 if(i%3 == 0)getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
                         UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "false" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Ijerf"});
+
+                if(i%2 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
+                        UserV2.getMockableUserData2(null,""+i, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"John1"});
 
                 try {
                     Thread.currentThread().sleep(100);
@@ -309,7 +312,7 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
 
     private void initDirectList() {
         mBinding.frDirect.recView.setLayoutManager(new LeftMenuLayoutManager(getActivity()));
-        mAdapterDirectMenuLeft = new LMDAdapter(null,"status",getActivity());
+        mAdapterDirectMenuLeft = new LMDAdapter(null,new String[]{UsersRepository.FIELD_STATUS, UsersRepository.FIELD_USER_NAME},getActivity());
         mBinding.frDirect.recView.setAdapter(mAdapterDirectMenuLeft);
     }
 

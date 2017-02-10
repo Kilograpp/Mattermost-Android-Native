@@ -22,7 +22,7 @@ public class LMDAdapter extends CursorRecyclerViewAdapter<AdapterDirectItemHolde
         this.mContext = context;
     }
 
-    public LMDAdapter(Cursor cursor, String comparisonColumn, Context context) {
+    public LMDAdapter(Cursor cursor, String[] comparisonColumn, Context context) {
         super(cursor, comparisonColumn);
         this.mContext = context;
     }
