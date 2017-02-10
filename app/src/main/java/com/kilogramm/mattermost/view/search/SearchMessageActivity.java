@@ -37,23 +37,14 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         implements TextView.OnEditorActionListener,
         SearchMessageAdapter.OnJumpClickListener {
 
-    //    private final int DELAY_SEARCH = 2000;
-    private final int DELAY_SEARCH = 100;
-
     private static final String TEAM_ID = "team_id";
 
     public static final String MESSAGE_ID = "message_id";
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "channel_name";
     public static final String TYPE_CHANNEL = "type_channel";
-//    public static final String SEARCH_HISTORY = "search_history";
 
     private ActivitySearchBinding mBinding;
-    private SearchMessageAdapter mAdapter;
-
-    //TODO временно убрала searchAutoComplete
-//    private ArrayAdapter<String> mHistoryAutoCompleteAdapter;
-//    private ArrayList<String> mHistoryAutoComplete;
 
     private Runnable mSearchDelay;
 
@@ -87,18 +78,6 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         mBinding.searchAutoComplete.setOnFocusChangeListener((v, hasFocus) ->
                 mBinding.btnClear.setVisibility(hasFocus ? View.VISIBLE : View.GONE));
 
-//        Display display = getWindowManager().getDefaultDisplay();
-//        Point size = new Point();
-//        display.getSize(size);
-
-//        mBinding.searchAutoComplete.setDropDownWidth(size.x);
-//        mHistoryAutoComplete = getPresenter().getSearchHistory(getApplication(), SEARCH_HISTORY);
-//        mHistoryAutoCompleteAdapter = new ArrayAdapter<>(
-//                SearchMessageActivity.this,
-//                R.layout.item_search_history_dropdown,
-//                mHistoryAutoComplete);
-//        mBinding.searchAutoComplete.setAdapter(mHistoryAutoCompleteAdapter);
-
         mBinding.btnBack.setOnClickListener(v -> finish());
 
         mBinding.btnClear.setOnClickListener(v -> {
@@ -128,24 +107,15 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
         mBinding.recViewSearchResultList.setVisibility(View.VISIBLE);
         mBinding.defaultContainer.setVisibility(View.GONE);
 
-        mAdapter = new SearchMessageAdapter(this, query.findAll().sort("createAt", Sort.DESCENDING), true, this, terms);
+        SearchMessageAdapter mAdapter = new SearchMessageAdapter(this, query.findAll().sort("createAt", Sort.DESCENDING), true, this, terms);
         mBinding.recViewSearchResultList.setLayoutManager(new LinearLayoutManager(this));
         mBinding.recViewSearchResultList.setAdapter(mAdapter);
     }
 
     public void doMessageSearch(String terms) {
         mBinding.searchAutoComplete.dismissDropDown();
-//        addHistorySearch(terms);
         getPresenter().search(terms);
     }
-
-//    public void addHistorySearch(String terms) {
-//        if (!mHistoryAutoComplete.contains(terms)) {
-//            mHistoryAutoCompleteAdapter.add(terms);
-//            mHistoryAutoComplete.add(terms);
-//            getPresenter().setSearchHistory(getApplication(), SEARCH_HISTORY, mHistoryAutoComplete);
-//        }
-//    }
 
     public void progressBarVisibility(boolean isShow) {
         mBinding.progressBar.setVisibility(isShow ? View.VISIBLE : View.GONE);
@@ -187,6 +157,7 @@ public class SearchMessageActivity extends BaseActivity<SearchMessagePresenter>
                 searchResultVisibility(false);
             } else {
                 mBinding.searchAutoComplete.removeCallbacks(mSearchDelay);
+                int DELAY_SEARCH = 100;
                 mBinding.searchAutoComplete.postDelayed(mSearchDelay, DELAY_SEARCH);
             }
         }

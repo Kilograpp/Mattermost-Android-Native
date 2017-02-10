@@ -38,7 +38,6 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     @Override
     public void onCreate() {
         super.onCreate();
-//        Log.d(TAG, "onCreate");
         mWebSocketManager = new WebSocketManager(this);
         managerBroadcast = new ManagerBroadcast(this);
         mLoadUserService = new LoadUserService();
@@ -49,14 +48,12 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
     public void onDestroy() {
         super.onDestroy();
         if (mWebSocketManager != null) mWebSocketManager.onDestroy();
-//        Log.d(TAG, "onDestroy");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) return START_REDELIVER_INTENT;
         String action = intent.getAction();
-//        Log.d(TAG, "onStartCommand action:" + action);
         if (action == null) return START_REDELIVER_INTENT;
         switch (action) {
             case SERVICE_ACTION_START_WEB_SOCKET:
@@ -70,17 +67,13 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
                 break;
             case START_LOAD_USER_DATA:
                 mLoadUserService.startLoadUser(intent.getStringExtra(USER_ID));
-                //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
                 break;
             case CANCEL_LOAD_USER_DATA:
-                //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
                 mLoadUserService.cancelLoadUser(intent.getStringExtra(USER_ID));
                 break;
             case CANCEL_ALL_LOAD_USER_DATA:
-                //mWebSocketManager.sendUserTyping(intent.getStringExtra(CHANNEL_ID));
                 break;
         }
-        //return Service.START_STICKY;
         return START_REDELIVER_INTENT;
     }
 
@@ -92,7 +85,6 @@ public class MattermostService extends Service implements WebSocketManager.WebSo
 
     @Override
     public void receiveMessage(String message) {
-//        Log.d(TAG, message);
         WebSocketObj sendedMessage = managerBroadcast.parseMessage(message);
         mattermostNotificationManager.handleSocket(sendedMessage);
         if (sendedMessage != null) {

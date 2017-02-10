@@ -30,11 +30,6 @@
             android:name=".view.authorization.ForgotPasswordActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
-        <activity
-            android:name=".view.ImageViewerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Transparent" />
-
         <!--RX activity-->
         <activity
             android:name=".rxtest.MainRxActivity"
@@ -56,44 +51,36 @@
 
         <activity
             android:name=".view.settings.NotificationActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.ChannelActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.HeaderChannelActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.PurposeActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.NameChannelActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.AllMembersChannelActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.channel.AddMembersActivity"
             android:theme="@style/searchActivityStyle"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".view.authorization.ChooseTeamActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".rxtest.GeneralRxActivity"
@@ -102,7 +89,6 @@
                 <action android:name="OPEN_DIALOG" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
 
         <activity

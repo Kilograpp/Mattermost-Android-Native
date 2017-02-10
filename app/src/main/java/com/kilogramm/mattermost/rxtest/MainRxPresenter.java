@@ -80,17 +80,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
         }
 
         MattermostPreference.getInstance().setBaseUrl(authorisedUri);
-        try {
-            mMattermostApp.refreshMattermostRetrofitService();
-            // TODO вполне возможно, что ловить тут экспешн не требуется
-            // он не отрабатывает
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            sendShowNextButton(true);
-            String URL_NOT_VALID = "Url is not valid https://";
-            sendShowError(URL_NOT_VALID);
-            return;
-        }
+        mMattermostApp.refreshMattermostRetrofitService();
 
         if (isNetworkAvailable()) {
             start(REQUEST_CHECK);
