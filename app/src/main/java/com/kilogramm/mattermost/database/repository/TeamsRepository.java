@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.database.repository;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.database.DBHelper;
@@ -36,4 +37,14 @@ public class TeamsRepository {
                 .bulkInsert(MattermostContentProvider.CONTENT_URI_TEAMS, contentValues);
     }
 
+    public static Cursor getAllTeams() {
+        return MattermostApp.getSingleton()
+                .getApplicationContext()
+                .getContentResolver()
+                .query(MattermostContentProvider.CONTENT_URI_TEAMS,
+                        null,
+                        null,
+                        null,
+                        FIELD_NAME);
+    }
 }

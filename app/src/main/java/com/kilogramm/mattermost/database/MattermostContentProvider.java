@@ -124,7 +124,7 @@ public class MattermostContentProvider extends ContentProvider {
         Cursor cursor = mDatabase.query(tableName, projection, selection, selectionArgs,
                 null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), notificationUri);
-        return null;
+        return cursor;
     }
 
     @Nullable
