@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -7,7 +8,9 @@ import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
@@ -15,6 +18,7 @@ import com.kilogramm.mattermost.model.entity.channel.ChannelByHadleSpecification
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
@@ -23,6 +27,7 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.direct.WholeDirectListActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +76,30 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
         initRequests();
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()){
+                case 400:
+                    return context.getString(R.string.error_save_data);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_preferences_not_match);
+                case 500:
+                    return context.getString(R.string.error_no_preferences);
+                default:
+                    return httpError.getMessage();
+
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     public Observable<Channel> addParticipantRx(String name) {
         User user = new User();
         user.setId(name);
@@ -98,7 +127,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                         requestSave(aBoolean);
                     }
                 }, (wholeDirectListActivity, throwable) -> {
-                    sendShowError(parceError(throwable, SAVE_PREFERENCES));
+                    sendShowError(parseError(throwable));
                     requestSave(false);
                 }
         );
@@ -115,7 +144,7 @@ public class WholeDirectListPresenter extends BaseRxPresenter<WholeDirectListAct
                         requestGetDirectUsers();
                     }
                     sendUpdateDataList(thisTeamDirects);
-                }, (wholeDirectListActivity, throwable) -> sendShowError(parceError(throwable, null)));
+                }, (wholeDirectListActivity, throwable) -> sendShowError(parseError(throwable, null)));
     }
 
     private void sendCreateDirects(Iterable<Observable<Channel>> toRequest, Boolean aBoolean) {

@@ -1,13 +1,17 @@
 package com.kilogramm.mattermost.presenter.channel;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.network.ServerMethod;
@@ -15,6 +19,7 @@ import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.AllMembersChannelActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,17 +35,13 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
     private static final int REQUEST_DB_GETUSERS = 1;
     private static final int REQUEST_SAVE = 2;
     private static final int REQUEST_SAVE_PREFERENCES = 3;
-    private static final int REQUEST_GET_CHANNEL = 3;
 
     ExtraInfo mExtraInfo;
 
     String mId;
 
-
     private User mUser;
     ListPreferences listPreferences = new ListPreferences();
-
-    List<Preferences> preferenceList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -52,6 +53,29 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
         initSaveRequest();
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()){
+                case 400:
+                    return context.getString(R.string.error_save_data);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_preferences_not_match);
+                case 500:
+                    return context.getString(R.string.error_no_preferences);
+                default:
+                    return httpError.getMessage();
+
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
 
     public void requestSaveData(Preferences data, String userId) {
         listPreferences.getmSaveData().clear();
@@ -76,7 +100,6 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
         preferences.setValue("true");
         listPreferences.getmSaveData().add(preferences);
         start(REQUEST_SAVE_PREFERENCES);
-//        sendSetFragmentChat();
     }
 
     public RealmResults<User> getMembers(String name) {
@@ -93,7 +116,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
                 (allMembersActivity, o) -> {
                     this.mExtraInfo = o.first();
                     allMembersActivity.updateDataList(getMembers());
-                }, (allMembersActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
+                }, (allMembersActivity, throwable) -> sendShowError(parseError(throwable)));
     }
 
     private void initSavPreferences() {
@@ -107,7 +130,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
 //                    sendSetFragmentChat();
                 },
                 (allMembersChannelActivity, throwable) ->
-                        sendShowError(parceError(throwable, SAVE_PREFERENCES))
+                        sendShowError(parseError(throwable))
         );
 
     }
@@ -139,7 +162,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
                     listPreferences.getmSaveData().clear();
                     MattermostPreference.getInstance().setLastChannelId(channel.getId());
                     sendSetFragmentChat();
-                }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, null)));
+                }, (generalRxActivity, throwable) -> sendShowError(parseError(throwable, null)));
     }
 
     private void sendSetFragmentChat() {

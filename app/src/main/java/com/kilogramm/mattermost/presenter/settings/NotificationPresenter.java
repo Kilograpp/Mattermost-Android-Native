@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyProps;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyRepository;
 import com.kilogramm.mattermost.model.entity.notifyProps.NotifyUpdate;
@@ -36,7 +37,6 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        MattermostApp mMattermostApp = MattermostApp.getSingleton();
         this.mUser = UserRepository.query(new UserRepository.UserByIdSpecification(MattermostPreference.getInstance().getMyUserId())).first();
         this.mNotifyProps = new NotifyProps(NotifyRepository.query().first());
         initRequests();
@@ -232,7 +232,8 @@ public class NotificationPresenter extends BaseRxPresenter<NotificationActivity>
                     sendToast("Saved successfully");
                 },
                 (notificationActivity, throwable) -> {
-                    sendToast(parceError(throwable, "Unable to save"));
+                    sendToast(parseError(throwable, MattermostApp.getSingleton()
+                            .getString(R.string.error_unable_save)));
                     Log.d(TAG, "unable to save " + throwable.getMessage());
                 });
     }

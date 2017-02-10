@@ -1,11 +1,14 @@
 package com.kilogramm.mattermost.presenter.channel;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ListPreferences;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
 import com.kilogramm.mattermost.model.entity.Preference.Preferences;
@@ -13,11 +16,14 @@ import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.user.User;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.channel.ChannelActivity;
+
+import java.io.IOException;
 
 import icepick.State;
 import io.realm.Realm;
@@ -118,7 +124,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_CHANNEL);
                 }, (channelActivity, throwable) -> {
-                    sendError(parceError(throwable, errorLoadingExtraInfo));
+                    sendError(parseError(throwable, MattermostApp.getSingleton()
+                            .getString(R.string.error_load_channel_info)));
                     sendCloseActivity();
                 });
 
@@ -131,7 +138,8 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     ChannelRepository.update(channelWithMember.getChannel());
                     requestMembers();
                 }, (channelActivity, throwable) -> {
-                    sendError(parceError(throwable, errorLoadingExtraInfo));
+                    sendError(parseError(throwable, MattermostApp.getSingleton()
+                            .getString(R.string.error_load_channel_info)));
                     sendCloseActivity();
                 }
         );
@@ -144,7 +152,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("leaved"),
-                (channelActivity, throwable) -> sendError(parceError(throwable, null)));
+                (channelActivity, throwable) -> sendError(parseError(throwable, null)));
     }
 
     private void deleteChannel() {
@@ -154,7 +162,31 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io()),
                 (channelActivity, channel) -> requestFinish("deleted"),
-                (channelActivity, throwable) -> sendError(parceError(throwable, null)));
+                (channelActivity, throwable) -> sendError(parseError(throwable, null)));
+    }
+
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()){
+                case 400:
+                    return context.getString(R.string.error_save_data);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_preferences_not_match);
+                case 500:
+                    return context.getString(R.string.error_no_preferences);
+                default:
+                    return httpError.getMessage();
+
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
     }
 
     private void initSaveRequest() {
@@ -167,7 +199,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     listPreferences.getmSaveData().clear();
                     MattermostPreference.getInstance().setLastChannelId(channel.getId());
                     sendSetFragmentChat();
-                }, (generalRxActivity, throwable) -> sendShowError(parceError(throwable, SAVE_PREFERENCES)));
+                }, (generalRxActivity, throwable) -> sendShowError(parseError(throwable)));
 
         restartableFirst(REQUEST_SAVE_PREFERENCES, () ->
                         ServerMethod.getInstance()
@@ -175,9 +207,9 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io()),
                 (wholeDirectListActivity, aBoolean) -> {
-                }, //sendSetFragmentChat(),
+                },
                 (wholeDirectListActivity, throwable) ->
-                        sendShowError(parceError(throwable, SAVE_PREFERENCES))
+                        sendShowError(parseError(throwable))
         );
     }
 

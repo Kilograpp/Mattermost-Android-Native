@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
@@ -14,7 +15,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.team.Team;
@@ -183,6 +186,25 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         start(REQUEST_LOGIN);
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()) {
+                case 400:
+                    return context.getString(R.string.error_invalid_login);
+                case 401:
+                    return context.getString(R.string.error_invalid_password);
+                default:
+                    return httpError.getMessage();
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     private void requestInitLoad() {
         start(REQUEST_INITLOAD);
     }
@@ -205,11 +227,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
             isVisibleProgress.set(View.GONE);
             firstLoginBad = true;
             setRedTextForgotPassword(true);
-            if (isNetworkAvailable()) {
-                sendShowError(parceError(throwable, LOGIN));
-            } else {
-                sendShowError(parceError(null, NO_NETWORK));
-            }
+            sendShowError(parseError(throwable));
         });
     }
 
@@ -234,7 +252,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         }, (loginRxActivity1, throwable) -> {
             isEnabledSignInButton.set(true);
             isVisibleProgress.set(View.GONE);
-            sendShowError(parceError(throwable, null));
+            sendShowError(parseError(throwable, null));
         });
     }
 

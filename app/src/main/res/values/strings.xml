@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Matternative</string>
-    <string name="main_description">All your team communication in one place, searchable and accessible anywhere.</string>
 
+    <string name="main_description">All your team communication in one place, searchable and accessible anywhere.</string>
     <string name="main_title_url">Your team URL</string>
     <string name="main_example_url">e.g. https://mattermost.example.com</string>
     <string name="main_next_button">Next step</string>
@@ -12,7 +12,6 @@
     <string name="login_hint_password">Password</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_sign_in">Sign in</string>
-    <string name="network_error">Network error. Please check your Internet connetion</string>
 
     <string name="forgot_password_hint_email">Email</string>
     <string name="forgot_password_recovery_button">Recovery</string>
@@ -267,4 +266,22 @@
     <string name="jump_title">Do you want to jump into the conversation with %1$s ?</string>
     <string name="jump_button">Jump</string>
 
+    <!-- =============== Server errors ================ -->
+    <string name="error_unknown_exception">Unknown exception</string>
+    <string name="error_network_connection">Network error. Please check your Internet connetion</string>
+    <string name="error_not_belong_to_team">You are not from this team</string>
+    <string name="error_channel_exists">A channel with that URL already exists</string>
+    <string name="error_load_channel_info">Error while loading channel info</string>
+    <string name="error_save_data">Cannot save the data</string>
+    <string name="error_auth">You are not logged in</string>
+    <string name="error_preferences_not_match">Some preferences do not match your account</string>
+    <string name="error_no_preferences">There is not such preferences for your account</string>
+    <string name="error_unable_save">Unable to save</string>
+    <string name="error_invalid_login">Invalid login</string>
+    <string name="error_invalid_password">Invalid password</string>
+    <string name="error_invalid_file_type">Invalid file type or invalid image dimensions</string>
+    <string name="error_permissions_for_uploading">You do not have permission to upload file here</string>
+    <string name="error_file_storage_disabled">File storage is disabled</string>
+    <string name="error_send_file">Can not send message</string>
+    <string name="error_no_team">Could not find existing team matching this URL</string>
 </resources>

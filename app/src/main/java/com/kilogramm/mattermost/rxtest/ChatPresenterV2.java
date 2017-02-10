@@ -1,5 +1,6 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.Posts;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
@@ -19,6 +21,7 @@ import com.kilogramm.mattermost.model.entity.post.PostByIdSpecification;
 import com.kilogramm.mattermost.model.entity.post.PostEdit;
 import com.kilogramm.mattermost.model.entity.post.PostRepository;
 import com.kilogramm.mattermost.model.entity.user.UserRepository;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.extroInfo.ExtroInfoRepository;
 import com.kilogramm.mattermost.model.fromnet.ChannelWithMember;
 import com.kilogramm.mattermost.model.fromnet.CommandToNet;
@@ -26,6 +29,7 @@ import com.kilogramm.mattermost.model.fromnet.ExtraInfo;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +89,29 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
         initRequests();
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()) {
+                case 400:
+                    return context.getString(R.string.error_invalid_file_type);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_permissions_for_uploading);
+                case 501:
+                    return context.getString(R.string.error_file_storage_disabled);
+                default:
+                    return httpError.getMessage();
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     public void initPresenter(String teamId, String channelId, String channelType) {
         Log.d(TAG, "initPresenter");
         this.mTeamId = teamId;
@@ -130,7 +157,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     sendStartLoad();
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
-                    sendError(parceError(throwable));
+                    sendError(parseError(throwable));
                 }
         );
     }
@@ -168,7 +195,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
                     sendShowErrorLayout();
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                 });
     }
 
@@ -199,7 +226,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                            String error = parseError(e);
                             if (error != null) {
                                 sendError(error);
                             }
@@ -213,7 +240,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     });
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreTop();
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                     throwable.printStackTrace();
 
                 });
@@ -243,7 +270,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                         @Override
                         public void onError(Throwable e) {
                             e.printStackTrace();
-                            String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                            String error = parseError(e);
                             if (error != null) {
                                 sendError(error);
                             }
@@ -257,7 +284,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     });
                 }, (chatRxFragment1, throwable) -> {
                     sendDisableShowLoadMoreBot();
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                     throwable.printStackTrace();
                 });
     }
@@ -290,7 +317,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                             @Override
                             public void onError(Throwable e) {
                                 e.printStackTrace();
-                                String error = parceError(e, BaseRxPresenter.UPLOAD_A_FILE);
+                                String error = parseError(e);
                                 if (error != null) {
                                     sendError(error);
                                 }
@@ -315,11 +342,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     sendVisiblePrograssBar(false);
                     sendShowList();
                     setGoodLayout();
-                    if (!isNetworkAvailable()) {
-                        sendError(parceError(null, NO_NETWORK));
-                    } else {
-                        sendError(parceError(throwable, null));
-                    }
+                    sendError(parseError(throwable, null));
                     throwable.printStackTrace();
                 });
     }
@@ -332,7 +355,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                                 .observeOn(Schedulers.io()),
                 (chatRxFragment, post) -> {
                 }, (chatRxFragment1, throwable) -> {
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error");
                 });
@@ -352,7 +375,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
 */
                 },
                 (chatRxFragment1, throwable) -> {
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error delete post " + throwable.getMessage());
                 });
@@ -370,7 +393,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                 }, (chatRxFragment1, throwable) -> {
                     ChatUtils.setPostUpdateAt(mForEditPost.getId(), updateAt);
                     sendIvalidateAdapter();
-                    sendError(parceError(throwable, null));
+                    sendError(parseError(throwable, null));
                     Log.d(TAG, "Error edit post " + throwable.getMessage());
                 });
     }
@@ -402,7 +425,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     Log.d(TAG, "Complete create post");
                 }, (chatRxFragment1, throwable) -> {
                     isSendingPost = false;
-                    sendError(parceError(throwable, "Can't send message"));
+                    sendError(parseError(throwable, "Can't send message"));
                     setErrorPost(mForSendPost.getPendingPostId());
                     sendIvalidateAdapter();
                     throwable.printStackTrace();
@@ -454,7 +477,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                             }
                         });
                 },
-                (chatRxFragment, throwable) -> sendError(parceError(throwable, null)));
+                (chatRxFragment, throwable) -> sendError(parseError(throwable, null)));
     }
     //endregion
 

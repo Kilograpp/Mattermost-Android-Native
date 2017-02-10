@@ -78,7 +78,7 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                         UserRepository.updateUserAfterSaveSettings(user);
                         sendGood(editProfileRxActivity.getString(R.string.user_updated));
                     }
-                },(editProfileRxActivity, throwable) -> sendError(parceError(throwable, null)));
+                },(editProfileRxActivity, throwable) -> sendError(parseError(throwable, null)));
     }
 
     private void initNewImage(){
@@ -109,7 +109,7 @@ public class EditProfileRxPresenter extends BaseRxPresenter<EditProfileRxActivit
                     updateAvatarTime();
                     imageUri = null;
                     sendUriNull();
-                },(editProfileRxActivity, throwable) -> sendError(parceError(throwable)));
+                },(editProfileRxActivity, throwable) -> sendError(parseError(throwable)));
     }
 
     private void updateAvatarTime(){

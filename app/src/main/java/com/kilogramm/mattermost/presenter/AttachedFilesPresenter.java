@@ -1,6 +1,7 @@
 package com.kilogramm.mattermost.presenter;
 
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,11 +9,13 @@ import android.util.Log;
 
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.UploadState;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfo;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileInfoRepository;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttach;
 import com.kilogramm.mattermost.model.entity.filetoattacth.FileToAttachRepository;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.ProgressRequestBody;
 import com.kilogramm.mattermost.network.ApiMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
@@ -20,6 +23,7 @@ import com.kilogramm.mattermost.tools.FileUtil;
 import com.kilogramm.mattermost.ui.AttachedFilesLayout;
 
 import java.io.File;
+import java.io.IOException;
 
 import icepick.State;
 import okhttp3.MediaType;
@@ -62,6 +66,29 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
         initRequests();
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()) {
+                case 400:
+                    return context.getString(R.string.error_invalid_file_type);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_permissions_for_uploading);
+                case 501:
+                    return context.getString(R.string.error_file_storage_disabled);
+                default:
+                    return httpError.getMessage();
+            }
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     private void initRequests() {
         restartableFirst(REQUEST_UPLOAD_TO_SERVER, () -> {
             String filePath = mFileUtil.getPath(Uri.parse(mFileToAttach.getUriAsString()));
@@ -102,7 +129,7 @@ public class AttachedFilesPresenter extends BaseRxPresenter<AttachedFilesLayout>
             throwable.printStackTrace();
             // TODO обработать различные ошибки (чтобы при отмене ничего не выводилось)
             if (!throwable.getMessage().trim().equals("unexpected end of stream")) {
-                String error = parceError(throwable, UPLOAD_A_FILE);
+                String error = parseError(throwable);
                 if (error != null) {
                     sendShowError(error);
                 }
