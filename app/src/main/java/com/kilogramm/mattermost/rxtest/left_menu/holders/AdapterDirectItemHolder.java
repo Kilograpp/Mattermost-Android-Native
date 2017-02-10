@@ -102,4 +102,6 @@ public class AdapterDirectItemHolder extends BaseLeftHolder {
 
         mBinding.executePendingBindings();
     }
+
+
 }

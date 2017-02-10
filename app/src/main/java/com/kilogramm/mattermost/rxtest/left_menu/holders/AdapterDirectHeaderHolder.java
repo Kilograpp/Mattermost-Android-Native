@@ -26,4 +26,5 @@ public class AdapterDirectHeaderHolder extends BaseLeftHolder{
     public void bindTo(DirectHeader header){
         mBinding.headerTitle.setText(header.getHeaderTitle());
     }
+
 }

@@ -359,25 +359,15 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
 
 
     private void createMockUsers(){
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("John", UserV2.STATUS_OFFLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Bob", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Buddy", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Matt", UserV2.STATUS_AWAY, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Dhgfds", UserV2.STATUS_OFFLINE, "false" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("RYUI", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("EOPCp", UserV2.STATUS_AWAY, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Irtep", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Ijerf", UserV2.STATUS_ONLINE, "false" ));
 
-
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("John1", UserV2.STATUS_OFFLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Bob2", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Buddy3", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Matt4", UserV2.STATUS_AWAY, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Dhgfds5", UserV2.STATUS_OFFLINE, "false" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("RYUI6", UserV2.STATUS_ONLINE, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("EOPCp7", UserV2.STATUS_AWAY, "true" ));
-        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Irtep8", UserV2.STATUS_ONLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Johny", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Boby", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Buddy", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Matty", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Dorian", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Ryu", UserV2.STATUS_OFFLINE, "true" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("EOPCp7", UserV2.STATUS_AWAY, "false" ));
+        getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Irtep8", UserV2.STATUS_ONLINE, "false" ));
         getActivity().getContentResolver().insert(MattermostContentProvider.CONTENT_URI_USERS, UserV2.getMockableUserData("Ijerf9", UserV2.STATUS_ONLINE, "false" ));
     }
 
@@ -388,7 +378,11 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         switch (i){
             case LEFT_MENU_LOADER:
-                return new CursorLoader(getActivity(), MattermostContentProvider.CONTENT_URI_USERS, null, null, null, null);
+                return new CursorLoader(getActivity(), MattermostContentProvider.CONTENT_URI_USERS,
+                        null,
+                        null,
+                        null,
+                        String.format("%s DESC, %s ASC", UsersRepository.FIELD_IN_TEAM,  UsersRepository.FIELD_USER_NAME));
         }
         return null;
     }

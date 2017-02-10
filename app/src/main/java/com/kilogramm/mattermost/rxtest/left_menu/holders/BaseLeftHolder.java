@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.kilogramm.mattermost.R;
 
 
-class BaseLeftHolder extends RecyclerView.ViewHolder {
+public class BaseLeftHolder extends RecyclerView.ViewHolder {
 
     BaseLeftHolder(View itemView) {
         super(itemView);
@@ -42,4 +42,5 @@ class BaseLeftHolder extends RecyclerView.ViewHolder {
         unreadedMessage.setTextSize(15f);
         unreadedMessage.setTextColor(context.getResources().getColor(R.color.white));
     }
+
 }

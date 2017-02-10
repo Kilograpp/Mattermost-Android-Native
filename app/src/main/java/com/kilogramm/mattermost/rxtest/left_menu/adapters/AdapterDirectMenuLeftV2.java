@@ -13,12 +13,12 @@ import com.kilogramm.mattermost.rxtest.left_menu.holders.AdapterDirectItemHolder
  * Created by ivan on 09.02.17.
  */
 
-public class AdapterDirectLeftMenuV2 extends RecyclerView.Adapter<AdapterDirectItemHolder> {
+public class AdapterDirectMenuLeftV2 extends RecyclerView.Adapter<AdapterDirectItemHolder> {
 
     private Context mContext;
     private Cursor mCursor;
 
-    public AdapterDirectLeftMenuV2(Context context, Cursor cursor){
+    public AdapterDirectMenuLeftV2(Context context, Cursor cursor){
         this.mContext = context;
         this.mCursor = cursor;
     }
@@ -53,6 +53,6 @@ public class AdapterDirectLeftMenuV2 extends RecyclerView.Adapter<AdapterDirectI
             mCursor.close();
         }
         mCursor = cursor;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 }
