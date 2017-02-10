@@ -7,20 +7,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.database.DBHelper;
+
 /**
  * Created by Evgeny on 09.02.2017.
  */
 
 public class TeamListCursorAdapter extends RecyclerView.Adapter<TeamViewHolder> {
 
+    private final TeamListAdapter.OnItemClickListener onItemClickListener;
     private LayoutInflater mInflater;
     private Context mContext;
     private Cursor mCursor;
 
-    public TeamListCursorAdapter(Context context, Cursor cursor) {
+    public TeamListCursorAdapter(Context context, Cursor cursor,TeamListAdapter.OnItemClickListener onItemClickListener) {
         this.mContext = context;
         this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
         this.mCursor = cursor;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @Override
@@ -31,6 +35,11 @@ public class TeamListCursorAdapter extends RecyclerView.Adapter<TeamViewHolder> 
     @Override
     public void onBindViewHolder(TeamViewHolder holder, int position) {
         holder.bindTo(mCursor);
+        holder.itemView.setOnClickListener(view ->{
+            if(mCursor.moveToPosition(position)){
+                onItemClickListener.onItemClick(mCursor.getString(mCursor.getColumnIndex(DBHelper.FIELD_COMMON_ID)));
+            }
+        });
     }
 
     @Override

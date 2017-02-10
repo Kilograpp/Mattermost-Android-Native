@@ -70,7 +70,7 @@ public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> implem
         setupToolbar(getString(R.string.choose_team), true);
         setColorScheme(R.color.colorPrimary, R.color.colorPrimaryDark);
 
-        teamListAdapter = new TeamListCursorAdapter(this, null/* teams, this::setTeam*/);
+        teamListAdapter = new TeamListCursorAdapter(this, null,this::setTeam);
 
         String siteName = MattermostPreference.getInstance().getSiteName();
         if (siteName != null && siteName.length() > 0)
