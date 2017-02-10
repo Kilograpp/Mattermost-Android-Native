@@ -11,14 +11,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.kilogramm.mattermost.database.repository.ChannelsRepository;
-import com.kilogramm.mattermost.database.repository.PostsRepository;
-import com.kilogramm.mattermost.database.repository.TeamsRepository;
-import com.kilogramm.mattermost.database.repository.UsersRepository;
-
 import static com.kilogramm.mattermost.database.DBHelper.FIELD_COMMON_ID;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
+import static com.kilogramm.mattermost.database.repository.PreferencesRepository.TABLE_NAME_PREFERENCES;
 import static com.kilogramm.mattermost.database.repository.TeamsRepository.TABLE_NAME_TEAMS;
 import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE_NAME_USERS;
 
@@ -39,7 +35,9 @@ public class MattermostContentProvider extends ContentProvider {
     public static final Uri CONTENT_URI_POSTS = Uri.parse("content://" + AUTHORITY + "/"
             + TABLE_NAME_POSTS);
     public static final Uri CONTENT_URI_TEAMS = Uri.parse("content://" + AUTHORITY + "/"
-            + TABLE_NAME_POSTS);
+            + TABLE_NAME_TEAMS);
+    public static final Uri CONTENT_URI_PREFERENCES = Uri.parse("content://" + AUTHORITY +"/"
+            + TABLE_NAME_PREFERENCES);
 
     private static final int CODE_CHANNELS = 1;
     private static final int CODE_CHANNELS_WITH_ID = 2;
@@ -49,6 +47,7 @@ public class MattermostContentProvider extends ContentProvider {
     private static final int CODE_TEAMS_WITH_ID = 6;
     private static final int CODE_USERS = 7;
     private static final int CODE_USERS_WITH_ID = 8;
+    private static final int CODE_PREFERENCES = 9;
 
     private DBHelper mDbHelper;
 
@@ -63,6 +62,7 @@ public class MattermostContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_CHANNELS + "/*", CODE_CHANNELS_WITH_ID);
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_TEAMS, CODE_TEAMS);
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_TEAMS + "/*", CODE_TEAMS_WITH_ID);
+        sUriMatcher.addURI(AUTHORITY, TABLE_NAME_PREFERENCES, CODE_PREFERENCES);
     }
 
     @Override
@@ -119,6 +119,10 @@ public class MattermostContentProvider extends ContentProvider {
                 notificationUri = CONTENT_URI_USERS;
                 withId = true;
                 break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                notificationUri = CONTENT_URI_PREFERENCES;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
@@ -129,7 +133,7 @@ public class MattermostContentProvider extends ContentProvider {
         Cursor cursor = mDatabase.query(tableName, projection, selection, selectionArgs,
                 null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), notificationUri);
-        return null;
+        return cursor;
     }
 
     @Nullable
@@ -162,6 +166,10 @@ public class MattermostContentProvider extends ContentProvider {
                 tableName = TABLE_NAME_USERS;
                 contentUri = CONTENT_URI_USERS;
                 break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                contentUri= CONTENT_URI_PREFERENCES;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
@@ -169,6 +177,42 @@ public class MattermostContentProvider extends ContentProvider {
         resultUri = ContentUris.withAppendedId(contentUri, rowId);
         getContext().getContentResolver().notifyChange(resultUri, null);
         return resultUri;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        String tableName = "" ;
+
+        switch (sUriMatcher.match(uri)){
+            case CODE_CHANNELS:
+                tableName = TABLE_NAME_CHANNELS;
+                break;
+            case CODE_POSTS:
+                tableName = TABLE_NAME_POSTS;
+                break;
+            case CODE_TEAMS:
+                tableName = TABLE_NAME_TEAMS;
+                break;
+            case CODE_USERS:
+                tableName = TABLE_NAME_USERS;
+                break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
+        }
+
+        long count = 0;
+        db.beginTransaction();
+        for (ContentValues value : values) {
+            count += db.insert(tableName, null, value);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        getContext().getContentResolver().notifyChange(uri, null);
+        return values.length;
     }
 
     @Override
@@ -204,6 +248,9 @@ public class MattermostContentProvider extends ContentProvider {
             case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
                 withId = true;
+                break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
@@ -252,6 +299,9 @@ public class MattermostContentProvider extends ContentProvider {
             case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
                 withId = true;
+                break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);

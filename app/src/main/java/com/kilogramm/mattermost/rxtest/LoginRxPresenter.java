@@ -3,28 +3,24 @@ package com.kilogramm.mattermost.rxtest;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.database.repository.PreferencesRepository;
+import com.kilogramm.mattermost.database.repository.TeamsRepository;
+import com.kilogramm.mattermost.database.repository.UsersRepository;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.team.Team;
-import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.network.ServerMethod;
-import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.authorization.ForgotPasswordActivity;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +28,6 @@ import java.util.regex.Pattern;
 import icepick.State;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import retrofit2.adapter.rxjava.HttpException;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -64,7 +59,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
         isEnabledSignInButton = new ObservableBoolean(false);
-        siteName = new ObservableField<>(realm.where(ClientCfg.class).findFirst().getSiteName());
+        siteName = new ObservableField<>(MattermostPreference.getInstance().getSiteName());
         isVisibleProgress = new ObservableInt(View.GONE);
 
         initRequestLogin();
@@ -105,6 +100,10 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     //======================== Network ============================================================
 
     private List<Team> saveDataAfterLogin(InitObject initObject) {
+
+        TeamsRepository.addTeam(initObject.getTeams());
+        PreferencesRepository.addPreferences(initObject.getPreferences());
+
         realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
@@ -197,6 +196,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread());
         }, (loginRxActivity, user) -> {
+            UsersRepository.addUser(user);
             MattermostPreference.getInstance().setMyUserId(user.getId());
             realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(user));
             requestInitLoad();
