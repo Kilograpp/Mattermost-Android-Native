@@ -31,8 +31,8 @@ import com.kilogramm.mattermost.model.entity.team.Team;
 import com.kilogramm.mattermost.model.entity.team.TeamRepository;
 import com.kilogramm.mattermost.model.entity.user_v2.UserV2;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
-import com.kilogramm.mattermost.rxtest.left_menu.adapters.AdapterDirectLeftMenuV2;
 import com.kilogramm.mattermost.rxtest.left_menu.adapters.ChannelListAdapter;
+import com.kilogramm.mattermost.rxtest.left_menu.adapters.LMDAdapter;
 import com.kilogramm.mattermost.rxtest.left_menu.adapters.PrivateListAdapter;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
@@ -62,7 +62,7 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
 
     private ChannelListAdapter mChannelListAdapter;
     private PrivateListAdapter mPrivateListAdapter;
-    private AdapterDirectLeftMenuV2 mAdapterDirectMenuLeft;
+    private LMDAdapter mAdapterDirectMenuLeft;
 
     private OnChannelChangeListener mListener;
 
@@ -132,25 +132,25 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
         protected Void doInBackground(Void... params) {
 
             String selection= null;
-            for(int i=0;i<1000;i++){
+            for(int i=0;i<10000;i++){
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"John");
                 if(i%2 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
                         UserV2.getMockableUserData(null, i%3 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"John"});
-/*
+
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"EOPCp");
                 if(i%3 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null, i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),selection,null);
+                        UserV2.getMockableUserData(null, i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"EOPCp"});
 
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"Irtep");
                 if(i%12 == 0)getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),selection,null);
+                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Irtep"});
 
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"Ijerf");
                 if(i%3 == 0)getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "false" ),selection,null);
-*/
+                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "false" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Ijerf"});
+
                 try {
-                    Thread.currentThread().sleep(1000);
+                    Thread.currentThread().sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -309,7 +309,7 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
 
     private void initDirectList() {
         mBinding.frDirect.recView.setLayoutManager(new LeftMenuLayoutManager(getActivity()));
-        mAdapterDirectMenuLeft = new AdapterDirectLeftMenuV2(getActivity(),null);
+        mAdapterDirectMenuLeft = new LMDAdapter(null,"status",getActivity());
         mBinding.frDirect.recView.setAdapter(mAdapterDirectMenuLeft);
     }
 
@@ -392,11 +392,11 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapterDirectMenuLeft.swapCursor(cursor);
+        mAdapterDirectMenuLeft.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapterDirectMenuLeft.swapCursor(null);
+        mAdapterDirectMenuLeft.changeCursor(null);
     }
 }
