@@ -45,12 +45,17 @@ public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> implem
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        return new TeamsCursorLoader(getApplicationContext());
+        switch (id){
+            case DB_TEAMS_LIST:
+                return new TeamsCursorLoader(getApplicationContext());
+            default:
+                return null;
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        teamListAdapter.swapCursor(data);
+        if (teamListAdapter != null) teamListAdapter.swapCursor(data);
     }
 
     @Override
@@ -61,7 +66,11 @@ public class ChooseTeamActivity extends BaseActivity<ChooseTeamPresenter> implem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

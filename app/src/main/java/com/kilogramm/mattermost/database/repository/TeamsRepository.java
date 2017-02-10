@@ -29,12 +29,11 @@ public class TeamsRepository {
             values.put(FIELD_NAME, team.getDisplayName());
             list.add(values);
         }
-        ContentValues[] contentValues = new ContentValues[teams.size()];
-        list.toArray(contentValues);
         MattermostApp.getSingleton()
                 .getApplicationContext()
                 .getContentResolver()
-                .bulkInsert(MattermostContentProvider.CONTENT_URI_TEAMS, contentValues);
+                .bulkInsert(MattermostContentProvider.CONTENT_URI_TEAMS,
+                        list.toArray(new ContentValues[teams.size()]));
     }
 
     public static Cursor getAllTeams() {
@@ -45,6 +44,6 @@ public class TeamsRepository {
                         null,
                         null,
                         null,
-                        FIELD_NAME);
+                        FIELD_NAME + " ASC");
     }
 }

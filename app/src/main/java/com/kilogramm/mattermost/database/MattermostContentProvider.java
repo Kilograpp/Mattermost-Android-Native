@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import static com.kilogramm.mattermost.database.DBHelper.FIELD_COMMON_ID;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
+import static com.kilogramm.mattermost.database.repository.PreferencesRepository.TABLE_NAME_PREFERENCES;
 import static com.kilogramm.mattermost.database.repository.TeamsRepository.TABLE_NAME_TEAMS;
 import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE_NAME_USERS;
 
@@ -35,6 +36,8 @@ public class MattermostContentProvider extends ContentProvider {
             + TABLE_NAME_POSTS);
     public static final Uri CONTENT_URI_TEAMS = Uri.parse("content://" + AUTHORITY + "/"
             + TABLE_NAME_TEAMS);
+    public static final Uri CONTENT_URI_PREFERENCES = Uri.parse("content://" + AUTHORITY +"/"
+            + TABLE_NAME_PREFERENCES);
 
     private static final int CODE_CHANNELS = 1;
     private static final int CODE_CHANNELS_WITH_ID = 2;
@@ -44,6 +47,7 @@ public class MattermostContentProvider extends ContentProvider {
     private static final int CODE_TEAMS_WITH_ID = 6;
     private static final int CODE_USERS = 7;
     private static final int CODE_USERS_WITH_ID = 8;
+    private static final int CODE_PREFERENCES = 9;
 
     private DBHelper mDbHelper;
 
@@ -58,6 +62,7 @@ public class MattermostContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_CHANNELS + "/*", CODE_CHANNELS_WITH_ID);
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_TEAMS, CODE_TEAMS);
         sUriMatcher.addURI(AUTHORITY, TABLE_NAME_TEAMS + "/*", CODE_TEAMS_WITH_ID);
+        sUriMatcher.addURI(AUTHORITY, TABLE_NAME_PREFERENCES, CODE_PREFERENCES);
     }
 
     @Override
@@ -114,6 +119,10 @@ public class MattermostContentProvider extends ContentProvider {
                 notificationUri = CONTENT_URI_USERS;
                 withId = true;
                 break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                notificationUri = CONTENT_URI_PREFERENCES;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
@@ -157,6 +166,10 @@ public class MattermostContentProvider extends ContentProvider {
                 tableName = TABLE_NAME_USERS;
                 contentUri = CONTENT_URI_USERS;
                 break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                contentUri= CONTENT_URI_PREFERENCES;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
@@ -183,6 +196,9 @@ public class MattermostContentProvider extends ContentProvider {
                 break;
             case CODE_USERS:
                 tableName = TABLE_NAME_USERS;
+                break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
@@ -233,6 +249,9 @@ public class MattermostContentProvider extends ContentProvider {
                 tableName = TABLE_NAME_USERS;
                 withId = true;
                 break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
+                break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);
         }
@@ -280,6 +299,9 @@ public class MattermostContentProvider extends ContentProvider {
             case CODE_USERS_WITH_ID:
                 tableName = TABLE_NAME_USERS;
                 withId = true;
+                break;
+            case CODE_PREFERENCES:
+                tableName = TABLE_NAME_PREFERENCES;
                 break;
             default:
                 throw new IllegalArgumentException("Wrong or unhandled URI: " + uri);

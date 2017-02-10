@@ -39,8 +39,6 @@ public class UsersRepository {
         values.put(FIELD_LAST_ACTIVITY_AT, user.getLastActivityAt());
         values.put(FIELD_LAST_PICTURE_UPDATE, user.getLastPictureUpdate());
         values.put(FIELD_STATUS, user.getStatus());
-       /* values.put(FIELD_IN_TEAM, user.getInTeam());
-        values.put(FIELD_IS_SHOW, user.get());*/
         MattermostApp.getSingleton()
                 .getApplicationContext()
                 .getContentResolver()

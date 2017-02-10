@@ -15,47 +15,44 @@ import com.kilogramm.mattermost.database.DBHelper;
 
 public class TeamListCursorAdapter extends RecyclerView.Adapter<TeamViewHolder> {
 
-    private final TeamListAdapter.OnItemClickListener onItemClickListener;
+    private final TeamListAdapter.OnItemClickListener mOnItemClickListener;
     private LayoutInflater mInflater;
     private Context mContext;
     private Cursor mCursor;
 
-    public TeamListCursorAdapter(Context context, Cursor cursor,TeamListAdapter.OnItemClickListener onItemClickListener) {
-        this.mContext = context;
-        this.mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
-        this.mCursor = cursor;
-        this.onItemClickListener = onItemClickListener;
+    public TeamListCursorAdapter(Context context, Cursor cursor, TeamListAdapter.OnItemClickListener onItemClickListener) {
+        mContext = context;
+        mInflater = (LayoutInflater) this.mContext.getSystemService(Service.LAYOUT_INFLATER_SERVICE);
+        mCursor = cursor;
+        mOnItemClickListener = onItemClickListener;
     }
 
     @Override
     public TeamViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return TeamViewHolder.create(mInflater,parent);
+        return TeamViewHolder.create(mInflater, parent);
     }
 
     @Override
     public void onBindViewHolder(TeamViewHolder holder, int position) {
         holder.bindTo(mCursor);
-        holder.itemView.setOnClickListener(view ->{
-            if(mCursor.moveToPosition(position)){
-                onItemClickListener.onItemClick(mCursor.getString(mCursor.getColumnIndex(DBHelper.FIELD_COMMON_ID)));
+        holder.itemView.setOnClickListener(view -> {
+            if (mCursor.moveToPosition(position) && mOnItemClickListener != null) {
+                mOnItemClickListener.onItemClick(mCursor.getString(mCursor.getColumnIndex(DBHelper.FIELD_COMMON_ID)));
             }
         });
     }
 
+
     @Override
     public int getItemCount() {
-        if(mCursor!=null){
-            return mCursor.getCount();
-        } else {
-            return 0;
-        }
+        return (mCursor != null)? mCursor.getCount():0;
     }
 
-    public void swapCursor(Cursor newCursor){
-        if(this.mCursor!=null && !this.mCursor.isClosed()){
-            this.mCursor.close();
+    public void swapCursor(Cursor newCursor) {
+        if (mCursor != null && !mCursor.isClosed()) {
+            mCursor.close();
         }
-        this.mCursor = newCursor;
+        mCursor = newCursor;
         notifyDataSetChanged();
     }
 }

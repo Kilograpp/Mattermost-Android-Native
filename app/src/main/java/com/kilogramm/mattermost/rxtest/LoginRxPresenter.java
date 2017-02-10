@@ -11,6 +11,7 @@ import android.util.Patterns;
 import android.view.View;
 
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.database.repository.PreferencesRepository;
 import com.kilogramm.mattermost.database.repository.TeamsRepository;
 import com.kilogramm.mattermost.database.repository.UsersRepository;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
@@ -101,6 +102,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
     private List<Team> saveDataAfterLogin(InitObject initObject) {
 
         TeamsRepository.addTeam(initObject.getTeams());
+        PreferencesRepository.addPreferences(initObject.getPreferences());
 
         realm = Realm.getDefaultInstance();
         realm.beginTransaction();

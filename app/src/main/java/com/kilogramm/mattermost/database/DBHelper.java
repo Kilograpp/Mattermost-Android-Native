@@ -8,6 +8,7 @@ import com.kilogramm.mattermost.database.repository.AttachmentsRepository;
 import com.kilogramm.mattermost.database.repository.ChannelsRepository;
 import com.kilogramm.mattermost.database.repository.FileInfosRepository;
 import com.kilogramm.mattermost.database.repository.PostsRepository;
+import com.kilogramm.mattermost.database.repository.PreferencesRepository;
 import com.kilogramm.mattermost.database.repository.PropsRepository;
 import com.kilogramm.mattermost.database.repository.TeamsRepository;
 import com.kilogramm.mattermost.database.repository.UsersRepository;
@@ -15,6 +16,7 @@ import com.kilogramm.mattermost.database.repository.UsersRepository;
 import static com.kilogramm.mattermost.database.repository.AttachmentsRepository.TABLE_NAME_ATTACHMENTS;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
+import static com.kilogramm.mattermost.database.repository.PreferencesRepository.TABLE_NAME_PREFERENCES;
 import static com.kilogramm.mattermost.database.repository.PropsRepository.TABLE_NAME_PROPS;
 import static com.kilogramm.mattermost.database.repository.TeamsRepository.TABLE_NAME_TEAMS;
 import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE_NAME_USERS;
@@ -43,6 +45,8 @@ public class DBHelper extends SQLiteOpenHelper {
         addFileInfosTable(db);
         addPropsTable(db);
         addAttachmentsTable(db);
+        addPreferencesTable(db);
+
     }
 
     @Override
@@ -149,6 +153,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 + AttachmentsRepository.FIELD_PROPS_ID + " INTEGER,"
                 + "FOREIGN KEY(" + AttachmentsRepository.FIELD_PROPS_ID + ") REFERENCES " + TABLE_NAME_PROPS + "(" + FIELD_COMMON_ID + ")"
                 + ");");
+    }
+
+    private void addPreferencesTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_NAME_PREFERENCES + "("
+                + PreferencesRepository.FIELD_CATEGORY + " TEXT,"
+                + PreferencesRepository.FIELD_NAME + " TEXT,"
+                + PreferencesRepository.FIELD_USER_ID + " TEXT,"
+                + PreferencesRepository.FIELD_VALUE + " TEXT"
+                + ");" );
     }
 }
 

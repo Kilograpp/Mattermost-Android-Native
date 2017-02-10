@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.view.authorization;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -31,7 +32,7 @@ public class TeamViewHolder extends RecyclerView.ViewHolder {
     public void bindTo(Cursor mCursor) {
         if (mCursor.moveToPosition(getAdapterPosition())) {
             String displayName = mCursor.getString(mCursor.getColumnIndex(TeamsRepository.FIELD_NAME));
-            if (displayName.length() != 0) {
+            if (!TextUtils.isEmpty(displayName)) {
                 mBinding.timeIcon.setText(String.valueOf(displayName.charAt(0)));
                 mBinding.timeIcon.getBackground()
                         .setColorFilter(ColorGenerator.MATERIAL.getRandomColor(), PorterDuff.Mode.MULTIPLY);
@@ -39,5 +40,4 @@ public class TeamViewHolder extends RecyclerView.ViewHolder {
             }
         }
     }
-
 }
