@@ -64,7 +64,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         super.onCreate(savedState);
         realm = Realm.getDefaultInstance();
         isEnabledSignInButton = new ObservableBoolean(false);
-        siteName = new ObservableField<>(realm.where(ClientCfg.class).findFirst().getSiteName());
+        siteName = new ObservableField<>(MattermostPreference.getInstance().getSiteName());
         isVisibleProgress = new ObservableInt(View.GONE);
 
         initRequestLogin();

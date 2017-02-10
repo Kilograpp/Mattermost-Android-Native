@@ -29,7 +29,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"
@@ -37,7 +37,7 @@
 
                         <TextView
                             android:id="@+id/textViewEmailSetting"
-                            style="@style/textVeryBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_horizontal_text_margin"
@@ -61,7 +61,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"
@@ -69,7 +69,7 @@
 
                         <TextView
                             android:id="@+id/textViewDescriptionMobPush"
-                            style="@style/textVeryBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_horizontal_text_margin"
@@ -94,7 +94,7 @@
                         android:padding="@dimen/activity_horizontal_margin">
 
                         <TextView
-                            style="@style/textGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAllCaps="true"
@@ -103,7 +103,7 @@
 
                         <TextView
                             android:id="@+id/textViewDescriptionWordsTrigger"
-                            style="@style/textVeryBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_horizontal_text_margin"

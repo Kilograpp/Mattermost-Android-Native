@@ -41,7 +41,7 @@
 
             <EditText
                 android:id="@+id/editTextPurpose"
-                style="@style/textBlack"
+                style="@style/TextNormalBlack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"

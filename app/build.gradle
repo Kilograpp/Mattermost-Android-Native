@@ -30,7 +30,7 @@ def getMyVersionCode = { ->
 }
 
 def getMyVersionName = { ->
-    def name = project.hasProperty('versionName') ? versionName : "v1.0.1";
+    def name = project.hasProperty('versionName') ? versionName : APP_VERSION;
     println "VersionName is set to $name"
     return name
 }
@@ -72,9 +72,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            resValue "string", "app_version", APP_VERSION
         }
         debug {
             minifyEnabled false
+            resValue "string", "app_version", APP_VERSION
         }
     }
 }
@@ -132,8 +134,6 @@ dependencies {
     }
     compile 'frankiesardo:icepick:3.2.0'
     apt 'frankiesardo:icepick-processor:3.2.0'
-    // File-picker
-    compile 'com.nononsenseapps:filepicker:3.0.0'
     compile 'com.makeramen:roundedimageview:2.2.1'
     compile 'com.annimon:stream:1.1.4'
 

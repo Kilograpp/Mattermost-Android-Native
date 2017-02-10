@@ -14,7 +14,7 @@
             android:orientation="vertical">
 
             <TextView
-                style="@style/textGrey"
+                style="@style/TextNormalGrey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -30,7 +30,7 @@
                 android:layout_marginTop="@dimen/activity_vertical_text_margin">
 
                 <TextView
-                    style="@style/textLargeBlack"
+                    style="@style/TextVeryBigBlack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/activity_horizontal_margin"
@@ -57,7 +57,7 @@
                 android:layout_marginTop="@dimen/cardview_compat_inset_shadow">
 
                 <TextView
-                    style="@style/textLargeBlack"
+                    style="@style/TextVeryBigBlack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/activity_horizontal_margin"
@@ -77,7 +77,7 @@
 
             <TextView
                 android:id="@+id/textViewDescription"
-                style="@style/textGrey"
+                style="@style/TextNormalGrey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"

@@ -32,7 +32,7 @@
 
                     <TextView
                         android:id="@+id/textViewChannelIcon"
-                        style="@style/textTitleWhite"
+                        style="@style/TextLargeBoldWhite"
                         android:layout_width="@dimen/circle_icon_size"
                         android:layout_height="@dimen/circle_icon_size"
                         android:layout_margin="@dimen/activity_horizontal_margin"
@@ -43,7 +43,7 @@
 
                     <TextView
                         android:id="@+id/textViewChannelName"
-                        style="@style/textTitleWhite"
+                        style="@style/TextLargeBoldWhite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -59,7 +59,7 @@
 
                     <TextView
                         android:id="@+id/TextViewToolbarText"
-                        style="@style/textNormalTitleWhite"
+                        style="@style/TextBoldWhite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -115,7 +115,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -124,7 +124,7 @@
 
                         <TextView
                             android:id="@+id/textViewHeaderDescription"
-                            style="@style/textBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -149,7 +149,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -158,7 +158,7 @@
 
                         <TextView
                             android:id="@+id/textViewPurposeDescription"
-                            style="@style/textBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -183,7 +183,7 @@
                         android:paddingEnd="@dimen/activity_horizontal_text_margin">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -192,7 +192,7 @@
 
                         <TextView
                             android:id="@+id/textViewUrlDescription"
-                            style="@style/textBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -216,7 +216,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/textBigGrey"
+                            style="@style/TextNormalGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -225,7 +225,7 @@
 
                         <TextView
                             android:id="@+id/textViewIdDescription"
-                            style="@style/textBigDarkGrey"
+                            style="@style/TextVeryBigDarkGrey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="@dimen/activity_horizontal_margin"
@@ -256,7 +256,7 @@
                             app:srcCompat="@drawable/ic_members_add" />
 
                         <TextView
-                            style="@style/textBlack"
+                            style="@style/TextNormalBlack"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -275,13 +275,13 @@
 
                     <TextView
                         android:id="@+id/textViewCountMembers"
-                        style="@style/textBigGrey"
+                        style="@style/TextNormalGrey"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
                         android:id="@+id/textViewSeeAll"
-                        style="@style/textNormalBlue"
+                        style="@style/TextNormalBlue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -318,7 +318,7 @@
 
                     <TextView
                         android:id="@+id/textViewLeaveDelete"
-                        style="@style/textRed"
+                        style="@style/TextRed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

@@ -36,7 +36,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    style="@style/textBigDarkGrey"
+                    style="@style/TextVeryBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -60,7 +60,7 @@
 
                         <EditText
                             android:id="@+id/editTextDisplayName"
-                            style="@style/textBlack"
+                            style="@style/TextNormalBlack"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -83,7 +83,7 @@
 
                 <TextView
                     android:id="@+id/textViewErrorDisplayName"
-                    style="@style/textRed"
+                    style="@style/TextRed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/activity_vertical_margin"
@@ -96,7 +96,7 @@
 
                 <TextView
                     android:id="@+id/textViewHandleDescription"
-                    style="@style/textBigDarkGrey"
+                    style="@style/TextVeryBigDarkGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/standart_margin"
@@ -121,7 +121,7 @@
 
                         <EditText
                             android:id="@+id/editTextName"
-                            style="@style/textBlack"
+                            style="@style/TextNormalBlack"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -144,7 +144,7 @@
 
                 <TextView
                     android:id="@+id/textViewHandleError"
-                    style="@style/textGrey"
+                    style="@style/TextNormalGrey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/activity_vertical_margin"

@@ -32,7 +32,7 @@
 
         <TextView
             android:id="@+id/listEmpty"
-            style="@style/textLightGrey"
+            style="@style/TextLightGrey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
