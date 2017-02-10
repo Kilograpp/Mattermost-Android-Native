@@ -128,11 +128,6 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                     ExtroInfoRepository.add(responseChannelByIdInfo.getExtraInfo());
                     showInfoDefault();
                     sendStartLoad();
-                    //TODO kepar wtf :):):)
-                            /*if (isEmpty) {
-                                sendShowEmptyList(channelId);
-                                isEmpty = false;
-                            }*/
                 }, (chatRxFragment, throwable) -> {
                     throwable.printStackTrace();
                     sendError(parceError(throwable));

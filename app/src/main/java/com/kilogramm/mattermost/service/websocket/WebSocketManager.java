@@ -209,21 +209,15 @@ public class WebSocketManager {
             } else Log.d(TAG, "web socket not created");
         }
     }
-    //TODO Review code
+
     public class UpdateStatusUser implements Runnable {
 
         @Override
         public void run() {
             if(webSocket!=null) {
-                Log.d(TAG, "web socket State:"+webSocket.getState().toString());
                 String getStatus = "{\"action\":\"get_statuses\",\"seq\":1,\"data\":null}";
-                /*if(webSocket.getState() == WebSocketState.CLOSED){
-                    start();
-                }*/
-                Log.d(TAG,"send " + getStatus);
                 webSocket.sendBinary(getStatus.getBytes());
             }
-            else  Log.d(TAG, "web socket not created");
         }
     }
 

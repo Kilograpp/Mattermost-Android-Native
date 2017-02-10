@@ -197,9 +197,6 @@ public class ManagerBroadcast {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe(channelsWithMembers -> {
-                            // TODO создается список, который нигде не используется
-                            RealmList<Channel> channelsList = new RealmList<>();
-                            channelsList.addAll(channelsWithMembers.getChannels());
                             ChannelRepository.prepareDirectAndChannelAdd(channelsWithMembers.getChannels());
                             MembersRepository.update(channelsWithMembers.getMembers());
                         });
