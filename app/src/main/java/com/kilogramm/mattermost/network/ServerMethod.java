@@ -21,6 +21,8 @@ import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
+import com.kilogramm.mattermost.model.response.ResponseLeftMenuDataV2;
+import com.kilogramm.mattermost.model.response.ResponsedChannel;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
@@ -60,7 +62,8 @@ public class ServerMethod {
         return mApi.getChannelsTeamNew(teamId);
     }
 
-    public Observable<Channel> saveOrCreateDirectChannel(List<Preferences> preferences, String teamId, String userId) {
+    public Observable<Channel> saveOrCreateDirectChannel(List<Preferences> preferences, String teamId,
+                                                         String userId) {
         User user = new User();
         user.setId(userId);
         return Observable.defer(() -> Observable.zip(
@@ -282,5 +285,34 @@ public class ServerMethod {
                 }));
     }
 
+
+    // for SQLite
+    public Observable<ResponseLeftMenuDataV2> loadLeftMenuV2(List<String> ids, String teamId) {
+        return Observable.defer(() -> Observable.zip(
+                mApi.getUserByIdsV2(ids),
+                mApi.getUserMembersByIdsV2(teamId, ids),
+                mApi.getChannelsTeamNewV2(teamId),
+                mApi.getMembersTeamNewV2(teamId),
+                (stringUserMap, userMembers, channels, members) -> {
+                    ResponseLeftMenuDataV2 responseLeftMenuDatav2 = new ResponseLeftMenuDataV2();
+                    responseLeftMenuDatav2.setDataV2(stringUserMap, userMembers, channels, members);
+                    return responseLeftMenuDatav2;
+                }));
+    }
+
+    public Observable<ResponsedChannel> saveOrCreateDirectChannelV2(List<Preferences> preferences, String teamId,
+                                                                    String userId) {
+        User user = new User();
+        user.setId(userId);
+        return Observable.defer(() -> Observable.zip(
+                mApi.save(preferences),
+                mApi.createDirectV2(teamId, user),
+                (aBoolean, responsedChannel) -> {
+                    if (!aBoolean)
+                        return null;
+                    return responsedChannel;
+                }
+        ));
+    }
 
 }

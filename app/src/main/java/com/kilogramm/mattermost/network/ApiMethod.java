@@ -23,6 +23,8 @@ import com.kilogramm.mattermost.model.fromnet.ForgotData;
 import com.kilogramm.mattermost.model.fromnet.ListInviteObj;
 import com.kilogramm.mattermost.model.fromnet.LoginData;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
+import com.kilogramm.mattermost.model.response.ResponsedChannel;
+import com.kilogramm.mattermost.model.response.ResponsedUser;
 import com.kilogramm.mattermost.presenter.channel.AddMembersPresenter;
 import com.kilogramm.mattermost.presenter.channel.HeaderPresenter;
 import com.kilogramm.mattermost.presenter.channel.PurposePresenter;
@@ -85,7 +87,6 @@ public interface ApiMethod {
     Observable<List<Member>> getMembersTeamNew(@Path("teamId") String teamId);
 
 
-
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -139,7 +140,7 @@ public interface ApiMethod {
                                      @Path("lastMessageId") String lastMessageId,
                                      @Path("limit") String limit);
 
-   //TODO was updated by Mattermost to stats
+    //TODO was updated by Mattermost to stats
 //    @Headers({
 //            "Accept: application/json",
 //            "X-Request-With: XMLHttpRequest",
@@ -179,8 +180,8 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{teamId}/channels/{channel_id}/posts/{postId}/get_file_infos")
     Observable<List<FileInfo>> getFileInfo(@Path("teamId") String teamId,
-                                     @Path("channel_id") String channel_id,
-                                     @Path("postId") String postId);
+                                           @Path("channel_id") String channel_id,
+                                           @Path("postId") String postId);
 
     @Headers({
             "Accept: application/json",
@@ -188,7 +189,7 @@ public interface ApiMethod {
             "Content-Type: application/json"})
     @GET("api/v3/teams/{team_id}/channels/{channel_id}/")
     Observable<ChannelWithMember> getChannelById(@Path("team_id") String team_id,
-                                       @Path("channel_id") String channel_id);
+                                                 @Path("channel_id") String channel_id);
 
     @Headers({
             "Accept: application/json",
@@ -248,7 +249,7 @@ public interface ApiMethod {
 //            "X-Request-With: XMLHttpRequest",
 //            "Content-Type: application/json"})
 //    @GET("api/v3/users/direct_profiles")
-//    Observable<Map<String, User>> getDirectProfile();
+//    Observable<Map<String, ResponsedUser>> getDirectProfile();
 
 //    @Headers({
 //            "Accept: application/json",
@@ -326,6 +327,7 @@ public interface ApiMethod {
     @POST("api/v3/teams/{team_id}/channels/create_direct")
     Observable<Channel> createDirect(@Path("team_id") String teamId,
                                      @Body User user);
+
     @Headers({
             "Accept: application/json",
             "X-Request-With: XMLHttpRequest",
@@ -467,7 +469,7 @@ public interface ApiMethod {
             "X-Request-With: XMLHttpRequest",
             "Content-Type: application/json"})
     @POST("api/v3/users/ids")
-    Observable<Map<String,User>> getUserByIds(@Body List<String> ids);
+    Observable<Map<String, User>> getUserByIds(@Body List<String> ids);
 
     @Headers({
             "Accept: application/json",
@@ -478,4 +480,43 @@ public interface ApiMethod {
                                                      @Body List<String> ids);
 
 
+
+
+    // for SQLite
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/users/ids")
+    Observable<Map<String, ResponsedUser>> getUserByIdsV2(@Body List<String> ids);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{teamId}/members/ids")
+    Observable<List<UserMember>> getUserMembersByIdsV2(@Path("teamId") String teamId,
+                                                     @Body List<String> ids);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/")
+    Observable<List<ResponsedChannel>> getChannelsTeamNewV2(@Path("teamId") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @GET("api/v3/teams/{teamId}/channels/members")
+    Observable<List<Member>> getMembersTeamNewV2(@Path("teamId") String teamId);
+
+    @Headers({
+            "Accept: application/json",
+            "X-Request-With: XMLHttpRequest",
+            "Content-Type: application/json"})
+    @POST("api/v3/teams/{team_id}/channels/create_direct")
+    Observable<ResponsedChannel> createDirectV2(@Path("team_id") String teamId,
+                                                @Body User user);
 }

@@ -4,6 +4,7 @@ import com.kilogramm.mattermost.model.UserMember;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.member.Member;
 import com.kilogramm.mattermost.model.entity.user.User;
+import com.kilogramm.mattermost.model.response.ResponsedUser;
 
 import java.util.List;
 import java.util.Map;

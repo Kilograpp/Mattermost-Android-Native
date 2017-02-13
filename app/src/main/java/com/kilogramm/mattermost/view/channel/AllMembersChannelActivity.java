@@ -134,7 +134,7 @@ public class AllMembersChannelActivity extends BaseActivity<AllMembersPresenter>
                     getPresenter().savePreferences(user.getId());
                     showJumpDialog(user.getUsername());
                 }else{
-                    Toast.makeText(this,"User is null, refer to the developers",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,"ResponsedUser is null, refer to the developers",Toast.LENGTH_LONG).show();
                 }
 
             } else startDialog(id);
