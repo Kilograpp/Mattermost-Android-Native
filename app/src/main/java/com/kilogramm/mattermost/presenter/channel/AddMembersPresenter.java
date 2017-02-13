@@ -132,7 +132,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                     extraInfoWithOutMember.getExtraInfo().setMembers(results);
                     ExtroInfoRepository.add(extraInfoWithOutMember.getExtraInfo());
                     start(REQUEST_GET_USERS);
-                }, (channelActivity, throwable) -> sendShowError(parceError(throwable, null)));
+                }, (channelActivity, throwable) -> sendShowError(parseError(throwable, null)));
     }
 
     private void requestGetUsersNotInChannel() {
@@ -150,7 +150,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                         Collections.sort(usersNotInChannel, (user, t1) -> user.getUsername().compareToIgnoreCase(t1.getUsername()));
                         addMembersActivity.refreshAdapter(usersNotInChannel);
                     }
-                }, (addMembersActivity, throwable) -> sendShowError(parceError(throwable, null)));
+                }, (addMembersActivity, throwable) -> sendShowError(parseError(throwable, null)));
     }
 
     private void addMembers() {
@@ -162,7 +162,7 @@ public class AddMembersPresenter extends BaseRxPresenter<AddMembersActivity> {
                 (addMembersActivity, user) -> updateMembers(user.getUser_id()),
                 (generalRxActivity1, throwable) -> {
                     throwable.printStackTrace();
-                    errorUpdateMembers(parceError(throwable, null));
+                    errorUpdateMembers(parseError(throwable, null));
                 });
     }
 

@@ -66,7 +66,7 @@ public class StartScreenActivity extends BaseActivity<StartScreenPresenter> {
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } else {
-            showErrorTextForever(getString(R.string.network_error),
+            showErrorTextForever(getString(R.string.error_network_connection),
                     findViewById(R.id.imageView));
 
             registerReceiver(mBroadcastReceiver,

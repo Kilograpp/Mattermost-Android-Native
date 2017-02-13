@@ -1,13 +1,20 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import com.google.gson.JsonSyntaxException;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.BaseActivity;
 import com.kilogramm.mattermost.view.createChannelGroup.CreateNewChannelActivity;
+
+import java.io.IOException;
 
 import rx.schedulers.Schedulers;
 
@@ -17,7 +24,6 @@ import rx.schedulers.Schedulers;
 
 public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelActivity> {
     private static final int REQUEST_CREATE_CHANNEL = 1;
-//    private static final int REQUEST_GET_INFO = 2;
 
     private Channel mCreateChannel;
     private String mTeamId;
@@ -34,6 +40,25 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
         initRequests();
     }
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()) {
+                case 403:
+                    return context.getString(R.string.error_not_belong_to_team);
+                case 500:
+                    return context.getString(R.string.error_channel_exists);
+                default:
+                    return httpError.getMessage();
+            }
+        } catch (IOException | JsonSyntaxException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     private void initRequests() {
         restartableFirst(REQUEST_CREATE_CHANNEL,
                 () -> ServerMethod.getInstance()
@@ -48,33 +73,10 @@ public class CreateNewChannelPresenter extends BaseRxPresenter<CreateNewChannelA
                     }
                     sendSetProgressVisibility(false);
                 }, (createNewChGrActivity, throwable) -> {
-                    sendShowError(parceError(throwable, CREATE_CHANNEL));
+                    sendShowError(parseError(throwable));
                     sendSetProgressVisibility(false);
                 });
     }
-
-//    private void getChannelsInfo() {
-//        restartableFirst(REQUEST_GET_INFO, () -> Observable.defer(
-//                () -> Observable.zip(
-//                        mService.getChannelsTeam(this.mTeamId)
-//                                .subscribeOn(Schedulers.io())
-//                                .observeOn(Schedulers.io()),
-//                        mService.getExtraInfoChannel(this.mTeamId, this.mChannelId)
-//                                .subscribeOn(Schedulers.io())
-//                                .observeOn(Schedulers.io()),
-//                        (channelsWithMembers, extraInfo) -> {
-//                            ChannelRepository.prepareChannelAndAdd(channelsWithMembers.getChannels(),
-//                                    MattermostPreference.getInstance().getMyUserId());
-//                            return extraInfo;
-//                        })),
-//                (createNewChGrActivity, extraInfo) -> {
-//                    sendFinishActivity(mChannelId, mDisplayName);
-//                    sendSetProgressVisibility(false);
-//                }, (createNewChGrActivity, throwable) -> {
-//                    this.sendShowError(getError(throwable));
-//                    sendSetProgressVisibility(false);
-//                });
-//    }
 
     public void requestCreateChannel(String name, String displayName, String header, String purpose) {
         mCreateChannel.setAttributesToCreate(name, displayName, purpose, header, "O");

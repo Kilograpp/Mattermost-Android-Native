@@ -38,7 +38,7 @@ public class InviteUserRxPresenter extends BaseRxPresenter<InviteUserRxActivity>
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()),
                 (inviteUserRxActivity, o) -> sendInviteOk(),
-                (inviteUserRxActivity1, throwable) -> sendError(parceError(throwable, null)));
+                (inviteUserRxActivity1, throwable) -> sendError(parseError(throwable, null)));
     }
 
     public void requestInvite(ListInviteObj inviteObj){

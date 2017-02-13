@@ -7,6 +7,7 @@ import android.util.Patterns;
 import com.kilogramm.mattermost.BuildConfig;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.network.ServerMethod;
 
 import java.net.URI;
@@ -49,7 +50,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             sendShowNextButton(true);
         }, (mainActivity, throwable) -> {
             sendVisibleProgress(false);
-            sendShowError(parceError(throwable, "Couldn't find existing team matching this URL"));
+            sendShowError(parseError(throwable, MattermostApp.getSingleton().getString(R.string.error_no_team)));
             sendShowNextButton(true);
         });
     }
@@ -86,7 +87,7 @@ public class MainRxPresenter extends BaseRxPresenter<MainRxActivity> {
             start(REQUEST_CHECK);
         } else {
             sendShowNextButton(true);
-            sendShowError(parceError(null, NO_NETWORK));
+            sendShowError(MattermostApp.getSingleton().getString(R.string.error_network_connection));
         }
     }
 

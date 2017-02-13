@@ -1,13 +1,16 @@
 package com.kilogramm.mattermost.rxtest;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
@@ -78,35 +81,29 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
         requestDirectProfile();
     }
 
-    /*//TODO review evgenysuetin
-    public void setSelectedLast(String id) {
-        Log.d(TAG, "setSelectedLast");
-        Channel channel;
-        if (id != null) {
-            try {
-                channel = ChannelRepository.query(new ChannelRepository.ChannelByIdSpecification(id)).first();
-                if (channel != null)
-                    if (channel.getType().equals(Channel.DIRECT)) {
-                        sendSetFragmentChat(channel.getId(), channel.getUsername(), channel.getType());
-                    } else {
-                        sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
-                    }
-            } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()){
+                case 400:
+                    return context.getString(R.string.error_save_data);
+                case 401:
+                    return context.getString(R.string.error_auth);
+                case 403:
+                    return context.getString(R.string.error_preferences_not_match);
+                case 500:
+                    return context.getString(R.string.error_no_preferences);
+                default:
+                    return httpError.getMessage();
+
             }
-        } else {
-            RealmResults<Channel> channels = ChannelRepository.query(new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN));
-            if (channels.size() != 0) {
-                sendSetFragmentChat(channels.first().getId(), channels.first().getName(), channels.first().getType());
-            } else {
-                channels.addChangeListener(element -> {
-                    if (element.size() != 0) {
-                        sendSetFragmentChat(element.first().getId(), element.first().getName(), element.first().getType());
-                    }
-                });
-            }
+        } catch (IOException | JsonSyntaxException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
         }
-    }*/
+    }
 
     private void initRequest() {
         restartableFirst(REQUEST_DIRECT_PROFILE,
@@ -130,7 +127,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
 
                     requestLoadChannels();
-                }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));// TODO: 18.01.17  entry point
+                }, (generalRxActivity1, throwable) -> sendShowError(parseError(throwable, null)));
 
         restartableFirst(REQUEST_LOAD_CHANNELS,
                 () -> ServerMethod.getInstance()
@@ -145,20 +142,16 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                             MattermostPreference.getInstance().getMyUserId());
                     Log.d(TAG, channels.toString());
                     requestUserTeam();
-
-                    //start(REQUEST_EXTROINFO_DEFAULT_CHANNEL);
-                }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));
+                }, (generalRxActivity1, throwable) -> sendShowError(parseError(throwable, null)));
 
 
         restartableFirst(REQUEST_USER_TEAM,
                 () -> Observable.just("test"),
                 (generalRxActivity, stringUserMap) -> {
                     Log.d(TAG, "initRequest: " + stringUserMap);
-                    //UserRepository.add(stringUserMap.values());
                     if (MattermostPreference.getInstance().getLastChannelId() == null) {
                         Channel channel = ChannelRepository.query(
                                 new ChannelRepository.ChannelByTypeSpecification(Channel.OPEN)).first();
-                        //sendSetFragmentChat(channel.getId(), channel.getName(), channel.getType());
                         if (channel != null) {
                             sendSetFragmentChat(channel.getId(), channel.getDisplayName(), channel.getType());
                         }
@@ -187,7 +180,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     clearPreference();
                     sendShowMainRxActivity();
                 }, (generalRxActivity1, throwable) -> {
-                    sendShowError(parceError(throwable, null));
+                    sendShowError(parseError(throwable, null));
                     throwable.printStackTrace();
                     Log.d(TAG, "Error logout");
                 });
@@ -200,7 +193,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                 (activity, aBoolean) ->
                     PreferenceRepository.add(preferenceList)
                 , (activity, throwable) ->
-                        sendShowError(parceError(throwable, SAVE_PREFERENCES))
+                        sendShowError(parseError(throwable))
         );
     }
 

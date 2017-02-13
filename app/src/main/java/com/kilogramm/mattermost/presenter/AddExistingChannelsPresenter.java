@@ -1,18 +1,24 @@
 package com.kilogramm.mattermost.presenter;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.JsonSyntaxException;
+import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.channel.ChannelRepository;
 import com.kilogramm.mattermost.model.entity.channel.ChannelsDontBelong;
+import com.kilogramm.mattermost.model.error.HttpError;
 import com.kilogramm.mattermost.model.fromnet.LogoutData;
 import com.kilogramm.mattermost.network.ServerMethod;
 import com.kilogramm.mattermost.rxtest.BaseRxPresenter;
 import com.kilogramm.mattermost.view.addchat.AddExistingChannelsActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +55,25 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
     }
 
 
+    @Override
+    public String parseError(Throwable e) {
+        try {
+            HttpError httpError = getErrorFromResponse(e);
+            Context context = MattermostApp.getSingleton().getApplicationContext();
+            switch (httpError.getStatusCode()) {
+                case 403:
+                    return context.getString(R.string.error_not_belong_to_team);
+                case 500:
+                    return context.getString(R.string.error_channel_exists);
+                default:
+                    return httpError.getMessage();
+            }
+        } catch (IOException | JsonSyntaxException e1) {
+            e1.printStackTrace();
+            return super.parseError(e);
+        }
+    }
+
     private void initRequest() {
         restartableFirst(REQUEST_CHANNELS_MORE,
                 () -> ServerMethod.getInstance()
@@ -80,12 +105,13 @@ public class AddExistingChannelsPresenter extends BaseRxPresenter<AddExistingCha
                     try {
                         Log.d(TAG, "initRequest: onError moreChannels: " + moreChannels.size());
 
-                        sendShowError(parceError(throwable, CHANNELS_MORE));
+                        sendShowError(parseError(throwable));
                         sendSetProgress(false);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
+
 
         restartableFirst(REQUEST_ADD_CHAT, () ->
                         ServerMethod.getInstance()

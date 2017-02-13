@@ -45,7 +45,7 @@ public class EmailEditPresenter extends BaseRxPresenter<EmailEditActivity> {
                     }
                 }, (editProfileRxActivity, throwable) -> {
                     sendOnComplete();
-                    sendError(parceError(throwable));
+                    sendError(parseError(throwable));
                 });
     }
 
