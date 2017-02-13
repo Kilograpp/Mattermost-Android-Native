@@ -1,7 +1,6 @@
 package com.kilogramm.mattermost.model.response;
 
 import com.kilogramm.mattermost.model.UserMember;
-import com.kilogramm.mattermost.model.entity.channel.Channel;
 import com.kilogramm.mattermost.model.entity.member.Member;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public class ResponseLeftMenuDataV2 {
     private List<ResponsedChannel> channels;
     private List<Member> members;
 
-    public void setDataV2(Map<String, ResponsedUser> stringUserMap,List<UserMember> userMembers,
+    public void setDataV2(Map<String, ResponsedUser> stringUserMap, List<UserMember> userMembers,
                           List<ResponsedChannel> channels, List<Member> members) {
         this.stringUserMap = stringUserMap;
         this.userMembers = userMembers;

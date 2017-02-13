@@ -161,8 +161,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
     }
 
 
-
-
     /*SQLite area*/
     public void requestSaveDataV2(Preferences data, String userId) {
         mListPreferences.getmSaveData().clear();
@@ -199,8 +197,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
                     UsersRepository.addResponsedUser(responseLeftMenuDataV2.getStringUserMap());
                     ChannelsRepository.addResponsedChannel(responseLeftMenuDataV2.getChannels());
-//                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
-//                    MembersRepository.add(responseLeftMenuData.getMembers());
                     sendUpdateMenuView();
                     sendShowLeftMenu();
                     sendSelectLastChannel();
@@ -219,8 +215,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 , (leftMenuRxFragment, responseLeftMenuDataV2) -> {
                     UsersRepository.addResponsedUser(responseLeftMenuDataV2.getStringUserMap());
                     ChannelsRepository.addResponsedChannel(responseLeftMenuDataV2.getChannels());
-//                    UserMemberRepository.add(responseLeftMenuData.getUserMembers());
-//                    MembersRepository.add(responseLeftMenuData.getMembers());
                     sendSetRefreshAnimation(false);
                     sendInvalidateData();
                     sendSelectLastChannel();
@@ -249,8 +243,6 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 }, (leftMenuRxFragment, throwable) -> throwable.printStackTrace());
     }
     /*end SQLite area*/
-
-
 
 
     private void sendSetFragmentChat(String channelId, String name, String type) {
@@ -300,7 +292,7 @@ public class LeftMenuRxPresenter extends BaseRxPresenter<LeftMenuRxFragment> {
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
 
-                RealmResults<Preferences> listPref = PreferenceRepository.query(realm,new PreferenceRepository.ListDirectMenu());
+                RealmResults<Preferences> listPref = PreferenceRepository.query(realm, new PreferenceRepository.ListDirectMenu());
                 List<String> ids = Stream.of(listPref)
                         .map(Preferences::getName)
                         .collect(Collectors.toList());

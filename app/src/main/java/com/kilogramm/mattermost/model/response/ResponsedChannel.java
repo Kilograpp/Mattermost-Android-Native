@@ -97,208 +97,93 @@ public class ResponsedChannel implements Parcelable{
         this.user = user;
     }
 
-    /**
-     *
-     * @return
-     * The id
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     *
-     * @param id
-     * The id
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     *
-     * @return
-     * The createAt
-     */
     public Long getCreateAt() {
         return createAt;
     }
 
-    /**
-     *
-     * @param createAt
-     * The create_at
-     */
     public void setCreateAt(Long createAt) {
         this.createAt = createAt;
     }
 
-    /**
-     *
-     * @return
-     * The updateAt
-     */
     public Long getUpdateAt() {
         return updateAt;
     }
 
-    /**
-     *
-     * @return
-     * The deleteAt
-     */
     public Long getDeleteAt() {
         return deleteAt;
     }
 
-    /**
-     *
-     * @return
-     * The teamId
-     */
     public String getTeamId() {
         return teamId;
     }
 
-    /**
-     *
-     * @param teamId
-     * The team_id
-     */
     public void setTeamId(String teamId) {
         this.teamId = teamId;
     }
 
-    /**
-     *
-     * @return
-     * The type
-     */
     public String getType() {
         return type;
     }
 
-    /**
-     *
-     * @param type
-     * The type
-     */
     public void setType(String type) {
         this.type = type;
     }
 
-    /**
-     *
-     * @return
-     * The displayName
-     */
     public String getDisplayName() {
         return displayName;
     }
 
-    /**
-     *
-     * @return
-     * The name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     *
-     * @param name
-     * The name
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     *
-     * @param displayName
-     * The displayName
-     */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    /**
-     *
-     * @param purpose
-     * The purpose
-     */
     public void setPurpose(String purpose) {
         this.purpose = purpose;
     }
 
-    /**
-     *
-     * @param header
-     * The header
-     */
     public void setHeader(String header) {
         this.header = header;
     }
 
-    /**
-     *
-     * @return
-     * The header
-     */
     public String getHeader() {
         return header;
     }
 
-    /**
-     *
-     * @return
-     * The purpose
-     */
     public String getPurpose() {
         return purpose;
     }
 
-    /**
-     *
-     * @return
-     * The lastPostAt
-     */
     public Long getLastPostAt() {
         return lastPostAt;
     }
 
-
-    /**
-     *
-     * @return
-     * The totalMsgCount
-     */
     public Integer getTotalMsgCount() {
         return totalMsgCount;
     }
 
-
-
-    /**
-     *
-     * @return
-     * The extraUpdateAt
-     */
     public Long getExtraUpdateAt() {
         return extraUpdateAt;
     }
 
-
-    /**
-     *
-     * @return
-     * The creatorId
-     */
     public String getCreatorId() {
         return creatorId;
     }
-
 
     public void setAttributesToCreate(String name, String displayName,
                                       String purpose, String header, String type) {
@@ -332,7 +217,6 @@ public class ResponsedChannel implements Parcelable{
         this.user = channel.getUser();
         this.unreadedMessage = channel.getUnreadedMessage();
     }
-
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
