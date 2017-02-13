@@ -284,4 +284,5 @@
     <string name="error_file_storage_disabled">File storage is disabled</string>
     <string name="error_send_file">Can not send message</string>
     <string name="error_no_team">Could not find existing team matching this URL</string>
+    <string name="error_json_parse">Response does not contain Json</string>
 </resources>

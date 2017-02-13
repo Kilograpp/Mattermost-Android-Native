@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -106,7 +107,7 @@ public class ChatPresenterV2 extends BaseRxPresenter<ChatFragmentV2> {
                 default:
                     return httpError.getMessage();
             }
-        } catch (IOException e1) {
+        } catch (IOException | JsonSyntaxException e1) {
             e1.printStackTrace();
             return super.parseError(e);
         }

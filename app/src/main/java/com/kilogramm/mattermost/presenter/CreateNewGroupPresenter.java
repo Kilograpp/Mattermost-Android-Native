@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.presenter;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -52,7 +53,7 @@ public class CreateNewGroupPresenter extends BaseRxPresenter<CreateNewGroupActiv
                 default:
                     return httpError.getMessage();
             }
-        } catch (IOException e1) {
+        } catch (IOException | JsonSyntaxException e1) {
             e1.printStackTrace();
             return super.parseError(e);
         }

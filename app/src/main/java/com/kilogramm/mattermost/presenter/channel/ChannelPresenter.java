@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -183,7 +184,7 @@ public class ChannelPresenter extends BaseRxPresenter<ChannelActivity> {
                     return httpError.getMessage();
 
             }
-        } catch (IOException e1) {
+        } catch (IOException | JsonSyntaxException e1) {
             e1.printStackTrace();
             return super.parseError(e);
         }

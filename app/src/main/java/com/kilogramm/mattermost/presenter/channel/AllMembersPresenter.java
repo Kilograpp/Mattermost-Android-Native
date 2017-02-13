@@ -3,6 +3,7 @@ package com.kilogramm.mattermost.presenter.channel;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.google.gson.JsonSyntaxException;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
@@ -71,7 +72,7 @@ public class AllMembersPresenter extends BaseRxPresenter<AllMembersChannelActivi
                     return httpError.getMessage();
 
             }
-        } catch (IOException e1) {
+        } catch (IOException | JsonSyntaxException e1) {
             e1.printStackTrace();
             return super.parseError(e);
         }
