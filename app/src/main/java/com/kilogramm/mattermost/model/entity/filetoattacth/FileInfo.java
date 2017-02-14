@@ -66,6 +66,10 @@ public class FileInfo extends RealmObject implements Parcelable {
         this.mPostId = mPostId;
     }
 
+    public String getmPostId() {
+        return mPostId;
+    }
+
     @Override
     public int describeContents() {
         return 0;

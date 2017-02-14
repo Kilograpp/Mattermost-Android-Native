@@ -18,6 +18,7 @@ import com.kilogramm.mattermost.database.repository.UsersRepository;
 
 import static com.kilogramm.mattermost.database.DBHelper.FIELD_COMMON_ID;
 import static com.kilogramm.mattermost.database.repository.ChannelsRepository.TABLE_NAME_CHANNELS;
+import static com.kilogramm.mattermost.database.repository.FileInfosRepository.TABLE_NAME_FILE_INFOS;
 import static com.kilogramm.mattermost.database.repository.PostsRepository.TABLE_NAME_POSTS;
 import static com.kilogramm.mattermost.database.repository.TeamsRepository.TABLE_NAME_TEAMS;
 import static com.kilogramm.mattermost.database.repository.UsersRepository.TABLE_NAME_USERS;
@@ -40,6 +41,8 @@ public class MattermostContentProvider extends ContentProvider {
             + TABLE_NAME_POSTS);
     public static final Uri CONTENT_URI_TEAMS = Uri.parse("content://" + AUTHORITY + "/"
             + TABLE_NAME_POSTS);
+    public static final Uri CONTENT_URI_FILE_INFOS = Uri.parse("content://" + AUTHORITY + "/"
+            + TABLE_NAME_FILE_INFOS);
 
     private static final int CODE_CHANNELS = 1;
     private static final int CODE_CHANNELS_WITH_ID = 2;
