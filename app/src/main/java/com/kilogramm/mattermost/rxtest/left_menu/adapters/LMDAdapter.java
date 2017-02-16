@@ -85,6 +85,7 @@ public class LMDAdapter extends CursorRecyclerViewAdapter<BaseDirectViewHolder> 
 
     private void initItemList(Cursor cursor) {
         if (cursor != null) {
+            mDirectItems.clear();
             DirectItem item = null;
             DirectItem itemAbove = null;
 
@@ -106,6 +107,7 @@ public class LMDAdapter extends CursorRecyclerViewAdapter<BaseDirectViewHolder> 
         initItemList(newCursor);
         return super.swapCursor(newCursor, changes);
     }
+
 
 
 }

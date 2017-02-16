@@ -118,39 +118,38 @@ public class LeftMenuRxFragmentV2 extends BaseFragment<LeftMenuRxPresenter> impl
     @Override
     public void onRefresh() {
 //        getPresenter().requestUpdate();
-        mBinding.leftSwipeRefresh.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mBinding.leftSwipeRefresh.setRefreshing(false);
-                new TeastTask().execute();
-            }
+        mBinding.leftSwipeRefresh.postDelayed(() -> {
+            mBinding.leftSwipeRefresh.setRefreshing(false);
+            new TestTask().execute();
         },1000);
     }
 
-    public class TeastTask extends AsyncTask<Void,Void,Void>{
+    public class TestTask extends AsyncTask<Void,Void,Void>{
 
         @Override
         protected Void doInBackground(Void... params) {
+
 
             String selection= null;
             for(int i=0;i<10000;i++){
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"John");
                 if(i%2 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null, i%3 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"John"});
+                        UserV2.getMockableUserData(null, i%3 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, String.valueOf(i%10 == 0) ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Johny"});
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"EOPCp");
                 if(i%3 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null, i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"EOPCp"});
+                        UserV2.getMockableUserData(null, i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, String.valueOf(i%13 == 0) ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Boby"});
 
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"Irtep");
                 if(i%12 == 0)getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Irtep"});
+                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, String.valueOf(i%15 == 0) ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Dorian"});
 
                 selection = addIdToSpecification(DBHelper.FIELD_COMMON_ID,"Ijerf");
                 if(i%3 == 0)getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, "false" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Ijerf"});
+                        UserV2.getMockableUserData(null,i%2 == 0?UserV2.STATUS_ONLINE:UserV2.STATUS_OFFLINE, String.valueOf(i%17 == 0) ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"EOPCp7"});
 
                 if(i%2 == 0) getActivity().getContentResolver().update(MattermostContentProvider.CONTENT_URI_USERS,
-                        UserV2.getMockableUserData2(null,""+i, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"John1"});
+//                        UserV2.getMockableUserData2(null,""+i, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Ijerf9"});
+                        UserV2.getMockableUserData2(null,""+i, "true" ),DBHelper.FIELD_COMMON_ID+" = ?",new String[]{"Ijerf9"});
 
                 try {
                     Thread.currentThread().sleep(100);
