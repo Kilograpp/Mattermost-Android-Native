@@ -1,15 +1,17 @@
 package com.kilogramm.mattermost.rxtest.left_menu.holders;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.OutsideLayoutBinding;
-import com.kilogramm.mattermost.rxtest.left_menu.direct.DirectHeader;
+import com.kilogramm.mattermost.rxtest.left_menu.direct.IDirect;
 
 /**
  * Created by Evgeny on 18.01.2017.
  */
-public class AdapterDirectHeaderHolder extends BaseLeftHolder{
+public class AdapterDirectHeaderHolder extends BaseDirectViewHolder{
 
     private OutsideLayoutBinding mBinding;
 
@@ -23,8 +25,11 @@ public class AdapterDirectHeaderHolder extends BaseLeftHolder{
         return new AdapterDirectHeaderHolder(binding);
     }
 
-    public void bindTo(DirectHeader header){
-        mBinding.headerTitle.setText(header.getHeaderTitle());
+    public void bindTo(IDirect header){
     }
 
+    @Override
+    public void bindTo(IDirect iDirect, Context context) {
+        mBinding.headerTitle.setText(R.string.outside_team);
+    }
 }

@@ -297,7 +297,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
      * @param changes
      * @return
      */
-    private Cursor swapCursor(Cursor newCursor, SparseIntArray changes) {
+    protected Cursor swapCursor(Cursor newCursor, SparseIntArray changes) {
 
         if(!mDataValid) {
             mDataValid = true;

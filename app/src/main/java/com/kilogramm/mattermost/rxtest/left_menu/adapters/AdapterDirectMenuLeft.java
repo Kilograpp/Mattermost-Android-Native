@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.kilogramm.mattermost.MattermostPreference;
@@ -36,11 +35,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 import io.realm.Realm;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -105,7 +101,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             AdapterDirectItemHolder viewHolder = (AdapterDirectItemHolder) holder;
             viewHolder.setClickListener(v -> {
                 if (mItemClickListener != null) {
-                    mItemClickListener.onChannelClick(item.channelId, item.username,
+                    mItemClickListener.onChannelClick(item.getChannelId(), item.getUsername(),
                             Channel.DIRECT);
                 }
                 setSelectedItem(holder.getAdapterPosition());
@@ -132,17 +128,17 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                     .filter(iDirect -> {
                         if(iDirect.getType() == IDirect.TYPE_ITEM){
                             DirectItem di = ((DirectItem)iDirect);
-                            buildIDirectItem(di,di.channelId);
+                            buildIDirectItem(di,di.getChannelId());
                             return true;
                         }return false;
                     })
-                    .groupBy(directItem -> ((DirectItem) directItem).inTeam)
+                    .groupBy(directItem -> ((DirectItem) directItem).isInTeam())
                     .sortBy(entry -> !entry.getKey())
                     .flatMap(entry -> {
                         List<IDirect> value = entry.getValue();
                         Collections.sort(value, (o1, o2) -> {
-                            if(TextUtils.isEmpty(((DirectItem) o1).username) || TextUtils.isEmpty(((DirectItem) o2).username)) return 0;
-                            else return ((DirectItem) o1).username.compareTo(((DirectItem) o2).username);
+                            if(TextUtils.isEmpty(((DirectItem) o1).getUsername()) || TextUtils.isEmpty(((DirectItem) o2).getUsername())) return 0;
+                            else return ((DirectItem) o1).getUsername().compareTo(((DirectItem) o2).getUsername());
                         }
                         );
                         if (!entry.getKey()) {
@@ -183,9 +179,9 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                                     IDirect iDirect = mAdapterData.get(i);
                                     if (iDirect.getType() == IDirect.TYPE_ITEM) {
                                         directItem = (DirectItem) iDirect;
-                                        if (directItem.isUpdate) {
+                                        if (directItem.isUpdate()) {
                                             notifyItemChanged(i);
-                                            directItem.isUpdate = false;
+                                            directItem.setUpdate(false);
                                         }
                                     }
                                 }
@@ -227,8 +223,8 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
                     for (Channel channel : channels) {
                         if (!mData.containsKey(channel.getId())) {
                             DirectItem item = buildIDirectItem(new DirectItem(),channel.getId());
-                            item.isUpdate = false;
-                            if(!TextUtils.isEmpty(item.username)) mData.put(channel.getId(), item);
+                            item.setUpdate(false);
+                            if(!TextUtils.isEmpty(item.getUsername())) mData.put(channel.getId(), item);
                         }
                     }
                 }
@@ -248,40 +244,40 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
             String userId = "";
             RealmResults<Channel> chennels = realm.where(Channel.class).equalTo("id",channelId).findAll();
             if(chennels.size()!=0) {
-                item.channelId = chennels.first().getId();
-                item.totalMessageCount = chennels.first().getTotalMsgCount();
+                item.setChannelId(chennels.first().getId());
+                item.setTotalMessageCount(chennels.first().getTotalMsgCount());
                 userId = chennels.first().getName().replace(MattermostPreference.getInstance().getMyUserId(), "");
-            }else item.channelId = channelId;
+            }else item.setChannelId(channelId);
 
             userId = userId.replace("__", "");
             RealmResults<User> users = realm.where(User.class).equalTo("id", userId).findAll();
             if(users.size()!=0){
-                item.userId = users.first().getId();
-                item.username = users.first().getUsername();
+                item.setUserId(users.first().getId());
+                item.setUsername(users.first().getUsername());
             } else {
-                item.userId = null;
-                item.username = null;
+                item.setUserId(null);
+                item.setUsername(null);
             }
             RealmResults<UserStatus> statuses = realm.where(UserStatus.class).equalTo("id", userId).findAll();
             if(statuses.size()!=0){
-                if(item.status!=null && !item.status.equals(statuses.first().getStatus())) item.isUpdate = true;
-                item.status = statuses.first().getStatus();
+                if(item.getStatus()!=null && !item.getStatus().equals(statuses.first().getStatus())) item.setUpdate(true);
+                item.setStatus(statuses.first().getStatus());
             } else {
-                item.status = UserStatus.OFFLINE;
+                item.setStatus(UserStatus.OFFLINE);
             }
             RealmResults<Member> members = realm.where(Member.class).equalTo("channelId",channelId).findAll();
             if(members.size()!=0){
 
-                if(item.mentionCount!= members.first().getMentionCount()) item.isUpdate = true;
-                item.mentionCount = members.first().getMentionCount();
+                if(item.getMentionCount()!= members.first().getMentionCount()) item.setUpdate(true);
+                item.setMentionCount(members.first().getMentionCount());
 
-                if( item.msgCount!= members.first().getMsgCount()) item.isUpdate = true;
-                item.msgCount = members.first().getMsgCount();
+                if( item.getMsgCount()!= members.first().getMsgCount()) item.setUpdate(true);
+                item.setMsgCount(members.first().getMsgCount());
             } else {
-                item.mentionCount = 0;
+                item.setMentionCount(0);
             }
             RealmResults<UserMember> userMembers = realm.where(UserMember.class).equalTo("userId", userId).findAll();
-            item.inTeam = userMembers.size()!=0;
+            item.setInTeam(userMembers.size()!=0);
         });
         realmO.close();
         return item;
@@ -295,7 +291,7 @@ public class AdapterDirectMenuLeft extends RecyclerView.Adapter<RecyclerView.Vie
     public int getPositionById(String id) {
         for (IDirect iDirect : this.mAdapterData) {
             if(iDirect instanceof DirectItem){
-                if(((DirectItem) iDirect).channelId.equals(id)){
+                if(((DirectItem) iDirect).getChannelId().equals(id)){
                     return this.mAdapterData.contains(iDirect)
                             ? this.mAdapterData.indexOf(iDirect)
                             : -1;

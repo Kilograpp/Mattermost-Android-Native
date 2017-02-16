@@ -9,16 +9,16 @@ import android.view.ViewGroup;
 
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ItemDirectionProfileChannelBinding;
-import com.kilogramm.mattermost.model.entity.user_v2.UserV2;
 import com.kilogramm.mattermost.model.entity.userstatus.UserStatus;
 import com.kilogramm.mattermost.rxtest.left_menu.direct.DirectItem;
+import com.kilogramm.mattermost.rxtest.left_menu.direct.IDirect;
 import com.kilogramm.mattermost.ui.CheckableLinearLayout;
 
 /**
  * Created by Evgeny on 18.01.2017.
  */
 
-public class AdapterDirectItemHolder extends BaseLeftHolder {
+public class AdapterDirectItemHolder extends BaseDirectViewHolder {
 
     private ItemDirectionProfileChannelBinding mBinding;
 
@@ -57,31 +57,8 @@ public class AdapterDirectItemHolder extends BaseLeftHolder {
         }
     }
 
-    public void bindTo(DirectItem item, Context mContext) {
-        mBinding.channelName.setText(item.username);
-        mBinding.unreadedMessage.setText(item.mentionCount != 0
-                ? "" + item.mentionCount
-                : "");
-        if (item.msgCount != item.totalMessageCount) {
-            setBold(mContext, mBinding.channelName, mBinding.unreadedMessage);
-        } else {
-            setDefault(mContext, mBinding.channelName, mBinding.unreadedMessage);
-        }
-
-        if (mBinding.linearLayout.isChecked()) {
-            setTextBlack(mContext, mBinding.channelName, mBinding.unreadedMessage);
-        } else {
-            setTextWhite(mContext, mBinding.channelName, mBinding.unreadedMessage);
-        }
-        mBinding.channelName
-                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(item.status, mContext),
-                        null, null, null);
-
-        mBinding.executePendingBindings();
-    }
-
-    public void bindTo(UserV2 user, Context mContext) {
-        mBinding.channelName.setText(user.getUsername());
+//    public void bindTo(DirectItem item, Context mContext) {
+//        mBinding.channelName.setText(item.getUsername);
 //        mBinding.unreadedMessage.setText(item.mentionCount != 0
 //                ? "" + item.mentionCount
 //                : "");
@@ -90,18 +67,50 @@ public class AdapterDirectItemHolder extends BaseLeftHolder {
 //        } else {
 //            setDefault(mContext, mBinding.channelName, mBinding.unreadedMessage);
 //        }
-
+//
 //        if (mBinding.linearLayout.isChecked()) {
 //            setTextBlack(mContext, mBinding.channelName, mBinding.unreadedMessage);
 //        } else {
 //            setTextWhite(mContext, mBinding.channelName, mBinding.unreadedMessage);
 //        }
+//        mBinding.channelName
+//                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(item.status, mContext),
+//                        null, null, null);
+//
+//        mBinding.executePendingBindings();
+//    }
+
+//    public void bindTo(UserV2 user, Context mContext) {
+//        mBinding.channelName.setText(user.getUsername());
+////        mBinding.unreadedMessage.setText(item.mentionCount != 0
+////                ? "" + item.mentionCount
+////                : "");
+////        if (item.msgCount != item.totalMessageCount) {
+////            setBold(mContext, mBinding.channelName, mBinding.unreadedMessage);
+////        } else {
+////            setDefault(mContext, mBinding.channelName, mBinding.unreadedMessage);
+////        }
+//
+////        if (mBinding.linearLayout.isChecked()) {
+////            setTextBlack(mContext, mBinding.channelName, mBinding.unreadedMessage);
+////        } else {
+////            setTextWhite(mContext, mBinding.channelName, mBinding.unreadedMessage);
+////        }
+//        mBinding.channelName
+//                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(user.getStatus(), mContext),
+//                        null, null, null);
+//
+//        mBinding.executePendingBindings();
+//    }
+
+
+    @Override
+    public void bindTo(IDirect iDirect, Context context) {
+        mBinding.channelName.setText(((DirectItem) iDirect).getUsername());// TODO: 13.02.17  replace by getter call
         mBinding.channelName
-                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(user.getStatus(), mContext),
+                .setCompoundDrawablesWithIntrinsicBounds(getStatusIconDrawable(((DirectItem) iDirect).getStatus(), context),
                         null, null, null);
 
         mBinding.executePendingBindings();
     }
-
-
 }

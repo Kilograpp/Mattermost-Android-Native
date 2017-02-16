@@ -267,4 +267,8 @@
     <string name="jump_title">Do you want to jump into the conversation with %1$s ?</string>
     <string name="jump_button">Jump</string>
 
+                    <!--Left menu-->
+
+    <string name="outside_team">Outside this team</string>
+
 </resources>

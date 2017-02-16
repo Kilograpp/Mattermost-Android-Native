@@ -41,10 +41,7 @@ import com.kilogramm.mattermost.view.fragments.BaseFragment;
 
 import java.util.Objects;
 
-import io.realm.Realm;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
-import io.realm.Sort;
 import nucleus.factory.RequiresPresenter;
 
 import static android.app.Activity.RESULT_OK;

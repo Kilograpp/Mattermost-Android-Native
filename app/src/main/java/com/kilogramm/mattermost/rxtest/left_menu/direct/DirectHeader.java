@@ -4,13 +4,15 @@ package com.kilogramm.mattermost.rxtest.left_menu.direct;
  * Created by Evgeny on 17.01.2017.
  */
 
-public class DirectHeader extends IDirect {
+public class DirectHeader extends DirectItem {
 
     private String headerTitle;
 
     public DirectHeader(String headerTitle) {
         this.headerTitle = headerTitle;
     }
+
+    public DirectHeader(){}
 
     @Override
     public int getType() {
