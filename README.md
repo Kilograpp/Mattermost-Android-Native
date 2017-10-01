@@ -11,4 +11,4 @@ Note The Android app is not an official and made by enthusiasts. So any backend 
    
 # License
 
-The app is under Apache Lisense, version 2.0
+The app is under Apache License, version 2.0
