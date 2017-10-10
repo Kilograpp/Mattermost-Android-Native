@@ -366,7 +366,7 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
     private void relogIfDirectProfileFailed(Throwable throwable) {
         if (throwable.getMessage().toLowerCase().contains("unauthorized")) {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(1500);         // waiting to show error msg, seems more clear for users / adjust at will
             } catch (Exception e) {
                 Log.d(TAG + "Sleep", e.getMessage());
             }
