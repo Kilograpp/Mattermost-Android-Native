@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.kilogramm.mattermost.MattermostApp;
 import com.kilogramm.mattermost.MattermostPreference;
-import com.kilogramm.mattermost.model.entity.ClientCfg;
 import com.kilogramm.mattermost.model.entity.InitObject;
 import com.kilogramm.mattermost.model.entity.LicenseCfg;
 import com.kilogramm.mattermost.model.entity.Preference.PreferenceRepository;
@@ -130,7 +129,10 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
                     users.add(new User("materMostChannel", "channel", "Notifies everyone in the channel"));
 
                     requestLoadChannels();
-                }, (generalRxActivity1, throwable) -> sendShowError(parceError(throwable, null)));// TODO: 18.01.17  entry point
+                }, (generalRxActivity1, throwable) -> {
+                    sendShowError(parceError(throwable, null));
+                    relogIfDirectProfileFailed(throwable);                  // simple logout on error #bugfix
+                } );// TODO: 18.01.17  entry point
 
         restartableFirst(REQUEST_LOAD_CHANNELS,
                 () -> ServerMethod.getInstance()
@@ -353,6 +355,35 @@ public class GeneralRxPresenter extends BaseRxPresenter<GeneralRxActivity> {
             Toast.makeText(getView(), e.getMessage(), Toast.LENGTH_SHORT).show();
             Log.d(TAG, "SystemException, stackTrace: \n");
             e.printStackTrace();
+        }
+    }
+
+    /** Give it a throwable (error) from onError() or smth and it gives brings you the login menu
+     *  if the error.getMessage() contains "Unauthorized"
+     *
+     * @param throwable a throwable wich should contain "Unauthorized" in its Message
+     */
+    private void relogIfDirectProfileFailed(Throwable throwable) {
+        if (throwable.getMessage().toLowerCase().contains("unauthorized")) {
+            try {
+                Thread.sleep(1500);
+            } catch (Exception e) {
+                Log.d(TAG + "Sleep", e.getMessage());
+            }
+            relog();
+        }
+    }
+
+    /** Brings you to the MainRxActivity, while clearing the Preferences (old login data)
+     *
+     */
+    private void relog() {
+        try {
+            //MattermostApp.clearPreference();
+            MattermostPreference.getInstance().setAuthToken(null);
+            MattermostApp.showMainRxActivity();
+        } catch (Exception e) {
+            Log.d(TAG + "Relog", e.getMessage());
         }
     }
 }
