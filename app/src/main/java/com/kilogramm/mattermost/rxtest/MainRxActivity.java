@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityMainBinding;
 import com.kilogramm.mattermost.service.MattermostService;
@@ -43,6 +44,19 @@ public class MainRxActivity extends BaseActivity<MainRxPresenter> {
             getPresenter().request(getStringUrl());
             hideKeyboard();
         });
+
+        // get url from preferences
+        String urlFromPreferences = MattermostPreference.getInstance().getBaseUrl();
+        if (urlFromPreferences != null){
+            if (!urlFromPreferences.startsWith("https://") || !urlFromPreferences.startsWith("http://")){
+                urlFromPreferences = "https://" + urlFromPreferences;
+            }
+            binding.urlEditText.setText(urlFromPreferences);
+            if (checkEnteredUrl(getStringUrl()) || (binding.urlEditText.getText().length() == 0)){
+                setShowNextButton(true);
+            }
+        }
+
         binding.urlEditText.addTextChangedListener(textWatcher);
     }
 
