@@ -30,6 +30,7 @@ public class MattermostPreference {
     private static final String LAST_CHANNEL_ID = "last_channel_id";
     private static final String TEAM_ID = "team_id";
     private static final String SITE_NAME = "site_name";
+    private static final String MY_E_MAIL = "my_e_mail";
 
     public MattermostPreference(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
@@ -40,6 +41,14 @@ public class MattermostPreference {
             instance = new MattermostPreference(context);
 
         return instance;
+    }
+
+    public String getMyEMail() {
+        return sharedPreferences.getString(MY_E_MAIL, null);
+    }
+
+    public void setMyEMail(String email) {
+        sharedPreferences.edit().putString(MY_E_MAIL, email).apply();
     }
 
     public String getSiteName(){

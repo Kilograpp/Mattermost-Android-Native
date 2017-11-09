@@ -91,7 +91,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
         return mEditEmail.length() != 0 && mEditPassword.length() != 0 && isValidEmail(mEditEmail);
     }
 
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) { //is now public to use, just checks a string
         Pattern p = Patterns.EMAIL_ADDRESS;
         Matcher m = p.matcher(email);
         return m.matches();
@@ -198,6 +198,7 @@ public class LoginRxPresenter extends BaseRxPresenter<LoginRxActivity> {
                     .observeOn(AndroidSchedulers.mainThread());
         }, (loginRxActivity, user) -> {
             MattermostPreference.getInstance().setMyUserId(user.getId());
+            MattermostPreference.getInstance().setMyEMail(user.getEmail());
             realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(user));
             requestInitLoad();
         }, (loginRxActivity1, throwable) -> {

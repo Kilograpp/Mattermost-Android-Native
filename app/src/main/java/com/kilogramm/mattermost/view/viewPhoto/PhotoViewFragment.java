@@ -72,7 +72,7 @@ public class PhotoViewFragment extends Fragment {
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.EXACTLY)
-                .showImageOnFail(R.drawable.ic_error_red_24dp)
+                .showImageOnFail(R.drawable.ic_error_red_new)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
@@ -80,7 +80,9 @@ public class PhotoViewFragment extends Fragment {
                 .considerExifParams(true)
                 .build();
 
-        String preview_url = "https://mattermost.kilograpp.com/api/v3/files/"
+        String preview_url = "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/files/"
                 + mFileInfo.getId()
                 + "/get_preview";
 

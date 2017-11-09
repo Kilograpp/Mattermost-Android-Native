@@ -6,6 +6,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.kilogramm.mattermost.MattermostPreference;
 import com.kilogramm.mattermost.R;
 import com.kilogramm.mattermost.databinding.ActivityRxLoginBinding;
 import com.kilogramm.mattermost.view.BaseActivity;
@@ -27,6 +28,7 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_rx_login);
         binding.setLoginPresenter(getPresenter());
         setupToolbar("Sign In", true);
+        initView();
     }
 
     @Override
@@ -67,5 +69,18 @@ public class LoginRxActivity extends BaseActivity<LoginRxPresenter> {
 
     public void hideKeyboard() {
         hideKeyboard(this);
+    }
+
+    /* initialize view for eMail from preferences
+    */
+    private void initView(){
+        String eMailFromPreferences = MattermostPreference.getInstance().getMyEMail();
+        if (eMailFromPreferences != null && getPresenter().isValidEmail(eMailFromPreferences)){
+            binding.editEmail.setText(eMailFromPreferences);
+            binding.editPassword.requestFocus();
+            //Editable emailText = binding.editPassword.getText();
+            //Selection.setSelection(emailText, 0);
+            getPresenter().mEditEmail = eMailFromPreferences;
+        }
     }
 }
