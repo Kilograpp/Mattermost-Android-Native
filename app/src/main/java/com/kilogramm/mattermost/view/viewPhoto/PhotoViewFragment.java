@@ -80,7 +80,9 @@ public class PhotoViewFragment extends Fragment {
                 .considerExifParams(true)
                 .build();
 
-        String preview_url = "https://mattermost.kilograpp.com/api/v3/files/"
+        String preview_url = "https://"
+                + MattermostPreference.getInstance().getBaseUrl()
+                + "/api/v3/files/"
                 + mFileInfo.getId()
                 + "/get_preview";
 
