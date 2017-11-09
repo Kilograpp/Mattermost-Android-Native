@@ -72,7 +72,7 @@ public class PhotoViewFragment extends Fragment {
         headers.put("Authorization", "Bearer " + MattermostPreference.getInstance().getAuthToken());
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.EXACTLY)
-                .showImageOnFail(R.drawable.ic_error_red_24dp)
+                .showImageOnFail(R.drawable.ic_error_red_new)
                 .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
